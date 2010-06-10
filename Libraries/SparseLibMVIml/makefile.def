@@ -1,0 +1,35 @@
+
+CCC             = g++
+CC             = gcc    
+#CCCFLAGS         =   -DMV_VECTOR_BOUNDS_CHECK -g -Wall -pedantic '-DCOMPLEX=std::complex<double>'  
+CCCFLAGS         =   -O5 -Wall -pedantic '-DCOMPLEX=std::complex<double>'  
+LDFLAGS            =   $(SPARSELIB_DIR)/lib/libsparse.a $(SPARSELIB_DIR)/lib/libspblas.a $(SPARSELIB_DIR)/lib/libmv.a -lm 
+
+HASRANLIB = t
+
+
+################################################################
+#                                                              #
+#           Implicit rules: do not modify after here           #
+#                                                              #
+################################################################
+
+SPARSELIB_A             = $(SPARSELIB_LIB_DIR)/libsparseBlasMV.a
+
+
+INCLUDES =  -I$(SPARSELIB_INCLUDE_DIR) -I$(SPARSELIB_MV_INCLUDE_DIR)
+
+
+EXENAME     = -o
+OBJ_EXT     = o
+LIB_EXT     = a
+EXE_EXT     =
+
+.SUFFIXES: .c .cc .o
+
+.cc.o:
+    $(CCC) $(CCCFLAGS)  $(INCLUDES) -c $<
+
+.c.o:
+    $(CC) $(CFLAGS) $(INCLUDES) -c $<
+

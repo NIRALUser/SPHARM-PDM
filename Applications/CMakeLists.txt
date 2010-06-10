@@ -1,0 +1,9 @@
+LINK_LIBRARIES(ShapeAlgorithms)
+
+SUBDIRS(ImageMath)
+SUBDIRS(MetaMeshTools)
+SUBDIRS(SegPostProcessCLP)
+SUBDIRS(GenParaMeshCLP)
+SUBDIRS(ParaToSPHARMMeshCLP)
+SUBDIRS(ShapeAnalysisModule)
+SUBDIRS(StatNonParamTestPDM)

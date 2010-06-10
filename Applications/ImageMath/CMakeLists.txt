@@ -1,0 +1,29 @@
+PROJECT(ImageMath)
+
+FIND_PACKAGE(ITK REQUIRED)
+
+IF (ITK_FOUND)
+   INCLUDE(${USE_ITK_FILE})
+ELSE(ITK_FOUND)
+   MESSAGE(FATAL_ERROR, "ITK not found. Please set ITK_DIR.")
+ENDIF (ITK_FOUND)
+
+#INCLUDE_DIRECTORIES(
+#${NeuroLib_SOURCE_DIR}/Libraries/Disclaimer
+#${NeuroLib_SOURCE_DIR}/Libraries/Disclaimer/Qt
+#${NeuroLib_SOURCE_DIR}/Libraries/Disclaimer/Fltk
+#${NeuroLib_BINARY_DIR}/Libraries/Disclaimer/Qt
+#)
+#LINK_DIRECTORIES(${NeuroLib_BINARY_DIR}/bin)
+
+ADD_EXECUTABLE( ImageMath ImageMath.cxx)
+#ADD_EXECUTABLE( ImageMathB ImageMath_b.cxx)
+ADD_EXECUTABLE( CropImage CropImage.cxx)
+
+
+TARGET_LINK_LIBRARIES( ImageMath ${ITK_LIBRARIES} )
+#TARGET_LINK_LIBRARIES( MouseBrainOrient ${ITK_LIBRARIES} )
+#TARGET_LINK_LIBRARIES( ImageMathB ${ITK_LIBRARIES} )
+TARGET_LINK_LIBRARIES( CropImage ${ITK_LIBRARIES} )
+
+

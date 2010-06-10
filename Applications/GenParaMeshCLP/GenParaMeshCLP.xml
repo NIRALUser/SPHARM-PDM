@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+<category>Shape Analysis</category>
+<title>GenParaMesh</title>
+<description>
+Spherical Parametrization : The output is two meshes, one for the surface and one for the spherical parametrization
+</description>
+
+  <parameters>
+    <label>IO</label>
+    <description>Input/output parameters</description>
+    <image>
+      <name>infile</name>
+      <label>Input Volume</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description>Input volume to be filtered</description>
+    </image>
+    <geometry>
+      <name>outParaName</name>
+      <default>_para</default>
+      <label>Output Para Mesh</label>
+      <channel>output</channel>
+      <index>1</index>
+      <description>Output Para Mesh</description>
+    </geometry>
+    <geometry>
+      <name>outSurfName</name>
+      <default>_surf</default>
+      <label>Output Surface Mesh</label>
+      <channel>output</channel>
+      <index>2</index>
+      <description>Output Surface Mesh</description>
+    </geometry>
+  </parameters>
+
+  <parameters advanced="true">
+    <label>Advanced Options</label>
+    <description>Advanced Options</description>
+    <integer>
+      <name>numIterations</name>
+      <default>500</default>
+      <label>Number of iterations</label>
+      <longflag>iter</longflag>
+      <description>select the number of iterations</description>
+    </integer>
+    <integer>
+      <name>label</name>
+      <default>1</default>
+      <label>Label id</label>
+      <longflag>label</longflag>
+      <description>label id in input image</description>
+    </integer>
+    <boolean>
+      <name>debug</name>
+      <default>false</default>
+      <label>Verbose mode</label>
+      <longflag>verb</longflag>
+      <description>Verbose mode</description>
+    </boolean>
+    <file>
+      <name>initParaFileName</name>
+      <default>NULL</default>
+      <label>initialization of Parametrization</label>
+      <channel>input</channel>
+      <longflag>initPara</longflag>
+      <description>initialization of Parametrization, file has to be a mesh of same triangle topology as the one extracted from the image</description>
+    </file>
+  </parameters>
+
+
+</executable>
+

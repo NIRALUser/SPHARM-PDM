@@ -1,0 +1,45 @@
+
+
+# Shorthand to source and binary directories
+SET(MY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+SET(MY_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
+
+# Include directories
+INCLUDE_DIRECTORIES( ${MY_SOURCE_DIR} ${MY_BINARY_DIR})
+
+LINK_DIRECTORIES( ${CMAKE_BINARY_SOURCE_DIR})
+LINK_LIBRARIES( 
+  vtkRendering
+  vtkGraphics
+  vtkImaging
+  vtkIO
+  vtkCommon
+  vtkHybrid
+  vtkFiltering 
+)
+
+SET(SRC_STL2META_CXX STL2Meta.cxx vtkPolyDataToitkMesh.cxx)
+ADD_EXECUTABLE(STL2Meta ${SRC_STL2META_CXX})
+TARGET_LINK_LIBRARIES(STL2Meta ${ITK_LIBRARIES})
+
+
+SET(SRC_META2STL_CXX Meta2STL.cxx itkMeshTovtkPolyData.cxx)
+ADD_EXECUTABLE(Meta2STL ${SRC_META2STL_CXX})
+TARGET_LINK_LIBRARIES(Meta2STL ${ITK_LIBRARIES})
+
+SET(SRC_MESHMATH_CXX MeshMath.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx)
+ADD_EXECUTABLE(MeshMath ${SRC_MESHMATH_CXX})
+TARGET_LINK_LIBRARIES(MeshMath ${ITK_LIBRARIES})
+
+#SET(SRC_MESHASYMMETRY_CXX MeshAsymmetry.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx)
+#ADD_EXECUTABLE(MeshAsymmetry ${SRC_MESHASYMMETRY_CXX})
+#TARGET_LINK_LIBRARIES(MeshAsymmetry ${ITK_LIBRARIES})
+
+
+ADD_EXECUTABLE(Meta2VTK Meta2VTK.cxx itkMeshTovtkPolyData.cxx)
+TARGET_LINK_LIBRARIES(Meta2VTK ${ITK_LIBRARIES})
+
+ADD_EXECUTABLE(VTK2Meta VTK2Meta.cxx vtkPolyDataToitkMesh.cxx)
+TARGET_LINK_LIBRARIES(VTK2Meta ${ITK_LIBRARIES} )
+
+
