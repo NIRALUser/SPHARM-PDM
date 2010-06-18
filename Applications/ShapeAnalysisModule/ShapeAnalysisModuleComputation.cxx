@@ -375,6 +375,8 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	BMSShapeAnalysisModuleMRML<<"  Set(count3 1)"<<std::endl;
 
 	BMSShapeAnalysisModuleMRML<<"  ForEach(files ${MRMLfiles})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" echo(hello)"<<endl;
+	BMSShapeAnalysisModuleMRML<<" echo(${files})"<<endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(data ${files} '${count2}' )"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelStorage\\n')"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelStorageNode'${count}'\" name=\"vtkMRMLModelStorageNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\""<<GetOutputDirectory()<<"/Mesh/SPHARM/'${data}'\" useCompression=\"1\" readState=\"0\" writeState=\"0\"></ModelStorage>\\n')"<<std::endl;
@@ -401,18 +403,10 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 
 
 	if(GetDirectionToDisplay()=="XYZ")
-	//if(false)
 	{
 	BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count2})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count3} )"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 '${Dim1}'  0 0 1 0  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
-
-// 	BMSShapeAnalysisModuleMRML<<"  Set(X ${Dim0} )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  Set(Y ${Dim1} )"<<std::endl;
-// 	cout<<"hello1"<<endl;
-// 	BMSShapeAnalysisModuleMRML<<"  RegEx( result ${data} '_pp_.*' REPLACE ' ' )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode1\" name=\"label: '${result}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode'${count}'\" userTags=\"\" symbolScale=\"0\" symbolType=\"0\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\"id '${result}' labeltext '${result}' xyz '${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1\"></FiducialList>\\n')"<<std::endl;
 
 	if(j==0)
 	{
@@ -438,7 +432,6 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	}
 
 	else if(GetDirectionToDisplay()=="XZY")
-// 	else if(false)
 	{	
 	BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count2})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3} )"<<std::endl;
@@ -456,11 +449,6 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
 	}
 
-// 	BMSShapeAnalysisModuleMRML<<"  Set(X ${Dim0} )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  Set(Z ${Dim2} )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  RegEx( result ${data} '_pp_.*' REPLACE ' ' )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode1\" name=\"label: '${result}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode'${count}'\" userTags=\"\" symbolScale=\"0\" symbolType=\"0\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\"id '${result}' labeltext '${result}' xyz '${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1\"></FiducialList>\\n')"<<std::endl;
 
 	BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
  	BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
@@ -474,7 +462,6 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	}
 
 	else if(GetDirectionToDisplay()=="YXZ")
-// 	else if(false)
 	{	
 	BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count2})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3} )"<<std::endl;
@@ -491,11 +478,6 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${fiducialCoordX} ${Dim0})"<<endl;
 	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
 	}
-// 	BMSShapeAnalysisModuleMRML<<"  Math(Y ${Dim1} )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  Set(X ${Dim0} )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  RegEx( result ${data} '_pp_.*' REPLACE ' ' )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode1\" name=\"label: '${result}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode'${count}'\" userTags=\"\" symbolScale=\"0\" symbolType=\"0\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\"id '${result}' labeltext '${result}' xyz '${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1\"></FiducialList>\\n')"<<std::endl;
 
 	BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
  	BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
@@ -509,7 +491,6 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	}
 
 	else if(GetDirectionToDisplay()=="YZX")
-// 	else if(false)
 	{	
 	BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count2})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3} )"<<std::endl;
@@ -530,12 +511,6 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ ${fiducialCoordZ} ${temp})"<<endl;
 	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
 	}
-
-// 	BMSShapeAnalysisModuleMRML<<"  Math(Y ${Dim1} + ${dim1})"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  Set(Z ${Dim2} )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  RegEx( result ${data} '_pp_.*' REPLACE ' ' )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode1\" name=\"label: '${result}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode'${count}'\" userTags=\"\" symbolScale=\"0\" symbolType=\"0\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\"id '${result}' labeltext '${result}' xyz 15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1\"></FiducialList>\\n')"<<std::endl;
 	
 	BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
  	BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
@@ -550,7 +525,6 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	}
 
 	else if(GetDirectionToDisplay()=="ZXY")
-// 	else if(false)
 	{	
 	BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count2})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3} )"<<std::endl;
@@ -567,12 +541,6 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${fiducialCoordX} ${Dim0})"<<endl;
 	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
 	}
-
-// 	BMSShapeAnalysisModuleMRML<<"  Set(Z ${Dim2} )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  Set(X ${Dim0} )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  RegEx( result ${data} '_pp_.*' REPLACE ' ' )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode1\" name=\"label: '${result}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode'${count}'\" userTags=\"\" symbolScale=\"0\" symbolType=\"0\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\"id '${result}' labeltext '${result}' xyz '${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1\"></FiducialList>\\n')"<<std::endl;
 
 	BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
  	BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
@@ -604,12 +572,6 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY ${fiducialCoordX} ${Dim1})"<<endl;
 	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
 	}
-
-// 	BMSShapeAnalysisModuleMRML<<"  Math(Z ${Dim2} + ${dim2})"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  Set(Y ${Dim1} )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  RegEx( result ${data} '_pp_.*' REPLACE ' ' )"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
-// 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode'${count}'\" name=\"label: '${result}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode'${count}'\" userTags=\"\" symbolScale=\"0\" symbolType=\"0\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\"id '${result}' labeltext '${result}' xyz 15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1\"></FiducialList>\\n')"<<std::endl;
 
 	BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
  	BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
