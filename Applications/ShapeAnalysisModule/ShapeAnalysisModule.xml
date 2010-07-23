@@ -269,7 +269,7 @@
 			<name>MTemplate</name>
 			<label>Use Mean as the Template</label>
 			<longflag>MTemplate</longflag>
-			<default>false</default>
+			<default>true</default>
 		</boolean>
 		
 		<boolean>
