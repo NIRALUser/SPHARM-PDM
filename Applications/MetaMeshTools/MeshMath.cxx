@@ -3851,7 +3851,7 @@ int main(int argc, const char **argv)
 	while ( in )
     	{
       		in >> pt[0] >> pt[1] >> pt[2] ;
-		ptID=pointLocatorT->FindClosestPoint(pt[0],pt[1],pt[2]);
+		ptID=pointLocatorT->FindClosestPoint(pt);
 		ArrayTemplate->GetTuple(ptID, normal);
       		particlesT->InsertTupleValue ( counter, normal ) ;
       		counter++;
@@ -3904,7 +3904,7 @@ int main(int argc, const char **argv)
 		while ( in )
     		{
       			in >> pt[0] >> pt[1] >> pt[2] ;
-			ptID=pointLocator->FindClosestPoint(pt[0],pt[1],pt[2]);
+			ptID=pointLocator->FindClosestPoint(pt);
 			Array->GetTuple(ptID, normal);
       			particles->InsertTupleValue ( counter, normal ) ;
       			counter++;
