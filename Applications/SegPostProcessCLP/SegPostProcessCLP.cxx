@@ -177,78 +177,77 @@ int main( int argc, char * argv[] )
 	exit(0) ;
       }
     if (debug) cout << "Labelfile loaded " << endl;
-    int maxthreshlevel = max(csf,max(wm,gm));
-    int minthreshlevel = min(csf,min(wm,gm));
     if (debug) cout << "Thresholding " << endl;
-    if(maxthreshlevel==(minthreshlevel+2)){
-      //if wm, gm and csf graylevel are consecutive
-      binThreshFilterType::Pointer binthreshFilter = binThreshFilterType::New();
-      binthreshFilter->SetInput(labelImage);
-      binthreshFilter->SetLowerThreshold(minthreshlevel);
-      binthreshFilter->SetUpperThreshold(maxthreshlevel);
-      binthreshFilter->SetOutsideValue (0);
-      binthreshFilter->SetInsideValue (1);
-      try {
-	binthreshFilter->Update();
+    //extract gray matter
+    binThreshFilterType::Pointer binthreshFilterGM = binThreshFilterType::New();
+    binThreshFilterType::Pointer binthreshFilterWM = binThreshFilterType::New();
+    binThreshFilterType::Pointer binthreshFilterMWM = binThreshFilterType::New();
+    binThreshFilterType::Pointer binthreshFilterCSF = binThreshFilterType::New();
+    binthreshFilterGM->SetInput(labelImage);
+    binthreshFilterGM->SetLowerThreshold(gm);
+    binthreshFilterGM->SetUpperThreshold(gm);
+    binthreshFilterGM->SetOutsideValue (0);
+    binthreshFilterGM->SetInsideValue (1);
+    try {
+      binthreshFilterGM->Update();
+    }
+    catch (ExceptionObject & err) {
+      cerr << "ExceptionObject caught!" << endl;
+      cerr << err << endl;
+      return EXIT_FAILURE;	
+    }        
+    //extract white matter
+    binthreshFilterWM->SetInput(labelImage);
+    binthreshFilterWM->SetLowerThreshold(wm);
+    binthreshFilterWM->SetUpperThreshold(wm);
+    binthreshFilterWM->SetOutsideValue (0);
+    binthreshFilterWM->SetInsideValue (1);
+    try {
+      binthreshFilterWM->Update();
+    }
+    catch (ExceptionObject & err) {
+      cerr << "ExceptionObject caught!" << endl;
+      cerr << err << endl;
+      return EXIT_FAILURE;	
+    }        
+    //extract csf
+    binthreshFilterCSF->SetInput(labelImage);
+    binthreshFilterCSF->SetLowerThreshold(csf);
+    binthreshFilterCSF->SetUpperThreshold(csf);
+    binthreshFilterCSF->SetOutsideValue (0);
+    binthreshFilterCSF->SetInsideValue (1);
+    try {
+      binthreshFilterCSF->Update();
+    }
+    catch (ExceptionObject & err) {
+      cerr << "ExceptionObject caught!" << endl;
+      cerr << err << endl;
+      return EXIT_FAILURE;	
       }
-      catch (ExceptionObject & err) {
-	cerr << "ExceptionObject caught!" << endl;
-	cerr << err << endl;
-	return EXIT_FAILURE;
+
+    if (mwm > 0)
+      {
+	// extract myelinated WM
+	binthreshFilterMWM->SetInput(labelImage);
+	binthreshFilterMWM->SetLowerThreshold(mwm);
+	binthreshFilterMWM->SetUpperThreshold(mwm);
+	binthreshFilterMWM->SetOutsideValue (0);
+	binthreshFilterMWM->SetInsideValue (1);
+	try {
+	  binthreshFilterMWM->Update();
+	}
+	catch (ExceptionObject & err) {
+	  cerr << "ExceptionObject caught!" << endl;
+	  cerr << err << endl;
+	  return EXIT_FAILURE;	
+	}
+    
       }
-      maskImage = binthreshFilter->GetOutput();
-     }
-    else{
-      //extract gray matter
-      binThreshFilterType::Pointer binthreshFilterGM = binThreshFilterType::New();
-      binThreshFilterType::Pointer binthreshFilterWM = binThreshFilterType::New();
-      binThreshFilterType::Pointer binthreshFilterCSF = binThreshFilterType::New();
-      binthreshFilterGM->SetInput(labelImage);
-      binthreshFilterGM->SetLowerThreshold(gm);
-      binthreshFilterGM->SetUpperThreshold(gm);
-      binthreshFilterGM->SetOutsideValue (0);
-      binthreshFilterGM->SetInsideValue (1);
-      try {
-	binthreshFilterGM->Update();
-      }
-      catch (ExceptionObject & err) {
-	cerr << "ExceptionObject caught!" << endl;
-	cerr << err << endl;
-	return EXIT_FAILURE;	
-      }        
-      //extract white matter
-      binthreshFilterWM->SetInput(labelImage);
-      binthreshFilterWM->SetLowerThreshold(wm);
-      binthreshFilterWM->SetUpperThreshold(wm);
-      binthreshFilterWM->SetOutsideValue (0);
-      binthreshFilterWM->SetInsideValue (1);
-      try {
-	binthreshFilterWM->Update();
-      }
-      catch (ExceptionObject & err) {
-	cerr << "ExceptionObject caught!" << endl;
-	cerr << err << endl;
-	return EXIT_FAILURE;	
-      }        
-      //extract csf
-      binthreshFilterCSF->SetInput(labelImage);
-      binthreshFilterCSF->SetLowerThreshold(csf);
-      binthreshFilterCSF->SetUpperThreshold(csf);
-      binthreshFilterCSF->SetOutsideValue (0);
-      binthreshFilterCSF->SetInsideValue (1);
-      try {
-	binthreshFilterCSF->Update();
-      }
-      catch (ExceptionObject & err) {
-	cerr << "ExceptionObject caught!" << endl;
-	cerr << err << endl;
-	return EXIT_FAILURE;	
-      }        
-      //add gm, wm and csf to have the binary mask
-      addFilterType::Pointer addFilter1 = addFilterType::New();
-      addFilterType::Pointer addFilter2 = addFilterType::New();
-      addFilter1->SetInput1(binthreshFilterGM->GetOutput());
-      addFilter1->SetInput2(binthreshFilterWM->GetOutput());
+    //add gm, wm and csf to have the binary mask
+    addFilterType::Pointer addFilter1 = addFilterType::New();
+    addFilterType::Pointer addFilter2 = addFilterType::New();
+    addFilter1->SetInput1(binthreshFilterGM->GetOutput());
+    addFilter1->SetInput2(binthreshFilterWM->GetOutput());
       try {
 	addFilter1->Update();
       }
@@ -268,7 +267,26 @@ int main( int argc, char * argv[] )
 	cerr << err << endl;
 	return EXIT_FAILURE;	
       }   
-      maskImage=addFilter2->GetOutput();
+
+      if (mwm > 0)
+	{
+	  // if myelinated white matter
+	  addFilterType::Pointer addFilter3 = addFilterType::New();
+	  
+	  addFilter3->SetInput1(binthreshFilterMWM->GetOutput());
+	  addFilter3->SetInput2(addFilter2->GetOutput());
+	  try {
+	    addFilter3->Update();
+	  }
+	  catch (ExceptionObject & err) {
+	    cerr << "ExceptionObject caught!" << endl;
+	    cerr << err << endl;
+	    return EXIT_FAILURE;	
+	  }
+	  maskImage=addFilter3->GetOutput();
+	}
+      else
+	maskImage=addFilter2->GetOutput();	 
     }
     if (debug) cout << "Threshold finished " << endl;
     
@@ -293,10 +311,10 @@ int main( int argc, char * argv[] )
       
       maskImage = dilateFilter->GetOutput();
       
-     }
-     VolumeReaderType::Pointer EMSReader = VolumeReaderType::New();
-     if (debug) cout << "Loading EMSfile " << endl;
-     try{
+    }
+    VolumeReaderType::Pointer EMSReader = VolumeReaderType::New();
+    if (debug) cout << "Loading EMSfile " << endl;
+    try{
 	     EMSReader->SetFileName(notstrippedfileName.c_str()) ;
 	     EMSReader->Update() ;
 	     EMSImage = EMSReader->GetOutput() ;
@@ -306,8 +324,7 @@ int main( int argc, char * argv[] )
 	     exit(0) ;
      }
      if (debug) cout << "EMSfile loaded " << endl;
-    }    
-  }
+    }
   
   if (debug) cout << "Loading file " << fileName << endl;
   try
@@ -346,7 +363,7 @@ int main( int argc, char * argv[] )
   const int LABEL_VAL = 255;
   ImageType::Pointer procImage ;
 
-  if (label != NO_LABEL) {
+  if (label != NO_LABEL ) {
     // Thresholding at label -> set to 0 otherwise
     if (debug) cout << "extracting object " << label << endl; 
     

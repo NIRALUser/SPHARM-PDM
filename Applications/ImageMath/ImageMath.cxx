@@ -17,7 +17,7 @@
 #include <vector>
 #include <algorithm>
 #include <set>
-
+#include <sstream>
 
 using namespace std;
 
@@ -49,6 +49,8 @@ using namespace std;
 #include <itkDivideImageFilter.h>
 #include <itkSubtractImageFilter.h>
 #include <itkHistogramMatchingImageFilter.h>
+#include <itkSquareImageFilter.h>
+#include <itkSqrtImageFilter.h>
 
 #include <itkCurvatureFlowImageFilter.h> 
 #include <itkDiscreteGaussianImageFilter.h> 
@@ -109,9 +111,11 @@ typedef BinaryThresholdImageFilter< ImageType , ImageType > threshFilterType;
 typedef BinaryThresholdImageFilter< ShortImageType , ImageType > ShortthreshFilterType;
 typedef MaskImageFilter< ImageType, ImageType, ImageType >  maskFilterType;
 typedef AddImageFilter< ImageType, ImageType,  ImageType > addFilterType;
+typedef SquareImageFilter< ImageType, ImageType > squareFilterType;
 typedef SubtractImageFilter< ImageType, ImageType,  ImageType > subFilterType;
 typedef MultiplyImageFilter< ImageType, ImageType,  ImageType > mulFilterType;
 typedef DivideImageFilter< ImageType, ImageType,  ImageType > divFilterType;
+typedef SqrtImageFilter< ImageType, ImageType > sqrtFilterType;
 
 typedef BinaryBallStructuringElement<PixelType,ImageDimension> StructuringElementType;
 
@@ -206,6 +210,8 @@ int main(const int argc, const char **argv)
     cout << "-majorityVoting infile2 infile3...       Compute an accurate parcellation map considering a majority voting process" << endl;
     cout << "-center                Center image" << endl;
     cout << "-flip [x,][y,][z]      Flip image" << endl;
+    cout << "-NaNCor val    Removes NaN and set the value of those voxels to the given value" << endl;
+    cout << "-std infile2 infile3...             Compute the standard deviation from a set of images (one image has to be specified for the input, but it's not included in the process)" << endl;
     cout << endl << endl;
     exit(0);
   }
@@ -511,7 +517,13 @@ int main(const int argc, const char **argv)
       for(int i = 0 ; i < NbFiles ; i++)
 	InputFiles.push_back(files[i]);
     }
-  
+    bool StdOn = ipExistsArgument(argv, "-std");
+  if (StdOn)
+  {
+      NbFiles = ipGetStringMultipArgument(argv, "-std", files, MaxNumFiles);
+      for(int i = 0 ; i < NbFiles ; i++)
+	InputFiles.push_back(files[i]);
+  }
   bool flip   = ipExistsArgument(argv, "-flip"); 
   tmp_str      = ipGetStringArgument(argv, "-flip", NULL);
   itk::Matrix< double , 3 , 3 > flipMatrix ;
@@ -562,7 +574,8 @@ int main(const int argc, const char **argv)
       }
     }
   }
-
+  bool nan   = ipExistsArgument(argv, "-NaNCor"); 
+  float nan_value   = ipGetFloatArgument( argv , "-NaNCor", 0 ) ;
   // **********************************************
   // **********************************************
   // **********************************************
@@ -1759,7 +1772,137 @@ int main(const int argc, const char **argv)
 	++iterImage1;
       }    
     
-   } else if(MajorityVotingOn) {
+  } else if(StdOn) {
+
+     outFileName.erase();
+     outFileName.append(base_string);
+     outFileName.append("_std");
+
+     if(debug) cout << "Computing standard deviation image" << endl;  
+     ImagePointer squareSumImage ;
+
+     squareFilterType::Pointer squareFilter = squareFilterType::New();
+     squareFilter->SetInput(inputImage);
+     try
+     {
+        squareFilter->Update();
+     }
+     catch (ExceptionObject & err)
+     {
+        cerr << "ExceptionObject caught!" << endl;
+        cerr << err << endl;
+        return EXIT_FAILURE;
+     }
+     squareSumImage = squareFilter->GetOutput();
+
+     VolumeReaderType::Pointer ImageReader = VolumeReaderType::New();
+     addFilterType::Pointer addFilter = addFilterType::New();
+     addFilterType::Pointer addFilterSquare = addFilterType::New();
+    
+     for (int FileNumber = 0; FileNumber < NbFiles; FileNumber++)
+     {
+	// Reading image
+        ImageReader->SetFileName(InputFiles[FileNumber].c_str());
+	
+	// Adding image
+        addFilter->SetInput1(inputImage);
+        addFilter->SetInput2(ImageReader->GetOutput());
+        try
+        {
+           addFilter->Update();
+        }
+        catch (ExceptionObject & err)
+        {
+           cerr << "ExceptionObject caught!" << endl;
+           cerr << err << endl;
+           return EXIT_FAILURE;
+        }
+        inputImage = addFilter->GetOutput();
+
+	// sum of square computation
+        squareFilterType::Pointer squareFilter = squareFilterType::New();
+        squareFilter->SetInput(ImageReader->GetOutput());
+        try
+        {
+           squareFilter->Update();
+        }
+        catch (ExceptionObject & err)
+        {
+           cerr << "ExceptionObject caught!" << endl;
+           cerr << err << endl;
+           return EXIT_FAILURE;
+        }
+	
+        addFilterSquare->SetInput1(squareSumImage);
+        addFilterSquare->SetInput2(squareFilter->GetOutput());
+        try
+        {
+           addFilterSquare->Update();
+        }
+        catch (ExceptionObject & err)
+        {
+           cerr << "ExceptionObject caught!" << endl;
+           cerr << err << endl;
+           return EXIT_FAILURE;
+        }
+        squareSumImage = addFilterSquare->GetOutput();
+
+     }
+
+     IteratorType iterImage1 (inputImage, inputImage->GetBufferedRegion());
+     while ( !iterImage1.IsAtEnd() )
+     {
+        PixelType NewValue = iterImage1.Get() / (NbFiles+1);
+        iterImage1.Set(NewValue);
+        ++iterImage1;
+     }
+
+     IteratorType iterImage2 (squareSumImage, squareSumImage->GetBufferedRegion());
+     while ( !iterImage2.IsAtEnd() )
+     {
+        PixelType NewValue2 = iterImage2.Get() / (NbFiles+1);
+        iterImage2.Set(NewValue2);
+        ++iterImage2;
+     }
+
+     squareFilterType::Pointer squareFilterMean = squareFilterType::New();
+     squareFilterMean->SetInput(inputImage);
+     try
+     {
+        squareFilterMean->Update();
+     }
+     catch (ExceptionObject & err)
+     {
+        cerr << "ExceptionObject caught!" << endl;
+        cerr << err << endl;
+        return EXIT_FAILURE;
+     }
+   
+     ImagePointer MeanSquareImage ;
+     MeanSquareImage = squareFilterMean->GetOutput();
+
+     IteratorType iterImageMean (MeanSquareImage, MeanSquareImage->GetBufferedRegion());
+     IteratorType iterImageSquare (squareSumImage, squareSumImage->GetBufferedRegion());
+    
+     while ( !iterImageMean.IsAtEnd() && !iterImageSquare.IsAtEnd())
+     {
+        PixelType NewValue = iterImageSquare.Get() - iterImageMean.Get() ;
+        iterImageMean.Set(NewValue);
+        ++iterImageMean;
+        ++iterImageSquare;
+     }
+    
+     IteratorType iterImageSqrt (MeanSquareImage, MeanSquareImage->GetBufferedRegion());
+     while ( !iterImageSqrt.IsAtEnd() )
+     {
+        PixelType NewValue = sqrt(iterImageSqrt.Get());
+        iterImageSqrt.Set(NewValue);
+        ++iterImageSqrt;
+     }
+    
+     inputImage = MeanSquareImage ;
+
+  }  else if(MajorityVotingOn) {
 
     outFileName.erase();
     outFileName.append(base_string);
@@ -1926,8 +2069,21 @@ int main(const int argc, const char **argv)
     resampler->SetTransform( flipTransform ) ;
     resampler->Update() ;
     inputImage = resampler->GetOutput() ;
-  }
-  else {
+  }else if( nan )
+  {
+     typedef itk::ImageRegionIterator< ImageType > IteratorType ;
+     IteratorType it( inputImage , inputImage->GetLargestPossibleRegion() ) ;
+     long counter = 0 ;
+     for( it.GoToBegin() ; !it.IsAtEnd() ; ++it )
+     {
+        if( std::isnan( it.Get() ) )
+        {
+           counter++ ;
+           it.Set( static_cast<PixelType>( nan_value ) ) ;
+        }
+     }
+     std::cout<< "Number Of NaN found: " << counter << std::endl ;
+  }else {
     cout << "NOTHING TO DO, no operation selected..." << endl;
     exit(1);
   }

@@ -22,8 +22,10 @@ SET (ShapeAnalysisModule_SOURCE
 
 GENERATECLP(ShapeAnalysisModule_SOURCE ShapeAnalysisModule.xml)
 ADD_EXECUTABLE (ShapeAnalysisModule ${ShapeAnalysisModule_SOURCE})
+
 #INCLUDE_DIRECTORIES("/opt/local/ITK_3.X/Insight_3.16.0/ITK_3.16.0_linux64_dyn/Utilities/itksys ")
 # 
+
 TARGET_LINK_LIBRARIES(ShapeAnalysisModule
   itksys
   vtkIO
