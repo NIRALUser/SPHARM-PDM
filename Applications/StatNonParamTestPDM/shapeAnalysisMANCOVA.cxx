@@ -132,6 +132,7 @@ int main(int argc, char *argv[])
 
   write_SurfaceProperties( outbase, meanPoints, meanPointsA, meanPointsB, diffVectors, normProjections, normDistProjections, zScoresProjected, zScores, writeZScores, surfaceMesh, SOMesh, meshFileNames, KWMreadableInputFile );
 
+
   // Now do the actual statistical testing based on Dimitrio's MANCOVA theory
   
   // select statistic
@@ -184,6 +185,8 @@ int main(int argc, char *argv[])
   output_vector( mancovaRawP, outbase + std::string("_mancovaRawP"), ".txt" );
   output_vector( fdrP, outbase + std::string("_mancovaFDRP"), ".txt" );
   output_vector( bonferroniP, outbase + std::string("_mancovaBonferroniP"), ".txt" );
+
+	cout<<"!!!!!!!!!!!!!: "<<output_vector<<endl;
 
   // Write out the corrected mean mesh:
 if (KWMreadableInputFile==0)
@@ -341,6 +344,9 @@ if (KWMreadableInputFile==0)
   surfaceMesh->Delete();
   SOMesh->Delete();
 }
+
+  write_ColorMap(outbase);
+  write_MRMLScene(outbase);
 
   if ( groupLabel!=NULL ) delete groupLabel;
   if ( featureValue!=NULL ) delete featureValue;

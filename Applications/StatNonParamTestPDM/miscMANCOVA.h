@@ -20,11 +20,14 @@
 #include <vtkPolyDataNormals.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataReader.h>
+#include "vtkPolyDataWriter.h"
 #include <vtkPolyData.h>
 
 #include <itkImageRandomNonRepeatingConstIteratorWithIndex.h>
 
 #include "boost/filesystem.hpp"
+
+#include <itksys/Process.h>
 
 // contains a number of helper-functions for the MANCOVA shape
 // analysis code
@@ -84,5 +87,10 @@ void compute_SurfaceProperties( PointsContainerPointer & meanPoints, PointsConta
 
 double computePearsonCorrelation( vnl_vector<double>& x, vnl_vector<double>& y );
 double computePearsonCorrelationWithP( vnl_vector<double>& x, vnl_vector<double>& y, double &dP, double &dPP, double &dPN );
+int minmax (const std::string & filename, double *min, double* max);
+
+void write_MRMLScene(std::string outbase);
+void write_ColorMap(std::string outbase);
+void Meta2VTK(char* infile,char * outfile);
 
 #endif
