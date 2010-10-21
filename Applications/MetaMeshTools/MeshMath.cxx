@@ -41,6 +41,9 @@
 #include <vtkCurvatures.h>
 #include <vtkSmartPointer.h>
 #include "vtkDoubleArray.h"
+#include <vtkCell.h>
+#include <vtkPoints.h>
+
 #define M_PI 3.14159265358979323846
 //bp2009
 //bp2010
@@ -236,12 +239,18 @@ int main(int argc, const char **argv)
       std::cout <<"     -surfaceArea <AttributeFile>   Computes surface area in a txt file"<<std::endl;
       std::cout <<"     -variance <AttributeFile2> <AttributeFile3>...   Compute variance across population"<<std::endl;
       //bp2010 GetCurvatures
-      std::cout <<"     -GetCurvatures <txtFileOut_C> <txtFileOut_S>... Gets Koenderink curvature values for an input mesh (shape index = S, curvedness = C)"<< std::endl;
+      std::cout <<"     -GetCurvatures <txtFileOut_C> <txtFileOut_S> <txtFileOut_Gauss> <txtFileOut_mean>... Gets an assorted set of curvature measurements:"<< std::endl;
+      std::cout <<"	Koenderink curvature values for an input mesh (shape index = S, curvedness = C), Gaussian Curvature and Mean Curvature" << std::endl;
       //bp2010 GetCurvatures
       //bp2010 particleConsistency
       std::cout <<"     -particleConsistency <vtkFileIn_1> <lptsFileIn_1> ... <vtkFileIn_n> <lptsFileIn_n> ... Generates new particle files where fliped particles does not appear"<< std::endl;
       //bp2010 particleConsistency
-      std::cout <<"     -v                   Verbose output" << std::endl;
+      //bp2010 GetDirectionFeatures
+      std::cout <<"     -GetDirectionFeatures ... Generates three KWM loadable files that have directionality features with respect to X, Y and Z directions"<< std::endl;
+      //bp2010 GetDirectionFeatures
+      std::cout <<"     -closestPoint <InputAttributeFile1> <InputMesh2>   Computes interpolated attribute file (output file) for second mesh using closest point interpolation between two input meshes"<< std::endl;
+      std::cout <<"     -extractVertices <YLocationAttributeFile.txt> <ZLocationAttributeFile.txt>  Extract points and write 3 different files listing respectively X, Y and Z values"<< std::endl;
+      std::cout <<"     -verbose                   Verbose output" << std::endl;
       return 0 ;
     }
 
@@ -470,7 +479,7 @@ int main(int argc, const char **argv)
   //cchou: MC2OriginOn
   bool MC2OriginOn = ipExistsArgument(argv, "-MC2Origin");
 
-  bool debug = ipExistsArgument(argv, "-v");
+  bool debug = ipExistsArgument(argv, "-verbose");
 
   //bp2009 testFill
   bool testFillOn = ipExistsArgument(argv, "-FillHole");
@@ -536,7 +545,48 @@ int main(int argc, const char **argv)
   //bp2010 ParticleConsistency 
   //bp2009 GetCurvatures  
   bool GetCurvaturesOn = ipExistsArgument(argv, "-GetCurvatures");
-  //bp2009 GetCurvatures  
+  //bp2009 GetCurvatures
+
+  //bp2009 GetDirectionFeatures  
+  bool GetDirectionFeaturesOn = ipExistsArgument(argv, "-GetDirectionFeatures");
+  //bp2009 GetDirectionFeatures    
+
+  std::vector<std::string> closestPointFiles;
+  bool closestPointOn = ipExistsArgument(argv, "-closestPoint");
+  if (closestPointOn)
+    {
+      nbfile = ipGetStringMultipArgument(argv, "-closestPoint", files, maxNumFiles);
+      if (nbfile != 2)
+	{
+	  std::cerr<<"Error: closestPoint option expects two files!\nPlease type:"<<std::endl;
+	  std::cerr<<argv[0]<<"-help"<<std::endl;
+	  exit(1);
+	}
+      else
+	{
+	  closestPointFiles.push_back(files[0]);
+	  closestPointFiles.push_back(files[1]);
+	}
+    }  
+
+  std::vector<std::string> extractVerticesFiles;
+  bool extractVerticesOn = ipExistsArgument(argv, "-extractVertices"); 
+  if (extractVerticesOn)
+    {
+      nbfile = ipGetStringMultipArgument(argv, "-extractVertices", files, maxNumFiles);
+      if (nbfile != 2)
+	{
+	  std::cerr<<"Error: extractVertices option expects two files!\nPlease type:"<<std::endl;
+	  std::cerr<<argv[0]<<"-help"<<std::endl;
+	  exit(1);
+	}
+      else
+	{
+	  extractVerticesFiles.push_back(files[0]);
+	  extractVerticesFiles.push_back(files[1]);
+	}
+    }  
+  
   
   if (subtractOn) {
     // read in the input files
@@ -3546,9 +3596,15 @@ int main(int argc, const char **argv)
 
 	// *** START PARSING KWMeshVisu file
 	ofstream LUToutput;
-    	
-	LUToutput.open("customLUT.txt", ios::out);
+    	std::string LUToutputFile, filename(outputFilename);
+	int found = filename.find_last_of("/\\");
+	LUToutputFile.assign(outputFilename,found+1);
+	LUToutputFile.append("customLUT_");
+	LUToutputFile.append(files[1]);
+	LUToutputFile.append(".txt");
+	LUToutput.open(LUToutputFile.c_str(), ios::out);
 
+  
 	double rgb_point[3]={0,0,0};
 	cont=0; 
 	//for (double value = range[0]; value <range[1]; value += (range[1] - range[0])/255)
@@ -3557,6 +3613,7 @@ int main(int argc, const char **argv)
 		DistanceMapTFunc->GetColor(value, rgb_point);
 		LUToutput << cont << "     " << value << "     " << rgb_point[0] << "     " << rgb_point[1] << "     " << rgb_point[2] << "     255" << std::endl ;
 		cont++;
+
     	}
 	LUToutput.close();
     	//End reading the Input
@@ -3565,7 +3622,10 @@ int main(int argc, const char **argv)
 	
 	// START AUX
 	std::ofstream outfile;
-    	outfile.open ( "distances_scaled.txt" ) ;  
+	std::string DistanceoutputFile;
+	DistanceoutputFile.assign(outputFilename,found+1);
+	DistanceoutputFile.append("distances_scaled.txt");
+    	outfile.open(DistanceoutputFile.c_str(), ios::out);  
     	// print the header
     	outfile << "NUMBER_OF_POINTS=" << NPoints << std::endl ;
     	outfile << "DIMENSION=" << 1 << std::endl ;
@@ -3746,6 +3806,7 @@ int main(int argc, const char **argv)
 	  std::cerr<<"Error: cannot open "<<outputFilename<<std::endl;
 	  exit(-1);
 	}
+      std::cout<<MeanVariance<<std::endl;
       OutputFile<<MeanVariance<<std::endl;
       OutputFile.close();
     } else if(GetCurvaturesOn) //bp2010
@@ -3773,6 +3834,8 @@ int main(int argc, const char **argv)
 	//Writing curvatures out
         std::ofstream curvedness ( argv[3] ) ;
 	std::ofstream shapeIndex ( argv[4] ) ;
+	std::ofstream gauss ( argv[5] ) ;
+	std::ofstream mean ( argv[6] ) ;
 
    	unsigned int nPoints = polydataCurvMax->GetNumberOfPoints();
 	vtkDoubleArray *ArrayCurvMax = vtkDoubleArray::SafeDownCast(polydataCurvMax->GetPointData()->GetScalars());
@@ -3783,6 +3846,12 @@ int main(int argc, const char **argv)
 
 	shapeIndex << "NUMBER_OF_POINTS=" << nPoints << std::endl ;
    	shapeIndex << "DIMENSION=1" << std::endl << "TYPE=Scalar" << std::endl;
+
+	gauss << "NUMBER_OF_POINTS=" << nPoints << std::endl ;
+   	gauss << "DIMENSION=1" << std::endl << "TYPE=Scalar" << std::endl;
+
+	mean << "NUMBER_OF_POINTS=" << nPoints << std::endl ;
+   	mean << "DIMENSION=1" << std::endl << "TYPE=Scalar" << std::endl;
  
 	if(ArrayCurvMax && ArrayCurvMin)
 	{
@@ -3800,7 +3869,13 @@ int main(int argc, const char **argv)
 
 		  aux=(2/M_PI)*(atan((curvmax+curvmin)/(curvmax-curvmin)));
 		  if (aux != aux) aux=0;
-		  shapeIndex << aux << std::endl ;	 
+		  shapeIndex << aux << std::endl ;
+
+		  aux=curvmax*curvmin;
+		  gauss << aux << std::endl ;
+
+		  aux=(curvmax+curvmin)/2;
+		  mean << aux << std::endl ;
                  // std::cout << "Curvature: " << curv << std::endl;
                 }
 	}
@@ -3809,8 +3884,81 @@ int main(int argc, const char **argv)
  	
 	curvedness.close ();
 	shapeIndex.close ();
+	gauss.close ();
+	mean.close ();
 
 	std::cout << "Curvatures computed " << std::endl;
+
+  } else if(GetDirectionFeaturesOn) //bp2010
+  {
+	// Reading the first mesh (template)
+	//std::cout << "Reading template mesh " << argv[1] << std::endl;
+	vtkPolyDataReader *inputTemplate = vtkPolyDataReader::New();
+	inputTemplate->SetFileName(argv[1]);
+	inputTemplate->Update();
+	vtkPolyData* polydata = inputTemplate->GetOutput();
+	
+	//Reading the point to create the directionality vectors
+	vtkIdType numPoints = polydata->GetNumberOfPoints();
+ 	//cout << "There are " << numPoints << " points." << endl;
+
+	//Feature computing
+	double point[3], vectorx[3], vectory[3], vectorz[3];
+	vectorx[0]=1; vectorx[1]=0; vectorx[2]=0;
+	vectory[0]=0; vectory[1]=1; vectory[2]=0;
+	vectorz[0]=0; vectorz[1]=0; vectorz[2]=1;
+
+	// Computing the normals in the original mesh
+	vtkPolyDataNormals *meshNormals = vtkPolyDataNormals::New();
+	meshNormals->SetComputePointNormals(1);
+    	meshNormals->SetComputeCellNormals(0);
+   	meshNormals->SetSplitting(0);
+    	meshNormals->SetInput(inputTemplate->GetOutput());
+    	meshNormals->Update();
+    	vtkPolyData * vtkMeshNormals = meshNormals->GetOutput();
+    	vtkMeshNormals->Update();
+
+	//Write normals out
+	vtkDataArray *Array = vtkDataArray::SafeDownCast(vtkMeshNormals->GetPointData()->GetNormals());
+	
+	//Creating feature vectors
+	std::ofstream outfileVecX ;
+	std::ofstream outfileVecY ;
+	std::ofstream outfileVecZ ;
+
+	outfileVecX.open ( "feature_unitDirx.txt" ) ;
+	outfileVecY.open ( "feature_unitDiry.txt" ) ;
+	outfileVecZ.open ( "feature_unitDirz.txt" ) ;
+
+	outfileVecX << "NUMBER_OF_POINTS = " << numPoints << std::endl ;
+    	outfileVecX << "DIMENSION = " << 1 << std::endl ;
+    	outfileVecX << "TYPE = Scalar" << std::endl ;
+
+	outfileVecY << "NUMBER_OF_POINTS = " << numPoints << std::endl ;
+    	outfileVecY << "DIMENSION = " << 1 << std::endl ;
+    	outfileVecY << "TYPE = Scalar" << std::endl ;
+
+	outfileVecZ << "NUMBER_OF_POINTS = " << numPoints << std::endl ;
+    	outfileVecZ << "DIMENSION = " << 1 << std::endl ;
+    	outfileVecZ << "TYPE = Scalar" << std::endl ;
+
+	for ( vtkIdType i = 0; i < numPoints; i++ )
+		{
+			// Retrieve the particle normal from template and mesh
+			Array->GetTuple(i, point);
+			
+			double dotprodX = point[0]*vectorx[0] + point[1]*vectorx[1] + point[2]*vectorx[2];
+			double dotprodY = point[0]*vectory[0] + point[1]*vectory[1] + point[2]*vectory[2];
+			double dotprodZ = point[0]*vectorz[0] + point[1]*vectorz[1] + point[2]*vectorz[2];
+			
+			outfileVecX << dotprodX << std::endl;
+			outfileVecY << dotprodY << std::endl;
+			outfileVecZ << dotprodZ << std::endl;
+		}
+
+	outfileVecX.close () ;
+	outfileVecY.close () ;
+        outfileVecZ.close () ;
 
   } else if(particleOn) 
     {
@@ -3851,6 +3999,7 @@ int main(int argc, const char **argv)
 	while ( in )
     	{
       		in >> pt[0] >> pt[1] >> pt[2] ;
+		//ptID=pointLocatorT->FindClosestPoint(pt[0],pt[1],pt[2]);
 		ptID=pointLocatorT->FindClosestPoint(pt);
 		ArrayTemplate->GetTuple(ptID, normal);
       		particlesT->InsertTupleValue ( counter, normal ) ;
@@ -3904,6 +4053,7 @@ int main(int argc, const char **argv)
 		while ( in )
     		{
       			in >> pt[0] >> pt[1] >> pt[2] ;
+			//ptID=pointLocator->FindClosestPoint(pt[0],pt[1],pt[2]);
 			ptID=pointLocator->FindClosestPoint(pt);
 			Array->GetTuple(ptID, normal);
       			particles->InsertTupleValue ( counter, normal ) ;
@@ -3967,6 +4117,106 @@ int main(int argc, const char **argv)
 	}
 
 	//std::cout << "Se fini!" << std::endl;
+    } else if (closestPointOn)
+    {
+            // Reading input mesh 1
+      if (debug) std::cout<<"Reading input mesh 1..."<<std::endl;
+      vtkPolyDataReader *meshReader1 = vtkPolyDataReader::New();
+      meshReader1->SetFileName(inputFilename);
+      meshReader1->Update();
+      vtkPolyData *mesh1 = meshReader1->GetOutput();
+
+      // Reading input mesh 2
+      if (debug) std::cout<<"Reading input mesh 2..."<<std::endl;
+      vtkPolyDataReader *meshReader2 = vtkPolyDataReader::New();
+      meshReader2->SetFileName(closestPointFiles[1].c_str());
+      meshReader2->Update();
+      vtkPolyData *mesh2 = meshReader2->GetOutput();
+      
+      //Reading attribute file
+      if (debug) std::cout<<"Reading attribute file..."<<std::endl;
+      std::ifstream infile;
+      char Line[40];
+      float CurrentAttribute;
+      std::vector<float> v_AttributeIn, v_AttributeOut;
+      infile.open (closestPointFiles[0].c_str()) ;
+      if (!infile)
+	{
+	  std::cerr << "Unable to open file: "<<argv[2]<<std::endl;
+	  exit(1);
+	}
+      while ( std::strncmp (Line, "NUMBER_OF_POINTS =", 18) && strncmp (Line, "NUMBER_OF_POINTS=", 17))
+	infile.getline (Line, 40);
+      unsigned int NbVertices = atoi(strrchr(Line,'=')+1);
+      infile.getline(Line, 40);
+      infile.getline(Line, 40);      
+      for (unsigned int i = 0; i < NbVertices; i++)
+	{
+	  infile >> CurrentAttribute;
+	  v_AttributeIn.push_back(CurrentAttribute);
+	}
+      infile.close();
+      
+      // Computing closest points
+      if (debug) std::cout<<"Computing closest points..."<<std::endl;
+      double x[3];
+      vtkIdType closestVertId;
+      for (int PointId = 0; PointId < mesh2->GetNumberOfPoints(); PointId++)
+	{	  
+	  mesh2->GetPoint(PointId,x);
+	  closestVertId = mesh1->FindPoint(x);
+	  if (closestVertId >= 0)
+	    v_AttributeOut.push_back(v_AttributeIn[(int)closestVertId]);
+	  else 
+	    {
+	      std::cerr << "Error: no closest point for vertex" << PointId << std::endl ;
+	      return EXIT_FAILURE;
+	    }
+	}
+      
+      // Writing attribute file
+      if (debug) std::cout<<"Writing attribute file..."<<std::endl;
+      std::ofstream outfile;
+      outfile.open (outputFilename) ;
+      outfile << "NUMBER_OF_POINTS=" << v_AttributeOut.size() << std::endl ;
+      outfile << "DIMENSION=" << 1 << std::endl ;
+      outfile << "TYPE=Scalar" << std::endl ;
+      for (unsigned int i = 0; i < v_AttributeOut.size(); i++)
+	outfile  << v_AttributeOut[i] << std::endl;
+      outfile.close();   
+   
+    }  else if (extractVerticesOn)
+    {
+      // Reading input mesh
+      if (debug) std::cout<<"Reading input mesh 1..."<<std::endl;
+      vtkPolyDataReader *meshReader = vtkPolyDataReader::New();
+      meshReader->SetFileName(inputFilename);
+      meshReader->Update();
+      vtkPolyData *mesh = meshReader->GetOutput();
+      
+      std::ofstream outfile0, outfile1, outfile2;
+      
+      outfile0.open(outputFilename);
+      outfile1.open(extractVerticesFiles[0].c_str());
+      outfile2.open(extractVerticesFiles[1].c_str());
+      
+      int NbPoints = mesh->GetNumberOfPoints();
+      outfile0<<"NUMBER_OF_POINTS="<<NbPoints<<std::endl<<"DIMENSION=1"<<std::endl<<"TYPE=Scalar"<<std::endl;
+      outfile1<<"NUMBER_OF_POINTS="<<NbPoints<<std::endl<<"DIMENSION=1"<<std::endl<<"TYPE=Scalar"<<std::endl;
+      outfile2<<"NUMBER_OF_POINTS="<<NbPoints<<std::endl<<"DIMENSION=1"<<std::endl<<"TYPE=Scalar"<<std::endl;
+      
+      double x[3];
+      for (int PointId = 0; PointId < NbPoints; PointId++)
+	{	  
+	  mesh->GetPoint(PointId,x);
+	  outfile0<<x[0]<<std::endl;
+	  outfile1<<x[1]<<std::endl;
+	  outfile2<<x[2]<<std::endl;
+	}
+      outfile0.close();
+      outfile1.close();
+      outfile2.close();  
+
     } else {
   
     	std::cout << "No operation to do -> exiting" << std::endl;
