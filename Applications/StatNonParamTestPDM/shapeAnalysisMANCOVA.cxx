@@ -29,7 +29,7 @@
 void doMANCOVATesting( unsigned int numSubjects, unsigned int numFeatures, unsigned int numGroupTypes, unsigned int numIndependent, unsigned int testColumn, unsigned int numPerms, vnl_matrix<int> * groupLabel, vnl_matrix<double>  * &featureValue, bool interactionTest, unsigned int numA, unsigned int numB, double significanceLevel, int computeStatisticsType, vnl_vector<double>& rawP, PointsContainerPointer &meanPoints  );
 
 int main(int argc, char *argv[])
-{
+{std::cout << " quel" << std::endl;
   /*
     %%% 
     % Y = X*B+U  This is a standard Linear model:
@@ -77,7 +77,17 @@ int main(int argc, char *argv[])
      outbase=outbase.erase(index,outbase.size());
   }
 
-  //}   
+  //}   ..inde column (in interaction test) or list of group columns (in group test), find match
+  //testColumn = is index of match in independentColumns or groupTypeColumns
+//TODO
+if(interactionTest)
+	{for( int i =0; i<numIndependent;i++)
+		{ 
+std::cout << " vect indecol " <<i <<" "<<independentColumns[i]<< std::endl;
+if(independentColumns[i]==testColumn) { testColumn = i; }} }
+else{
+	for( int i =0; i<numGroupTypes;i++)
+		{ if(groupTypeColumns[i]==testColumn) { testColumn = i; }} }
   
   unsigned int numSubjects, numFeatures;
   vnl_matrix<int> * groupLabel = NULL;
@@ -91,6 +101,13 @@ int main(int argc, char *argv[])
   // load the mesh list file that defines all the inputs
   
   load_MeshList_file( infile,infileColumn, numIndependent, numGroupTypes,groupTypeColumns,independentColumns, surfListScale, scaleColumn, numSubjects, numA, numB, groupLabel, scaleFactor, meshFileNames, indValue, computeScaleFactorFromVolumes );
+
+
+//TODO was here
+
+
+
+
   
   // load the actual mesh information
   MeshType::Pointer surfaceMesh = MeshType::New();
@@ -186,7 +203,7 @@ int main(int argc, char *argv[])
   output_vector( fdrP, outbase + std::string("_mancovaFDRP"), ".txt" );
   output_vector( bonferroniP, outbase + std::string("_mancovaBonferroniP"), ".txt" );
 
-	cout<<"!!!!!!!!!!!!!: "<<output_vector<<endl;
+
 
   // Write out the corrected mean mesh:
 if (KWMreadableInputFile==0)
@@ -344,9 +361,10 @@ if (KWMreadableInputFile==0)
   surfaceMesh->Delete();
   SOMesh->Delete();
 }
-
-  write_ColorMap(outbase);
-  write_MRMLScene(outbase);
+std::cout << "A "<< std::endl;
+  write_ColorMap(outbase,interactionTest);
+std::cout << "B "<< std::endl;
+  write_MRMLScene(outbase,interactionTest);
 
   if ( groupLabel!=NULL ) delete groupLabel;
   if ( featureValue!=NULL ) delete featureValue;

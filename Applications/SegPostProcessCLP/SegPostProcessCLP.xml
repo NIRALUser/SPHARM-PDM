@@ -217,6 +217,13 @@ Processing of Binary Labels: it ensures spherical topology of the segmentation
       <longflag>CSF</longflag>
       <description>Cerebrospinal Fluid Intensity Level</description>
     </integer>
+    <integer>
+      <name>mwm</name>
+      <default>-1</default>
+      <label>Myelinated White Matter</label>
+      <longflag>MWM</longflag>
+      <description>Myelinated White Matter Intensity Level (only considered if > 0)</description>
+    </integer>
     <boolean>
 	    <name>deleteVessels</name>
 	    <default>false</default>

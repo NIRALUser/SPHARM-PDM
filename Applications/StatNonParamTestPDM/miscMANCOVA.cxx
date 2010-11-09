@@ -1345,9 +1345,14 @@ void Meta2VTK(char * infile, char* outfile)
 
 }
 
-void write_ColorMap(std::string outbase)
+void write_ColorMap(std::string outbase,bool interactionTest)
 {
-  for(int i=0;i<3;i++)
+int end;
+if(interactionTest){end=5;}
+else{end=3;}
+
+	std::cout<<"end"<<end<<std::endl;
+  for(int i=0;i<end;i++)
   {
   std::vector<const char*> args;  
   char* data = NULL;
@@ -1366,7 +1371,7 @@ void write_ColorMap(std::string outbase)
   strcat(InputMetaFile,"_meanAll_uncorrected.meta");
   Meta2VTK(InputMetaFile,InputVTKFile);
 
-
+	std::cout<<i<<std::endl;
 	
     switch(i)
     {
@@ -1406,7 +1411,7 @@ void write_ColorMap(std::string outbase)
 
       break;
 
-      case 2:
+     case 2:
 	 strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normDistProjections.txt");
 
@@ -1422,8 +1427,43 @@ void write_ColorMap(std::string outbase)
       args.push_back(TextFile);
       args.push_back("normDistProjections");
 
+      break;
 
-	break;
+ case 3:std::cout<<i<<"deb"<<std::endl;
+	strcpy(TextFile,outbase.c_str());
+      strcat(TextFile,"__normProjectionsSpearmanPval.txt");
+
+      strcpy(OutputFile,outbase.c_str());
+      strcat(OutputFile,"_meanAll_uncorrected__normProjectionsSpearmanPval.vtk");
+
+      args.push_back("MeshMath");
+
+      args.push_back(InputVTKFile);  
+      args.push_back(OutputFile);
+      args.push_back("-KWMtoPolyData");
+
+      args.push_back(TextFile);
+      args.push_back("normProjectionsSpearmanPval");
+std::cout<<i<<"fin"<<std::endl;
+      break;
+
+ case 4:std::cout<<i<<"deb"<<std::endl;
+	strcpy(TextFile,outbase.c_str());
+      strcat(TextFile,"_normProjectionsPearsonPval.txt");
+
+      strcpy(OutputFile,outbase.c_str());
+      strcat(OutputFile,"_meanAll_uncorrected_normProjectionsPearsonPval.vtk");
+  
+      args.push_back("MeshMath");
+
+      args.push_back(InputVTKFile);
+      args.push_back(OutputFile);
+      args.push_back("-KWMtoPolyData");
+
+      args.push_back(TextFile);
+      args.push_back("normProjectionsPearsonPval");
+std::cout<<i<<"fin"<<std::endl;
+      break;
 	}
 	
   
@@ -1516,9 +1556,128 @@ else{
 }
 
 
-void write_MRMLScene(std::string outbase)
+void write_MRMLScene(std::string outbase,bool interactionTest)
 {
+
+	if(interactionTest)
+	{	
+	cout<<"outbase: "<<outbase<<endl;
+
+	char file[512];
+	std::strcpy (file,outbase.c_str());
+	std::strcat(file,"_MRMLscene.mrml");
+
+	char PearsonPval[512];
+	char SpearmanPval[512];
+	char colorMapPearsonPval[512];
+	char colorMapSpearmanPval[512];
+
+
+	std::strcpy (PearsonPval,outbase.c_str());
+	std::strcat(PearsonPval,"_normProjectionsPearsonPval.vtk");
+
+	std::strcpy (SpearmanPval,outbase.c_str());
+	std::strcat(SpearmanPval,"_normProjectionsSpearmanPval.vtk");
+
+	std::strcpy (colorMapPearsonPval,outbase.c_str());
+	std::strcat(colorMapPearsonPval,"_normDistProjectionsSpearmanPval.txt");
+
+	std::strcpy (colorMapSpearmanPval,outbase.c_str());
+	std::strcat(colorMapSpearmanPval,"_normProjectionsPearsonPval.txt");
+
+	std::ofstream MRMLFile(file);
+	MRMLFile<<"<MRML userTags=\"\">"<<std::endl;
+
+
+	MRMLFile<<"<Selection"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLSelectionNode1\" name=\"vtkMRMLSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" secondaryVolumeID=\"NULL\" activeLabelVolumeID=\"NULL\" activeFiducialListID=\"vtkMRMLFiducialListNode5\" activeROIListID=\"NULL\" activeCameraID=\"NULL\" activeViewID=\"NULL\" activeLayoutID=\"vtkMRMLLayoutNode1\"></Selection>"<<std::endl;
 	
+	MRMLFile<<"<Interaction"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLInteractionNode1\" name=\"vtkMRMLInteractionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentInteractionMode=\"ViewTransform\" lastInteractionMode=\"ViewTransform\"></Interaction>"<<std::endl;
+
+	MRMLFile<<"<Layout"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLLayoutNode1\" name=\"vtkMRMLLayoutNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentViewArrangement=\"4\" guiPanelVisibility=\"1\" bottomPanelVisibility =\"0\" guiPanelLR=\"0\" numberOfCompareViewRows=\"0\" numberOfCompareViewColumns=\"0\" numberOfLightboxRows=\"1\" numberOfLightboxColumns=\"1\" mainPanelSize=\"400\" secondaryPanelSize=\"400\"></Layout>"<<std::endl;
+
+	MRMLFile<<"<TGParameters"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLChangeTrackerNode1\" name=\"vtkMRMLChangeTrackerNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ROIMin=\"-1 -1 -1\" ROIMax=\"-1 -1 -1\" SegmentThresholdMin=\"-1\" SegmentThresholdMax=\"-1\" Analysis_Intensity_Flag=\"0\" Analysis_Deformable_Flag=\"0\" UseITK=\"1\"></TGParameters>"<<std::endl;
+
+	MRMLFile<<"<Crosshair"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLCrosshairNode1\" name=\"vtkMRMLCrosshairNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" crosshairMode=\"NoCrosshair\" crosshairBehavior=\"Normal\" crosshairThickness=\"Fine\" crosshairRAS=\"-17.719 127.24 -1.90859\"></Crosshair>"<<std::endl;
+
+	MRMLFile<<"<ClipModels"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLClipModelsNode1\" name=\"vtkMRMLClipModelsNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" clipType=\"0\" redSliceClipState=\"0\" yellowSliceClipState=\"0\" greenSliceClipState=\"0\"></ClipModels>\\"<<std::endl;
+
+	MRMLFile<<"<ScriptedModule"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLScriptedModuleNode1\" name=\"vtkMRMLScriptedModuleNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ModuleName =\"Editor\" parameter0= \"label 1\"></ScriptedModule>\\"<<std::endl;
+
+	MRMLFile<<"<ScriptedModule"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLScriptedModuleNode2\" name=\"vtkMRMLScriptedModuleNode2\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ModuleName =\"Editor\" parameter0= \"label 1\"></ScriptedModule>\\"<<std::endl;
+
+	MRMLFile<<"<View"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLViewNode1\" name=\"vtkMRMLViewNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" active=\"false\" fieldOfView=\"200\" letterSize=\"0.05\" boxVisible=\"false\" fiducialsVisible=\"true\" fiducialLabelsVisible=\"true\" axisLabelsVisible=\"false\" backgroundColor=\"0.701961 0.701961 0.905882\" animationMode=\"Off\" viewAxisMode=\"LookFrom\" spinDegrees=\"2\" spinMs=\"5\" spinDirection=\"YawLeft\" rotateDegrees=\"5\" rockLength=\"200\" rockCount=\"0\" stereoType=\"NoStereo\" renderMode=\"Perspective\"></View>"<<std::endl;
+
+	MRMLFile<<"<Camera"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLCameraNode1\" name=\"vtkMRMLCameraNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" position=\"-92.6637 22.8341 -451.686\" focalPoint=\"-92.6637 22.8341 -33.6216\" viewUp=\"-0.999786 -0.0206633 0\" parallelProjection=\"false\" parallelScale=\"1\" active=\"false\"></Camera>"<<std::endl;
+
+	
+	MRMLFile<<"<ModelStorage"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLModelStorageNode1\" name=\"vtkMRMLModelStorageNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\""<<PearsonPval<<"\" useCompression=\"1\" readState=\"0\" writeState=\"4\"></ModelStorage>"<<std::endl;
+
+	MRMLFile<<"<ModelDisplay"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLModelDisplayNode1\" name=\"vtkMRMLModelDisplayNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"0.5 0.5 0.5\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0\" diffuse=\"1\" selectedSpecular=\"0.5\" specular=\"0\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" ></ModelDisplay>"<<std::endl;
+
+	MRMLFile<<"<Model"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLModelNode1\" name=\"PearsonPval\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLModelStorageNode1\" userTags=\"\" displayNodeRef=\"vtkMRMLModelDisplayNode1\"></Model>"<<std::endl;
+
+	MRMLFile<<"<LinearTransform"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLLinearTransformNode1\" name=\"LinearTransform1\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLTransformStorageNode1\" userTags=\"\" matrixTransformToParent=\"1 0 0 -13.6  0 1 0 0  0 0 1 -103.1  0 0 0 1\"></LinearTransform>"<<std::endl;
+
+	MRMLFile<<"<ModelStorage"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLModelStorageNode2\" name=\"vtkMRMLModelStorageNode2\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\""<<SpearmanPval<<"\" useCompression=\"1\" readState=\"0\" writeState=\"4\"></ModelStorage>"<<std::endl;
+
+	MRMLFile<<"<ModelDisplay"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLModelDisplayNode2\" name=\"vtkMRMLModelDisplayNode2\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"1 0 0\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0\" diffuse=\"1\" selectedSpecular=\"0.5\" specular=\"0\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"false\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\"  activeScalarName=\"RawP\" ></ModelDisplay>"<<std::endl;
+
+	MRMLFile<<"<Model"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLModelNode2\" name=\"SpearmanPval\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" transformNodeRef=\"vtkMRMLLinearTransformNode1\" storageNodeRef=\"vtkMRMLModelStorageNode2\" userTags=\"\" displayNodeRef=\"vtkMRMLModelDisplayNode2\"></Model>"<<std::endl;
+
+
+ MRMLFile<<"<FiducialListStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLFiducialListStorageNode1\"  name=\"vtkMRMLFiducialListStorageNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"L1.fcsv\"  useCompression=\"1\"  readState=\"0\"  writeState=\"4\" ></FiducialListStorage>"<<std::endl;
+MRMLFile<<" <FiducialList"<<std::endl;
+ MRMLFile<<" id=\"vtkMRMLFiducialListNode1\"  name=\"L1\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLFiducialListStorageNode1\"  userTags=\"\" symbolScale=\"5\" symbolType=\"12\" textScale=\"4.5\" visibility=\"1\" color=\"0.4 1 1\" selectedcolor=\"1 0.5 0.5\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" numberingScheme=\"0\" opacity=\"1\" fiducials=\"id normDistProjectionSpearmanPval2 labeltext normDistProjectionSpearmanPval xyz -143.491 97.1388 166.398 orientationwxyz 0 0 0 1 selected 0 visibility 1 id L1-P3 labeltext normDistProjectionPearsonPval xyz -137.705 117.127 19.7218 orientationwxyz 0 0 0 1 selected 0 visibility 1\" ></FiducialList>"<<std::endl;
+ MRMLFile<<"<Slice"<<std::endl;
+ MRMLFile<<" id=\"vtkMRMLSliceNode1\"  name=\"Green\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fieldOfView=\"387.5 250 1\"  dimensions=\"496 320 1\"  activeSlice=\"0\"  layoutGridRows=\"1\"  layoutGridColumns=\"1\"  sliceToRAS=\"-1 0 0 0 0 0 1 0 0 1 0 0 0 0 0 1\"  layoutName=\"Green\"  orientation=\"Coronal\"  jumpMode=\"1\"  sliceVisibility=\"false\"  widgetVisibility=\"false\"  useLabelOutline=\"false\"  sliceSpacingMode=\"0\"  prescribedSliceSpacing=\"1 1 1\" ></Slice>"<<std::endl;
+MRMLFile<<" <SliceComposite"<<std::endl;
+ MRMLFile<<" id=\"vtkMRMLSliceCompositeNode1\"  name=\"vtkMRMLSliceCompositeNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  backgroundVolumeID=\"\"  foregroundVolumeID=\"\"  labelVolumeID=\"\"  compositing=\"0\"  labelOpacity=\"1\"  linkedControl=\"0\"  foregroundGrid=\"0\"  backgroundGrid=\"0\"  labelGrid=\"1\"  fiducialVisibility=\"1\"  fiducialLabelVisibility=\"1\"  sliceIntersectionVisibility=\"0\"  layoutName=\"Green\"  annotationMode=\"All\"  doPropagateVolumeSelection=\"1\" ></SliceComposite>"<<std::endl;
+ MRMLFile<<"<Slice"<<std::endl;
+MRMLFile<<"  id=\"vtkMRMLSliceNode2\"  name=\"Red\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fieldOfView=\"386.719 250 1\"  dimensions=\"495 320 1\"  activeSlice=\"0\"  layoutGridRows=\"1\"  layoutGridColumns=\"1\"  sliceToRAS=\"-1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1\"  layoutName=\"Red\"  orientation=\"Axial\"  jumpMode=\"1\"  sliceVisibility=\"false\"  widgetVisibility=\"false\"  useLabelOutline=\"false\"  sliceSpacingMode=\"0\"  prescribedSliceSpacing=\"1 1 1\" ></Slice>"<<std::endl;
+MRMLFile<<" <SliceComposite"<<std::endl;
+ MRMLFile<<" id=\"vtkMRMLSliceCompositeNode2\"  name=\"vtkMRMLSliceCompositeNode2\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  backgroundVolumeID=\"\"  foregroundVolumeID=\"\"  labelVolumeID=\"\"  compositing=\"0\"  labelOpacity=\"1\"  linkedControl=\"0\"  foregroundGrid=\"0\"  backgroundGrid=\"0\"  labelGrid=\"1\"  fiducialVisibility=\"1\"  fiducialLabelVisibility=\"1\"  sliceIntersectionVisibility=\"0\"  layoutName=\"Red\"  annotationMode=\"All\"  doPropagateVolumeSelection=\"1\" ></SliceComposite>"<<std::endl;
+ MRMLFile<<"<Slice"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLSliceNode3\"  name=\"Yellow\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fieldOfView=\"386.719 250 1\"  dimensions=\"495 320 1\"  activeSlice=\"0\"  layoutGridRows=\"1\"  layoutGridColumns=\"1\"  sliceToRAS=\"0 0 1 0 -1 0 0 0 0 1 0 0 0 0 0 1\"  layoutName=\"Yellow\"  orientation=\"Sagittal\"  jumpMode=\"1\"  sliceVisibility=\"false\"  widgetVisibility=\"false\"  useLabelOutline=\"false\"  sliceSpacingMode=\"0\"  prescribedSliceSpacing=\"1 1 1\" ></Slice>"<<std::endl;
+ MRMLFile<<"<SliceComposite"<<std::endl;
+ MRMLFile<<"id=\"vtkMRMLSliceCompositeNode3\"  name=\"vtkMRMLSliceCompositeNode3\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  backgroundVolumeID=\"\"  foregroundVolumeID=\"\"  labelVolumeID=\"\"  compositing=\"0\"  labelOpacity=\"1\"  linkedControl=\"0\"  foregroundGrid=\"0\"  backgroundGrid=\"0\"  labelGrid=\"1\"  fiducialVisibility=\"1\"  fiducialLabelVisibility=\"1\"  sliceIntersectionVisibility=\"0\"  layoutName=\"Yellow\"  annotationMode=\"All\"  doPropagateVolumeSelection=\"1\" ></SliceComposite>"<<std::endl;
+ MRMLFile<<"<TransformStorage"<<std::endl;
+ MRMLFile<<"id=\"vtkMRMLTransformStorageNode1\"  name=\"vtkMRMLTransformStorageNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"LinearTransform1.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
+
+
+
+
+
+
+
+
+
+
+
+
+
+	MRMLFile<<"</MRML>"<<std::endl;
+
+	}
+	else
+	{	
 	cout<<"outbase: "<<outbase<<endl;
 
 	char minmaxf[512];
@@ -1530,6 +1689,7 @@ void write_MRMLScene(std::string outbase)
 	char file[512];
 	std::strcpy (file,outbase.c_str());
 	std::strcat(file,"_MRMLscene.mrml");
+
 
 	char meanA[512];
 	char meanB[512];
@@ -1715,6 +1875,7 @@ void write_MRMLScene(std::string outbase)
 
 
 	MRMLFile<<"</MRML>"<<std::endl;
+	}
 
 
 }	

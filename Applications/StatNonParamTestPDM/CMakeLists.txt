@@ -1,4 +1,9 @@
 
+NeuroLib_USE_ITK()
+NeuroLib_USE_VTK()
+NeuroLib_USE_SHAPE()
+NeuroLiB_USE_BOOST()
+
 SET(StatNonParamTestPDMSRCS 
   createPerm.cxx 
   main.cxx
@@ -36,7 +41,9 @@ IF(NOT WIN32 OR CYGWIN)
   SET(BOOST_LIBRARIES boost_program_options boost_system boost_filesystem)
 ENDIF(NOT WIN32 OR CYGWIN)
 
-
+FIND_PACKAGE(GenerateCLP REQUIRED)
+IF(GenerateCLP_FOUND)
+  INCLUDE(${GenerateCLP_USE_FILE})
   SET (shapeAnalysisMANCOVA_SRCS shapeAnalysisMANCOVA.cxx MANCOVA.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx  miscMANCOVA.cxx nonMANCOVA.cxx)
   GENERATECLP(shapeAnalysisMANCOVA.cxx shapeAnalysisMANCOVA.xml)
 
@@ -52,5 +59,6 @@ ENDIF(NOT WIN32 OR CYGWIN)
     vtkFiltering
     ${BOOST_LIBRARIES}	
     )	
+ENDIF(GenerateCLP_FOUND)
 
 

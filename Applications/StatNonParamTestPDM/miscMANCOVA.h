@@ -89,8 +89,8 @@ double computePearsonCorrelation( vnl_vector<double>& x, vnl_vector<double>& y )
 double computePearsonCorrelationWithP( vnl_vector<double>& x, vnl_vector<double>& y, double &dP, double &dPP, double &dPN );
 int minmax (const std::string & filename, double *min, double* max);
 
-void write_MRMLScene(std::string outbase);
-void write_ColorMap(std::string outbase);
+void write_MRMLScene(std::string outbase,bool interactionTest);
+void write_ColorMap(std::string outbase,bool interactionTest);
 void Meta2VTK(char* infile,char * outfile);
 
 #endif
