@@ -361,9 +361,9 @@ if (KWMreadableInputFile==0)
   surfaceMesh->Delete();
   SOMesh->Delete();
 }
-std::cout << "A "<< std::endl;
+
   write_ColorMap(outbase,interactionTest);
-std::cout << "B "<< std::endl;
+
   write_MRMLScene(outbase,interactionTest);
 
   if ( groupLabel!=NULL ) delete groupLabel;
