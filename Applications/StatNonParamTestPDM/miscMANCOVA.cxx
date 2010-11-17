@@ -712,19 +712,33 @@ void load_Meshes( bool scaleOn,  unsigned int numSubjects,
 		numFeatures = points->Size();
 		featureValue->set_size(numSubjects, numFeatures*3 + numIndependent); // Each subjects data is flattened, this data will go into X
 		}
-		
+
+		float xCOG=0;float yCOG=0;float zCOG=0;
 		for (unsigned int pointID = 0; pointID < numFeatures; pointID++) {
-		PointType curPoint =  points->GetElement(pointID);
-		for (unsigned int dim = 0; dim < 3; dim++) {
-		if (scaleOn) 
-		{
-		(*featureValue)[index][pointID*3 +dim] = curPoint[dim] / (*scaleFactor)[index][0];
-		} 
-		else 
-		{
-		(*featureValue)[index][pointID*3 +dim] = curPoint[dim];
+			PointType curPoint =  points->GetElement(pointID);	
+			xCOG=xCOG+curPoint[0];
+			yCOG=yCOG+curPoint[1];
+			zCOG=zCOG+curPoint[2];
 		}
-		}
+		xCOG=xCOG/numFeatures;
+		yCOG=yCOG/numFeatures;
+		zCOG=zCOG/numFeatures;
+		float COG[3];COG[0]=xCOG;COG[1]=yCOG;COG[2]=zCOG;
+
+
+		for (unsigned int pointID = 0; pointID < numFeatures; pointID++) {
+			PointType curPoint =  points->GetElement(pointID);
+
+			for (unsigned int dim = 0; dim < 3; dim++) {
+				if (scaleOn) 
+				{
+				(*featureValue)[index][pointID*3 +dim] = (curPoint[dim]-COG[dim]) / (*scaleFactor)[index][0] + COG[dim];
+				} 
+				else 
+				{
+				(*featureValue)[index][pointID*3 +dim] = curPoint[dim];
+				}
+			}
 		}
 		
 	
@@ -1378,16 +1392,16 @@ strcat(OutputFile,"_meanAll_uncorrected.vtk");
       case 0:
 	if(interactionTest){
 	strcpy(TextFile,outbase.c_str());
-      strcat(TextFile,"_normProjectionsSpearman.txt");
+      strcat(TextFile,"_normProjectionsSpearman.txt");  //TODO fichier txt avec les info pour les overlay (activescalar)
   
-      args.push_back("MeshMath");
+      args.push_back("MeshMath"); //PROG appele
 
-      args.push_back(OutputFile);
-      args.push_back(OutputFile);
+      args.push_back(OutputFile); //origine 
+      args.push_back(OutputFile); // sortie (ou serotn stoquees les info de l overlay
       args.push_back("-KWMtoPolyData");
 
       args.push_back(TextFile);
-      args.push_back("normProjectionsSpearman");}
+      args.push_back("normProjectionsSpearman");} //non de ton active scalar
 	else{
       strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_mancovaRawP.txt");
