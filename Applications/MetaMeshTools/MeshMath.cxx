@@ -145,6 +145,7 @@ int compare (const void * a, const void * b)
 }
 
 
+
 int main(int argc, const char **argv)
 {
  // make sure the arguments are valid
@@ -518,6 +519,11 @@ int main(int argc, const char **argv)
 	}
     }
   //bp2009 KWMtoPolyData
+  bool PvalueColorMapOn = ipExistsArgument(argv, "-significanceLevel");
+ double PvalueColorMapNb = 0.05;
+  if (PvalueColorMapOn)
+   PvalueColorMapNb = ipGetDoubleArgument(argv,"-significanceLevel",0.05);
+
   
   bool surfaceAreaOn = ipExistsArgument(argv, "-surfaceArea");
   char *AttributeFileName = ipGetStringArgument(argv, "-surfaceArea",NULL);
@@ -3538,19 +3544,44 @@ int main(int argc, const char **argv)
 	if (range[0]<0.0) sig=1;
 	else sig=0;
 
-	for (int i=0 ; i < NPoints ; i++)
+	int maxLUT = 255;
+
+	if (PvalueColorMapOn) //TODO
 	{
-		value=Scalars[i];
-		scalars_ori->InsertNextValue(value);
-		//If range[0] is not 0 i have to shift the values prior scaling
-		if (range[0]!=0.0) value=value-range[0];
-		prov=((float)(value/(range[1]-range[0])))*100.0; //Due to the way slicer maps the scalars have to be scaled from 0 .. 100
-		rounded= (int)round(prov);
-		//std::cout << rounded << std::endl;
-		scalars->InsertNextValue(rounded);
-		Scalars.SetElement(i,rounded);
+		for (int i=0 ; i < NPoints ; i++)
+		{	
+			value=Scalars[i];
+			scalars_ori->InsertNextValue(value);
+			//If range[0] is not 0 i have to shift the values prior scaling
+			//if (value >= minPvalue) //TODO
+			if (value >= PvalueColorMapNb)
+			{
+				rounded = 100;
+			} else	{
+				//prov=((float)(value/minPvalue)))*99.0; //Due to the way slicer maps the scalars have to be scaled from 0 .. 100
+				prov=((float)(value/0.05))*99.0;
+				rounded= (int)round(prov);//std::cout << "value"<<value <<"round"<< rounded << std::endl;
+			}
+
+			//std::cout << rounded << std::endl;
+			scalars->InsertNextValue(rounded);
+			Scalars.SetElement(i,rounded);
+		}	
+	} else {
+		for (int i=0 ; i < NPoints ; i++)
+		{	
+			value=Scalars[i];
+			scalars_ori->InsertNextValue(value);
+			//If range[0] is not 0 i have to shift the values prior scaling
+			if (range[0]!=0.0) value=value-range[0];
+			prov=((float)(value/(range[1]-range[0])))*100.0; //Due to the way slicer maps the scalars have to be scaled from 0 .. 100
+			rounded= (int)round(prov);
+			//std::cout << rounded << std::endl;
+			scalars->InsertNextValue(rounded);
+			Scalars.SetElement(i,rounded);
+		}
+		// ** END SCALING SCALARS
 	}
-	// ** END SCALING SCALARS
 
 	polydataAtt->GetPointData()->AddArray(scalars);
 	polydataAtt->GetPointData()->AddArray(scalars_ori);
@@ -3568,53 +3599,74 @@ int main(int argc, const char **argv)
 	vtkColorTransferFunction* DistanceMapTFunc = vtkColorTransferFunction::New();
   	// RGB TESTS
 	DistanceMapTFunc->SetColorSpaceToRGB();
-	if (!sig)
-	{	
-		double rangeLUT[2]; rangeLUT[0]=0; rangeLUT[1]=255; 
-		DistanceMapTFunc->AdjustRange(rangeLUT);
-		DistanceMapTFunc->RemoveAllPoints();
-		DistanceMapTFunc->AddRGBPoint(rangeLUT[0], 0, 255, 0);
-		DistanceMapTFunc->AddRGBPoint((fabs(rangeLUT[1]-rangeLUT[0]))/2, 255, 255, 0);
-  		DistanceMapTFunc->AddRGBPoint(rangeLUT[1], 255, 0, 0);
-	}
-	else
-	{
-		double rangeLUT[3]; rangeLUT[0]=0; rangeLUT[1]=(255*(fabs(range[0])))/(range[1]-range[0]); rangeLUT[2]=255;
-		if (debug) std::cout << rangeLUT[0] << " - " << rangeLUT[1] << " - " << rangeLUT[2] << std::endl;
-		//Visualization map that equals to CMF
-		/*DistanceMapTFunc->AddRGBPoint(rangeLUT[0], 0, 102, 255);
-		DistanceMapTFunc->AddRGBPoint(rangeLUT[1], 0, 255, 0);
-		DistanceMapTFunc->AddRGBPoint(rangeLUT[1]+0.0001, 0, 255, 0);
-  		DistanceMapTFunc->AddRGBPoint(rangeLUT[2], 255, 0, 0);*/
-		//Visualization map that equals to KWM
-		DistanceMapTFunc->AddRGBPoint(rangeLUT[0], 255, 0, 0);
-		DistanceMapTFunc->AddRGBPoint(rangeLUT[1], 255, 255, 255);
-		DistanceMapTFunc->AddRGBPoint(rangeLUT[1]+0.0001, 255, 255, 255);
-  		DistanceMapTFunc->AddRGBPoint(rangeLUT[2], 0, 102, 255);
+	
+	if (PvalueColorMapOn) 
+	{	//std::cout << "map" << std::endl;	
+		maxLUT = 100;
+		DistanceMapTFunc->AddRGBPoint(0.0, 255, 0, 0);
+		DistanceMapTFunc->AddRGBPoint(50.00, 255, 255, 0);
+		DistanceMapTFunc->AddRGBPoint(99.98, 0, 255, 0);
+		DistanceMapTFunc->AddRGBPoint(99.99, 0, 0, 255);
+		DistanceMapTFunc->AddRGBPoint(100.00, 0, 0, 255);
+	} else {
+		maxLUT = 255;
+		if (!sig)
+		{	
+			double rangeLUT[2]; rangeLUT[0]=0; rangeLUT[1]=255; 
+			DistanceMapTFunc->AdjustRange(rangeLUT);
+			DistanceMapTFunc->RemoveAllPoints();
+			DistanceMapTFunc->AddRGBPoint(rangeLUT[0], 0, 255, 0);
+			DistanceMapTFunc->AddRGBPoint((fabs(rangeLUT[1]-rangeLUT[0]))/2, 255, 255, 0);
+			DistanceMapTFunc->AddRGBPoint(rangeLUT[1], 255, 0, 0);
+		}
+		else 
+		{
+			double rangeLUT[3]; rangeLUT[0]=0; rangeLUT[1]=(255*(fabs(range[0])))/(range[1]-range[0]); rangeLUT[2]=255;
+			if (debug) std::cout << rangeLUT[0] << " - " << rangeLUT[1] << " - " << rangeLUT[2] << std::endl;
+			DistanceMapTFunc->AddRGBPoint(rangeLUT[0], 255, 0, 0);
+			DistanceMapTFunc->AddRGBPoint(rangeLUT[1], 255, 255, 255);
+			DistanceMapTFunc->AddRGBPoint(rangeLUT[1]+0.0001, 255, 255, 255);
+			DistanceMapTFunc->AddRGBPoint(rangeLUT[2], 0, 102, 255);
+		}
 	}
 
 
-	// *** START PARSING KWMeshVisu file
-	ofstream LUToutput;
-    	std::string LUToutputFile, filename(outputFilename);
+	// *** START PARSING KWMeshVisu file	
+	std::string LUToutputFile, filename(outputFilename);
 	int found = filename.find_last_of("/\\");
+	ofstream LUToutput;
 	LUToutputFile.assign(outputFilename,found+1);
 	LUToutputFile.append("customLUT_");
 	LUToutputFile.append(files[1]);
 	LUToutputFile.append(".txt");
 	LUToutput.open(LUToutputFile.c_str(), ios::out);
 
-  
-	double rgb_point[3]={0,0,0};
-	cont=0; 
-	//for (double value = range[0]; value <range[1]; value += (range[1] - range[0])/255)
-	for (double value = 0; value <256; value++)
-	{	
-		DistanceMapTFunc->GetColor(value, rgb_point);
-		LUToutput << cont << "     " << value << "     " << rgb_point[0] << "     " << rgb_point[1] << "     " << rgb_point[2] << "     255" << std::endl ;
-		cont++;
 
-    	}
+	double rgb_point[3]={0,0,0};
+	if (PvalueColorMapOn) 
+	{
+		cont=0; 
+
+		//for (double value = range[0]; value <range[1]; value += (range[1] - range[0])/255)
+		for (double value = 0; value < 101; value++)
+		{
+			DistanceMapTFunc->GetColor(value, rgb_point);
+			LUToutput << cont << "     " << value << "     " << rgb_point[0] << "     " << rgb_point[1] << "     " << rgb_point[2] << "     255" << std::endl ;
+			cont++;
+		
+		}
+	} else {
+		cont=0; 
+
+		//for (double value = range[0]; value <range[1]; value += (range[1] - range[0])/255)
+		for (double value = 0; value < 255; value++)
+		{
+			DistanceMapTFunc->GetColor(value, rgb_point);
+			LUToutput << cont << "     " << value << "     " << rgb_point[0] << "     " << rgb_point[1] << "     " << rgb_point[2] << "     255" << std::endl ;
+			cont++;
+		
+		}
+	}
 	LUToutput.close();
     	//End reading the Input
 	// *** END PARSING KWMeshVisu file	
@@ -4224,3 +4276,6 @@ int main(int argc, const char **argv)
   }
   return EXIT_SUCCESS; 
 }
+
+
+
