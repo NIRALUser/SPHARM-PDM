@@ -4,7 +4,7 @@
 
 #include "ui_shapeAnalysisMANCOVA_Wizard.h"
 
-
+#include <itksys/Process.h>
 
 
 
@@ -136,6 +136,13 @@ class shapeAnalysisMANCOVA_Wizard : public QWidget, private Ui::MainWindow
 	std::vector< int > independentColumn;// all the numbers of the independent variable columns
 	std::vector< int > groupColumn;// all the numbers of the group columns
 	std::vector< int > nbRow;
+
+	//QString pathSlicer;
+	itksysProcess* m_Process;
+	std::vector<const char*> args;
+
+
+
 
 };
 

@@ -1613,9 +1613,6 @@
       <property name="text">
        <string/>
       </property>
-      <property name="pixmap">
-       <pixmap>../source_linux64/MANOCAVApicture.xpm</pixmap>
-      </property>
       <property name="scaledContents">
        <bool>true</bool>
       </property>
@@ -2189,9 +2186,6 @@ already pre-computed.</string>
       <property name="text">
        <string/>
       </property>
-      <property name="pixmap">
-       <pixmap>../source_linux64/MANOCAVApicture.xpm</pixmap>
-      </property>
       <property name="scaledContents">
        <bool>true</bool>
       </property>
@@ -2288,9 +2282,6 @@ already pre-computed.</string>
       </property>
       <property name="text">
        <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap>../source_linux64/Slicer.xpm</pixmap>
       </property>
      </widget>
      <widget class="QWidget" name="verticalLayoutWidget_9">

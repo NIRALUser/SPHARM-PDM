@@ -7,8 +7,12 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+
    shapeAnalysisMANCOVA_Wizard window;
+
    window.show();
+
+
 
 
 

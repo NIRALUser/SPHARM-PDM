@@ -1,13 +1,14 @@
 #include "shapeAnalysisMANCOVA_Wizard.h"
 //#define kwsys_stl 
 
-
+#include <itksys/Process.h>
 #include <itksys/SystemTools.hxx>
 shapeAnalysisMANCOVA_Wizard::shapeAnalysisMANCOVA_Wizard(QWidget *parent , Qt::WFlags f ) 
 : QWidget(parent,f)
 {
 
 	setupUi(this);
+
 
 	connect(this->checkBox_load, SIGNAL(stateChanged(int)),this, SLOT(mutual_exclusion_load()));
 	connect(this->checkBox_NEWCSV, SIGNAL(stateChanged(int)),this, SLOT(mutual_exclusion_new()));
@@ -47,6 +48,8 @@ shapeAnalysisMANCOVA_Wizard::shapeAnalysisMANCOVA_Wizard(QWidget *parent , Qt::W
 //*******************************************************************************
 //        fonctions
 //******************************************************************************
+
+
 
 
 int shapeAnalysisMANCOVA_Wizard::NumberComa()  //test if the file is correct : same number of coma on each line => correct
@@ -328,6 +331,24 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_load()
 			groupBox_csv->setEnabled(true);
 			frame_del_add_3->setEnabled(true);
 			pushButton_load->setEnabled(true);
+/*TODO
+std::string pathMANCOVA_WizardString;
+QString pathMANCOVA_Wizard;
+QString pathMANCOVA_Wizard2;
+pathMANCOVA_WizardString= itksys::SystemTools::FindProgram("shapeAnalysisMANCOVA_Wizard");
+pathMANCOVA_Wizard = pathMANCOVA_WizardString.c_str() ;
+pathMANCOVA_Wizard.remove(pathMANCOVA_Wizard.size()-27,27);
+QString MANOCAVApicture ="MANOCAVApicture.xpm";
+QString Slicerpicture ="Slicer.xpm";
+pathMANCOVA_Wizard =pathMANCOVA_Wizard2;
+pathMANCOVA_Wizard.append(MANOCAVApicture);
+pathMANCOVA_Wizard2.append(Slicerpicture);
+
+label_5->setPixmap(QPixmap(pathMANCOVA_Wizard));
+label_6->setPixmap(QPixmap(pathMANCOVA_Wizard));
+label_7->setPixmap(QPixmap(pathMANCOVA_Wizard2));*/
+
+
 		}
 		else
 		{
@@ -392,6 +413,7 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_new()
 void shapeAnalysisMANCOVA_Wizard::openSelectionFileDialog()
 {
 	nbRow.push_back(0);
+	int comment =0;
 	InitialisationVectorHeader();
 	file_name = QFileDialog::getOpenFileName(this, "select your input", QString());	
 	if(file_name.size()!= 0)
@@ -432,7 +454,7 @@ void shapeAnalysisMANCOVA_Wizard::openSelectionFileDialog()
       			{	
 				
 			for(unsigned int i=0;i<line.length();i++)
-			{				
+			{			
 				if ((line.at(i)==',')||(i==line.length()-1))
 				{
 					QTableWidgetItem* item = new QTableWidgetItem;
@@ -453,14 +475,20 @@ void shapeAnalysisMANCOVA_Wizard::openSelectionFileDialog()
 					{headerVector[col]=1;}
 					if (i+1==line.length()-1) {word=word+line.at(i+1);}
 				}
+				
 			}
-			row++;
+			if(line.at(0)!='#'){row++;}
+			else{comment++;}
+
 			col=0;
+
 			}
 			if(WhereInfileColumn()!=-1){lineEditInfileOrScaleDisplay(WhereInfileColumn(),1);}
 			spinBox_data->setValue(row-1);
+			
               		file.close(); 
 			}
+			ajustRow();
 			pushButton_Drow->setEnabled(true);
 			pushButton_Arow->setEnabled(true);
 			lineEdit_new_header->setEnabled(true);
@@ -484,6 +512,7 @@ void shapeAnalysisMANCOVA_Wizard::openSelectionFileDialog()
 			pushButton_Arow->setEnabled(true);
 			if(spinBox_col->value()==4) {pushButton_Dcol->setEnabled(false);}
 			else {pushButton_Dcol->setEnabled(true);}
+			
 		}
 	}
 }
@@ -855,8 +884,7 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 	
 
 //void shapeAnalysisMANCOVA_Wizard::begin()
-{
-	QString qs;
+{	QString qs;
 	QProcess *process= new QProcess(this);
 	QStringList arguments;
 
@@ -990,23 +1018,26 @@ void shapeAnalysisMANCOVA_Wizard::openPopUp()
 		{ 
 			QMessageBox::information(this, "Slicer3", "Select the folder where Slicer3* is saved .");
 			pathSlicer = QFileDialog::getExistingDirectory(this);
+			args.push_back(QStringToChar(pathSlicer));std::cout<<args[0]<<" ";
+			args.push_back("--launch");std::cout<<args[1]<<" ";
 			pathSlicer=pathSlicer+"/bin/Slicer3-real";
+			args.push_back(QStringToChar(pathSlicer));std::cout<<args[2]<<" ";
 		}
 		else{
 			std::cout<<" "<<std::endl;
 			std::cout<<"path to Slicer"<<pathSlicerString<<std::endl;
+			args.push_back(pathSlicerString.c_str());std::cout<<args[0]<<" ";
+			args.push_back("--launch");std::cout<<args[1]<<" ";
 			pathSlicer = pathSlicerString.c_str() ;
 			pathSlicerCopy =pathSlicer;
 			pathSlicer.remove(pathSlicer.size()-7,7);
 			QString end ="bin/Slicer3-real";
 			pathSlicer.append(end);
+			args.push_back(QStringToChar(pathSlicer));std::cout<<args[2]<<" ";
 			
 		}
 
-		QProcess *processSlicer= new QProcess(this);
-		QStringList arguments;
-
-		QString pathMRML;		    
+		QString pathMRML;
 		if(checkBox_load->isChecked())
 		{
 			pathMRML= file_name;
@@ -1015,19 +1046,22 @@ void shapeAnalysisMANCOVA_Wizard::openPopUp()
 			pathMRML=path;
 			pathMRML.append( name);
 		}
-			pathMRML.remove(pathMRML.size()-4,4);
-		QString end ="_MRMLscene.mrml ";
+		pathMRML.remove(pathMRML.size()-4,4);
+		QString end ="_MRMLscene.mrml";
 		pathMRML.append(end);
+		args.push_back(QStringToChar(pathMRML));std::cout<<args[3]<<" ";
+
+		//args.push_back("--launch");std::cout<<args[1]<<" ";
+		//args.push_back(QStringToChar(pathSlicer));std::cout<<args[2]<<" ";
+		//args.push_back(QStringToChar(pathMRML));std::cout<<args[3]<<" ";
+		args.push_back(0);
 
 
-		arguments.append("--launch");
-		arguments.append(pathSlicer);
-		arguments.append(pathMRML);
-		std::cout<<".................command line opening Slicer3.........."<<std::endl;	
-		std::cout<< (arguments.join(" ")).toStdString() <<std::endl;
-		std::cout<<std::endl;
-		processSlicer->start(pathSlicerCopy, arguments);
-		
+		m_Process = itksysProcess_New();
+		itksysProcess_SetCommand(m_Process, &*args.begin());
+		itksysProcess_SetOption(m_Process,itksysProcess_Option_HideWindow,1);
+		itksysProcess_Execute(m_Process); 
+		itksysProcess_WaitForExit(m_Process, 0);
 	}
 
 
