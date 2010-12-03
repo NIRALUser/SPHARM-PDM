@@ -37,7 +37,7 @@ double computeStatisticValue( vnl_matrix<double>& A,
 			      vnl_matrix<double>& Ctmp, int computeStatisticsType );
 
 
-void doMANCOVATesting( unsigned int numSubjects, unsigned int numFeatures, unsigned int numGroupTypes, unsigned int numIndependent, unsigned int testColumn, unsigned int numPerms, vnl_matrix<int> * groupLabel, vnl_matrix<double>  * &featureValue, bool interactionTest, unsigned int numA, unsigned int numB, double significanceLevel, int computeStatisticsType, vnl_vector<double>& rawP, PointsContainerPointer &meanPoints  );
+void doMANCOVATesting( unsigned int numSubjects, unsigned int numFeatures, unsigned int numGroupTypes, unsigned int numIndependent, unsigned int testColumn, unsigned int numPerms, vnl_matrix<int> * groupLabel, vnl_matrix<double>  * &featureValue, bool interactionTest, unsigned int numA, unsigned int numB, double significanceLevel, int computeStatisticsType, vnl_vector<double>& rawP, PointsContainerPointer &meanPoints );
 
 
 #endif

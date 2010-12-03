@@ -26,10 +26,10 @@
 // this should make the function interfaces much less
 // cumbersome (MN)
 
-void doMANCOVATesting( unsigned int numSubjects, unsigned int numFeatures, unsigned int numGroupTypes, unsigned int numIndependent, unsigned int testColumn, unsigned int numPerms, vnl_matrix<int> * groupLabel, vnl_matrix<double>  * &featureValue, bool interactionTest, unsigned int numA, unsigned int numB, double significanceLevel, int computeStatisticsType, vnl_vector<double>& rawP, PointsContainerPointer &meanPoints  );
+void doMANCOVATesting( unsigned int numSubjects, unsigned int numFeatures, unsigned int numGroupTypes, unsigned int numIndependent, unsigned int testColumn, unsigned int numPerms, vnl_matrix<int> * groupLabel, vnl_matrix<double>  * &featureValue, bool interactionTest, unsigned int numA, unsigned int numB, double significanceLevel, int computeStatisticsType, vnl_vector<double>& rawP, PointsContainerPointer &meanPoints );
 
 int main(int argc, char *argv[])
-{std::cout << " quel" << std::endl;
+{
   /*
     %%% 
     % Y = X*B+U  This is a standard Linear model:
@@ -186,7 +186,7 @@ else{
   std::cout << "Now running nonparametric tests:\n";
 
   vnl_vector<double> mancovaRawP;
-  doMANCOVATesting( numSubjects, numFeatures, numGroupTypes, numIndependent, testColumn, numPerms, groupLabel, featureValue, interactionTest, numA, numB, significanceLevel, computeStatisticsType, mancovaRawP, meanPointsCorrected );
+  doMANCOVATesting( numSubjects, numFeatures, numGroupTypes, numIndependent, testColumn, numPerms, groupLabel, featureValue, interactionTest, numA, numB, significanceLevel, computeStatisticsType, mancovaRawP, meanPointsCorrected  );
 
   // now compute the FDR corrected versions
 
@@ -362,7 +362,7 @@ if (KWMreadableInputFile==0)
   SOMesh->Delete();
 }
 
-  write_ColorMap(outbase,interactionTest);
+  write_ColorMap(outbase,interactionTest,significanceLevel);
 
   write_MRMLScene(outbase,interactionTest);
 

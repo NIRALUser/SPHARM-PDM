@@ -1,5 +1,5 @@
 	#include "miscMANCOVA.h"
-	
+	#include <sstream>
 	#include <boost/math/distributions/students_t.hpp>
 	
 	using namespace std;
@@ -1360,7 +1360,7 @@ void Meta2VTK(char * infile, char* outfile)
 }
 
 
-void write_ColorMap(std::string outbase,bool interactionTest)
+void write_ColorMap(std::string outbase,bool interactionTest,double significanceLevel)
 {
 int end;
 if(interactionTest){end=8;}
@@ -1385,33 +1385,32 @@ strcat(OutputFile,"_meanAll_uncorrected.vtk");
   int length;
   double timeout = 0.05;
   int result;
+  //double PvalueColorMapNb =0.05;
 
-	
+std::ostringstream tmp ;
+tmp << significanceLevel;
+std::string PvalueColorMapString(tmp.str());
+//tmp=tmp.str();
+
     switch(i)
     {
       case 0:
 	if(interactionTest){
 	strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normProjectionsSpearman.txt");  //TODO fichier txt avec les info pour les overlay (activescalar)
-  
-      args.push_back("MeshMath"); //PROG appele
-
+        args.push_back("MeshMath"); //PROG appele
       args.push_back(OutputFile); //origine 
       args.push_back(OutputFile); // sortie (ou serotn stoquees les info de l overlay
       args.push_back("-KWMtoPolyData");
-
       args.push_back(TextFile);
       args.push_back("normProjectionsSpearman");} //non de ton active scalar
 	else{
       strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_mancovaRawP.txt");
-
       args.push_back("MeshMath");
-
       args.push_back(OutputFile);
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
-
       args.push_back(TextFile);
       args.push_back("RawP");
 	}
@@ -1422,15 +1421,14 @@ strcat(OutputFile,"_meanAll_uncorrected.vtk");
 	if(interactionTest){
 	strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normProjectionsSpearmanPval.txt");
-  
-      args.push_back("MeshMath");
-
+        args.push_back("MeshMath");
       args.push_back(OutputFile);
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
-
       args.push_back(TextFile);
-      args.push_back("normProjectionsSpearmanPval");}
+      args.push_back("normProjectionsSpearmanPval");
+      args.push_back("-significanceLevel");
+args.push_back(PvalueColorMapString.c_str() );}
 	else{
 	strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_mancovaFDRP.txt");
@@ -1440,9 +1438,10 @@ strcat(OutputFile,"_meanAll_uncorrected.vtk");
       args.push_back(OutputFile);
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
-
       args.push_back(TextFile);
-      args.push_back("FDRP");}
+      args.push_back("FDRP");
+      args.push_back("-significanceLevel");
+args.push_back(PvalueColorMapString.c_str());}
 
       break;
 
@@ -1450,25 +1449,21 @@ strcat(OutputFile,"_meanAll_uncorrected.vtk");
 	if(interactionTest){
 	strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normProjectionsPearsonPval.txt");
-  
-      args.push_back("MeshMath");
-
+        args.push_back("MeshMath");
       args.push_back(OutputFile);
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
-
       args.push_back(TextFile);
-      args.push_back("normProjectionsPearsonPval");}
+      args.push_back("normProjectionsPearsonPval");
+      args.push_back("-significanceLevel");
+args.push_back(PvalueColorMapString.c_str());}
 	else{
       strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normDistProjections.txt");
-  
-      args.push_back("MeshMath");
-
+        args.push_back("MeshMath");
       args.push_back(OutputFile);
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
-
       args.push_back(TextFile);
       args.push_back("normDistProjections");}
 
@@ -1477,13 +1472,10 @@ strcat(OutputFile,"_meanAll_uncorrected.vtk");
 	case 3:
       strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normDistProjectionsSpearman.txt");
-
       args.push_back("MeshMath");
-
       args.push_back(OutputFile);  
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
-
       args.push_back(TextFile);
       args.push_back("normDistProjectionsSpearman");
       break;
@@ -1491,57 +1483,50 @@ strcat(OutputFile,"_meanAll_uncorrected.vtk");
 	case 4:
 	strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normDistProjectionsPearson.txt");
-
       args.push_back("MeshMath");
-
       args.push_back(OutputFile);  
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
-
       args.push_back(TextFile);
       args.push_back("normDistProjectionsPearson");
       break;
 
 	case 5:
-	strcpy(TextFile,outbase.c_str());
+     strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normDistProjectionsSpearmanPval.txt");
-
       args.push_back("MeshMath");
-
       args.push_back(OutputFile);  
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
-
       args.push_back(TextFile);
       args.push_back("normDistProjectionsSpearmanPval");
+      args.push_back("-significanceLevel");
+args.push_back(PvalueColorMapString.c_str());
+
       break;
 
 	case 6:
 	strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normDistProjectionsPearsonPval.txt");
-
       args.push_back("MeshMath");
-
       args.push_back(OutputFile);  
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
-
       args.push_back(TextFile);
       args.push_back("normDistProjectionsPearsonPval");
+  args.push_back("-significanceLevel");
+args.push_back(PvalueColorMapString.c_str());
+
 
       break;
 
 	case 7:
 	strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normProjectionsPearson.txt");
-
-  
       args.push_back("MeshMath");
-
       args.push_back(OutputFile);
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
-
       args.push_back(TextFile);
       args.push_back("normProjectionsPearson");
 
@@ -1549,9 +1534,10 @@ strcat(OutputFile,"_meanAll_uncorrected.vtk");
 
 
 	}
-	
+
   
   args.push_back(0);
+	
 
    // Run the application
 
@@ -1640,6 +1626,7 @@ else{
     fichier.close();
     return 0;
 }
+
 
 
 void write_MRMLScene(std::string outbase,bool interactionTest)
