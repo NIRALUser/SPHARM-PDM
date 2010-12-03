@@ -1,9 +1,4 @@
 
-NeuroLib_USE_ITK()
-NeuroLib_USE_VTK()
-NeuroLib_USE_SHAPE()
-NeuroLiB_USE_BOOST()
-
 SET(StatNonParamTestPDMSRCS 
   createPerm.cxx 
   main.cxx
