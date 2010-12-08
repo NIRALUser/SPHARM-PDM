@@ -729,7 +729,7 @@ void shapeAnalysisMANCOVA_Wizard::selection_Group_IndeVariabl_DataDialog(int r, 
 
 
 	if(checkBox_gp->isChecked())
-	{ 	
+	{
 		if(headerVector[c]!=1)// if not the infile column
 		{
 			if (headerVector[c]==3 )//if c was choosen as group column
@@ -914,7 +914,6 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 	}
 
 
-
 	if(checkBox_load->isChecked())
 	{
 		arguments.append( file_name);
@@ -956,16 +955,16 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 
 	qs = QString(intToString(testCol).c_str());
 	arguments.append("--testColumn "+qs);
+	if(independentColumn.size()!=0){
+		arguments.append("--columnIndependent "+NumColumnInde);
+		qs = QString(intToString(numInde).c_str());
+		arguments.append("--numIndependent "+qs);}
 
-	arguments.append("--columnIndependent "+NumColumnInde);
+	if(groupColumn.size()!=0){
+		arguments.append("--columnGroupTypes "+NumColumnGroupTypes);
 
-	qs = QString(intToString(numInde).c_str());
-	arguments.append("--numIndependent "+qs);
-
-	arguments.append("--columnGroupTypes "+NumColumnGroupTypes);
-
-	qs = QString(intToString(numGroup).c_str());
-	arguments.append("--numGroupTypes "+qs);
+		qs = QString(intToString(numGroup).c_str());
+		arguments.append("--numGroupTypes "+qs);}
 
 	arguments.append("--numPerms "+lineEdit_permu->text());
 
