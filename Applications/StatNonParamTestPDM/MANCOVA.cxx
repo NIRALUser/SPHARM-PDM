@@ -139,7 +139,6 @@ void doMANCOVATesting( unsigned int numSubjects, unsigned int numFeatures, unsig
     A.set_size(1,p);
     A.fill( 0 );
     A(0,nrGroupVariables + testColumn ) = 1; // test column is 0 indexed
-
     }
   else
     {
@@ -156,7 +155,7 @@ void doMANCOVATesting( unsigned int numSubjects, unsigned int numFeatures, unsig
 	}
       switch ( numGroupTypes ) 
 	{
-	case 1: 
+	case 1:
 	  A(0,0) = 1;
 	  A(0,1) = -1;
 	  break;

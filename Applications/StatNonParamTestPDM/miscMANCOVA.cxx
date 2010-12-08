@@ -605,7 +605,7 @@ load_MeshList_file( std::string filename, int surfaceColumn, unsigned int numInd
 	{
 		meshFileNames[i]=meshFileNamesCopy[i];
 	}
-}		
+        }		
 	// debug info
 	if (debug) 
 	{
@@ -1501,7 +1501,7 @@ args.push_back(PvalueColorMapString.c_str());}
       args.push_back(TextFile);
       args.push_back("normDistProjectionsSpearmanPval");
       args.push_back("-significanceLevel");
-args.push_back(PvalueColorMapString.c_str());
+	args.push_back(PvalueColorMapString.c_str());
 
       break;
 

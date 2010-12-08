@@ -15,7 +15,7 @@ void do_ScalarInteractionTest( unsigned int numSubjects, unsigned int numFeature
   double *tempNorm; 
 
   vnl_vector<double> d,projsRanked,distsRanked;
-  vnl_vector<double> projs(numSubjects,0),dists(numSubjects,0);
+  vnl_vector<double> projs(numSubjects,0.0),dists(numSubjects,0.0);
 
   std::cout << "Performing simple correlation testing ... ";
   
@@ -29,8 +29,8 @@ void do_ScalarInteractionTest( unsigned int numSubjects, unsigned int numFeature
 
       for (unsigned int sub=0; sub<numSubjects; ++sub)
 	{ 
-	projs(sub) = 0;
-	dists(sub) = 0;
+	projs(sub) = 0.0;
+	dists(sub) = 0.0;
 	for (unsigned int tup=0; tup<tupelSize; ++tup)
 	  {
 	  // compute the projection along the mean normal
@@ -65,10 +65,10 @@ void do_ScalarInteractionTest( unsigned int numSubjects, unsigned int numFeature
       pearsonRhoPro(feat) = computePearsonCorrelationWithP( dataToCor, projs, dPPP_diff, dPPP_positive, dPPP_negative );
       pearsonRhoDist(feat) = computePearsonCorrelationWithP( dataToCor, dists, dPPD_diff, dPPD_positive, dPPD_negative );
 
-      spearmanRhoProPval(feat) = 0;
-      spearmanRhoDistPval(feat) = 0;
-      pearsonRhoProPval(feat) = 0;
-      pearsonRhoDistPval(feat) = 0;
+      spearmanRhoProPval(feat) = 0.0;
+      spearmanRhoDistPval(feat) = 0.0;
+      pearsonRhoProPval(feat) = 0.0;
+      pearsonRhoDistPval(feat) = 0.0;
 
       if ( useParametricP )
 	{
@@ -149,7 +149,7 @@ void do_ScalarInteractionTest( unsigned int numSubjects, unsigned int numFeature
       }
       
     }
-
+  //output_vector(spearmanRhoPro, std::string("./"), std::string("debug.txt"));
   std::cout << "done." << std::endl;
 
 }

@@ -88,7 +88,6 @@ if(independentColumns[i]==testColumn) { testColumn = i; }} }
 else{
 	for( int i =0; i<numGroupTypes;i++)
 		{ if(groupTypeColumns[i]==testColumn) { testColumn = i; }} }
-  
   unsigned int numSubjects, numFeatures;
   vnl_matrix<int> * groupLabel = NULL;
   vnl_matrix<double> * featureValue = NULL; 
@@ -290,7 +289,7 @@ if (KWMreadableInputFile==0)
 	{*/
 	std::cout << "Using uncorrected mean for the simple correlation test." << std::endl;
 
-	int writeOutVariabilityScores = 1; 
+	//int writeOutVariabilityScores = 1; 
 	do_ScalarInteractionTest( numSubjects, numFeatures, testColumn, featureValue, meanPoints, meanSurfaceNormals, spearmanRhoDist, spearmanRhoPro, spearmanRhoProPval, spearmanRhoDistPval, pearsonRhoDist, pearsonRhoPro, pearsonRhoProPval, pearsonRhoDistPval, correlationType, computeParametricP, numPerms, outbase );
 	//}      
 
@@ -353,14 +352,14 @@ if (KWMreadableInputFile==0)
   std::cout << "Runtime was "<< iif/60 << " minute(s) and " << iif%60 << " second(s)." << std::endl;
 
   // clean up everything
-if (KWMreadableInputFile==0)
-{
+  if (KWMreadableInputFile==0)
+  {
 
   meanSurfaceNormals->Delete();
   meanSurfaceNormalsCorrected->Delete();
   surfaceMesh->Delete();
   SOMesh->Delete();
-}
+  }
 
   write_ColorMap(outbase,interactionTest,significanceLevel);
 
