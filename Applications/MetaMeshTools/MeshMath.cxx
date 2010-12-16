@@ -233,6 +233,10 @@ int main(int argc, const char **argv)
       std::cout <<"     -KWMtoPolyData <txtFileIn> <nameScalarField>   Writes a KWM scalar field (1D) into a PolyData Field Data Scalar to visualize in Slicer3"<< std::endl;
       std::cout <<"                                                                    "<< std::endl;
       //bp2009 KWMtoPolyData
+ std::cout <<"     -significanceLevel <double> the min Pvalue for the Pval ColorMap "<< std::endl;
+      std::cout <<"                                                                    "<< std::endl;
+
+
       //bp2009 ProcessROI
       std::cout <<"     -processROI <txtROIFileIn> <MeshFileIn>  ... [TEMP - do not know where to put this]"<< std::endl;
       std::cout <<"                                                   Gets stats for a distances ROI map"<< std::endl;
