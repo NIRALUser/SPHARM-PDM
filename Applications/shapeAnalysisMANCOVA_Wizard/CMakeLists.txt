@@ -18,6 +18,13 @@ ELSE(QT_USE_FILE)
    MESSAGE(FATAL_ERROR, "QT not found. Please set QT_DIR.")
 ENDIF(QT_USE_FILE)
 
+FIND_PACKAGE(GenerateCLP REQUIRED)
+IF(GenerateCLP_FOUND)
+  INCLUDE(${GenerateCLP_USE_FILE})
+  SET (shapeAnalysisMANCOVA_Wizard_SRCS shapeAnalysisMANCOVA_Wizard.cxx main.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx )
+  GENERATECLP(main.cxx shapeAnalysisMANCOVA_Wizard.xml)
+ENDIF(GenerateCLP_FOUND)
+
 SET (GUI_HDRS shapeAnalysisMANCOVA_Wizard.ui)
 QT4_WRAP_UI(GUI_files ${GUI_HDRS})
 SET (MANCOVA_HDRS shapeAnalysisMANCOVA_Wizard.h)

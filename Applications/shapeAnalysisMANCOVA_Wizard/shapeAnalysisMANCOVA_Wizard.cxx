@@ -3,13 +3,22 @@
 
 #include <itksys/Process.h>
 #include <itksys/SystemTools.hxx>
-shapeAnalysisMANCOVA_Wizard::shapeAnalysisMANCOVA_Wizard(QWidget *parent , Qt::WFlags f ) 
+shapeAnalysisMANCOVA_Wizard::shapeAnalysisMANCOVA_Wizard(std::string infile, QWidget *parent , Qt::WFlags f ) 
 : QWidget(parent,f)
 {
-
 	setupUi(this);
 
+	if (infile !="nofile") //if csvfile as parameter in the command line
+	{
+		checkBox_load->setCheckState(Qt::Checked);
+			groupBox_csv->setEnabled(true);
+			frame_del_add_3->setEnabled(true);
+			pushButton_load->setEnabled(true);
+		QString Infile =QString ((const char*)infile.c_str());
+		file_name=Infile;
+		infile_ok_display();
 
+	}
 	connect(this->checkBox_load, SIGNAL(stateChanged(int)),this, SLOT(mutual_exclusion_load()));
 	connect(this->checkBox_NEWCSV, SIGNAL(stateChanged(int)),this, SLOT(mutual_exclusion_new()));
 
@@ -53,28 +62,35 @@ shapeAnalysisMANCOVA_Wizard::shapeAnalysisMANCOVA_Wizard(QWidget *parent , Qt::W
 
 
 int shapeAnalysisMANCOVA_Wizard::NumberComa()  //test if the file is correct : same number of coma on each line => correct
-{
+{    
 	int nber_coma_ref,nber_coma;
 	nber_coma_ref=0;
 	int nber_row;
 	int problem = -1;
+	int space=0;
+	int emptyline=0;
 	nber_row=0;
 	std::ifstream file(file_name , std::ios::in);
 
 	if (file) {
 		std::string line;
        		while(getline(file, line)) 
-      		{	nber_coma=0;
+		{	nber_coma=0;
+			space=0;
 			for( unsigned int i=0;i<line.length();i++)
 			{
 				if(line.at(i)==',')
 				{	nber_coma++;}
+				if(line.at(i)==' ')
+				{	space++;}
 			}
-			if(problem!=0){
+			if(space !=0 && line.size()==space){emptyline=1;}
+			if(problem!=0 && line.size()!=space){
 			if(nber_coma_ref==0){nber_coma_ref=nber_coma;}
 			else{if(nber_coma!=nber_coma_ref){problem = 0;}}//so problem in the file
-			}		nber_row++;
-
+			}		
+			nber_row++;
+			
 		}
 
 	}
@@ -86,9 +102,9 @@ int shapeAnalysisMANCOVA_Wizard::NumberComa()  //test if the file is correct : s
 
 
 void shapeAnalysisMANCOVA_Wizard::InitialisationVectorHeader() //size= number of columns, at the begining fill with 0
-{	
-	if(headerVector.size()==0)//at the beginning: fill with 0
-	{	for( int i=0; i<spinBox_col->value();i++)
+{	if(headerVector.size()==0)//at the beginning: fill with 0
+	{
+		for( int i=0; i<spinBox_col->value();i++)
 		{headerVector.push_back(0);}
 	}
 	else if(spinBox_col->value()>(int)headerVector.size())
@@ -99,7 +115,6 @@ void shapeAnalysisMANCOVA_Wizard::InitialisationVectorHeader() //size= number of
 	{	for(int i=(int)headerVector.size(); i>spinBox_col->value();i--)
 		{headerVector.pop_back();}//if we delete a column, we reduce the size of the vector
 	}
-
 }
 
 int shapeAnalysisMANCOVA_Wizard::WhereInfileColumn() //know what is the number of the infile column (return -1 if no infile column)
@@ -113,6 +128,113 @@ int shapeAnalysisMANCOVA_Wizard::WhereScaleColumn()
 	for(int i=0; i<(int)headerVector.size();i++)
 	{if (headerVector[i]==2)return(i);}
 	return(-1);
+}
+
+
+void shapeAnalysisMANCOVA_Wizard::infile_ok_display()
+{
+	nbRow.push_back(0);
+	int comment =0;
+	InitialisationVectorHeader();
+	if(file_name.size()!= 0)
+	{lineEdit_path->setText(file_name);
+	QString csv= ".csv";
+	QString txt=".txt";
+	if ((file_name.lastIndexOf(csv) == -1) &&(file_name.lastIndexOf(txt) == -1))
+	{
+		lineEdit_file->setText(QApplication::translate("MainWindow", " the file is not a .csv/.txt !", 0, QApplication::UnicodeUTF8));
+		lineEdit_file->setStyleSheet("background: orange");
+	}
+	else {
+		if(NumberComa()==0)
+		{
+			lineEdit_file->setText(QApplication::translate("MainWindow", " your csv has a problem", 0, QApplication::UnicodeUTF8));
+			lineEdit_file->setStyleSheet("background: orange");
+		}
+		else
+		{
+			lineEdit_file->setText(QApplication::translate("MainWindow", " CSV : Ok ", 0, QApplication::UnicodeUTF8));
+			lineEdit_file->setStyleSheet("background: lightgreen");
+			pushButton_path->setEnabled(true);
+			pushButton_load->setEnabled(false);
+			InitialisationVectorHeader();
+
+
+	
+			std::ifstream file(file_name, std::ios::in);//display the file in the grid
+			if (file) {
+			int col,row,nb;
+			col=0;row=0;nb=0;
+			std::string line,word;
+			spinBox_col->setValue((NumberComa()+1));
+			spinBox_data->setValue(nbRow[0]-1);
+			ajustCol();
+			ajustRow();
+			while(getline(file, line)) 
+      			{	
+				
+					for(unsigned int i=0;i<line.length();i++)
+					{	
+						if ((line.at(i)==',')||(i==line.length()-1))
+						{
+							QTableWidgetItem* item = new QTableWidgetItem;
+							table_display.push_back(item);
+							QString qs ( word.c_str() ); //convert the word(string) in QString
+							item->setData( 0, qs );
+							if(row==0)//first the headers are read
+							{
+								tableWidget->setHorizontalHeaderItem(col,table_display.back());}
+							else
+							{tableWidget->setItem( row-1, col, table_display.back());}
+							word.clear();
+							col++;
+						}
+						else
+						{	word=word+line.at(i);//add a caracter to the word 
+							if(line.at(i)=='/' && WhereInfileColumn()==-1 )//if the word contains "/"..the column is the infile column
+							{headerVector[col]=1;}
+							if (i+1==line.length()-1) {word=word+line.at(i+1);}
+						}
+						
+					}
+					if(line.at(0)!='#'){row++;}
+					else{comment++;}
+
+
+			col=0;
+
+			}
+			if(WhereInfileColumn()!=-1){lineEditInfileOrScaleDisplay(WhereInfileColumn(),1);}
+			spinBox_data->setValue(row-1);
+              		file.close(); 
+			}
+			ajustRow();
+			ifEmptyLine();
+			pushButton_Drow->setEnabled(true);
+			pushButton_Arow->setEnabled(true);
+			lineEdit_new_header->setEnabled(true);
+			pushButton_Acol->setEnabled(true);
+			pushButton_header->setEnabled(true);	
+			pushButton_save->setEnabled(true);	
+			checkBox_gp->setEnabled(true);	
+			checkBox_inde->setEnabled(true);
+			checkBox_infile->setEnabled(true);	
+			checkBox_scale->setEnabled(true);
+			label_infile->setEnabled(true);
+			label_group->setEnabled(true);
+			label_inde_var->setEnabled(true);
+			checkBox_unselect->setEnabled(true);
+			label_unselect->setEnabled(true);
+			pushButton_Dcol->setEnabled(true);
+			modifyHeaderName.push_back(0);
+			tableWidget->setEnabled(true);
+			pushButton_Drow->setEnabled(true);
+			pushButton_Arow->setEnabled(true);
+			
+		}
+	}
+}
+
 }
 
 
@@ -278,8 +400,7 @@ void shapeAnalysisMANCOVA_Wizard::saveFile(const char* char_file)  //to store th
 			}
 		}
 		for(int i=0;i<spinBox_data->value();i++)
-		{
-			for(int j=0;j<spinBox_col->value();j++)
+		{ 	for(int j=0;j<spinBox_col->value();j++)
 			{
 				tableWidget->setCurrentCell(i,j);
 				const char *item_read=QStringToChar(tableWidget->currentItem()->text());
@@ -295,6 +416,17 @@ void shapeAnalysisMANCOVA_Wizard::saveFile(const char* char_file)  //to store th
                file.close();  
         }
 }
+
+void shapeAnalysisMANCOVA_Wizard::ifEmptyLine() //if the 1st cell of the last row is empty => empty line at the end =>delete it!
+{
+	tableWidget->setCurrentCell(spinBox_data->value()-1,0);
+	char *item_read=strdup(QStringToChar(tableWidget->currentItem()->text()));
+	std::string str(item_read);
+		if(str.size()==0)
+		{spinBox_data->setValue((spinBox_data->value()-1));
+		tableWidget->removeRow((spinBox_data->value()));}
+}
+
 
 void shapeAnalysisMANCOVA_Wizard::setComboBoxGroupColumn()  // dynamic ComboBox
 {
@@ -324,6 +456,7 @@ void shapeAnalysisMANCOVA_Wizard::setComboBoxIndeVariablesColumn()
 
 void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_load()
 {
+
 	if(checkBox_load->isChecked()==1)
 	{	
 		if(checkBox_NEWCSV->isChecked()!=1)
@@ -405,6 +538,8 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_new()
 
 
 
+
+
 //.*******************************************************************************
 //          CSV File visu      Load
 //.*******************************************************************************
@@ -412,110 +547,11 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_new()
 //find csv file
 void shapeAnalysisMANCOVA_Wizard::openSelectionFileDialog()
 {
-	nbRow.push_back(0);
-	int comment =0;
-	InitialisationVectorHeader();
+
 	file_name = QFileDialog::getOpenFileName(this, "select your input", QString());	
-	if(file_name.size()!= 0)
-	{lineEdit_path->setText(file_name);
-	QString csv= ".csv";
-	QString txt=".txt";
-	if ((file_name.lastIndexOf(csv) == -1) &&(file_name.lastIndexOf(txt) == -1))
-	{
-		lineEdit_file->setText(QApplication::translate("MainWindow", " the file is not a .csv/.txt !", 0, QApplication::UnicodeUTF8));
-		lineEdit_file->setStyleSheet("background: orange");
-	}
-	else {
-		if(NumberComa()==0)
-		{
-			lineEdit_file->setText(QApplication::translate("MainWindow", " your csv have a problem", 0, QApplication::UnicodeUTF8));
-			lineEdit_file->setStyleSheet("background: orange");
-		}
-		else
-		{
-			lineEdit_file->setText(QApplication::translate("MainWindow", " CSV : Ok ", 0, QApplication::UnicodeUTF8));
-			lineEdit_file->setStyleSheet("background: lightgreen");
-			pushButton_path->setEnabled(true);
-			pushButton_load->setEnabled(false);
-			InitialisationVectorHeader();
-
-
+	infile_ok_display();
 	
-			std::ifstream file(file_name, std::ios::in);//display the file in the grid
-			if (file) {
-			int col,row,nb;
-			col=0;row=0;nb=0;
-			std::string line,word;
-			spinBox_col->setValue((NumberComa()+1));
-			spinBox_data->setValue(nbRow[0]-1);
-			ajustCol();
-			ajustRow();
-			while(getline(file, line)) 
-      			{	
-				
-			for(unsigned int i=0;i<line.length();i++)
-			{			
-				if ((line.at(i)==',')||(i==line.length()-1))
-				{
-					QTableWidgetItem* item = new QTableWidgetItem;
-					table_display.push_back(item);
-					QString qs ( word.c_str() ); //convert the word(string) in QString
-					item->setData( 0, qs );
-					if(row==0)//first the headers are read
-					{
-						tableWidget->setHorizontalHeaderItem(col,table_display.back());}
-					else
-					{tableWidget->setItem( row-1, col, table_display.back());}
-					word.clear();
-					col++;
-				}
-				else
-				{	word=word+line.at(i);//add a caracter to the word 
-					if(line.at(i)=='/' && WhereInfileColumn()==-1 )//if the word contains "/"..the column is the infile column
-					{headerVector[col]=1;}
-					if (i+1==line.length()-1) {word=word+line.at(i+1);}
-				}
-				
-			}
-			if(line.at(0)!='#'){row++;}
-			else{comment++;}
 
-			col=0;
-
-			}
-			if(WhereInfileColumn()!=-1){lineEditInfileOrScaleDisplay(WhereInfileColumn(),1);}
-			spinBox_data->setValue(row-1);
-			
-              		file.close(); 
-			}
-			ajustRow();
-			pushButton_Drow->setEnabled(true);
-			pushButton_Arow->setEnabled(true);
-			lineEdit_new_header->setEnabled(true);
-			pushButton_Acol->setEnabled(true);
-			pushButton_header->setEnabled(true);	
-			pushButton_save->setEnabled(true);	
-			checkBox_gp->setEnabled(true);	
-			checkBox_inde->setEnabled(true);
-			checkBox_infile->setEnabled(true);	
-			checkBox_scale->setEnabled(true);
-			label_infile->setEnabled(true);
-			label_group->setEnabled(true);
-			label_inde_var->setEnabled(true);
-			checkBox_unselect->setEnabled(true);
-			label_unselect->setEnabled(true);
-			if(spinBox_col->value()==4) {pushButton_Dcol->setEnabled(false);}
-			else {pushButton_Dcol->setEnabled(true);}
-			modifyHeaderName.push_back(0);
-			tableWidget->setEnabled(true);
-			pushButton_Drow->setEnabled(true);
-			pushButton_Arow->setEnabled(true);
-			if(spinBox_col->value()==4) {pushButton_Dcol->setEnabled(false);}
-			else {pushButton_Dcol->setEnabled(true);}
-			
-		}
-	}
-}
 }
 
 void shapeAnalysisMANCOVA_Wizard::deletePath()
@@ -729,7 +765,7 @@ void shapeAnalysisMANCOVA_Wizard::selection_Group_IndeVariabl_DataDialog(int r, 
 
 
 	if(checkBox_gp->isChecked())
-	{
+	{ 	
 		if(headerVector[c]!=1)// if not the infile column
 		{
 			if (headerVector[c]==3 )//if c was choosen as group column
@@ -914,6 +950,7 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 	}
 
 
+
 	if(checkBox_load->isChecked())
 	{
 		arguments.append( file_name);
@@ -955,16 +992,16 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 
 	qs = QString(intToString(testCol).c_str());
 	arguments.append("--testColumn "+qs);
-	if(independentColumn.size()!=0){
-		arguments.append("--columnIndependent "+NumColumnInde);
-		qs = QString(intToString(numInde).c_str());
-		arguments.append("--numIndependent "+qs);}
 
-	if(groupColumn.size()!=0){
-		arguments.append("--columnGroupTypes "+NumColumnGroupTypes);
+	arguments.append("--columnIndependent "+NumColumnInde);
 
-		qs = QString(intToString(numGroup).c_str());
-		arguments.append("--numGroupTypes "+qs);}
+	qs = QString(intToString(numInde).c_str());
+	arguments.append("--numIndependent "+qs);
+
+	arguments.append("--columnGroupTypes "+NumColumnGroupTypes);
+
+	qs = QString(intToString(numGroup).c_str());
+	arguments.append("--numGroupTypes "+qs);
 
 	arguments.append("--numPerms "+lineEdit_permu->text());
 

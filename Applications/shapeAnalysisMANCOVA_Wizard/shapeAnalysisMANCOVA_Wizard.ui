@@ -233,7 +233,7 @@
              <string notr="true">background-color: rgb(220, 220, 220);</string>
             </property>
             <property name="text">
-             <string>delete row</string>
+             <string>delete last row</string>
             </property>
             <property name="checkable">
              <bool>false</bool>
@@ -258,7 +258,7 @@
              <string notr="true">background-color: rgb(220, 220, 220);</string>
             </property>
             <property name="text">
-             <string>add row</string>
+             <string>add last row</string>
             </property>
            </widget>
            <widget class="QPushButton" name="pushButton_Dcol">
@@ -707,9 +707,9 @@
             </property>
             <property name="geometry">
              <rect>
-              <x>20</x>
+              <x>80</x>
               <y>50</y>
-              <width>251</width>
+              <width>191</width>
               <height>27</height>
              </rect>
             </property>
@@ -726,9 +726,9 @@
             </property>
             <property name="geometry">
              <rect>
-              <x>20</x>
+              <x>80</x>
               <y>90</y>
-              <width>251</width>
+              <width>191</width>
               <height>27</height>
              </rect>
             </property>
@@ -737,6 +737,32 @@
             </property>
             <property name="text">
              <string>your_csv_name.csv</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_3">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>50</y>
+              <width>60</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Folder :</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_10">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>86</y>
+              <width>71</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>File name :</string>
             </property>
            </widget>
           </widget>

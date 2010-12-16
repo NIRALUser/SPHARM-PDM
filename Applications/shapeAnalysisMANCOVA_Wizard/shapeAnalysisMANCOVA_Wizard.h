@@ -42,7 +42,7 @@ class shapeAnalysisMANCOVA_Wizard : public QWidget, private Ui::MainWindow
     Q_OBJECT
 
     public:
-        shapeAnalysisMANCOVA_Wizard(QWidget *parent = 0, Qt::WFlags f = 0 );
+        shapeAnalysisMANCOVA_Wizard(std::string infile, QWidget *parent = 0, Qt::WFlags f = 0 );
 
 
 //	~shapeAnalysisMANCOVA_Wizard();
@@ -98,7 +98,7 @@ class shapeAnalysisMANCOVA_Wizard : public QWidget, private Ui::MainWindow
 
 	std::vector<QTableWidgetItem *> table_display;//where we stock the item of the Qtablewidget
 
-
+	void infile_ok_display();
 	int NumberComa(); //test if the file is correct : same number of coma on each line => correct
 
 	void InitialisationVectorHeader();//size= number of columns, at the begining fill with 0
@@ -129,6 +129,8 @@ class shapeAnalysisMANCOVA_Wizard : public QWidget, private Ui::MainWindow
 	void setComboBoxGroupColumn();// dynamic ComboBox
 	void setComboBoxIndeVariablesColumn();
 
+	void ifEmptyLine();
+
 
 	std::vector<QTableWidgetItem *> table_header;//TODO not usefull
 	std::vector<QTableWidgetItem *> path_data;//TODO not usefull
@@ -136,6 +138,8 @@ class shapeAnalysisMANCOVA_Wizard : public QWidget, private Ui::MainWindow
 	std::vector< int > independentColumn;// all the numbers of the independent variable columns
 	std::vector< int > groupColumn;// all the numbers of the group columns
 	std::vector< int > nbRow;
+	
+	
 
 	//QString pathSlicer;
 	itksysProcess* m_Process;
