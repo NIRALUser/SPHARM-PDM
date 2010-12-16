@@ -3,17 +3,6 @@ PROJECT(SegPostProcess)
 #NeuroLib_USE_ITK()
 ## NeuroLib_USE_SHAPE()
 
-FIND_PACKAGE(ITK REQUIRED)
-
-IF (ITK_FOUND)
-   INCLUDE(${USE_ITK_FILE})
-ELSE(ITK_FOUND)
-   MESSAGE(FATAL_ERROR, "ITK not found. Please set ITK_DIR.")
-ENDIF (ITK_FOUND)
-
-ADD_EXECUTABLE(  SegPostProcess SegPostProcess.cxx)
-TARGET_LINK_LIBRARIES ( SegPostProcess ${ITK_LIBRARIES} )
-
 FIND_PACKAGE(GenerateCLP QUIET)
 IF (GenerateCLP_FOUND)
 
