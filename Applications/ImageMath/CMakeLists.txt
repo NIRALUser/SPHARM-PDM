@@ -8,19 +8,12 @@ ELSE(ITK_FOUND)
    MESSAGE(FATAL_ERROR, "ITK not found. Please set ITK_DIR.")
 ENDIF (ITK_FOUND)
 
-#INCLUDE_DIRECTORIES(
-#${NeuroLib_SOURCE_DIR}/Libraries/Disclaimer
-#${NeuroLib_SOURCE_DIR}/Libraries/Disclaimer/Qt
-#${NeuroLib_SOURCE_DIR}/Libraries/Disclaimer/Fltk
-#${NeuroLib_BINARY_DIR}/Libraries/Disclaimer/Qt
-#)
-#LINK_DIRECTORIES(${NeuroLib_BINARY_DIR}/bin)
 
 ADD_EXECUTABLE( ImageMath ImageMath.cxx)
 #ADD_EXECUTABLE( ImageMathB ImageMath_b.cxx)
 ADD_EXECUTABLE( CropImage CropImage.cxx)
 ADD_EXECUTABLE( CropDTI CropDTI.cxx)
-ADD_EXECUTABLE( Crop4DImage Crop4DImage.cxx)
+#ADD_EXECUTABLE( Crop4DImage Crop4DImage.cxx)
 #ADD_EXECUTABLE( MouseBrainOrient MouseBrainOrient.cxx)
 
 TARGET_LINK_LIBRARIES( ImageMath ${ITK_LIBRARIES} )
