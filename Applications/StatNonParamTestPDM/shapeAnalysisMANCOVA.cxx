@@ -365,12 +365,58 @@ if (KWMreadableInputFile==0)
 
   write_MRMLScene(outbase,interactionTest);
 
+//rite_commandline_txt(outbase);
+
   if ( groupLabel!=NULL ) delete groupLabel;
   if ( featureValue!=NULL ) delete featureValue;
   if ( scaleFactor!=NULL ) delete scaleFactor;
   if ( indValue!=NULL ) delete indValue;
   
   if ( meshFileNames!=NULL ) delete [] meshFileNames;
+
+
+char fileCommanLine[512];
+	std::strcpy (fileCommanLine,outbase.c_str());
+	std::strcat(fileCommanLine,"_commandline.txt");
+	
+	std::ofstream file(fileCommanLine);
+
+	if(file)
+	{
+		file<< "shapeAnalysisMANCOVA " ;
+		file<<infile ;
+		file<<" --infileColumn "<< infileColumn ;
+		file<<" --numPerms "<< numPerms;
+		file<<" --numGroupTypes "<<numGroupTypes ;
+		file<<" --columnGroupTypes";
+			for(unsigned int i=0;i<groupTypeColumns.size();i++)
+			{file<<" "<<groupTypeColumns[i];}
+		file<<" --numIndependent "<<numIndependent ;
+		file<< " --columnIndependent";
+			for(unsigned int i=0;i<independentColumns.size();i++)
+			{file<<" "<<independentColumns[i];}
+		if(surfListScale) {file<<" --scale";
+				file<<" --scaleColumn "<<scaleColumn  ;}
+		file<<" --testColumn "<< testColumn;
+		if(KWMreadableInputFile) file<<" --KWMinput" ;
+		file<<" --significanceLevel "<<significanceLevel;
+		if(writeZScores)file<<" --writeZScores" ;
+		if(computeScaleFactorFromVolumes) file<<" --computeScaleFactorFromVolumes";
+		if(interactionTest)file<<" --interactionTest" ;
+		if(simpleCorrs) file<<" --simpleCorrs" ;
+		if(computeParametricP) file<<" --simpleCorrsParaP" ;
+		if(debug) file<<" --debug" ;
+		if(useRoy) file<<" --roy" ;
+		if(useWilks) file<<" --wilks" ;
+		if(useHotelling) file<<" --hotelling" ;
+		if(usePillai) file<<" --pillai" ;
+		if(negativeCorrelation) file<<" --negativeCorrelation" ;
+		if(positiveCorrelation) file<<" --positiveCorrelation" ;
+		if(trendCorrelation) file<<" --trendCorrelation" ;
+
+
+		file.close();
+	}
 
   // done cleaning up
 

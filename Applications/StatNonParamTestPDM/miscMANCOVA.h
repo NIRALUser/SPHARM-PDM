@@ -93,5 +93,6 @@ int minmax (const std::string & filename, double *min, double* max);
 void write_MRMLScene(std::string outbase,bool interactionTest);
 void write_ColorMap(std::string outbase,bool interactionTest,double significanceLevel);
 void Meta2VTK(char* infile,char * outfile);
+void write_commandline_txt(std::string outbase);
 
 #endif

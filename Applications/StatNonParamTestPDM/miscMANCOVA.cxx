@@ -2029,5 +2029,16 @@ if(interactionTest)
 	}
 
 
-}	
+}
+
+void write_commandline_txt(std::string outbase)
+{
+
+	
+
+}
+
+	
+
+
 	
