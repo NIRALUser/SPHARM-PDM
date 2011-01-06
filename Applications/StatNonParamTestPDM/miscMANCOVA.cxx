@@ -254,7 +254,7 @@
 	
 void
 load_MeshList_file( std::string filename, int surfaceColumn, unsigned int numIndependent, 
-			unsigned int numGroupTypes,vector<int>  groupTypeColumns,vector<int> independentColumns, bool scaleOn, int scaleColumn, unsigned int &numSubjects, unsigned int &numA, unsigned int &numB,
+			unsigned int numGroupTypes,std::vector<int>  groupTypeColumns,std::vector<int> independentColumns, bool scaleOn, int scaleColumn, unsigned int &numSubjects, unsigned int &numA, unsigned int &numB,
 			vnl_matrix<int>* &groupLabel, vnl_matrix<double>* &scaleFactor, 
 			std::string* &meshFileNames,  vnl_matrix<double> * &indValue, bool computeScaleFactorFromVolumes )
 {
@@ -266,7 +266,7 @@ load_MeshList_file( std::string filename, int surfaceColumn, unsigned int numInd
 	const int MAXLINE  = 5000; 
 	static char line [ MAXLINE ];
 	
-	char *extension=strrchr(filename.c_str(),'.');
+	char *extension=const_cast<char*>(strrchr(filename.c_str(),'.'));
 	std::ifstream datafile(filename.c_str(),std::ios::in); 
 	
 	if (!datafile.is_open()) 
@@ -631,7 +631,7 @@ void load_Meshes( bool scaleOn,  unsigned int numSubjects,
 	for (unsigned int index = 0; index < numSubjects; index++) {
 	
 	//if the surface file is a vtk file	
-	char *extension =strrchr(meshFileNames[index].c_str(),'.');
+	char *extension =const_cast<char*>(strrchr(meshFileNames[index].c_str(),'.'));
 	std::cout << "reading Mesh " << meshFileNames[index].c_str() << " - " << extension << std::endl;
 
 	if(!strcmp(extension,".vtk")) //TODO 

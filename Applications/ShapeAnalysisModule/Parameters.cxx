@@ -60,7 +60,7 @@ void Parameters::ReadFile(const char *_FileName)
 					{	
 						if(!m_ChooseColumnState)// the user doesn't choose the input file's column
 						{
-						char *volume=strchr(value.c_str(),'.');
+						char *volume=const_cast<char*>(strchr(value.c_str(),'.'));
 						if(volume ) //the first volume file is selected automatically
 						{
 							if(strcmp(volume,".gipl.gz")==0 || strcmp(volume,".gipl")==0 || strcmp(volume,".mka")==0 || strcmp(volume,".mhd")==0 || strcmp(volume,".nrrd") || strcmp(volume,".nhdr")==0 || strcmp(volume,".nii")==0 || strcmp(volume,".nii")==0 || strcmp(volume,".nii.gz")==0 || strcmp(volume,".hdr")==0 || strcmp(volume,".mnc")==0 ) 
@@ -80,7 +80,7 @@ void Parameters::ReadFile(const char *_FileName)
 						{
 							if(m_ColumnVolume==column) 
 							{
-								char *volume=strchr(value.c_str(),'.');
+								char *volume=const_cast<char*>(strchr(value.c_str(),'.'));
 								if(volume )
 								{
 									m_VolumeFileExtension=volume;

@@ -10,7 +10,7 @@
 #include "newTypes.h"
 
 #include <string>
-#include <vector.h>
+#include <vector>
 #include <fstream>
 #include <iostream>
 
@@ -42,7 +42,7 @@ void output_vector(vnl_vector<double> data, std::string outbase, std::string toA
 void output_matrix(vnl_matrix<double> data, std::string outbase, std::string toAppend);
 
 void load_MeshList_file( std::string filename,int surfaceColumn, unsigned int numIndependent, 
-			 unsigned int numGroupTypes, vector<int> columnGroupTypes,vector<int> columnIndependent,bool scaleOn, int scaleColumn,
+			 unsigned int numGroupTypes, std::vector<int> columnGroupTypes,std::vector<int> columnIndependent,bool scaleOn, int scaleColumn,
 			 unsigned int &numSubjects, unsigned int &numA, unsigned int &numB,
 		    vnl_matrix<int>* &groupLabel, vnl_matrix<double>* &scaleFactor, 
 			 std::string* &meshFileNames,  vnl_matrix<double> * &indValue, bool computeScaleFactorFromVolumes );

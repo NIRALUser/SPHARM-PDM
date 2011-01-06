@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     outbase = infile;
 
   //if the input file is a csv file
-  char *extension=strchr(outbase.c_str(),'.');
+  char *extension=const_cast<char*>(strchr(outbase.c_str(),'.'));
   if(!strcmp(extension,".csv"))
   {
      int index=outbase.find(".csv",0);

@@ -1,6 +1,6 @@
 #include "shapeAnalysisMANCOVA_Wizard.h"
 //#define kwsys_stl 
-
+#include <algorithm>
 #include <itksys/Process.h>
 #include <itksys/SystemTools.hxx>
 shapeAnalysisMANCOVA_Wizard::shapeAnalysisMANCOVA_Wizard(std::string infile, QWidget *parent , Qt::WFlags f ) 
@@ -754,7 +754,7 @@ void shapeAnalysisMANCOVA_Wizard::selection_Group_IndeVariabl_DataDialog(int r, 
 			if(headerVector[c]!=3 )//if not already choose as an independent column 
 			{
 				independentColumn.push_back(c+1);
-				sort (independentColumn.begin(), independentColumn.end());
+				sort(independentColumn.begin(), independentColumn.end());
 				displayLineEditIndependent(c);
 				paintForeGround(202,128,35,c);
 				label_inde_var->setStyleSheet(QString::fromUtf8("color: rgb(202, 128, 35);"));
