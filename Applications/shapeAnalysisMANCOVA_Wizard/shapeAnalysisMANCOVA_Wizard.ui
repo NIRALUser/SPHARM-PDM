@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1283</width>
-    <height>782</height>
+    <height>732</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>1281</width>
-     <height>781</height>
+     <height>731</height>
     </rect>
    </property>
    <widget class="QTabWidget" name="tabWidget">
@@ -34,7 +34,7 @@
       <x>20</x>
       <y>10</y>
       <width>1261</width>
-      <height>751</height>
+      <height>721</height>
      </rect>
     </property>
     <property name="autoFillBackground">
@@ -54,7 +54,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>100</y>
+        <y>80</y>
         <width>251</width>
         <height>391</height>
        </rect>
@@ -347,7 +347,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>10</y>
+        <y>0</y>
         <width>611</width>
         <height>80</height>
        </rect>
@@ -476,7 +476,7 @@
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>100</y>
+        <y>80</y>
         <width>351</width>
         <height>281</height>
        </rect>
@@ -775,9 +775,9 @@
       <property name="geometry">
        <rect>
         <x>640</x>
-        <y>10</y>
+        <y>0</y>
         <width>601</width>
-        <height>701</height>
+        <height>681</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -802,7 +802,7 @@
             <x>10</x>
             <y>10</y>
             <width>581</width>
-            <height>681</height>
+            <height>661</height>
            </rect>
           </property>
           <property name="styleSheet">
@@ -823,6 +823,12 @@
           <property name="textElideMode">
            <enum>Qt::ElideMiddle</enum>
           </property>
+          <attribute name="verticalHeaderMinimumSectionSize">
+           <number>20</number>
+          </attribute>
+          <attribute name="verticalHeaderMinimumSectionSize">
+           <number>20</number>
+          </attribute>
           <row>
            <property name="text">
             <string>1</string>
@@ -1019,7 +1025,7 @@
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>390</y>
+        <y>360</y>
         <width>351</width>
         <height>321</height>
        </rect>
@@ -2352,32 +2358,6 @@ already pre-computed.</string>
       </layout>
      </widget>
     </widget>
-   </widget>
-   <widget class="QScrollBar" name="horizontalScrollBar">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>0</y>
-      <width>1111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="QScrollBar" name="verticalScrollBar">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>10</y>
-      <width>16</width>
-      <height>751</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
-    </property>
    </widget>
   </widget>
  </widget>
