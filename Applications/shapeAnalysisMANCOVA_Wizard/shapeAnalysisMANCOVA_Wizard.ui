@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1283</width>
-    <height>732</height>
+    <height>702</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,9 +32,9 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>10</y>
+      <y>0</y>
       <width>1261</width>
-      <height>721</height>
+      <height>701</height>
      </rect>
     </property>
     <property name="autoFillBackground">
@@ -54,7 +54,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>80</y>
+        <y>60</y>
         <width>251</width>
         <height>391</height>
        </rect>
@@ -349,7 +349,7 @@
         <x>10</x>
         <y>0</y>
         <width>611</width>
-        <height>80</height>
+        <height>61</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -372,7 +372,7 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>10</y>
+            <y>0</y>
             <width>581</width>
             <height>51</height>
            </rect>
@@ -476,7 +476,7 @@
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>80</y>
+        <y>60</y>
         <width>351</width>
         <height>281</height>
        </rect>
@@ -777,7 +777,7 @@
         <x>640</x>
         <y>0</y>
         <width>601</width>
-        <height>681</height>
+        <height>661</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -802,7 +802,7 @@
             <x>10</x>
             <y>10</y>
             <width>581</width>
-            <height>661</height>
+            <height>621</height>
            </rect>
           </property>
           <property name="styleSheet">
@@ -826,24 +826,6 @@
           <attribute name="verticalHeaderMinimumSectionSize">
            <number>20</number>
           </attribute>
-          <attribute name="verticalHeaderMinimumSectionSize">
-           <number>20</number>
-          </attribute>
-          <row>
-           <property name="text">
-            <string>1</string>
-           </property>
-          </row>
-          <row>
-           <property name="text">
-            <string>2</string>
-           </property>
-          </row>
-          <row>
-           <property name="text">
-            <string>3</string>
-           </property>
-          </row>
           <row>
            <property name="text">
             <string>4</string>
@@ -973,49 +955,6 @@
             <string>5</string>
            </property>
           </column>
-          <item row="0" column="0">
-           <property name="text">
-            <string/>
-           </property>
-          </item>
-          <item row="0" column="1">
-           <property name="text">
-            <string/>
-           </property>
-          </item>
-          <item row="1" column="0">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="background">
-            <brush brushstyle="NoBrush">
-             <color alpha="255">
-              <red>25</red>
-              <green>25</green>
-              <blue>48</blue>
-             </color>
-            </brush>
-           </property>
-          </item>
-          <item row="1" column="1">
-           <property name="text">
-            <string/>
-           </property>
-          </item>
-          <item row="2" column="1">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="background">
-            <brush brushstyle="NoBrush">
-             <color alpha="255">
-              <red>0</red>
-              <green>0</green>
-              <blue>0</blue>
-             </color>
-            </brush>
-           </property>
-          </item>
          </widget>
         </widget>
        </item>
@@ -1025,7 +964,7 @@
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>360</y>
+        <y>340</y>
         <width>351</width>
         <height>321</height>
        </rect>
@@ -1914,7 +1853,7 @@ already pre-computed.</string>
              <rect>
               <x>40</x>
               <y>170</y>
-              <width>271</width>
+              <width>281</width>
               <height>21</height>
              </rect>
             </property>
@@ -1925,7 +1864,7 @@ already pre-computed.</string>
            <widget class="QLineEdit" name="lineEdit_pvalue">
             <property name="geometry">
              <rect>
-              <x>320</x>
+              <x>330</x>
               <y>170</y>
               <width>113</width>
               <height>27</height>
@@ -2057,7 +1996,7 @@ already pre-computed.</string>
              <rect>
               <x>30</x>
               <y>10</y>
-              <width>93</width>
+              <width>111</width>
               <height>22</height>
              </rect>
             </property>

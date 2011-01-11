@@ -12,11 +12,14 @@
 
   <parameters>
 	  <label>Input file</label>
-    <string>
-       <name>infile</name>
-       <longflag>--csvFile</longflag>
-       <default>nofile</default>
-    </string>
+  <file>
+			<name>infile</name>
+			<longflag>--csvFile</longflag>
+			<channel>input</channel>
+			<default>nofile</default>
+		</file>
 </parameters>
 
  </executable>
+
+
