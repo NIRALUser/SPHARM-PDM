@@ -142,8 +142,8 @@ class shapeAnalysisMANCOVA_Wizard : public QWidget, private Ui::MainWindow
 	
 
 	//QString pathSlicer;
-	itksysProcess* m_Process;
-	std::vector<const char*> args;
+	//itksysProcess* m_Process;
+	//std::vector<const char*> args;
 
 
 

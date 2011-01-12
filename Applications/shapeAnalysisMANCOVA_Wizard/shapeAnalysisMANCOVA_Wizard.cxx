@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <itksys/Process.h>
 #include <itksys/SystemTools.hxx>
+
 shapeAnalysisMANCOVA_Wizard::shapeAnalysisMANCOVA_Wizard(std::string infile, QWidget *parent , Qt::WFlags f ) 
 : QWidget(parent,f)
 {
@@ -1025,6 +1026,7 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 			QApplication::restoreOverrideCursor();
 		}
 	else{pathMANCOVA = pathMANCOVAString.c_str() ;}
+
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 	process->start ( pathMANCOVA, arguments);
 
@@ -1051,25 +1053,24 @@ void shapeAnalysisMANCOVA_Wizard::openPopUp()
 
 		//if path not found
 		if(pathSlicerString.empty()==true)
-		{ 
+		{ //TODO test!!!!
 			QMessageBox::information(this, "Slicer3", "Select the folder where Slicer3* is saved .");
 			pathSlicer = QFileDialog::getExistingDirectory(this);
-			args.push_back(QStringToChar(pathSlicer));std::cout<<args[0]<<" ";
-			args.push_back("--launch");std::cout<<args[1]<<" ";
 			pathSlicer=pathSlicer+"/bin/Slicer3-real";
-			args.push_back(QStringToChar(pathSlicer));std::cout<<args[2]<<" ";
+			
 		}
 		else{
 			std::cout<<" "<<std::endl;
 			std::cout<<"path to Slicer"<<pathSlicerString<<std::endl;
-			args.push_back(pathSlicerString.c_str());std::cout<<args[0]<<" ";
-			args.push_back("--launch");std::cout<<args[1]<<" ";
+		
+			//if the Slicer found is in /Slicer/bin/
+			std::string key ("bin/Slicer3");
+			size_t found;
+			found=pathSlicerString.rfind(key);
+			if (found!=std::string::npos)
+			pathSlicerString.replace (found,key.length(),"Slicer3");
+
 			pathSlicer = pathSlicerString.c_str() ;
-			pathSlicerCopy =pathSlicer;
-			pathSlicer.remove(pathSlicer.size()-7,7);
-			QString end ="bin/Slicer3-real";
-			pathSlicer.append(end);
-			args.push_back(QStringToChar(pathSlicer));std::cout<<args[2]<<" ";
 			
 		}
 
@@ -1085,19 +1086,11 @@ void shapeAnalysisMANCOVA_Wizard::openPopUp()
 		pathMRML.remove(pathMRML.size()-4,4);
 		QString end ="_MRMLscene.mrml";
 		pathMRML.append(end);
-		args.push_back(QStringToChar(pathMRML));std::cout<<args[3]<<" ";
-
-		//args.push_back("--launch");std::cout<<args[1]<<" ";
-		//args.push_back(QStringToChar(pathSlicer));std::cout<<args[2]<<" ";
-		//args.push_back(QStringToChar(pathMRML));std::cout<<args[3]<<" ";
-		args.push_back(0);
-
-
-		m_Process = itksysProcess_New();
-		itksysProcess_SetCommand(m_Process, &*args.begin());
-		itksysProcess_SetOption(m_Process,itksysProcess_Option_HideWindow,1);
-		itksysProcess_Execute(m_Process); 
-		itksysProcess_WaitForExit(m_Process, 0);
+		
+		QStringList mrml;mrml.append(QStringToChar(pathMRML));
+		mrml << pathMRML;
+		QProcess::startDetached(pathSlicer,mrml);
+		qApp->quit();
 	}
 
 
