@@ -1053,10 +1053,10 @@ void shapeAnalysisMANCOVA_Wizard::openPopUp()
 
 		//if path not found
 		if(pathSlicerString.empty()==true)
-		{ //TODO test!!!!
+		{
 			QMessageBox::information(this, "Slicer3", "Select the folder where Slicer3* is saved .");
 			pathSlicer = QFileDialog::getExistingDirectory(this);
-			pathSlicer=pathSlicer+"/bin/Slicer3-real";
+			//pathSlicer=pathSlicer+"/bin/Slicer3-real";
 			
 		}
 		else{
