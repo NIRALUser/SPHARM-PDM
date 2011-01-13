@@ -12,8 +12,8 @@ shapeAnalysisMANCOVA_Wizard::shapeAnalysisMANCOVA_Wizard(std::string infile, QWi
 	if (infile !="nofile") //if csvfile as parameter in the command line
 	{
 		checkBox_load->setCheckState(Qt::Checked);
-			groupBox_csv->setEnabled(true);
-			frame_del_add_3->setEnabled(true);
+			//groupBox_csv->setEnabled(true);
+			//frame_del_add_3->setEnabled(true);
 			pushButton_load->setEnabled(true);
 		QString Infile =QString ((const char*)infile.c_str());
 		file_name=Infile;
@@ -39,7 +39,7 @@ shapeAnalysisMANCOVA_Wizard::shapeAnalysisMANCOVA_Wizard(std::string infile, QWi
 	connect(this->checkBox_inde, SIGNAL(stateChanged(int)),this, SLOT(mutual_exclusion_inde(int)));
 	connect(this->checkBox_gp, SIGNAL(stateChanged(int)),this, SLOT(mutual_exclusion_gp(int)));
 	connect(this->checkBox_unselect, SIGNAL(stateChanged(int)),this, SLOT(mutual_exclusion_unseclect(int)));
-	connect(this->checkBox_select_scale, SIGNAL(stateChanged(int)),this, SLOT (mutual_exclusion_scale(int)));
+	connect(this->checkBox_selectscale, SIGNAL(stateChanged(int)),this, SLOT (mutual_exclusion_scale(int)));
 	connect(this->tableWidget, SIGNAL(cellClicked( int, int)),this, SLOT(selection_Group_IndeVariabl_DataDialog(int,int)));
 	connect(this->checkBox_scale, SIGNAL(stateChanged(int)),this, SLOT(ScaleInTheFile(int)));	
 	connect(this->pushButton_save, SIGNAL(clicked()),this, SLOT(saveInfile()));	
@@ -223,7 +223,7 @@ void shapeAnalysisMANCOVA_Wizard::infile_ok_display()
 			checkBox_scale->setEnabled(true);
 			label_infile->setEnabled(true);
 			label_group->setEnabled(true);
-			label_inde_var->setEnabled(true);
+			//label_inde_var->setEnabled(true);
 			checkBox_unselect->setEnabled(true);
 			label_unselect->setEnabled(true);
 			pushButton_Dcol->setEnabled(true);
@@ -462,8 +462,8 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_load()
 	{	
 		if(checkBox_NEWCSV->isChecked()!=1)
 		{
-			groupBox_csv->setEnabled(true);
-			frame_del_add_3->setEnabled(true);
+			//groupBox_csv->setEnabled(true);
+			//frame_del_add_3->setEnabled(true);
 			pushButton_load->setEnabled(true);
 /*TODO
 std::string pathMANCOVA_WizardString;
@@ -491,9 +491,9 @@ label_7->setPixmap(QPixmap(pathMANCOVA_Wizard2));*/
 				if (answer == QMessageBox::Yes)
 				{
 					checkBox_NEWCSV->setCheckState(Qt::Unchecked);
-					frame_del_add_3->setEnabled(true);
-					groupBox_csv->setEnabled(true);
-					groupBox_new->setEnabled(false);
+					//frame_del_add_3->setEnabled(true);
+					//groupBox_csv->setEnabled(true);
+					//groupBox_new->setEnabled(false);
 					pushButton_load->setEnabled(true);
 				}
 				//else
@@ -514,10 +514,10 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_new()
 				int answer = QMessageBox::question(this, "Warning", "Are you sure you want to create a csv file instead of using the one loaded?", QMessageBox::No | QMessageBox::Yes);
 				if (answer == QMessageBox::Yes)
     				{
-					groupBox_new->setEnabled(true);
+					//groupBox_new->setEnabled(true);
 					checkBox_load->setCheckState(Qt::Unchecked);
-					groupBox_csv->setEnabled(false);
-					frame_col2_3->setEnabled(true);
+					//groupBox_csv->setEnabled(false);
+					//frame_col2_3->setEnabled(true);
 					pushButton_folder->setEnabled(true);
 					lineEdit_namecsv->setEnabled(true);
 					lineEdit_path->clear();
@@ -529,8 +529,8 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_new()
 					checkBox_load->setCheckState(Qt::Checked);}
 			}
 			else
-			{	groupBox_new->setEnabled(true);
-				frame_col2_3->setEnabled(true);
+			{	//groupBox_new->setEnabled(true);
+				//frame_col2_3->setEnabled(true);
 				pushButton_folder->setEnabled(true);
 				lineEdit_namecsv->setEnabled(true);
 			}
@@ -625,7 +625,7 @@ void shapeAnalysisMANCOVA_Wizard::saveParameter()
 	checkBox_infile->setEnabled(true);	
 	label_infile->setEnabled(true);
 	label_group->setEnabled(true);
-	label_inde_var->setEnabled(true);
+	//label_inde_var->setEnabled(true);
 	pushButton_save->setEnabled(true);	
 	checkBox_unselect->setEnabled(true);
 	label_unselect->setEnabled(true);
@@ -682,7 +682,7 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_infile(int state)
 	if(state == Qt::Checked) {
 		if(checkBox_inde->isChecked()) {checkBox_inde->setCheckState(Qt::Unchecked);}
 		if(checkBox_gp->isChecked()) {checkBox_gp->setCheckState(Qt::Unchecked);}
-		if(checkBox_select_scale->isChecked()) {checkBox_select_scale->setCheckState(Qt::Unchecked);}
+		if(checkBox_selectscale->isChecked()) {checkBox_selectscale->setCheckState(Qt::Unchecked);}
 		checkBox_unselect->setCheckState(Qt::Unchecked);
 	}
 }
@@ -691,7 +691,7 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_inde(int state)
 	if(state == Qt::Checked) {
 		if(checkBox_gp->isChecked()) {checkBox_gp->setCheckState(Qt::Unchecked);}
 		if(checkBox_infile->isChecked()) {checkBox_infile->setCheckState(Qt::Unchecked);}
-		if(checkBox_select_scale->isChecked()) {checkBox_select_scale->setCheckState(Qt::Unchecked);}
+		if(checkBox_selectscale->isChecked()) {checkBox_selectscale->setCheckState(Qt::Unchecked);}
 		checkBox_unselect->setCheckState(Qt::Unchecked);
 	}
 }
@@ -700,7 +700,7 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_gp(int state)
 	if(state == Qt::Checked) {
 		if(checkBox_inde->isChecked()) {checkBox_inde->setCheckState(Qt::Unchecked);}
 		if(checkBox_infile->isChecked()) {checkBox_infile->setCheckState(Qt::Unchecked);}
-		if(checkBox_select_scale->isChecked()) {checkBox_select_scale->setCheckState(Qt::Unchecked);}
+		if(checkBox_selectscale->isChecked()) {checkBox_selectscale->setCheckState(Qt::Unchecked);}
 		checkBox_unselect->setCheckState(Qt::Unchecked);
 
 	}
@@ -710,7 +710,7 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_unseclect(int state)
 	if(checkBox_unselect->isChecked()) {
 		checkBox_inde->setCheckState(Qt::Unchecked);
 		checkBox_gp->setCheckState(Qt::Unchecked);
-		checkBox_select_scale->setCheckState(Qt::Unchecked);
+		checkBox_selectscale->setCheckState(Qt::Unchecked);
 		checkBox_infile->setCheckState(Qt::Unchecked);
 	}
 }
@@ -719,7 +719,7 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_scale(int state)
 	if(state == Qt::Checked) {
 		if(checkBox_gp->isChecked()) {checkBox_gp->setCheckState(Qt::Unchecked);}
 		if(checkBox_infile->isChecked()) {checkBox_infile->setCheckState(Qt::Unchecked);}
-		if(checkBox_select_scale->isChecked()) {checkBox_inde->setCheckState(Qt::Unchecked);}
+		if(checkBox_selectscale->isChecked()) {checkBox_inde->setCheckState(Qt::Unchecked);}
 		checkBox_unselect->setCheckState(Qt::Unchecked);
 	}
 }
@@ -727,12 +727,12 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_scale(int state)
 void shapeAnalysisMANCOVA_Wizard::ScaleInTheFile(int state)
 {
 	if(state == Qt::Checked) {
-		checkBox_select_scale->setEnabled(true);
+		checkBox_selectscale->setEnabled(true);
 		label_scale_2->setEnabled(true);
 	}
 	else
 	{
-		checkBox_select_scale->setEnabled(false);
+		checkBox_selectscale->setEnabled(false);
 		label_scale_2->setStyleSheet(QString::fromUtf8("color: rgb(118,116, 113);"));
 		label_scale_2->setEnabled(false);
 	}
@@ -758,7 +758,7 @@ void shapeAnalysisMANCOVA_Wizard::selection_Group_IndeVariabl_DataDialog(int r, 
 				sort(independentColumn.begin(), independentColumn.end());
 				displayLineEditIndependent(c);
 				paintForeGround(202,128,35,c);
-				label_inde_var->setStyleSheet(QString::fromUtf8("color: rgb(202, 128, 35);"));
+				//label_inde_var->setStyleSheet(QString::fromUtf8("color: rgb(202, 128, 35);"));
 				headerVector[c]=INDE_COL;
 			}
 		}
@@ -806,7 +806,7 @@ void shapeAnalysisMANCOVA_Wizard::selection_Group_IndeVariabl_DataDialog(int r, 
 		lineEditInfileOrScaleDisplay(c,1);	
 	}
 
-	if(checkBox_select_scale->isChecked())
+	if(checkBox_selectscale->isChecked())
 	{
 		if(headerVector[c]!=1)// if not the infile column
 		{
@@ -850,7 +850,7 @@ void shapeAnalysisMANCOVA_Wizard::selection_Group_IndeVariabl_DataDialog(int r, 
 		}
 	}
 	
-	if(c ==WhereInfileColumn() && (checkBox_inde->isChecked()!=1 && checkBox_gp->isChecked() !=1 && checkBox_infile->isChecked() !=1  && checkBox_select_scale->isChecked()!=1))
+	if(c ==WhereInfileColumn() && (checkBox_inde->isChecked()!=1 && checkBox_gp->isChecked() !=1 && checkBox_infile->isChecked() !=1  && checkBox_selectscale->isChecked()!=1))
 	{ 
 		QString text = QFileDialog::getOpenFileName(this, "select your data", QString());
 		QTableWidgetItem *item= new QTableWidgetItem;
@@ -984,7 +984,7 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 			arguments.append("--computeScaleFactorFromVolumes");}
 	}
 
-	if(checkBox_zscore->isChecked()){ arguments.append( "-writeZScores" );}
+	//if(checkBox_zscore->isChecked()){ arguments.append( "-writeZScores" );}
 
 
 	arguments.append( "--significanceLevel "+lineEdit_pvalue->text());
