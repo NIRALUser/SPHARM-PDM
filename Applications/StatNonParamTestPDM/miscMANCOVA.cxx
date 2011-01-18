@@ -1291,25 +1291,38 @@ vnl_vector<double> fdrCorrection( vnl_vector<double>& rawP, double fdrLevel, dou
 	
 	for (int pointID=(int)(numFeatures-1);pointID>=0;--pointID)
 	{
-	if (pSorted(pointID)<=(pointID+1)*fdrLevel/numFeatures) 
-	{
-	fdrThresh=pSorted(pointID);
-	break;
-	}
+		if (pSorted(pointID)<=(pointID+1)*fdrLevel/numFeatures) 
+		{
+			fdrThresh=pSorted(pointID);
+		break;
+		}
 	}
 	
 	vnl_vector<double> fdrP( rawP );
+	double fdrFactor = 0;
+	if ( fdrThresh>0 ) 
+	{
+		fdrFactor = fdrLevel/fdrThresh;
+	}
+	if ( fdrFactor < 1.0 ) 
+	{
+		fdrFactor = 1.0;
+	}
 	
 	for (unsigned int pointID=0;pointID<numFeatures;++pointID) 
 	{
-	if ( fdrThresh>0 ) 
-	{
-	fdrP(pointID)=(rawP[pointID]/fdrThresh)*fdrLevel;
-	} 
-	else 
-	{
-	fdrP(pointID) = 1.0;  // there is nothing signicant (sorry), so let's set the p-value to 1
-	}
+		if ( fdrThresh>0 ) 
+		{
+			fdrP(pointID)=rawP[pointID] * fdrFactor;
+		} 
+		else 
+		{
+			fdrP(pointID) = 1.0;  // there is nothing signicant (sorry), so let's set the p-value to 1
+		}
+		if (fdrP(pointID) > 1.0) 
+		{
+			fdrP(pointID) = 1.0; // bound the p-value at 1.0, p-values over 1.0 do not make sense
+		}
 	}
 		
 	return fdrP;  
