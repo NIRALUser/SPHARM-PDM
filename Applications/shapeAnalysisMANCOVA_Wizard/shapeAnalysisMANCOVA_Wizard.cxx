@@ -158,7 +158,7 @@ void shapeAnalysisMANCOVA_Wizard::infile_ok_display()
 			lineEdit_file->setStyleSheet("background: lightgreen");
 			pushButton_path->setEnabled(true);
 			pushButton_load->setEnabled(false);
-			InitialisationVectorHeader();
+
 
 
 	
@@ -231,6 +231,7 @@ void shapeAnalysisMANCOVA_Wizard::infile_ok_display()
 			tableWidget->setEnabled(true);
 			pushButton_Drow->setEnabled(true);
 			pushButton_Arow->setEnabled(true);
+			InitialisationVectorHeader();
 			
 		}
 	}
@@ -435,16 +436,18 @@ void shapeAnalysisMANCOVA_Wizard::setComboBoxGroupColumn()  // dynamic ComboBox
 	for(unsigned int i=0;i<headerVector.size();i++)
 	{
 		if(headerVector[i]==4)
-		{comboBox_testCol->addItem(tableWidget->horizontalHeaderItem(i)->text());}
+		{
+			comboBox_testCol->addItem(tableWidget->horizontalHeaderItem(i)->text());}
 	}
 }
 void shapeAnalysisMANCOVA_Wizard::setComboBoxIndeVariablesColumn()
 {
 	comboBox_testCol->clear();
+
 	for(unsigned int i=0;i<headerVector.size();i++)
 	{
 		if(headerVector[i]==3)
-		{comboBox_testCol->addItem(tableWidget->horizontalHeaderItem(i)->text());}
+		{ comboBox_testCol->addItem(tableWidget->horizontalHeaderItem(i)->text());}
 	}
 }
 
