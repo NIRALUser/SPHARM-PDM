@@ -7,7 +7,6 @@ ShapeAnalysisModuleComputation::ShapeAnalysisModuleComputation()
 ShapeAnalysisModuleComputation::~ShapeAnalysisModuleComputation()
 {}
 
-
 // Compute Shape Analysis
 void ShapeAnalysisModuleComputation::Computation()
 {
@@ -194,7 +193,7 @@ char *ShapeAnalysisModuleComputation::GetBMSShapeAnalysisModuleFile2()
 void ShapeAnalysisModuleComputation::SetBMSShapeAnalysisModuleMRMLFile(bool changeDirectory)
 {
 	std::strcpy(m_BMSShapeAnalysisModuleMRLMFile, GetOutputDirectory());
-	std::strcat(m_BMSShapeAnalysisModuleMRLMFile, "/");
+	std::strcat(m_BMSShapeAnalysisModuleMRLMFile, "/BatchMake_Scripts/");
 	std::strcat(m_BMSShapeAnalysisModuleMRLMFile, "ShapeAnalysisModuleMRML.bms");
 }
 
@@ -375,7 +374,7 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	BMSShapeAnalysisModuleMRML<<"  Set(count3 1)"<<std::endl;
 
 	BMSShapeAnalysisModuleMRML<<"  ForEach(files ${MRMLfiles})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" echo(hello)"<<endl;
+	//BMSShapeAnalysisModuleMRML<<" echo(hello)"<<endl;
 	BMSShapeAnalysisModuleMRML<<" echo(${files})"<<endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(data ${files} '${count2}' )"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelStorage\\n')"<<std::endl;
@@ -670,486 +669,516 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
 {
 
-std::ofstream BMSShapeAnalysisModuleFile(GetBMSShapeAnalysisModuleFile());
-vector<string> OutputFileHeaders=GetOutputFileHeaders();
-int DataNumber;
+	std::ofstream BMSShapeAnalysisModuleFile(GetBMSShapeAnalysisModuleFile());
+	vector<string> OutputFileHeaders=GetOutputFileHeaders();
+	int DataNumber;
+	
+	BMSShapeAnalysisModuleFile<<"#---------------------------- Shape Analysis ----------------------------"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"#------------------------------------------------------------------------"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"#------------------------------------------------------------------------"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"#------------------------------------------------------------------------"<<std::endl;
+	
+	//Set the headers for the output file
+	for(unsigned int i=0;i<OutputFileHeaders.size();i++)
+	{
+		BMSShapeAnalysisModuleFile<<" Set(Header"<<i<<" '"<<GetNthDataListValue(1,i)<<"')"<<std::endl;
+	
+	}
 
-BMSShapeAnalysisModuleFile<<"#---------------------------- Shape Analysis ----------------------------"<<std::endl;
-BMSShapeAnalysisModuleFile<<"#------------------------------------------------------------------------"<<std::endl;
-BMSShapeAnalysisModuleFile<<"#------------------------------------------------------------------------"<<std::endl;
-BMSShapeAnalysisModuleFile<<"#------------------------------------------------------------------------"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"set (OrigCasesList '"<<GetNthDataListValue(1,GetColumnVolumeFile())<<"')"<<std::endl;
+	
+	std::cout<<"Number of Datas: "<<GetDataNumber()<<std::endl;
+	
+	for (DataNumber = 2; DataNumber <=GetDataNumber(); DataNumber++)
+	{
+	
+		for(unsigned int i=0;i<OutputFileHeaders.size();i++)
+		{
+			BMSShapeAnalysisModuleFile<<"set (Header"<<i<<" ${Header"<<i<<"} '" <<GetNthDataListValue(DataNumber,i)<<"')"<<std::endl;
+		
+		}
+		BMSShapeAnalysisModuleFile<<"set (OrigCasesList ${OrigCasesList} '"<<GetNthDataListValue(DataNumber,GetColumnVolumeFile())<<"')"<<std::endl;
+	}
+	BMSShapeAnalysisModuleFile<<""<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"#Create directories"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/BatchMake_Scripts/)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Mesh/)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Mesh/PostProcess/)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Mesh/SPHARM/)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Template/)"<<std::endl; 
+	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Output/)"<<std::endl; 
+	BMSShapeAnalysisModuleFile<<"set(BMSdir '"<<GetOutputDirectory()<<"/BatchMake_Scripts')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"set(datadir '"<<GetOutputDirectory()<<"/')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"set(PPdir '"<<GetOutputDirectory()<<"/Mesh/PostProcess/')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"set(SPHARMdir '"<<GetOutputDirectory()<<"/Mesh/SPHARM/')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"set(tdir '"<<GetOutputDirectory()<<"/Template/')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"set(Outputdir '"<<GetOutputDirectory()<<"/Output/')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"echo()"<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"#Create OutputFile"<<std::endl;
+	//BMSShapeAnalysisModuleFile<<"Set(OutputFile "<<GetOutputDirectory()<<"/Output/ShapeAnalysisModule_OutputFile.csv)"<<std::endl;
+	SetOuputFile();
+	BMSShapeAnalysisModuleFile<<"Set(OutputFile "<<GetOutputFile()<<")"<<std::endl;
 
-//Set the headers for the output file
-for(unsigned int i=0;i<OutputFileHeaders.size();i++)
-{
-	BMSShapeAnalysisModuleFile<<" Set(Header"<<i<<" '"<<GetNthDataListValue(1,i)<<"')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<" WriteFile(${OutputFile} '"<<OutputFileHeaders[0]<<",')"<<std::endl;
+	for(unsigned int i=1;i<OutputFileHeaders.size();i++)
+	{
+		BMSShapeAnalysisModuleFile<<" appendFile(${OutputFile} '"<<OutputFileHeaders[i]<<",')"<<std::endl;
+	}
+	
+	//Write headers of the output file
+	BMSShapeAnalysisModuleFile<<" appendFile(${OutputFile} ' Post Processed Segmentation, Parametrisation of Original Surface, SPHARM Surface in Original Space, SPHARM Coefficient in Original Space, SPHARM Surface in Ellipsoid Aligned Space, SPHARM Coefficient in Ellipsoid Aligned Space, SPHARM Surface in Procaligned Space\\n')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"echo()"<<std::endl;
+	
+	
+	BMSShapeAnalysisModuleFile<<"  Set(count 0)"<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<""<<std::endl;
+	BMSShapeAnalysisModuleFile<<"ForEach(case ${OrigCasesList})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  #Extract basename"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  GetFilename(basename ${case} NAME_WITHOUT_EXTENSION)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  echo(Case: ${case})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  listFileInDir(testSeg ${PPdir} *${basename}*_pp"<<GetVolumeFileExtension()<<")"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  listFileInDir(testGen1 ${SPHARMdir} *${basename}*para.vtk*) "<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  listFileInDir(testGen2 ${SPHARMdir} *${basename}*surf.vtk*) "<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  set(testGen ${testGen1} ${testGen2}) "<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  listFileInDir(testPara ${SPHARMdir} *${basename}*SPHARM*)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  listFileInDir(testPara2 ${SPHARMdir} *${basename}*MeanSPHARM*)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  listFileInDir(testtemp ${tdir}  *SPHARM*)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  listFileInDir(testtemp2 ${tdir} *${basename}*SPHARM*)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  "<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  set(ppcase ${PPdir}${basename}_pp.gipl.gz)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  "<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"  #Post Processing"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  echo('Doing Post Processing')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  if(${testSeg} == '')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    SetApp(Seg @SegPostProcessCLP)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    SetAppOption(Seg.fileName ${case})"<<std::endl;
 
-}
+	if (GetGaussianFilteringState()==true)
+	{
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(Seg.gaussianOn 1)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(Seg.variance_vect.variance_vect "<<GetVarianceBoxX()<<","<<GetVarianceBoxY()<<","<<GetVarianceBoxZ()<<")"<<std::endl;
+	}
+	BMSShapeAnalysisModuleFile<<"    SetAppOption(Seg.outfileName ${ppcase})"<<std::endl;
+	if (GetLabelState()==true)
+	{
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(Seg.label.label "<<GetLabel()<<")"<<std::endl;
+	}
+	BMSShapeAnalysisModuleFile<<"    SetAppOption(Seg.spacing_vect.spacing_vect "<<GetEnforcedSpaceX()<<","<<GetEnforcedSpaceY()<<","<<GetEnforcedSpaceZ()<<")"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    Run(output ${Seg} error)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    echo('SegPostProcess Error:' ${error}')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  endif(${testSeg})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<""<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"  #GenParaMesh"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  echo('Doing GenParaMesh')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  Set(value 0)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  foreach(data ${testGen})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    Inc(${value} 1)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    Int(${value})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  EndForEach(data)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  if (${value} < 2)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    SetApp(Gen @GenParaMeshCLP)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.infile ${ppcase})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.outParaName ${SPHARMdir}${basename}_pp_para.vtk)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.outSurfName ${SPHARMdir}${basename}_pp_surf.vtk)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.numIterations.numIterations "<<GetNumberOfIterations()<<")"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.label.label 1)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    Run(output ${Gen} error)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    echo('GenParaMesh Error:' ${error})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  endif(${value})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<""<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"  #ParaToSPHARMMesh"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  echo('Doing ParaToSPHARMMesh')"<<std::endl;
 
-BMSShapeAnalysisModuleFile<<"set (OrigCasesList '"<<GetNthDataListValue(1,GetColumnVolumeFile())<<"')"<<std::endl;
+	if (GetRegTemplateState()==false && GetFlipTemplateState()==false)//TODO
+	{
+		BMSShapeAnalysisModuleFile<<"  Set(value 0)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  foreach(data ${testtemp})"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    Inc(${value} 1)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    Int(${value})"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  EndForEach(data)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  if (${value} < 4)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  #Create Template"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    echo('Creating Template')"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    SetApp(ParaT @ParaToSPHARMMeshCLP)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.inSurfFile ${SPHARMdir}${basename}_pp_surf.vtk)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.inParaFile ${SPHARMdir}${basename}_pp_para.vtk)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.outbase ${tdir}${basename}_pp_surf)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.subdivLevel 1)" <<std::endl;
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.subdivLevel.subdivLevel "<<GetSubdivLevel()<<")"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.spharmDegree 1)" <<std::endl;
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.spharmDegree.spharmDegree "<<GetSPHARMDegree()<<")"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"      SetAppOption(ParaT.finalFlipIndex 1)" <<std::endl;
+		if (GetFinalFlipN()==1){
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex "<<0<<")"<<std::endl;}
+		if (GetFinalFlipX()==1){
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<4<<")"<<std::endl;}
+		if (GetFinalFlipY()==1){
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<5<<")"<<std::endl;}
+		if (GetFinalFlipZ()==1){
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<7<<")"<<std::endl;}
+		if (GetFinalFlipXY()==1){
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<1<<")"<<std::endl;}
+		if (GetFinalFlipYZ()==1){
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<2<<")"<<std::endl;}
+		if (GetFinalFlipXZ()==1){
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<3<<")"<<std::endl;}
+		if (GetFinalFlipXYZ()==1){
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<6<<")"<<std::endl;}
 
-std::cout<<"Number of Datas: "<<GetDataNumber()<<std::endl;
+		
+		if (GetParaOut1State()==true)
+		{
+		BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.writePara 1)"<<std::endl;
+		}
+		BMSShapeAnalysisModuleFile<<"    Run(output ${ParaT} error)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
+		BMSShapeAnalysisModuleFile<<" DeleteFile("<<GetOutputDirectory()<<"/Template/${basename}_pp_surf_paraPhiHalf.txt)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<" DeleteFile("<<GetOutputDirectory()<<"/Template/${basename}_pp_surf_paraMix.txt)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  endif(${value})"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  "<<std::endl;
+		
+		
+		if (GetTemplateMState()==true) 
+		{
+			if (MeanTemplateExist()==0)
+			{
+				BMSShapeAnalysisModuleFile<<"    Set(value 0)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"    foreach(data ${testPara2})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      Inc(${value} 1)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      Int(${value})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"    EndForEach(data)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"    if (${value} < 4) "<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      listFileInDir(reg ${tdir} *SPHARM.vtk)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      listFileInDir(flip ${tdir} *SPHARM.coef)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      set(regTemplate ${reg})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      set(flipTemplate ${flip})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      echo ('regTemplate: '${regTemplate})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      echo ('flipTemplate: '${flipTemplate})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      #The Template is the first data"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      Set(value 0)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      foreach(data ${testPara})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"        Inc(${value} 1)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"        Int(${value})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      EndForEach(data)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      if (${value} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"        SetApp(Para @ParaToSPHARMMeshCLP)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.inSurfFile ${SPHARMdir}${basename}_pp_surf.vtk)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.inParaFile ${SPHARMdir}${basename}_pp_para.vtk)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.outbase  ${SPHARMdir}${basename}_pp_surf)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"	     SetAppOption(Para.flipTemplateFileOn 1)" <<std::endl;
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.flipTemplateFile.flipTemplateFile ${tdir}${flipTemplate})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.subdivLevel 1)" <<std::endl;
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.subdivLevel.subdivLevel "<</*m_Parameters.*/GetSubdivLevel()<<")"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.spharmDegree 1)" <<std::endl;
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.spharmDegree.spharmDegree "<</*m_Parameters.*/GetSPHARMDegree()<<")"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.regTemplateFileOn 1)" <<std::endl;
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.regTemplateFile.regTemplateFile ${tdir}${regTemplate})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex 1)" <<std::endl;
+				if (GetFinalFlipN()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<0<<")"<<std::endl;}
+				if (GetFinalFlipX()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<4<<")"<<std::endl;}
+				if (GetFinalFlipY()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<5<<")"<<std::endl;}
+				if (GetFinalFlipZ()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<7<<")"<<std::endl;}
+				if (GetFinalFlipXY()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<1<<")"<<std::endl;}
+				if (GetFinalFlipYZ()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<2<<")"<<std::endl;}
+				if (GetFinalFlipXZ()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<3<<")"<<std::endl;}
+				if (GetFinalFlipXYZ()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<6<<")"<<std::endl;}
+				
+				if (GetParaOut1State()==true)
+				{
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.writePara 1)"<<std::endl;
+				}
+				BMSShapeAnalysisModuleFile<<"        Run(output ${Para} error)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      endif(${value})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"    endif(${value})"<<std::endl;
+				ComputeMean = 1;
+			}
+			if (MeanTemplateExist()!=0)
+			{
+				ComputeMean = 0;
+				BMSShapeAnalysisModuleFile<<"    listFileInDir(deletelist ${SPHARMdir} ${basename}*SPHARM*) "<<std::endl;  
+				BMSShapeAnalysisModuleFile<<"    Set(value 0)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"    foreach(data ${testPara2})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      Inc(${value} 1)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      Int(${value})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"    EndForEach(data)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"    if (${value} < 4) "<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      listFileInDir(reg ${tdir} *meanAll.vtk)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      set(regTemplate ${reg})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      listFileInDir(flip ${tdir} *SPHARM.coef)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      set(flipTemplate ${flip})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      echo()"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      echo ('regTemplate: '${regTemplate})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      echo ('flipTemplate: '${flipTemplate})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      echo()"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      #The Template is the Mean"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      listFileInDir(testPara ${SPHARMdir} ${basename}*SPHARM*)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetApp(Para @ParaToSPHARMMeshCLP)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.inSurfFile ${SPHARMdir}${basename}_pp_surf.vtk)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.inParaFile ${SPHARMdir}${basename}_pp_para.vtk)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.outbase  ${SPHARMdir}${basename}_pp_surf_tMean)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"	   SetAppOption(Para.flipTemplateFileOn 1)" <<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.flipTemplateFile.flipTemplateFile ${tdir}${flipTemplate})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.subdivLevel 1)" <<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.subdivLevel.subdivLevel "<</*m_Parameters.*/GetSubdivLevel()<<")"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.spharmDegree 1)" <<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.spharmDegree.spharmDegree "<</*m_Parameters.*/GetSPHARMDegree()<<")"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.regTemplateFileOn 1)" <<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.regTemplateFile.regTemplateFile ${tdir}${regTemplate})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex 1)" <<std::endl;
+				if (GetFinalFlipN()==1){
+					BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<0<<")"<<std::endl;}
+				if (GetFinalFlipX()==1){
+					BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<4<<")"<<std::endl;}
+				if (GetFinalFlipY()==1){
+					BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<5<<")"<<std::endl;}
+				if (GetFinalFlipZ()==1){
+					BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<7<<")"<<std::endl;}
+				if (GetFinalFlipXY()==1){
+					BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<1<<")"<<std::endl;}
+				if (GetFinalFlipYZ()==1){
+					BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<2<<")"<<std::endl;}
+				if (GetFinalFlipXZ()==1){
+					BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<3<<")"<<std::endl;}
+				if (GetFinalFlipXYZ()==1){
+					BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<6<<")"<<std::endl;}
+			
+				if (GetParaOut1State()==true)
+				{
+					BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.writePara 1)"<<std::endl;
+				}
+				BMSShapeAnalysisModuleFile<<"      Run(output ${Para} error)"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
+				BMSShapeAnalysisModuleFile<<"    endif(${value})"<<std::endl;
+			}
+		}
+		if (GetTemplateMState()==false)
+		{
+			BMSShapeAnalysisModuleFile<<"    Set(value 0)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"    foreach(data ${testPara2})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      Inc(${value} 1)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      Int(${value})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"    EndForEach(data)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"    if (${value} < 4) "<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      listFileInDir(reg ${tdir} *SPHARM.vtk)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      listFileInDir(flip ${tdir} *SPHARM.coef)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      set(regTemplate ${reg})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      set(flipTemplate ${flip})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      echo ('regTemplate: '${regTemplate})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      echo ('flipTemplate: '${flipTemplate})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      #The Template is the first data"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      Set(value 0)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      foreach(data ${testPara})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"        Inc(${value} 1)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"        Int(${value})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      EndForEach(data)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      if (${value} < 4)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"        SetApp(Para @ParaToSPHARMMeshCLP)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.inSurfFile ${SPHARMdir}${basename}_pp_surf.vtk)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.inParaFile ${SPHARMdir}${basename}_pp_para.vtk)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.outbase  ${SPHARMdir}${basename}_pp_surf)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"	     SetAppOption(Para.flipTemplateFileOn 1)" <<std::endl;
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.flipTemplateFile.flipTemplateFile ${tdir}${flipTemplate})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.subdivLevel 1)" <<std::endl;
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.subdivLevel.subdivLevel "<<GetSubdivLevel()<<")"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.spharmDegree 1)" <<std::endl;
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.spharmDegree.spharmDegree "<<GetSPHARMDegree()<<")"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.regTemplateFileOn 1)" <<std::endl;
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.regTemplateFile.regTemplateFile ${tdir}${regTemplate})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex 1)" <<std::endl;
+			if (GetFinalFlipN()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<0<<")"<<std::endl;}
+			if (GetFinalFlipX()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<4<<")"<<std::endl;}
+			if (GetFinalFlipY()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<5<<")"<<std::endl;}
+			if (GetFinalFlipZ()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<7<<")"<<std::endl;}
+			if (GetFinalFlipXY()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<1<<")"<<std::endl;}
+			if (GetFinalFlipYZ()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<2<<")"<<std::endl;}
+			if (GetFinalFlipXZ()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<3<<")"<<std::endl;}
+			if (GetFinalFlipXYZ()==1){
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<6<<")"<<std::endl;}
+			
+			if (GetParaOut1State()==true)
+			{
+				BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.writePara 1)"<<std::endl;
+			}
+			BMSShapeAnalysisModuleFile<<"        Run(output ${Para} error)"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"      endif(${value})"<<std::endl;
+			BMSShapeAnalysisModuleFile<<"    endif(${value})"<<std::endl;
+		}
+ 	}
 
-for (DataNumber = 2; DataNumber <=GetDataNumber(); DataNumber++)
-{
 
-for(unsigned int i=0;i<OutputFileHeaders.size();i++)
-{
-BMSShapeAnalysisModuleFile<<"set (Header"<<i<<" ${Header"<<i<<"} '" <<GetNthDataListValue(DataNumber,i)<<"')"<<std::endl;
+	if ((GetRegTemplateState()==true && GetFlipTemplateState()==true) ||(GetRegTemplateState()==true && GetFlipTemplateState()==false)||(GetRegTemplateState()==false && GetFlipTemplateState()==true))
 
-}
-BMSShapeAnalysisModuleFile<<"set (OrigCasesList ${OrigCasesList} '"<<GetNthDataListValue(DataNumber,GetColumnVolumeFile())<<"')"<<std::endl;
-}
-BMSShapeAnalysisModuleFile<<""<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"#Create directories"<<std::endl;
-BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/BatchMake_Scripts/)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Mesh/)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Mesh/PostProcess/)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Mesh/SPHARM/)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Template/)"<<std::endl; 
-BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Output/)"<<std::endl; 
-BMSShapeAnalysisModuleFile<<"set(BMSdir '"<<GetOutputDirectory()<<"/BatchMake_Scripts')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"set(datadir '"<<GetOutputDirectory()<<"/')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"set(PPdir '"<<GetOutputDirectory()<<"/Mesh/PostProcess/')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"set(SPHARMdir '"<<GetOutputDirectory()<<"/Mesh/SPHARM/')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"set(tdir '"<<GetOutputDirectory()<<"/Template/')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"set(Outputdir '"<<GetOutputDirectory()<<"/Output/')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"echo()"<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"#Create OutputFile"<<std::endl;
-//BMSShapeAnalysisModuleFile<<"Set(OutputFile "<<GetOutputDirectory()<<"/Output/ShapeAnalysisModule_OutputFile.csv)"<<std::endl;
-SetOuputFile();
-BMSShapeAnalysisModuleFile<<"Set(OutputFile "<<GetOutputFile()<<")"<<std::endl;
-
-BMSShapeAnalysisModuleFile<<" WriteFile(${OutputFile} '"<<OutputFileHeaders[0]<<",')"<<std::endl;
-for(unsigned int i=1;i<OutputFileHeaders.size();i++)
-{
-	BMSShapeAnalysisModuleFile<<" appendFile(${OutputFile} '"<<OutputFileHeaders[i]<<",')"<<std::endl;
-}
-
-//Write headers of the output file
-BMSShapeAnalysisModuleFile<<" appendFile(${OutputFile} ' Post Processed Segmentation, Parametrisation of Original Surface, SPHARM Surface in Original Space, SPHARM Coefficient in Original Space, SPHARM Surface in Ellipsoid Aligned Space, SPHARM Coefficient in Ellipsoid Aligned Space, SPHARM Surface in Procaligned Space\\n')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"echo()"<<std::endl;
-
-
-BMSShapeAnalysisModuleFile<<"  Set(count 0)"<<std::endl;
-
-BMSShapeAnalysisModuleFile<<""<<std::endl;
-BMSShapeAnalysisModuleFile<<"ForEach(case ${OrigCasesList})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  #Extract basename"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  GetFilename(basename ${case} NAME_WITHOUT_EXTENSION)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo(Case: ${case})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  listFileInDir(testSeg ${PPdir} *${basename}*_pp"<<GetVolumeFileExtension()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  listFileInDir(testGen1 ${SPHARMdir} *${basename}*para.vtk*) "<<std::endl;
-BMSShapeAnalysisModuleFile<<"  listFileInDir(testGen2 ${SPHARMdir} *${basename}*surf.vtk*) "<<std::endl;
-BMSShapeAnalysisModuleFile<<"  set(testGen ${testGen1} ${testGen2}) "<<std::endl;
-BMSShapeAnalysisModuleFile<<"  listFileInDir(testPara ${SPHARMdir} *${basename}*SPHARM*)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  listFileInDir(testPara2 ${SPHARMdir} *${basename}*MeanSPHARM*)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  listFileInDir(testtemp ${tdir}  *SPHARM*)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  listFileInDir(testtemp2 ${tdir} *${basename}*SPHARM*)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  "<<std::endl;
-BMSShapeAnalysisModuleFile<<"  set(ppcase ${PPdir}${basename}_pp.gipl.gz)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  "<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"  #Post Processing"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo('Doing Post Processing')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  if(${testSeg} == '')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetApp(Seg @SegPostProcessCLP)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Seg.fileName ${case})"<<std::endl;
-
-if (GetGaussianFilteringState()==true)
- {
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Seg.gaussianOn 1)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Seg.variance_vect.variance_vect "<<GetVarianceBoxX()<<","<<GetVarianceBoxY()<<","<<GetVarianceBoxZ()<<")"<<std::endl;
- }
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Seg.outfileName ${ppcase})"<<std::endl;
-if (GetLabelState()==true)
-{
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Seg.label.label "<<GetLabel()<<")"<<std::endl;
-}
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Seg.spacing_vect.spacing_vect "<<GetEnforcedSpaceX()<<","<<GetEnforcedSpaceY()<<","<<GetEnforcedSpaceZ()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    Run(output ${Seg} error)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    echo('SegPostProcess Error:' ${error}')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  endif(${testSeg})"<<std::endl;
-BMSShapeAnalysisModuleFile<<""<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"  #GenParaMesh"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo('Doing GenParaMesh')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  Set(value 0)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  foreach(data ${testGen})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    Inc(${value} 1)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    Int(${value})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  EndForEach(data)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  if (${value} < 2)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetApp(Gen @GenParaMeshCLP)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.infile ${ppcase})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.outParaName ${SPHARMdir}${basename}_pp_para.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.outSurfName ${SPHARMdir}${basename}_pp_surf.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.numIterations.numIterations "<<GetNumberOfIterations()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.label.label 1)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    Run(output ${Gen} error)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    echo('GenParaMesh Error:' ${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  endif(${value})"<<std::endl;
-BMSShapeAnalysisModuleFile<<""<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"  #ParaToSPHARMMesh"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo('Doing ParaToSPHARMMesh')"<<std::endl;
-
-if (GetTemplateState()==false)
- {
-BMSShapeAnalysisModuleFile<<"  Set(value 0)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  foreach(data ${testtemp})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    Inc(${value} 1)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    Int(${value})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  EndForEach(data)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  if (${value} < 4)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  #Create Template"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    echo('Creating Template')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetApp(ParaT @ParaToSPHARMMeshCLP)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.inSurfFile ${SPHARMdir}${basename}_pp_surf.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.inParaFile ${SPHARMdir}${basename}_pp_para.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.outbase ${tdir}${basename}_pp_surf)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.subdivLevel.subdivLevel "<<GetSubdivLevel()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.spharmDegree.spharmDegree "<<GetSPHARMDegree()<<")"<<std::endl;
-if (GetFinalFlipN()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex "<<0<<")"<<std::endl;}
-if (GetFinalFlipX()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<4<<")"<<std::endl;}
-if (GetFinalFlipY()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<5<<")"<<std::endl;}
-if (GetFinalFlipZ()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<7<<")"<<std::endl;}
-if (GetFinalFlipXY()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<1<<")"<<std::endl;}
-if (GetFinalFlipYZ()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<2<<")"<<std::endl;}
-if (GetFinalFlipXZ()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<3<<")"<<std::endl;}
-if (GetFinalFlipXYZ()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.finalFlipIndex.finalFlipIndex  "<<6<<")"<<std::endl;}
-
-if (GetParaOut1State()==true)
- {
-BMSShapeAnalysisModuleFile<<"    SetAppOption(ParaT.writePara 1)"<<std::endl;
- }
-BMSShapeAnalysisModuleFile<<"    Run(output ${ParaT} error)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<" DeleteFile("<<GetOutputDirectory()<<"/Template/${basename}_pp_surf_paraPhiHalf.txt)"<<std::endl;
-BMSShapeAnalysisModuleFile<<" DeleteFile("<<GetOutputDirectory()<<"/Template/${basename}_pp_surf_paraMix.txt)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  endif(${value})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  "<<std::endl;
+	{
+		BMSShapeAnalysisModuleFile<<"  #The Template is choosed by the user"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
+		if (GetRegTemplateState()==true)
+			{BMSShapeAnalysisModuleFile<<"  echo ('regTemplate: '"<<GetRegTemplate()<<")"<<std::endl;}
+		if (GetFlipTemplateState()==true)
+			{BMSShapeAnalysisModuleFile<<"  echo ('flipTemplate: '"<<GetFlipTemplate()<<")"<<std::endl;}
+		BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  Set(value 0)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  foreach(data ${testPara})"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    Inc(${value} 1)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    Int(${value})"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  EndForEach(data)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  if (${value} < 4)"<<std::endl;
+		
+		BMSShapeAnalysisModuleFile<<"SetApp(Para @ParaToSPHARMMeshCLP)" <<std::endl;
+		BMSShapeAnalysisModuleFile<<"SetAppOption(Para.inSurfFile ${SPHARMdir}${basename}_pp_surf.vtk)" <<std::endl;
+		BMSShapeAnalysisModuleFile<<"SetAppOption(Para.inParaFile ${SPHARMdir}${basename}_pp_para.vtk)" <<std::endl;
+		BMSShapeAnalysisModuleFile<<"SetAppOption(Para.outbase  ${SPHARMdir}${basename}_pp_surf)" <<std::endl;
+		BMSShapeAnalysisModuleFile<<"SetAppOption(Para.subdivLevel 1)" <<std::endl;
+		BMSShapeAnalysisModuleFile<<"SetAppOption(Para.subdivLevel.subdivLevel "<<GetSubdivLevel()<<")" <<std::endl;
+		BMSShapeAnalysisModuleFile<<"SetAppOption(Para.spharmDegree 1)" <<std::endl;
+		BMSShapeAnalysisModuleFile<<"SetAppOption(Para.spharmDegree.spharmDegree "<<GetSPHARMDegree()<<")" <<std::endl;
+		if (GetFlipTemplateState()==true){
+			BMSShapeAnalysisModuleFile<<"SetAppOption(Para.flipTemplateFileOn 1)" <<std::endl;
+			BMSShapeAnalysisModuleFile<<"SetAppOption(Para.flipTemplateFile.flipTemplateFile "<<GetFlipTemplate()<<")" <<std::endl;}
+		if (GetRegTemplateState()==true){
+			BMSShapeAnalysisModuleFile<<"SetAppOption(Para.regTemplateFileOn 1)" <<std::endl;
+			BMSShapeAnalysisModuleFile<<"SetAppOption(Para.regTemplateFile.regTemplateFile "<<GetRegTemplate()<<")" <<std::endl;}
+		BMSShapeAnalysisModuleFile<<"SetAppOption(Para.finalFlipIndex 1)" <<std::endl;
+		if (GetFinalFlipN()==1){
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<0<<")"<<std::endl;}
+		if (GetFinalFlipX()==1){
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<4<<")"<<std::endl;}
+		if (GetFinalFlipY()==1){
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<5<<")"<<std::endl;}
+		if (GetFinalFlipZ()==1){
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<7<<")"<<std::endl;}
+		if (GetFinalFlipXY()==1){
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<1<<")"<<std::endl;}
+		if (GetFinalFlipYZ()==1){
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<2<<")"<<std::endl;}
+		if (GetFinalFlipXZ()==1){
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<3<<")"<<std::endl;}
+		if (GetFinalFlipXYZ()==1){
+			BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<6<<")"<<std::endl;}
+	
 
 
-if (GetTemplateMState()==true) 
-{
-if (MeanTemplateExist()==0)
-{
-BMSShapeAnalysisModuleFile<<"    Set(value 0)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    foreach(data ${testPara2})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      Inc(${value} 1)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      Int(${value})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    EndForEach(data)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    if (${value} < 4) "<<std::endl;
-BMSShapeAnalysisModuleFile<<"      listFileInDir(reg ${tdir} *SPHARM.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      listFileInDir(flip ${tdir} *SPHARM.coef)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      set(regTemplate ${reg})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      set(flipTemplate ${flip})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      echo ('regTemplate: '${regTemplate})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      echo ('flipTemplate: '${flipTemplate})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      #The Template is the first data"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      Set(value 0)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      foreach(data ${testPara})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        Inc(${value} 1)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        Int(${value})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      EndForEach(data)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      if (${value} < 5)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetApp(Para @ParaToSPHARMMeshCLP)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.inSurfFile ${SPHARMdir}${basename}_pp_surf.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.inParaFile ${SPHARMdir}${basename}_pp_para.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.outbase  ${SPHARMdir}${basename}_pp_surf)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.flipTemplateFile.flipTemplateFile ${tdir}${flipTemplate})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.subdivLevel.subdivLevel "<</*m_Parameters.*/GetSubdivLevel()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.spharmDegree.spharmDegree "<</*m_Parameters.*/GetSPHARMDegree()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.regTemplateFile.regTemplateFile ${tdir}${regTemplate})"<<std::endl;
-if (GetFinalFlipN()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<0<<")"<<std::endl;}
-if (GetFinalFlipX()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<4<<")"<<std::endl;}
-if (GetFinalFlipY()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<5<<")"<<std::endl;}
-if (GetFinalFlipZ()==1){
-BMSShapeAnalysisModuleFile<<"    	   SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<7<<")"<<std::endl;}
-if (GetFinalFlipXY()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<1<<")"<<std::endl;}
-if (GetFinalFlipYZ()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<2<<")"<<std::endl;}
-if (GetFinalFlipXZ()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<3<<")"<<std::endl;}
-if (GetFinalFlipXYZ()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<6<<")"<<std::endl;}
+		if (GetParaOut1State()==true)	{
+			BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.writePara 1)"<<std::endl;}
+		BMSShapeAnalysisModuleFile<<"    Run(output ${Para} error)"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  endif(${value})"<<std::endl;
+	}
+	BMSShapeAnalysisModuleFile<<"Set(paraPhiHalf "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surf_paraPhiHalf.txt)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"FileExists(testParaPhiHalf ${paraPhiHalf})"<<std::endl; 
+	BMSShapeAnalysisModuleFile<<"If( ${testParaPhiHalf} == 1 )"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"echo(${paraPhiHalf})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<" DeleteFile(${paraPhiHalf})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"EndIf(${testParaPhiHalf})"<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"Set(paraMix "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surf_paraMix.txt)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"FileExists(testParaMix ${paraMix})"<<std::endl; 
+	BMSShapeAnalysisModuleFile<<"If( ${testParaMix} == 1 )"<<std::endl;
+	BMSShapeAnalysisModuleFile<<" DeleteFile(${paraMix})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"EndIf(${testParaMix})"<<std::endl;
+	//Write the Ouput File
+	BMSShapeAnalysisModuleFile<<"  #Write Ouput File"<<std::endl;
+	
+	for(unsigned int i=0;i<OutputFileHeaders.size();i++)
+	{
+		BMSShapeAnalysisModuleFile<<"  GetParam(header"<<i<<" ${Header"<<i<<"} ${count})"<<std::endl;
+		BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${header"<<i<<"} ',' )"<<std::endl;
+	}
+	BMSShapeAnalysisModuleFile<<"  Inc(${count} 1)"<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"  Set(postProcessFile "<<GetOutputDirectory()<<"/Mesh/PostProcess/${basename}_pp"<<GetVolumeFileExtension()<<")"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  FileExists(testPostProcessFile ${postProcessFile})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  If(${testPostProcessFile} == 1)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${postProcessFile} ',')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  EndIf(${testPostProcessFile})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  If(${testPostProcessFile} == 0)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} 'none,')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  EndIf(${testPostProcessFile})"<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"  Set(originSurf "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_para.vtk)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${originSurf} ',')"<<std::endl;
 
-if (GetParaOut1State()==true)
-{
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.writePara 1)"<<std::endl;
-}
-BMSShapeAnalysisModuleFile<<"        Run(output ${Para} error)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      endif(${value})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    endif(${value})"<<std::endl;
-ComputeMean = 1;
-}
-if (MeanTemplateExist()!=0)
-{
-ComputeMean = 0;
-BMSShapeAnalysisModuleFile<<"    listFileInDir(deletelist ${SPHARMdir} ${basename}*SPHARM*) "<<std::endl;  
-BMSShapeAnalysisModuleFile<<"    Set(value 0)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    foreach(data ${testPara2})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      Inc(${value} 1)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      Int(${value})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    EndForEach(data)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    if (${value} < 4) "<<std::endl;
-BMSShapeAnalysisModuleFile<<"      listFileInDir(reg ${tdir} *meanAll.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      set(regTemplate ${reg})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      listFileInDir(flip ${tdir} *SPHARM.coef)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      set(flipTemplate ${flip})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      echo()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      echo ('regTemplate: '${regTemplate})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      echo ('flipTemplate: '${flipTemplate})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      echo()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      #The Template is the Mean"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      listFileInDir(testPara ${SPHARMdir} ${basename}*SPHARM*)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      SetApp(Para @ParaToSPHARMMeshCLP)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.inSurfFile ${SPHARMdir}${basename}_pp_surf.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.inParaFile ${SPHARMdir}${basename}_pp_para.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.outbase  ${SPHARMdir}${basename}_pp_surf_tMean)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.flipTemplateFile.flipTemplateFile ${tdir}${flipTemplate})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.subdivLevel.subdivLevel "<</*m_Parameters.*/GetSubdivLevel()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.spharmDegree.spharmDegree "<</*m_Parameters.*/GetSPHARMDegree()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.regTemplateFile.regTemplateFile ${tdir}${regTemplate})"<<std::endl;
-if (GetFinalFlipN()==1){
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<0<<")"<<std::endl;}
-if (GetFinalFlipX()==1){
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<4<<")"<<std::endl;}
-if (GetFinalFlipY()==1){
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<5<<")"<<std::endl;}
-if (GetFinalFlipZ()==1){
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<7<<")"<<std::endl;}
-if (GetFinalFlipXY()==1){
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<1<<")"<<std::endl;}
-if (GetFinalFlipYZ()==1){
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<2<<")"<<std::endl;}
-if (GetFinalFlipXZ()==1){
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<3<<")"<<std::endl;}
-if (GetFinalFlipXYZ()==1){
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<6<<")"<<std::endl;}
- 
-if (GetParaOut1State()==true)
- {
-BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.writePara 1)"<<std::endl;
- }
-BMSShapeAnalysisModuleFile<<"      Run(output ${Para} error)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    endif(${value})"<<std::endl;
-
-}
-}
-if (GetTemplateMState()==false)
-{
-BMSShapeAnalysisModuleFile<<"    Set(value 0)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    foreach(data ${testPara2})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      Inc(${value} 1)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      Int(${value})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    EndForEach(data)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    if (${value} < 4) "<<std::endl;
-BMSShapeAnalysisModuleFile<<"      listFileInDir(reg ${tdir} *SPHARM.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      listFileInDir(flip ${tdir} *SPHARM.coef)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      set(regTemplate ${reg})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      set(flipTemplate ${flip})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      echo ('regTemplate: '${regTemplate})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      echo ('flipTemplate: '${flipTemplate})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      #The Template is the first data"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      Set(value 0)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      foreach(data ${testPara})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        Inc(${value} 1)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        Int(${value})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      EndForEach(data)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      if (${value} < 4)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetApp(Para @ParaToSPHARMMeshCLP)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.inSurfFile ${SPHARMdir}${basename}_pp_surf.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.inParaFile ${SPHARMdir}${basename}_pp_para.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.outbase  ${SPHARMdir}${basename}_pp_surf)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.flipTemplateFile.flipTemplateFile ${tdir}${flipTemplate})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.subdivLevel.subdivLevel "<<GetSubdivLevel()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.spharmDegree.spharmDegree "<<GetSPHARMDegree()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.regTemplateFile.regTemplateFile ${tdir}${regTemplate})"<<std::endl;
-if (GetFinalFlipN()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<0<<")"<<std::endl;}
-if (GetFinalFlipX()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<4<<")"<<std::endl;}
-if (GetFinalFlipY()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<5<<")"<<std::endl;}
-if (GetFinalFlipZ()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<7<<")"<<std::endl;}
-if (GetFinalFlipXY()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<1<<")"<<std::endl;}
-if (GetFinalFlipYZ()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<2<<")"<<std::endl;}
-if (GetFinalFlipXZ()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<3<<")"<<std::endl;}
-if (GetFinalFlipXYZ()==1){
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<6<<")"<<std::endl;}
-
-if (GetParaOut1State()==true)
-{
-BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.writePara 1)"<<std::endl;
-}
-BMSShapeAnalysisModuleFile<<"        Run(output ${Para} error)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"      endif(${value})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    endif(${value})"<<std::endl;
- }
- }
-if (GetTemplateState()==true)
- {
-BMSShapeAnalysisModuleFile<<"  #The Template is choosed by the user"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo ('regTemplate: '"<<GetRegTemplate()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo ('flipTemplate: '"<<GetFlipTemplate()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  Set(value 0)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  foreach(data ${testPara})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    Inc(${value} 1)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    Int(${value})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  EndForEach(data)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  if (${value} < 4)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetApp(Para @ParaToSPHARMMeshCLP)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.inSurfFile ${SPHARMdir}${basename}_pp_surf.meta)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.inParaFile ${SPHARMdir}${basename}_pp_para.meta)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.outbase  ${SPHARMdir}${basename}_pp_surf)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.flipTemplateFile.flipTemplateFile "<<GetFlipTemplate()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.subdivLevel.subdivLevel "<<GetSubdivLevel()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.spharmDegree.spharmDegree "<<GetSPHARMDegree()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.regTemplateFile.regTemplateFile "<<GetRegTemplate()<<")"<<std::endl;
-if (GetFinalFlipN()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<0<<")"<<std::endl;}
-if (GetFinalFlipX()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<4<<")"<<std::endl;}
-if (GetFinalFlipY()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<5<<")"<<std::endl;}
-if (GetFinalFlipZ()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<7<<")"<<std::endl;}
-if (GetFinalFlipXY()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<1<<")"<<std::endl;}
-if (GetFinalFlipYZ()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<2<<")"<<std::endl;}
-if (GetFinalFlipXZ()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<3<<")"<<std::endl;}
-if (GetFinalFlipXYZ()==1){
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<6<<")"<<std::endl;}
- 
-if (GetParaOut1State()==true)
- {
-BMSShapeAnalysisModuleFile<<"    SetAppOption(Para.writePara 1)"<<std::endl;
- }
-BMSShapeAnalysisModuleFile<<"    Run(output ${Para} error)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  endif(${value})"<<std::endl;
-
-}
-BMSShapeAnalysisModuleFile<<"Set(paraPhiHalf "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surf_paraPhiHalf.txt)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"FileExists(testParaPhiHalf ${paraPhiHalf})"<<std::endl; 
-BMSShapeAnalysisModuleFile<<"If( ${testParaPhiHalf} == 1 )"<<std::endl;
-BMSShapeAnalysisModuleFile<<"echo(${paraPhiHalf})"<<std::endl;
-BMSShapeAnalysisModuleFile<<" DeleteFile(${paraPhiHalf})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"EndIf(${testParaPhiHalf})"<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"Set(paraMix "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surf_paraMix.txt)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"FileExists(testParaMix ${paraMix})"<<std::endl; 
-BMSShapeAnalysisModuleFile<<"If( ${testParaMix} == 1 )"<<std::endl;
-BMSShapeAnalysisModuleFile<<" DeleteFile(${paraMix})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"EndIf(${testParaMix})"<<std::endl;
-//Write the Ouput File
-BMSShapeAnalysisModuleFile<<"  #Write Ouput File"<<std::endl;
-
-for(unsigned int i=0;i<OutputFileHeaders.size();i++)
-{
-BMSShapeAnalysisModuleFile<<"  GetParam(header"<<i<<" ${Header"<<i<<"} ${count})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${header"<<i<<"} ',' )"<<std::endl;
-}
-BMSShapeAnalysisModuleFile<<"  Inc(${count} 1)"<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"  Set(postProcessFile "<<GetOutputDirectory()<<"/Mesh/PostProcess/${basename}_pp"<<GetVolumeFileExtension()<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  FileExists(testPostProcessFile ${postProcessFile})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  If(${testPostProcessFile} == 1)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${postProcessFile} ',')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  EndIf(${testPostProcessFile})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  If(${testPostProcessFile} == 0)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} 'none,')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  EndIf(${testPostProcessFile})"<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"  Set(originSurf "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_para.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${originSurf} ',')"<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"  Set(surfSPHARM "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surfSPHARM.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${surfSPHARM} ',')"<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"  Set(surfSPHARMcoef "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surfSPHARM.coef)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${surfSPHARMcoef} ',')"<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"  Set(surfSPHARM_ellalign "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surfSPHARM_ellalign.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${surfSPHARM_ellalign} ',')"<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"  Set(surfSPHARM_ellalignCoef "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surfSPHARM_ellalign.coef)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${surfSPHARM_ellalignCoef} ',')"<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"  Set(procalignFile "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surfSPHARM_procalign.vtk)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  FileExists(testProcalignFile ${procalignFile})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  If(${testProcalignFile} == 1)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${procalignFile} )"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  EndIf(${testProcalignFile})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  If(${testProcalignFile} == 0)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} 'none')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  EndIf(${testProcalignFile})"<<std::endl;
-
-BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} '\\n' )"<<std::endl;
-BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
-BMSShapeAnalysisModuleFile<<"EndForEach(case)"<<std::endl;
-BMSShapeAnalysisModuleFile<<""<<std::endl<<std::endl;
-
-BMSShapeAnalysisModuleFile<<" Set(BMSFile ${BMSdir}"<<"/ShapeAnalysisModule.bms"<<")"<<std::endl;
-BMSShapeAnalysisModuleFile<<" CopyFile("<<GetBMSShapeAnalysisModuleFile()<<" ${BMSdir})"<<std::endl;
-BMSShapeAnalysisModuleFile<<" DeleteFile("<<GetBMSShapeAnalysisModuleFile()<<")"<<std::endl;
-
-return;
+	BMSShapeAnalysisModuleFile<<"  Set(surfSPHARM "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surfSPHARM.vtk)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${surfSPHARM} ',')"<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"  Set(surfSPHARMcoef "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surfSPHARM.coef)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${surfSPHARMcoef} ',')"<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"  Set(surfSPHARM_ellalign "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surfSPHARM_ellalign.vtk)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${surfSPHARM_ellalign} ',')"<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"  Set(surfSPHARM_ellalignCoef "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surfSPHARM_ellalign.coef)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${surfSPHARM_ellalignCoef} ',')"<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"  Set(procalignFile "<<GetOutputDirectory()<<"/Mesh/SPHARM/${basename}_pp_surfSPHARM_procalign.vtk)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  FileExists(testProcalignFile ${procalignFile})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  If(${testProcalignFile} == 1)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} ${procalignFile} )"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  EndIf(${testProcalignFile})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  If(${testProcalignFile} == 0)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} 'none')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  EndIf(${testProcalignFile})"<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} '\\n' )"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"EndForEach(case)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<""<<std::endl<<std::endl;
+	
+	BMSShapeAnalysisModuleFile<<" Set(BMSFile ${BMSdir}"<<"/ShapeAnalysisModule.bms"<<")"<<std::endl;
+	BMSShapeAnalysisModuleFile<<" CopyFile("<<GetBMSShapeAnalysisModuleFile()<<" ${BMSdir})"<<std::endl;
+	BMSShapeAnalysisModuleFile<<" DeleteFile("<<GetBMSShapeAnalysisModuleFile()<<")"<<std::endl;
+	
+	return;
 }  
 
 //Write BMS file for mean computation
@@ -1202,14 +1231,19 @@ BMSShapeAnalysisModuleFile<<"      echo ('flipTemplate : '${flipTemplate})"<<std
 BMSShapeAnalysisModuleFile<<"      echo()"<<std::endl;
 BMSShapeAnalysisModuleFile<<"      #The Template is the Mean"<<std::endl;
 BMSShapeAnalysisModuleFile<<"      listFileInDir(testPara ${SPHARMdir} ${basename}*SPHARM*)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"       SetApp(Para @ParaToSPHARMMeshCLP)"<<std::endl;
+BMSShapeAnalysisModuleFile<<"       SetApp(Para @ParaToSPHARMMeshCLP)"<<std::endl;//http://www.cloggs.eu/fr/page/guidedestailles/
 BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.inSurfFile ${SPHARMdir}${basename}_pp_surf.vtk)"<<std::endl;
 BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.inParaFile ${SPHARMdir}${basename}_pp_para.vtk)"<<std::endl;
 BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.outbase  ${SPHARMdir}${basename}_pp_surf)"<<std::endl;
+BMSShapeAnalysisModuleFile<<"	     SetAppOption(Para.flipTemplateFileOn 1)" <<std::endl;
 BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.flipTemplateFile.flipTemplateFile ${tdir}${flipTemplate})"<<std::endl;
+BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.subdivLevel 1)" <<std::endl;
 BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.subdivLevel.subdivLevel "<<GetSubdivLevel()<<")"<<std::endl;
+BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.spharmDegree 1)" <<std::endl;
 BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.spharmDegree.spharmDegree "<<GetSPHARMDegree()<<")"<<std::endl;
+BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.regTemplateFileOn 1)" <<std::endl;
 BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.regTemplateFile.regTemplateFile ${tdir}${regTemplate})"<<std::endl;
+BMSShapeAnalysisModuleFile<<"SetAppOption(Para.finalFlipIndex 1)" <<std::endl;
 if (GetFinalFlipN()==1){
 BMSShapeAnalysisModuleFile<<"        SetAppOption(Para.finalFlipIndex.finalFlipIndex "<<0<<")"<<std::endl;}
 if (GetFinalFlipX()==1){

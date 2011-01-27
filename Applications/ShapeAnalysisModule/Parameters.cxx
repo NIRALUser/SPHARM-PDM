@@ -10,6 +10,7 @@ Parameters::~Parameters()
  {}
 
 
+
 // Set the slicer module path
 void Parameters::SetModulePath(char *path)
 {
@@ -293,14 +294,24 @@ int Parameters::GetVarianceBoxZ()
   	return m_vz;
 }
 
-void Parameters::SetTemplateState(bool _TemplateState)
+void Parameters::SetFlipTemplateState(bool _FlipTemplateState)
 {
-  	m_TemplateState = _TemplateState;
+  	m_FlipTemplateState = _FlipTemplateState;
 }
 
-bool Parameters::GetTemplateState()
+void Parameters::SetRegTemplateState(bool _RegTemplateState)
 {
-  	return m_TemplateState;
+  	m_RegTemplateState = _RegTemplateState;
+}
+
+
+bool Parameters::GetRegTemplateState()
+{
+  	return m_RegTemplateState;
+}
+bool Parameters::GetFlipTemplateState()
+{
+  	return m_FlipTemplateState;
 }
 
 void Parameters::SetTemplateMState(bool _TemplateMState)

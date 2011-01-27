@@ -1,6 +1,7 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
+
 #include <iostream>
 #include <cstring>
 #include <fstream>
@@ -51,7 +52,8 @@ class Parameters
 	void SetSPHARMDegree(int _SPHARMDegree);
 	void SetGaussianFilteringState(bool _GaussianFilteringState);
 	void SetVarianceBox(int _vx, int _vy, int _vz);
-	void SetTemplateState(bool _TemplateState); 
+	void SetRegTemplateState(bool _RegTemplateState); 
+	void SetFlipTemplateState(bool _FlipTemplateState); 
 	void SetTemplateMState(bool _TemplateMState);
 	void SetFlipTemplate(const char *_FlipTemplate);
 	void SetRegTemplate(const char *_FlipTemplate);
@@ -83,7 +85,8 @@ class Parameters
 	int GetVarianceBoxY();
 	int GetVarianceBoxZ();
  
-	bool GetTemplateState();
+	bool GetFlipTemplateState();
+	bool GetRegTemplateState();
 	bool GetTemplateMState();
 	char* GetFlipTemplate();
 	char* GetRegTemplate(); 
@@ -157,7 +160,8 @@ private:
 	int m_vy;
 	int m_vz;
 	
-	bool m_TemplateState;
+	bool m_FlipTemplateState;
+	bool m_RegTemplateState;
 	bool m_TemplateMState;
 	char m_FlipTemplate[512];
 	char m_RegTemplate[512];

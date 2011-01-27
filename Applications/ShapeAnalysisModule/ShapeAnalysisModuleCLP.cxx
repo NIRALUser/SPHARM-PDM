@@ -32,15 +32,20 @@ int main(int argc, char * argv [])
 	if(GaussianFiltering)
 		m_computation.SetVarianceBox(VarianceX,VarianceY,VarianceZ);
 
- 	m_computation.SetTemplateState(Template);
-	if(Template)
+ 	m_computation.SetRegTemplateState(useRegTemplate);
+	if(useRegTemplate)
+	{
+		m_computation.SetRegTemplate(regTemplate.c_str());
+	}
+	m_computation.SetFlipTemplateState(useFlipTemplate);
+	if(useFlipTemplate)
 	{
 		m_computation.SetFlipTemplate(flipTemplate.c_str());
-   		m_computation.SetRegTemplate(regTemplate.c_str());
 	}
 
 	m_computation.SetTemplateMState(MTemplate);
 	m_computation.SetParaOut1State(ParaOut1Template);
+
 
 	if(NoFLip) m_computation.SetFinalFlip(1,0,0,0,0,0,0,0);
 	else if(FlipALongAxisX) m_computation.SetFinalFlip(0,1,0,0,0,0,0,0);

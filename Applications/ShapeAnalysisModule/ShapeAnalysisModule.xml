@@ -54,6 +54,7 @@
 				<maximum>1</maximum>
 				<step>.1</step>
 			</constraints>
+			<description>enforced spacing in x</description>
 
 		</float>
 		
@@ -67,6 +68,7 @@
 				<maximum>1</maximum>
 				<step>.1</step>
 			</constraints>
+			<description>enforced spacing in y</description>
 		</float>
 		
 		
@@ -80,6 +82,7 @@
 				<maximum>1</maximum>
 				<step>.1</step>
 			</constraints>
+			<description>enforced spacing in z</description>
 		</float>
 	
 		<boolean>
@@ -87,6 +90,7 @@
 			<label>Label Number</label> 
 			<longflag>LabelState</longflag> 
 			<default>false</default>-
+			<description>to usethe value (--label)</description>
 		</boolean>
 		
 		<double>
@@ -99,6 +103,7 @@
 				<maximum>100</maximum>
 				<step>1</step>
 			</constraints>
+			<description>value to first extract the label(LabelState) before processing</description>
 		</double>
 	</parameters>
 	
@@ -148,6 +153,7 @@
 				<maximum>100</maximum>
 				<step>1</step>
 			</constraints>
+			<description>set the subdivision level for the icosahedron subdivision</description>
 		</integer>
 		
 		<integer>
@@ -160,6 +166,7 @@
 				<maximum>100</maximum>
 				<step>1</step>
 			</constraints>
+			<description>set the maximal degree for the SPHARM computation</description>
 		</integer>
 		
 		
@@ -195,6 +202,7 @@
 			<label> Gaussian filtering</label>
 			<longflag>GaussianFiltering</longflag>
 			<default>false</default>
+			<description>choose to use a gaussian filtering</description>
 		</boolean>
 		
 		<integer>
@@ -207,6 +215,7 @@
 				<maximum>100</maximum>
 				<step>1</step>
 			</constraints>
+			<description>Variance of Gauss filter (x)</description>
 		</integer>
 	
 		<integer>
@@ -219,6 +228,7 @@
 				<maximum>100</maximum>
 				<step>1</step>
 			</constraints>
+			<description>description>Variance of Gauss filter (y)</description>
 		</integer>
 		<integer>
 			<name>VarianceZ</name>
@@ -230,6 +240,7 @@
 				<maximum>100</maximum>
 				<step>1</step>
 			</constraints>
+			<description>description>Variance of Gauss filter (z)</description>
 		</integer>
 					
 		
@@ -238,13 +249,30 @@
 	<parameters advanced="true">
 		<label>Advanced Parameters to SPHARM Mesh</label>
 		<description>Advanced Parameters to SPHARM Mesh</description>
-			
+		
 		<boolean>
-			<name>Template</name>
-			<label>Use Flip/Reg Template</label>
-			<longflag>Template</longflag>
+			<name>useRegTemplate</name>
+			<label>Use Reg Template</label>
+			<longflag>useRegTemplate</longflag>
 			<default>false</default>
 		</boolean>
+		
+		<file>
+			<name>regTemplate</name>
+			<label>Reg Template (mesh file)</label>
+			<description>Reg Template (mesh file)</description>
+			<longflag>regTemplate</longflag>
+			<channel>input</channel>
+			<default>None</default>
+		</file>
+		
+		<boolean>
+			<name>useFlipTemplate</name>
+			<label>Use Flip Template</label>
+			<longflag>useFlipTemplate</longflag>
+			<default>false</default>
+		</boolean>
+		
 		
 		
 		<file>
@@ -255,15 +283,8 @@
 			<channel>input</channel>
 			<default>None</default>
 		</file>
-
-		<file>
-			<name>regTemplate</name>
-			<label>Reg Template (mesh file)</label>
-			<description>Reg Template (mesh file)</description>
-			<longflag>regTemplate</longflag>
-			<channel>input</channel>
-			<default>None</default>
-		</file>
+			
+		
 		
 		<boolean>SetParameterFile
 			<name>MTemplate</name>
@@ -337,6 +358,5 @@
 		
 	</parameters>
 	
-
 
 </executable>
