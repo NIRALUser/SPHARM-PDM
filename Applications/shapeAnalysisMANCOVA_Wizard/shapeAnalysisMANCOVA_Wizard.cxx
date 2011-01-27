@@ -383,6 +383,7 @@ void shapeAnalysisMANCOVA_Wizard::ajustCol()  //the Qtablewidget as the same num
 		while((spinBox_col->value())!=(tableWidget->columnCount()))
 		{	tableWidget->removeColumn(tableWidget->columnCount()-1);}
 	}
+	InitialisationVectorHeader();
 }
 
 void shapeAnalysisMANCOVA_Wizard::saveFile(const char* char_file)  //to store the Qtablewidget in a file
@@ -633,6 +634,7 @@ void shapeAnalysisMANCOVA_Wizard::saveParameter()
 	checkBox_unselect->setEnabled(true);
 	label_unselect->setEnabled(true);
 	checkBox_scale->setEnabled(true);
+	InitialisationVectorHeader();
 
 }
 
@@ -931,8 +933,8 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 
 	int numGroup=0; int numInde=0;int infile=0;int testCol=0;int scalecol=0;
 	int ComboBoxIndex = comboBox_testCol->currentIndex();
-	QString NumColumnGroupTypes=" ";
-	QString NumColumnInde = " ";
+	QString NumColumnGroupTypes;
+	QString NumColumnInde ;
 	QString aide;
 	for(unsigned int i=0; i<headerVector.size();i++)
 	{
@@ -941,19 +943,22 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 				if(ComboBoxIndex==numInde){testCol=i;}   
 				}
 			numInde++;
-			NumColumnInde=NumColumnInde +" "+ aide.setNum(i);}
+			if(NumColumnInde.isEmpty()==TRUE){NumColumnInde=aide.setNum(i);}
+			else{NumColumnInde=NumColumnInde +","+ aide.setNum(i);}
+			
+}
+
 		if(headerVector[i]==4){
 			if(checkBox_gptest->isChecked()){
 				if(ComboBoxIndex==numGroup){testCol=i;}   
 				}
 			numGroup++;
-			NumColumnGroupTypes=NumColumnGroupTypes + " "+aide.setNum(i);
+			if(NumColumnGroupTypes.isEmpty()==TRUE){NumColumnGroupTypes=aide.setNum(i);}
+			else{NumColumnGroupTypes=NumColumnGroupTypes +","+ aide.setNum(i);}
 			}
 		if(headerVector[i]==1){infile=i;}
 		if(headerVector[i]==2){scalecol=i;}
 	}
-
-
 
 	if(checkBox_load->isChecked())
 	{
