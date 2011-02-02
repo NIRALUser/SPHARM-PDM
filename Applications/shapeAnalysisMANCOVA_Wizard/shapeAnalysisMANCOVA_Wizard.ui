@@ -263,14 +263,14 @@
                           <number>500</number>
                          </property>
                          <property name="value">
-                          <number>20</number>
+                          <number>4</number>
                          </property>
                         </widget>
                        </item>
                        <item>
                         <widget class="QSpinBox" name="spinBox_col">
                          <property name="value">
-                          <number>5</number>
+                          <number>4</number>
                          </property>
                         </widget>
                        </item>
@@ -489,9 +489,9 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLabel" name="label_17">
+                        <widget class="QLabel" name="label_inde_var">
                          <property name="text">
-                          <string>label_inde_var :</string>
+                          <string>inde varibales</string>
                          </property>
                         </widget>
                        </item>
@@ -685,19 +685,55 @@
               <bool>true</bool>
              </property>
              <property name="rowCount">
-              <number>1</number>
+              <number>4</number>
              </property>
              <property name="columnCount">
-              <number>1</number>
+              <number>4</number>
              </property>
+             <attribute name="horizontalHeaderCascadingSectionResizes">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="horizontalHeaderCascadingSectionResizes">
+              <bool>false</bool>
+             </attribute>
              <row>
               <property name="text">
                <string>1</string>
               </property>
              </row>
+             <row>
+              <property name="text">
+               <string>2</string>
+              </property>
+             </row>
+             <row>
+              <property name="text">
+               <string>3</string>
+              </property>
+             </row>
+             <row>
+              <property name="text">
+               <string>4</string>
+              </property>
+             </row>
+             <column>
+              <property name="text">
+               <string>0</string>
+              </property>
+             </column>
              <column>
               <property name="text">
                <string>1</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>2</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>3</string>
               </property>
              </column>
             </widget>

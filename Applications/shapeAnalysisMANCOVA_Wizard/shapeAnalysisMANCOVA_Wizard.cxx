@@ -260,7 +260,7 @@ void shapeAnalysisMANCOVA_Wizard::lineEditInfileOrScaleDisplay(int c,int type) /
 {
 	char * char_num_column;
 	char_num_column = new char [1];
-	strcpy (char_num_column , intToString(c+1).c_str());
+	strcpy (char_num_column , intToString(c).c_str());
 	if(type==1)//infile column
 	{	lineEdit_infile->setText(QApplication::translate("MainWindow",char_num_column, 0, QApplication::UnicodeUTF8));
 		label_infile->setStyleSheet(QString::fromUtf8("color: rgb(39, 74, 255);"));
@@ -293,7 +293,7 @@ void shapeAnalysisMANCOVA_Wizard::deleteLineGoup(int col)  //delete the number c
 {
 	int where=-1;int i=0;
 	do{
-		if(groupColumn[i]==col+1)
+		if(groupColumn[i]==col)
 			{where=i;
 			groupColumn.erase (groupColumn.begin()+where);}
 		i++;
@@ -304,7 +304,7 @@ void shapeAnalysisMANCOVA_Wizard::deleteLineIndependent(int col)  //delete the n
 {
 	int where=-1;int i=0;
 	do{
-		if(independentColumn[i]==col+1)
+		if(independentColumn[i]==col)
 			{where=i;
 			independentColumn.erase (independentColumn.begin()+where);}
 		i++;
@@ -375,7 +375,12 @@ void shapeAnalysisMANCOVA_Wizard::ajustCol()  //the Qtablewidget as the same num
 	if((spinBox_col->value())>(tableWidget->columnCount()))   
 	{
 		while((spinBox_col->value())!=(tableWidget->columnCount()))
-		{tableWidget->insertColumn(tableWidget->columnCount());}
+		{tableWidget->insertColumn(tableWidget->columnCount());
+			QTableWidgetItem *header=  new QTableWidgetItem;
+			table_display.push_back(header);
+			QString nameheader; nameheader= QString(intToString(tableWidget->columnCount()-1).c_str());
+			header->setData( 0, nameheader);
+			tableWidget->setHorizontalHeaderItem((tableWidget->columnCount()-1),table_display.back());}
 	}
 
 	else if((spinBox_col->value())<(tableWidget->columnCount()) )   
@@ -759,11 +764,11 @@ void shapeAnalysisMANCOVA_Wizard::selection_Group_IndeVariabl_DataDialog(int r, 
 			if (headerVector[c]==2 ){deleteScale(c);}
 			if(headerVector[c]!=3 )//if not already choose as an independent column 
 			{
-				independentColumn.push_back(c+1);
+				independentColumn.push_back(c);
 				sort(independentColumn.begin(), independentColumn.end());
 				displayLineEditIndependent(c);
 				paintForeGround(202,128,35,c);
-				//label_inde_var->setStyleSheet(QString::fromUtf8("color: rgb(202, 128, 35);"));
+				label_inde_var->setStyleSheet(QString::fromUtf8("color: rgb(202, 128, 35);"));
 				headerVector[c]=INDE_COL;
 			}
 		}
@@ -781,7 +786,7 @@ void shapeAnalysisMANCOVA_Wizard::selection_Group_IndeVariabl_DataDialog(int r, 
 				paintForeGround(202,128,35,c);}
 			if (headerVector[c]==2 ){deleteScale(c);}
 			if(headerVector[c]!=4)//if not already choose as a group column
-			{	groupColumn.push_back(c+1);
+			{	groupColumn.push_back(c);
 				sort (groupColumn.begin(), groupColumn.end());
 				displayLineEditGroup(c);
 				paintForeGround(68,166,60,c);
@@ -792,7 +797,7 @@ void shapeAnalysisMANCOVA_Wizard::selection_Group_IndeVariabl_DataDialog(int r, 
 	}
 
 	if(checkBox_infile->isChecked())
-	{//id c was choosen as group column or independent independent column it becomes the infile column
+	{//if8 c was choosen as group column or independent independent column it becomes the infile column
 		if (headerVector[c]==4)
 		{	deleteLineGoup(c);
 			displayLineEditGroup(c);
@@ -936,15 +941,18 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 	QString NumColumnGroupTypes;
 	QString NumColumnInde ;
 	QString aide;
+std::cout<<headerVector.size()<<std::endl;
 	for(unsigned int i=0; i<headerVector.size();i++)
 	{
 		if(headerVector[i]==3){
-			if(checkBox_intertest->isChecked()){
+		if(checkBox_intertest->isChecked()){
 				if(ComboBoxIndex==numInde){testCol=i;}   
 				}
 			numInde++;
 			if(NumColumnInde.isEmpty()==TRUE){NumColumnInde=aide.setNum(i);}
 			else{NumColumnInde=NumColumnInde +","+ aide.setNum(i);}
+
+
 			
 }
 
@@ -959,6 +967,10 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 		if(headerVector[i]==1){infile=i;}
 		if(headerVector[i]==2){scalecol=i;}
 	}
+std::cout<<"fin"<<std::endl;
+
+std::cout<<numInde<<"numInde"<<std::endl;
+std::cout<<testCol<<"testCol"<<std::endl;
 
 	if(checkBox_load->isChecked())
 	{
