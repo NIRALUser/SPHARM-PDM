@@ -674,6 +674,7 @@ char* Parameters::GetAllSurfSPHARMellalignFiles(int ind)
 		std::strcat(surfSPHARM_ellalign_Files[i],"/Mesh/SPHARM/");
 		std::strcat(surfSPHARM_ellalign_Files[i],GetAllFilesName(i));
 		std::strcat(surfSPHARM_ellalign_Files[i],"_pp_surfSPHARM_ellalign.vtk");
+
 	}
 	return surfSPHARM_ellalign_Files[ind];
 }
@@ -691,9 +692,65 @@ char* Parameters::GetAllSurfSPHARMprocalignFiles(int ind)
 		std::strcat(surfSPHARM_procalign_Files[i],"/Mesh/SPHARM/");
 		std::strcat(surfSPHARM_procalign_Files[i],GetAllFilesName(i));
 		std::strcat(surfSPHARM_procalign_Files[i],"_pp_surfSPHARM_procalign.vtk");
+
 	}
 	return surfSPHARM_procalign_Files[ind];
 }
+
+
+
+//Get all the names of the SPHARM files
+char* Parameters::GetAllSurfmeanSPHARMFiles(int ind)
+{
+	int DataNumber=GetDataNumber();
+	surfSPHARM_Files = new char *[DataNumber];
+
+	for(int i=0;i<DataNumber;i++)
+	{	
+		surfSPHARM_Files[i] = new char[512];
+		std::strcpy(surfSPHARM_Files[i],GetOutputDirectory());
+		std::strcat(surfSPHARM_Files[i],"/Mesh/SPHARM/");
+		std::strcat(surfSPHARM_Files[i],GetAllFilesName(i));
+		std::strcat(surfSPHARM_Files[i],"_pp_surf_tMeanSPHARM.vtk");
+	}
+	return surfSPHARM_Files[ind];
+}
+
+//Get all the names of the SPHARM ellalign files
+char* Parameters::GetAllSurfmeanSPHARMellalignFiles(int ind)
+{
+	int DataNumber=GetDataNumber();
+	surfSPHARM_ellalign_Files = new char *[DataNumber];
+
+	for(int i=0;i<DataNumber;i++)
+	{	
+		surfSPHARM_ellalign_Files[i] = new char[512];
+		std::strcpy(surfSPHARM_ellalign_Files[i],GetOutputDirectory());
+		std::strcat(surfSPHARM_ellalign_Files[i],"/Mesh/SPHARM/");
+		std::strcat(surfSPHARM_ellalign_Files[i],GetAllFilesName(i));
+		std::strcat(surfSPHARM_ellalign_Files[i],"_pp_surf_tMeanSPHARM_ellalign.vtk");
+	}
+	return surfSPHARM_ellalign_Files[ind];
+}
+
+//Get all the names of the SPHARM procalign files
+char* Parameters::GetAllSurfmeanSPHARMprocalignFiles(int ind)
+{
+	int DataNumber=GetDataNumber();
+	surfSPHARM_procalign_Files = new char *[DataNumber];
+
+	for(int i=0;i<DataNumber;i++)
+	{	
+		surfSPHARM_procalign_Files[i] = new char[512];
+		std::strcpy(surfSPHARM_procalign_Files[i],GetOutputDirectory());
+		std::strcat(surfSPHARM_procalign_Files[i],"/Mesh/SPHARM/");
+		std::strcat(surfSPHARM_procalign_Files[i],GetAllFilesName(i));
+		std::strcat(surfSPHARM_procalign_Files[i],"_pp_surf_tMeanSPHARM_procalign.vtk");
+	}
+	return surfSPHARM_procalign_Files[ind];
+}
+
+
 
 //Get all the names of the phi files
 char* Parameters::GetAllPhiFiles(int ind)
@@ -703,6 +760,7 @@ char* Parameters::GetAllPhiFiles(int ind)
 	char *file;
 	
 	std::strcpy(c,GetNthDataListValue(1,GetColumnVolumeFile()).c_str());
+
 	file=std::strrchr(c,'/');
 
 	for(unsigned int j=0;j<strlen(file);j++)
@@ -712,8 +770,9 @@ char* Parameters::GetAllPhiFiles(int ind)
 			file[j]='\0';
 	}
 	std::strcpy(Phi_Files,GetOutputDirectory());
-	std::strcat(Phi_Files,"/Template/");
+	std::strcat(Phi_Files,"/Mesh/SPHARM/");
 	std::strcat(Phi_Files,file);
+
 	std::strcat(Phi_Files,"_pp_surf_paraPhi.txt");
 	return Phi_Files;
 }
@@ -735,7 +794,7 @@ char* Parameters::GetAllThetaFiles(int ind)
 			file[j]='\0';
 	}
 	std::strcpy(Theta_Files,GetOutputDirectory());
-	std::strcat(Theta_Files,"/Template/");
+	std::strcat(Theta_Files,"/Mesh/SPHARM/");
 	std::strcat(Theta_Files,file);
 	std::strcat(Theta_Files,"_pp_surf_paraTheta.txt");
 	return Theta_Files;

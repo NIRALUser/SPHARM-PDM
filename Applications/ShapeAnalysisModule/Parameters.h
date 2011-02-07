@@ -110,6 +110,9 @@ class Parameters
 	char* GetAllSurfSPHARMFiles(int);
 	char* GetAllSurfSPHARMellalignFiles(int);
 	char* GetAllSurfSPHARMprocalignFiles(int);
+	char* GetAllSurfmeanSPHARMFiles(int);
+	char* GetAllSurfmeanSPHARMellalignFiles(int);
+	char* GetAllSurfmeanSPHARMprocalignFiles(int);
 	char* GetAllPhiFiles(int);
 	char* GetAllThetaFiles(int);
 	void SetImageDimensions(char*);

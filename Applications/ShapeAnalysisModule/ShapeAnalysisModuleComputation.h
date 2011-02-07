@@ -11,7 +11,10 @@
 #include <stdio.h>
 #include <itksys/Process.h>
 #include <vector>
-
+#include <vtkCellArray.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataWriter.h>
+#include <vtkSmartPointer.h>
 #include <string>
 #include <stdlib.h>
 #include <itksys/Glob.hxx>
@@ -56,7 +59,7 @@ class ShapeAnalysisModuleComputation: public Parameters
 	char m_SegPostProcessDir[512];
 	char m_GenParaMeshDir[512];
 	char m_ParaToSPHARMMeshDir[512];
-	
+
 	vector<int> m_Dims;
 	vector<double>m_meanX;
 	vector<double>m_meanY;
