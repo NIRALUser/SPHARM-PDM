@@ -117,6 +117,7 @@ class Parameters
 	char* GetAllThetaFiles(int);
 	void SetImageDimensions(char*);
 	vector <double> GetImageDimensions();
+	double GetConstantOrientation();
 	string GetDirectionToDisplay();
 
 	void SetOverwriteSegPostProcess(bool);
@@ -194,6 +195,8 @@ private:
 	char** surfSPHARM_procalign_Files; 
 	char* Phi_Files; 
 	char* Theta_Files;
+
+	double m_const_orientation;
 };
 
 #endif

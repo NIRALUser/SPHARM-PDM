@@ -529,24 +529,30 @@ void Parameters::SetImageDimensions(char *filename)
 	if(m_Dims[0]<m_Dims[1])
 	{
 		if(m_Dims[1]<m_Dims[2])
-			m_directionToDisplay="ZYX";
+			{m_directionToDisplay="ZYX";
+			m_const_orientation=m_Dims[0];}
 		else
 		{
 			if(m_Dims[0]<m_Dims[2])
-				m_directionToDisplay="YZX";
-			else 	m_directionToDisplay="YXZ";
+				{m_directionToDisplay="YZX";
+				m_const_orientation=m_Dims[0];}
+			else 	{m_directionToDisplay="YXZ";
+				m_const_orientation=m_Dims[2];}
 		}
 	}
 
 	else
 	{
 		if(m_Dims[0]<m_Dims[2])
-			m_directionToDisplay="ZXY";
+			{m_directionToDisplay="ZXY";
+			m_const_orientation=m_Dims[1];}
 		else
 		{
 			if(m_Dims[1]<m_Dims[2])
-				m_directionToDisplay="XZY";
-			else	 m_directionToDisplay="XYZ";
+				{m_directionToDisplay="XZY";
+				m_const_orientation=m_Dims[1];}
+			else	 {m_directionToDisplay="XYZ";
+				m_const_orientation=m_Dims[2];}
 		}			
 	}
 }
@@ -554,6 +560,11 @@ void Parameters::SetImageDimensions(char *filename)
 vector <double> Parameters::GetImageDimensions()
 {
 	return m_Dims;
+}
+
+double Parameters::GetConstantOrientation()
+{
+	return m_const_orientation;
 }
 
 string Parameters::GetDirectionToDisplay()

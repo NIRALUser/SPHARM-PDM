@@ -59,6 +59,7 @@ class ShapeAnalysisModuleComputation: public Parameters
 	char m_SegPostProcessDir[512];
 	char m_GenParaMeshDir[512];
 	char m_ParaToSPHARMMeshDir[512];
+	double const_orientation;
 
 	vector<int> m_Dims;
 	vector<double>m_meanX;

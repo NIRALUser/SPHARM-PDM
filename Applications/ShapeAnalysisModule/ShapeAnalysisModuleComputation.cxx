@@ -278,6 +278,7 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	SetAllFilesName();
 	std::ofstream BMSShapeAnalysisModuleMRML(m_BMSShapeAnalysisModuleMRLMFile);
 	
+	
 	BMSShapeAnalysisModuleMRML<<"  echo()"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  echo(\t'Wrting MRML scripts...')"<<std::endl;
 	for(int count=0;count<3;count++)
@@ -296,6 +297,7 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 		vector<double>Dims;
 		SetImageDimensions(firstFile1);
 		Dims=GetImageDimensions();
+		const_orientation=GetConstantOrientation();
 		if (GetTemplateMState()==true) 
 			{BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *tMeanSPHARM.vtk)"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_mean.mrml)"<<std::endl;}
@@ -317,6 +319,7 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 		vector<double>Dims;
 		SetImageDimensions(firstFile2);
 		Dims=GetImageDimensions();
+		const_orientation=GetConstantOrientation();
 		if (GetTemplateMState()==true) 
 			{BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *tMeanSPHARM_ellalign.vtk)"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_ellalign_mean.mrml)"<<std::endl;}
@@ -338,6 +341,7 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 		vector<double>Dims;
 		SetImageDimensions(firstFile3);
 		Dims=GetImageDimensions();
+		const_orientation=GetConstantOrientation();
 		if (GetTemplateMState()==true) 
 			{BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *tMeanSPHARM_procalign.vtk)"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_procalign_mean.mrml)"<<std::endl;}
@@ -628,42 +632,42 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	{
 	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 5 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' "<<const_orientation<<" orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
 	}
 
 	if(GetDirectionToDisplay()=="XZY")
 	{
 	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 5 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' "<<const_orientation<<" '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
 	}
 
 	if(GetDirectionToDisplay()=="YXZ")
 	{
 	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 5 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' "<<const_orientation<<" orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
 	}
 
 	if(GetDirectionToDisplay()=="YZX")
 	{
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '5 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '"<<const_orientation<<" '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
 	}
 
 	if(GetDirectionToDisplay()=="ZXY")
 	{
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 5 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' "<<const_orientation<<" '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
 	}
 
 	if(GetDirectionToDisplay()=="ZYX")
 	{
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '5 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '"<<const_orientation<<" '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
 	}
 	
 
