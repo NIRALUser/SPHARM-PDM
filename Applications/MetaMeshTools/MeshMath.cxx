@@ -144,8 +144,6 @@ int compare (const void * a, const void * b)
   return ( *(int*)a - *(int*)b );
 }
 
-
-
 int main(int argc, const char **argv)
 {
  // make sure the arguments are valid
@@ -511,7 +509,31 @@ int main(int argc, const char **argv)
   //bp2009 FilterNormals
   bool statsROIOn = ipExistsArgument(argv, "-statsROI");
   char * ROIFileName = ipGetStringArgument(argv, "-statsROI",NULL);
-  //bp2009 KWMtoPolyData  
+  
+  //bp2009 KWMtoPolyData
+  bool PvalueColorMapOn = ipExistsArgument(argv, "-significanceLevel");
+// double PvalueColorMapNb; 
+std::string   PvalueColorMapNb_string;
+double PvalueColorMapNb;
+if (PvalueColorMapOn)
+  { 
+	nbfile = ipGetStringMultipArgument(argv,"-significanceLevel", files, maxNumFiles);
+	if (nbfile != 1)
+	{
+	  std::cerr<<"Error: Incorrect number of arguments!"<<std::endl;
+	  exit(1);
+	}
+	else
+	{
+		nbfile=nbfile+1;PvalueColorMapNb_string.append(files[0]);
+		//istringstream(PvalueColorMapNb_string) >> PvalueColorMapNb; //convert the string (the argument0 to a double
+		PvalueColorMapNb=atof(PvalueColorMapNb_string.c_str());
+		
+	}
+}
+std::cout<<PvalueColorMapNb<<std::endl;
+
+//bp2009 KWMtoPolyData  
   bool KWMtoPolyDataOn = ipExistsArgument(argv, "-KWMtoPolyData");
   if (KWMtoPolyDataOn)
     {
@@ -522,13 +544,7 @@ int main(int argc, const char **argv)
 	  exit(1);
 	}
     }
-  //bp2009 KWMtoPolyData
-  bool PvalueColorMapOn = ipExistsArgument(argv, "-significanceLevel");
- double PvalueColorMapNb = 0.05;
-  if (PvalueColorMapOn)
-   PvalueColorMapNb = ipGetDoubleArgument(argv,"-significanceLevel",0.05);
 
-  
   bool surfaceAreaOn = ipExistsArgument(argv, "-surfaceArea");
   char *AttributeFileName = ipGetStringArgument(argv, "-surfaceArea",NULL);
 
@@ -3488,12 +3504,15 @@ int main(int argc, const char **argv)
     	int NPoints;
     	float value;
     	char *aux;
-    	
 	input.open(files[0], ios::in);
+std::cout <<files[0]<<std::endl;
     	input.getline(line,70,'\n');
+std::cout <<line<<std::endl;
     	aux=strtok(line, " = ");
-    	aux=strtok(NULL, " = ");
-    	NPoints=atoi(aux);
+    	aux=strtok(NULL, " = ");std::cout <<"123b4"<<std::endl;
+;
+    	NPoints=atof(aux);
+
     	input.getline(line,70,'\n');
     	input.getline(line,70,'\n');
 
@@ -3512,7 +3531,7 @@ int main(int argc, const char **argv)
     	int cont=0; //contador = counter
 	double range[2]; range[0]=99999999; range[1]=0; 
 	//range[1]=-99999999;
-	
+
 	for (int i=0 ; i < NPoints ; i++)
     	{ 
 		input.getline(line,70,'\n');
@@ -3551,20 +3570,21 @@ int main(int argc, const char **argv)
 	int maxLUT = 255;
 
 	if (PvalueColorMapOn) //TODO
-	{
+	{ 
 		for (int i=0 ; i < NPoints ; i++)
 		{	
 			value=Scalars[i];
-			scalars_ori->InsertNextValue(value);
+			scalars_ori->InsertNextValue(value); 
 			//If range[0] is not 0 i have to shift the values prior scaling
 			//if (value >= minPvalue) //TODO
 			if (value >= PvalueColorMapNb)
-			{
+			{ 
 				rounded = 100;
 			} else	{
 				//prov=((float)(value/minPvalue)))*99.0; //Due to the way slicer maps the scalars have to be scaled from 0 .. 100
-				prov=((float)(value/0.05))*99.0;
-				rounded= (int)round(prov);//std::cout << "value"<<value <<"round"<< rounded << std::endl;
+				//prov=((float)(value/0.05))*99.0;   
+				prov=((float)(value/0.05))*99.0; 
+				rounded= (int)round(prov);//std::cout << "value"<<value <<"round"<< rounded << std::endl; 
 			}
 
 			//std::cout << rounded << std::endl;
