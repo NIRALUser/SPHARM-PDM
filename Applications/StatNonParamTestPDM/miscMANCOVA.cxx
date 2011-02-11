@@ -1376,19 +1376,19 @@ void Meta2VTK(char * infile, char* outfile)
 void write_ColorMap(std::string outbase,bool interactionTest,double significanceLevel)
 {
 int end;
-if(interactionTest){end=8;}
-else{end=3;}   
+if(interactionTest){end=8;} //nb of file have to be created
+else{end=3;}   //nb of file have to be created
 char InputMetaFile[512];
- char InputVTKFile[512];
-  char TextFile[512];
+char InputVTKFile[512];
+char TextFile[512];
 char OutputFile[512];
 strcpy(OutputFile,outbase.c_str());
 strcat(OutputFile,"_meanAll_uncorrected.vtk");
-  strcpy(InputMetaFile,outbase.c_str());
-  strcpy(InputVTKFile,outbase.c_str());
-  strcat(InputVTKFile,"_meanAll_uncorrected.vtk");
-  strcat(InputMetaFile,"_meanAll_uncorrected.meta");
-  Meta2VTK(InputMetaFile,InputVTKFile);
+strcpy(InputMetaFile,outbase.c_str());
+strcpy(InputVTKFile,outbase.c_str());
+strcat(InputVTKFile,"_meanAll_uncorrected.vtk");
+strcat(InputMetaFile,"_meanAll_uncorrected.meta");
+Meta2VTK(InputMetaFile,InputVTKFile);
 
   for(int i=0;i<end;i++)
   {
@@ -1399,12 +1399,12 @@ strcat(OutputFile,"_meanAll_uncorrected.vtk");
   double timeout = 0.05;
   int result;
   //double PvalueColorMapNb =0.05;
-
+std::cout<<""<<std::endl;
 std::ostringstream tmp ;
 tmp << significanceLevel;
 std::string PvalueColorMapString(tmp.str());
 //tmp=tmp.str();
-
+std::cout<<"AAAAA"<<std::endl;
     switch(i)
     {
       case 0:
@@ -1417,7 +1417,7 @@ std::string PvalueColorMapString(tmp.str());
       args.push_back("-KWMtoPolyData");
       args.push_back(TextFile);
       args.push_back("normProjectionsSpearman");} //non de ton active scalar
-	else{
+	else{std::cout<<"0"<<std::endl;
       strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_mancovaRawP.txt");
       args.push_back("MeshMath");
@@ -1441,20 +1441,21 @@ std::string PvalueColorMapString(tmp.str());
       args.push_back(TextFile);
       args.push_back("normProjectionsSpearmanPval");
       args.push_back("-significanceLevel");
-args.push_back(PvalueColorMapString.c_str() );}
-	else{
+      args.push_back(PvalueColorMapString.c_str() );}
+	else{std::cout<<"1"<<std::endl;
 	strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_mancovaFDRP.txt");
-  
       args.push_back("MeshMath");
-
       args.push_back(OutputFile);
-      args.push_back(OutputFile);
+      args.push_back(OutputFile);    
+      args.push_back("-significanceLevel");
+      args.push_back(PvalueColorMapString.c_str());
       args.push_back("-KWMtoPolyData");
       args.push_back(TextFile);
       args.push_back("FDRP");
-      args.push_back("-significanceLevel");
-args.push_back(PvalueColorMapString.c_str());}
+
+
+}
 
       break;
 
@@ -1470,7 +1471,7 @@ args.push_back(PvalueColorMapString.c_str());}
       args.push_back("normProjectionsPearsonPval");
       args.push_back("-significanceLevel");
 args.push_back(PvalueColorMapString.c_str());}
-	else{
+	else{std::cout<<"2"<<std::endl;
       strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normDistProjections.txt");
         args.push_back("MeshMath");
