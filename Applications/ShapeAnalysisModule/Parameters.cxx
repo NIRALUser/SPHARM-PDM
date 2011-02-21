@@ -1,5 +1,9 @@
  #include "Parameters.h"
+#include <stdio.h>
+#include <string.h>
 
+#include <sstream>
+#include <string>
 using namespace std;
 
  Parameters::Parameters()
@@ -809,4 +813,77 @@ char* Parameters::GetAllThetaFiles(int ind)
 	std::strcat(Theta_Files,file);
 	std::strcat(Theta_Files,"_pp_surf_paraTheta.txt");
 	return Theta_Files;
+}
+
+void Parameters::SetEulerNumbers()
+{
+	for(unsigned int  i=0;i<EulerFile.size();i++)
+	{
+		ifstream file(EulerFile[i].c_str(), ios::in); 
+		std::string eulerNumber_string;  
+		getline(file, eulerNumber_string);
+		m_EulerNumber.push_back (eulerNumber_string);
+		if (eulerNumber_string.at(0)=='2') {m_SphericalTopo.push_back ("1");}
+				else {m_SphericalTopo.push_back ("0");}	
+		file.close();
+	}
+
+}
+
+void Parameters::ModifyCSV()
+{
+	FindFiles();
+	SetEulerNumbers();
+
+	char csv_read[512];
+	std::strcpy(csv_read,GetOutputDirectory());
+	std::strcat(csv_read,"/Output/");
+	std::strcat(csv_read,"ShapeAnalysisModule_OutputFileVersion1.csv");
+
+	char csv_write[512];
+	std::strcpy(csv_write,GetOutputDirectory());
+	std::strcat(csv_write,"/Output/");
+	std::strcat(csv_write,"ShapeAnalysisModule_OutputFile.csv");
+
+	ifstream read(csv_read);
+	ofstream write(csv_write, ios::out);
+
+	int nbline=0;
+
+	if(read){
+		if(write)
+		{
+			std::string line;
+			while(getline(read, line))
+			{
+				if(nbline==0)
+				{
+					line.append( ", Euler Number, Spherical topology  ");
+					write<<line<<std::endl;
+				}
+				else{
+					line.append(",");
+					line.append(m_EulerNumber.at(nbline-1));
+					line.append(",");
+					line.append(m_SphericalTopo.at(nbline-1));
+					write<<line<<std::endl;
+				}
+			  nbline++;
+			}
+			write.close();
+			read.close();
+		}
+	}
+	remove( csv_read );
+}
+
+
+void Parameters::FindFiles()
+{
+	itksys::Glob globEulerFile;
+	std::string pathFile =GetOutputDirectory();
+	std::string path="/EulerFiles/*.txt";
+	pathFile=pathFile+path;
+	globEulerFile.FindFiles(pathFile);
+	EulerFile=globEulerFile.GetFiles();
 }

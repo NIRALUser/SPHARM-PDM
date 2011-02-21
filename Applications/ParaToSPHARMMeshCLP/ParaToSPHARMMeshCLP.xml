@@ -115,32 +115,32 @@ Compute SPHARM coefs and associated Mesh : The output is a series of SPHARM coef
   <label>Expert Options</label>
   <description>Use only if you know what you are doing !</description>
     <boolean>
-      <name>flipRegTemplateFileOn</name>
+      <name>regParaTemplateFileOn</name>
       <default>false</default>
       <label>Use the template for parameter Normalization and Registration</label>
-      <longflag>flipRegTemplateFileOn</longflag>
+      <longflag>regParaTemplateFileOn</longflag>
       <description>Use the template for parameter Normalization and Registration</description>
     </boolean>
     <geometry>
-      <name>flipRegTemplateFile</name>
+      <name>regParaTemplateFile</name>
       <label>template for parameter Normalization and Registration</label>       
-      <longflag>flipRegTemplate</longflag>
+      <longflag>regParaTemplate</longflag>
       <channel>input</channel>
       <description>Set a template for parameter normalization and registration</description>
     </geometry>
     <boolean>
-      <name>flipRegPointsOn</name>
+	    <name>regParaPointsOn</name>
       <default>false</default>
-      <label>Use flipRegPoints File</label>
-      <longflag>flipRegPointsOn</longflag>
-      <description>Use flipRegPoints File</description>
+      <label>Use regParaPoints File</label>
+      <longflag>regParaPointsOn</longflag>
+      <description>Use regParaPoints File</description>
     </boolean>
     <file>
-      <name>flipRegPoints</name>
-      <label>flipRegPoints File</label>
-      <longflag>flipRegPoints</longflag>
+	    <name>regParaPoints</name>
+	    <label>regParaPoints File</label>
+	    <longflag>regParaPoints</longflag>
       <channel>input</channel>
-      <description>sample points on flipRegTemplate for parameter alignment</description>
+      <description>sample points on regParaTemplate for parameter alignment</description>
     </file>
     <boolean>
        <name>procrustesTransformationOutputOn</name>

@@ -87,7 +87,7 @@ int main( int argc, const char ** argv )
   
    MeshType::Pointer surfaceMesh = MeshType::New();
   MeshType::Pointer paraMesh = MeshType::New();
-  MeshPointer flipRegTemplateMesh;
+  MeshPointer regParaTemplateMesh;
   MeshPointer newParaMesh = MeshType::New();
 //   typedef itk::SpatialObjectReader<3,float,MeshTrait> ReaderType;
 //   ReaderType::Pointer readerSH = ReaderType::New();
@@ -128,8 +128,9 @@ int main( int argc, const char ** argv )
        std::cout<<ex.GetDescription()<<std::endl;
        return 1;
     }
-     cout<<flipTemplateFile.c_str()<<endl;
-  if (*flipTemplateFile.c_str()) {
+
+  if (flipTemplateFileOn) {
+    if (debug) std::cout<<flipTemplateFile.c_str()<<endl;
 
     try 
       {	
@@ -152,23 +153,12 @@ int main( int argc, const char ** argv )
   if (debug) std::cout << "Preprocessing done" << std::endl;
   try
     {
-    if (flipRegTemplateFileOn) {
+    if (regParaTemplateFileOn) {
       try 
         {
-        if (debug) std::cout << "Reading in flipRegTemplateMesh" << std::endl;
-//         // 1. create surface S2 from flipRegTemplate
-//         readerSH->SetFileName(flipRegTemplateFile);
-//         readerSH->Update();
-//         ReaderType::SceneType::Pointer scene = readerSH->GetScene();  
-//         ReaderType::SceneType::ObjectListType * objList =  scene->GetObjects(1,NULL);
-// 
-//         ReaderType::SceneType::ObjectListType::iterator it = objList->begin();
-//         itk::SpatialObject<3> * curObj = *it;
-//         MeshSpatialObjectType::Pointer  flipRegTemplateMeshSO = dynamic_cast<MeshSpatialObjectType*> (curObj);
-//         flipRegTemplateMesh = flipRegTemplateMeshSO->GetMesh();
+        if (debug) std::cout << "Reading in regTemplateMesh" << std::endl;
 
-        //1. Read the  flipRegTemplate
-        VTKreader->SetFileName(flipRegTemplateFile.c_str());
+        VTKreader->SetFileName(regParaTemplateFile.c_str());
 
         VTKreader->Update();
 
@@ -177,8 +167,8 @@ int main( int argc, const char ** argv )
 	
 	vtkPolyDataToitkMesh* VTKITKConverter4 = new vtkPolyDataToitkMesh;
         VTKITKConverter4->SetInput (convTemplateMesh) ;
-        flipRegTemplateMesh = VTKITKConverter4->GetOutput() ;
-	flipRegTemplateMesh->Update();
+        regParaTemplateMesh = VTKITKConverter4->GetOutput() ;
+	regParaTemplateMesh->Update();
 
         delete (VTKITKConverter4);
 
@@ -192,23 +182,23 @@ int main( int argc, const char ** argv )
         
         ICPTransform->Update();
         
-        // 3. get points on surface closest to T*selected points from flipRegTemplate
+        // 3. get points on surface closest to T*selected points from regTemplate
         double transPoints[3][3];
-        if ( flipRegPointsOn )
+        if ( regParaPointsOn )
           {
-          if (debug) std::cout << "Reading in flipRegPoints" << std::endl;
+          if (debug) std::cout << "Reading in regParaPoints" << std::endl;
           std::string line;
           long int index;
           char colon;
           double points[3][3];
           std::ifstream ptReader;
-          ptReader.open(flipRegPoints.c_str(),std::ios::in);
+          ptReader.open(regParaPoints.c_str(),std::ios::in);
           int pointnum;
           int i;
           double x,y,z;
           if (ptReader.fail())
             {
-            std::cout << "Error reading flipRegPoints file" << std::endl;
+            std::cout << "Error reading regParaPoints file" << std::endl;
             return 1;
             }
           if (ptReader.is_open())
@@ -238,7 +228,7 @@ int main( int argc, const char ** argv )
           }
         else
           {
-          std::cout << "Need flipRegPoints along with flipRegTemplate" << std::endl;
+          std::cout << "Need regParaPoints along with regParaTemplate" << std::endl;
           return 1;
           }
         // 4. compute and apply rotation of parameter
@@ -378,36 +368,46 @@ int main( int argc, const char ** argv )
 
         // if( writeFlipRegPara)
 	//         {
-	//           if(debug) std::cout << "saving flipReg parametrization" << std::endl;
+	//           if(debug) std::cout << "saving regPara parametrization" << std::endl;
 	//           MeshWriterType::Pointer metaWriter =  MeshWriterType::New();
 	//           metaWriter->SetInput(meshSO);
 	//           outFileName.erase();
 	//           outFileName.append(base_string);
-	//           outFileName.append("_flipReg_para.meta");
+	//           outFileName.append("_regPara_para.meta");
 	//           metaWriter->SetFileName(outFileName.c_str());
 	//           metaWriter->Update();
 	//         }
 
-        // 7. in if regTemplate, add section for if flipRegTemplate and use S2 for procrustes alignment
+        // 7. in if regTemplate, add section for if regParaTemplate and use S2 for procrustes alignment
       }
     catch(itk::ExceptionObject ex)
       {
-      std::cout<< ex.GetDescription() << "while doing flipRegTemplateFile" << std::endl;
+      std::cout<< ex.GetDescription() << "while doing regParaTemplateFile" << std::endl;
       return 1;
       }
     } 
 
     SPHARMFilterType::Pointer spharmFilter = SPHARMFilterType::New();
     spharmFilter->SetInputSurfaceMesh(surfaceMesh);
+
     spharmFilter->SetInputParametrizationMesh(paraMesh);
-    if (flipRegTemplateFileOn) spharmFilter->SetInputParametrizationMesh(newParaMesh);
+
+    if (regParaTemplateFileOn) 
+	{	
+	spharmFilter->SetInputParametrizationMesh(newParaMesh);
+	}
+	else
+	{
+	spharmFilter->SetInputParametrizationMesh(paraMesh);
+	}
+
     spharmFilter->SetDegree(spharmDegree);
-    if (NoParaAlignFlag || flipRegTemplateFileOn) {
+    if (NoParaAlignFlag || regParaTemplateFileOn) {
       spharmFilter->SetParaEllipseAlignment(false);
     } else {
       spharmFilter->SetParaEllipseAlignment(true);
     }
-    if (*flipTemplateFile.c_str() && !flipRegTemplateFileOn) {
+    if (flipTemplateFileOn && !regParaTemplateFileOn) {
       spharmFilter->SetFlipTemplate(flipTemplateSO);
     }
     if (finalFlipIndex > 0 && finalFlipIndex <= 7 ) {
@@ -489,12 +489,12 @@ int main( int argc, const char ** argv )
 	coefwriter->Update();
       }
       
-      if (*regTemplateFile.c_str() || flipRegTemplateFileOn) {
+      if (regTemplateFileOn || regParaTemplateFileOn) {
         if (debug) std::cout << "writing proc aligned data" << std::endl;
         //load RegTemplateMesh
         MeshType::Pointer RegTemplateMesh = MeshType::New();
 
-        if (*regTemplateFile.c_str())
+        if (regTemplateFileOn)
         {
 	  VTKreader->SetFileName(regTemplateFile.c_str());
           VTKreader->Update();
@@ -507,8 +507,8 @@ int main( int argc, const char ** argv )
 
         ProcrustesFilterType::Pointer procrustesFilter = ProcrustesFilterType::New();
         procrustesFilter->SetNumberOfInputs(2);
-        if (*regTemplateFile.c_str()) procrustesFilter->SetInput(0, RegTemplateMesh);
-        if (flipRegTemplateFileOn) procrustesFilter->SetInput(0, flipRegTemplateMesh);
+        if (regTemplateFileOn) procrustesFilter->SetInput(0, RegTemplateMesh);
+        if (regParaTemplateFileOn) procrustesFilter->SetInput(0, regParaTemplateMesh);
         procrustesFilter->SetInput(1, meshSH);
         procrustesFilter->SetUseInitialAverageOff();
 	procrustesFilter->SetUseNormalizationOff();
@@ -546,7 +546,7 @@ int main( int argc, const char ** argv )
         outFileName.erase();
         outFileName.append(base_string);
         outFileName.append("SPHARM_procalign.vtk");
-	
+std::cout<<"procalign"<<std::endl;
         itkMeshTovtkPolyData * ITKVTKConverter3 = new itkMeshTovtkPolyData;
         ITKVTKConverter3->SetInput (RegisteredMesh) ;
  

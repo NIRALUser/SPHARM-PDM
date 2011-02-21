@@ -12,7 +12,7 @@
 
   <parameters>
 	  <label>Input file</label>
-  <file>
+  		<file>
 			<name>infile</name>
 			<longflag>--csvFile</longflag>
 			<channel>input</channel>

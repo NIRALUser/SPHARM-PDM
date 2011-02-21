@@ -1409,53 +1409,59 @@ std::cout<<"AAAAA"<<std::endl;
     {
       case 0:
 	if(interactionTest){
-	strcpy(TextFile,outbase.c_str());
-      strcat(TextFile,"_normProjectionsSpearman.txt");  //TODO fichier txt avec les info pour les overlay (activescalar)
-        args.push_back("MeshMath"); //PROG appele
-      args.push_back(OutputFile); //origine 
-      args.push_back(OutputFile); // sortie (ou serotn stoquees les info de l overlay
-      args.push_back("-KWMtoPolyData");
-      args.push_back(TextFile);
-      args.push_back("normProjectionsSpearman");} //non de ton active scalar
-	else{std::cout<<"0"<<std::endl;
-      strcpy(TextFile,outbase.c_str());
-      strcat(TextFile,"_mancovaRawP.txt");
-      args.push_back("MeshMath");
-      args.push_back(OutputFile);
-      args.push_back(OutputFile);
-      args.push_back("-KWMtoPolyData");
-      args.push_back(TextFile);
-      args.push_back("RawP");
+		strcpy(TextFile,outbase.c_str());
+      		strcat(TextFile,"_normProjectionsSpearman.txt");  //TODO fichier txt avec les info pour les overlay (activescalar)
+     		args.push_back("MeshMath"); //PROG appele
+      		args.push_back(OutputFile); //origine 
+     		args.push_back(OutputFile); // sortie (ou serotn stoquees les info de l overlay
+		args.push_back("-KWMtoPolyData");
+     		args.push_back(TextFile);
+      		args.push_back("normProjectionsSpearman"); //non de ton active scalar
+        } else{
+      		strcpy(TextFile,outbase.c_str());
+      		strcat(TextFile,"_mancovaRawP.txt");
+      		args.push_back("MeshMath");
+      		args.push_back(OutputFile);
+      		args.push_back(OutputFile);
+      		args.push_back("-significanceLevel");
+      		args.push_back(PvalueColorMapString.c_str());
+      		args.push_back("-KWMtoPolyData");
+      		args.push_back(TextFile);
+      		args.push_back("RawP");
+      		args.push_back("-significanceLevel");
+      		args.push_back(PvalueColorMapString.c_str() );
 	}
 
       break;
 
     case 1:
 	if(interactionTest){
-	strcpy(TextFile,outbase.c_str());
-      strcat(TextFile,"_normProjectionsSpearmanPval.txt");
-        args.push_back("MeshMath");
-      args.push_back(OutputFile);
-      args.push_back(OutputFile);
-      args.push_back("-KWMtoPolyData");
-      args.push_back(TextFile);
-      args.push_back("normProjectionsSpearmanPval");
-      args.push_back("-significanceLevel");
-      args.push_back(PvalueColorMapString.c_str() );}
-	else{std::cout<<"1"<<std::endl;
-	strcpy(TextFile,outbase.c_str());
-      strcat(TextFile,"_mancovaFDRP.txt");
-      args.push_back("MeshMath");
-      args.push_back(OutputFile);
-      args.push_back(OutputFile);    
-      args.push_back("-significanceLevel");
-      args.push_back(PvalueColorMapString.c_str());
-      args.push_back("-KWMtoPolyData");
-      args.push_back(TextFile);
-      args.push_back("FDRP");
+		strcpy(TextFile,outbase.c_str());
+      		strcat(TextFile,"_normProjectionsSpearmanPval.txt");
+        	args.push_back("MeshMath");
+      		args.push_back(OutputFile);
+      		args.push_back(OutputFile);
+      		args.push_back("-KWMtoPolyData");
+      		args.push_back(TextFile);
+      		args.push_back("normProjectionsSpearmanPval");
+      		args.push_back("-significanceLevel");
+      		args.push_back(PvalueColorMapString.c_str() );
+	} else{
+		strcpy(TextFile,outbase.c_str());
+      		strcat(TextFile,"_mancovaFDRP.txt");
+      		args.push_back("MeshMath");
+      		args.push_back(OutputFile);
+      		args.push_back(OutputFile);    
+      		args.push_back("-significanceLevel");
+      		args.push_back(PvalueColorMapString.c_str());
+      		args.push_back("-KWMtoPolyData");
+      		args.push_back(TextFile);
+      		args.push_back("FDRP");
+      		args.push_back("-significanceLevel");
+      		args.push_back(PvalueColorMapString.c_str() );
 
 
-}
+      }
 
       break;
 

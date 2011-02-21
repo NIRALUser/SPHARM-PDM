@@ -21,6 +21,8 @@
 #include "vtkPolyData.h"
 #include "vtkPointSet.h"
 
+#include <itksys/Glob.hxx>
+#include <itksys/Process.h>
 
 #include <string>
 #include <stdlib.h>
@@ -129,6 +131,15 @@ class Parameters
 	bool GetOverwriteParaToSPHARMMesh();
 
 	bool DirectoryIsEmpty(const char*);
+
+	void SetEulerNumbers();
+	void ModifyCSV();
+
+	vector<string >m_EulerNumber;
+	std::string GetEulerNumber(std::string txtFile);
+	vector<string>m_SphericalTopo;
+	std::vector<std::string> EulerFile;
+	void FindFiles();
 	
 private:
  
@@ -197,6 +208,7 @@ private:
 	char* Theta_Files;
 
 	double m_const_orientation;
+
 };
 
 #endif

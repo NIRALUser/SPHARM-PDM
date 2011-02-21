@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
 <category>Shape Analysis</category>
-<title>GenParaMesh</title>
+<title>GenParaMeshCLP</title>
 <description>
 Spherical Parametrization : The output is two meshes, one for the surface and one for the spherical parametrization
 </description>
@@ -37,6 +37,25 @@ Spherical Parametrization : The output is two meshes, one for the surface and on
   <parameters advanced="true">
     <label>Advanced Options</label>
     <description>Advanced Options</description>
+    
+    <label>Advanced Options</label>
+    <description>Advanced Options</description>
+    <boolean>
+	    <name>EulerFile</name>
+	    <label>EulerFile</label>
+	    <longflag>EulerFile</longflag>
+	    <default>false</default>
+	    <description>write a .txt file with the euler number</description>
+    </boolean>
+    <file>
+	    <name>outEulerName</name>
+	    <label>Output Euler txtFile</label>
+	    <longflag>outEulerName</longflag>
+	    <default>NULL</default>
+	    <description>Output Euler txtFile</description>
+    </file>
+     
+    
     <integer>
       <name>numIterations</name>
       <default>500</default>

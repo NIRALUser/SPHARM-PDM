@@ -149,7 +149,7 @@ public:
   virtual void SetInput( const InputImageType * inputImage );
   
   /** returns the Surface Mesh: same as GetOutput(0) */
-  virtual OutputMeshType *  GetSurfaceMesh();
+  virtual  OutputMeshType *  GetSurfaceMesh();
   
   /** returns the Parametrization Mesh: same as GetOutput(1). Forms a sphere,
       Spherical vertices correspond to Surface vertices of same index */

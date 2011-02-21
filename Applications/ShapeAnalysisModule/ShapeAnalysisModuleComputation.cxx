@@ -12,7 +12,7 @@ void ShapeAnalysisModuleComputation::Computation()
 {
 	std::cout<<"\n\nComputing ShapeAnalysisModule..."<<std::endl<<std::endl;
 
-	SetBMSShapeAnalysisModuleFile(false);
+SetBMSShapeAnalysisModuleFile(false);
 	SetBMSShapeAnalysisModuleMRMLFile(false);
 	SetAllFilesName();
 	OverWrite();
@@ -38,6 +38,10 @@ void ShapeAnalysisModuleComputation::Computation()
  	WriteBMSMRMLScene();
  	ExecuteBatchMake(GetBMSShapeAnalysisModuleMRMLFile());
  	SetBMSShapeAnalysisModuleFile(true);
+
+
+	ModifyCSV();
+
 
 	std::cout<<"Computing ShapeAnalysisModule: Done!"<<std::endl<<std::endl;
   
@@ -221,7 +225,7 @@ void ShapeAnalysisModuleComputation::SetOuputFile()
 {
 	std::strcpy(m_OutputFile, GetOutputDirectory());
 	std::strcat(m_OutputFile, "/Output/");
-	std::strcat(m_OutputFile, "ShapeAnalysisModule_OutputFile.csv");
+	std::strcat(m_OutputFile, "ShapeAnalysisModule_OutputFileVersion1.csv");
 }
 
 char * ShapeAnalysisModuleComputation::GetOutputFile()
@@ -738,16 +742,18 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
 	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Mesh/SPHARM/)"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Template/)"<<std::endl; 
 	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Output/)"<<std::endl; 
+	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/EulerFiles/)"<<std::endl; 
 	BMSShapeAnalysisModuleFile<<"set(BMSdir '"<<GetOutputDirectory()<<"/BatchMake_Scripts')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"set(datadir '"<<GetOutputDirectory()<<"/')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"set(PPdir '"<<GetOutputDirectory()<<"/Mesh/PostProcess/')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"set(SPHARMdir '"<<GetOutputDirectory()<<"/Mesh/SPHARM/')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"set(tdir '"<<GetOutputDirectory()<<"/Template/')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"set(Outputdir '"<<GetOutputDirectory()<<"/Output/')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"set(Eulerdir '"<<GetOutputDirectory()<<"/EulerFiles/')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"echo()"<<std::endl;
 	
 	BMSShapeAnalysisModuleFile<<"#Create OutputFile"<<std::endl;
-	BMSShapeAnalysisModuleFile<<"Set(OutputFile "<<GetOutputDirectory()<<"/Output/ShapeAnalysisModule_OutputFile.csv)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"Set(OutputFile "<<GetOutputDirectory()<<"/Output/ShapeAnalysisModule_OutputFileVersion1.csv)"<<std::endl;
 	SetOuputFile();
 	BMSShapeAnalysisModuleFile<<"Set(OutputFile "<<GetOutputFile()<<")"<<std::endl;
 
@@ -822,6 +828,12 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
 	BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.outSurfName ${SPHARMdir}${basename}_pp_surf.vtk)"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.numIterations.numIterations "<<GetNumberOfIterations()<<")"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.label.label 1)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.EulerFile 1)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.outEulerName 1)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"    SetAppOption(Gen.outEulerName.outEulerName ${Eulerdir}${basename}_euler.txt)"<<std::endl;
+
+
+
 	BMSShapeAnalysisModuleFile<<"    Run(output ${Gen} error)"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"    echo('GenParaMesh Error:' ${error})"<<std::endl;
@@ -829,7 +841,7 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
 	BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  endif(${value})"<<std::endl;
 	BMSShapeAnalysisModuleFile<<""<<std::endl;
-	
+
 	BMSShapeAnalysisModuleFile<<"  #ParaToSPHARMMesh"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  echo('Doing ParaToSPHARMMesh')"<<std::endl;
@@ -1106,7 +1118,7 @@ BMSShapeAnalysisModuleFile<<"    Set(value 0)"<<std::endl;
 				BMSShapeAnalysisModuleFile<<"      Int(${value})"<<std::endl;
 				BMSShapeAnalysisModuleFile<<"    EndForEach(data)"<<std::endl;
 				BMSShapeAnalysisModuleFile<<"    if (${value} < 4) "<<std::endl;
-if(MeanTemplateExist()!=0 &&  MeanTemplateExist()!=0 )
+if(GetTemplateMState()==true &&  MeanTemplateExist()!=0 )
 {BMSShapeAnalysisModuleFile<<"      listFileInDir(reg ${tdir} *meanAll.vtk)"<<std::endl;}
 else {BMSShapeAnalysisModuleFile<<"      listFileInDir(reg ${tdir} *SPHARM.vtk)"<<std::endl;}
 				BMSShapeAnalysisModuleFile<<"      listFileInDir(flip ${tdir} *SPHARM.coef)"<<std::endl;
@@ -1243,7 +1255,8 @@ BMSShapeAnalysisModuleFile<<"SetAppOption(Para.inParaFile  ${SPHARMdir}${basenam
 	BMSShapeAnalysisModuleFile<<"  If(${testProcalignFile} == 0)"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} 'none')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  EndIf(${testProcalignFile})"<<std::endl;
-	
+
+
 	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} '\\n' )"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  echo()"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"EndForEach(case)"<<std::endl;
