@@ -53,6 +53,11 @@ int main( int argc, const char ** argv )
 	image = imageReader->GetOutput() ;
 	OutputMeshType::Pointer mesh;
 	OutputMeshType::Pointer parmesh;
+
+	ofstream log;
+
+	if (logFile)
+		log.open(outLogName.c_str(), ios::out | ios::app);
   
 	// if necessary read parmesh  
 	typedef itk::SpatialObjectReader<3,float,OutputMeshType::MeshTraits> ReaderType;
@@ -131,12 +136,17 @@ int main( int argc, const char ** argv )
 			writer->SetInput(ParaMesh);
 			writer->SetFileName(outParaName.c_str());
 			writer->Write();  
+
+			if (logFile) 
+				log << "Computed " << infile << std::endl;
 		}
 		
 	} 
 	catch (itk::ExceptionObject e)
 	{
 		e.Print(std::cout) ;
+		if (logFile) 
+			log << "Failed " << infile << " " << e.what();
 		return -1;
 	}
 	
