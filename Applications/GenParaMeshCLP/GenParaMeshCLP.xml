@@ -54,6 +54,21 @@ Spherical Parametrization : The output is two meshes, one for the surface and on
 	    <default>NULL</default>
 	    <description>Output Euler txtFile</description>
     </file>
+
+    <boolean>
+	    <name>logFile</name>
+	    <label>logFile</label>
+	    <longflag>logFile</longflag>
+	    <default>false</default>
+	    <description>write a .txt file with a log of events</description>
+    </boolean>
+    <file>
+	    <name>outLogName</name>
+	    <label>Output Log txtFile</label>
+	    <longflag>outLogName</longflag>
+	    <default>NULL</default>
+	    <description>Output Log txtFile</description>
+    </file>
      
     
     <integer>
