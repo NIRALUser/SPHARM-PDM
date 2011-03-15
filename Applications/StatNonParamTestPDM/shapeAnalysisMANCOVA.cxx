@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
 // featureValue = double array [numSubjects*numFeatures] with scalar feature values for
 //   all Subjects e.g. n-th feature of m-th subjects is at featureValue[m * numFeatures + n]
 // significanceLevel = level of significance (usually 0.05 or 0.01)
+// FDRdiscoveryLevel = level of FDR discovery (usually 0.05 or 0.1)
 // significanceSteps = number of significance steps
 
   PARSE_ARGS;
@@ -193,7 +194,8 @@ else{
   vnl_vector<double> fdrP;
   vnl_vector<double> bonferroniP;
 
-  fdrP = fdrCorrection( mancovaRawP, significanceLevel, fdrThresh );
+
+  fdrP = fdrCorrection( mancovaRawP, FDRdiscoveryLevel, fdrThresh );
   std::cout << "fdr thresh (MANCOVA) is = " << fdrThresh << std::endl;
 
   bonferroniP = bonferroniCorrection( mancovaRawP );
@@ -300,28 +302,28 @@ if (KWMreadableInputFile==0)
       vnl_vector<double> bonferroniP;
 
       bonferroniP = bonferroniCorrection( pearsonRhoDistPval );
-      fdrP = fdrCorrection( pearsonRhoDistPval, significanceLevel, fdrThresh );
+      fdrP = fdrCorrection( pearsonRhoDistPval, FDRdiscoveryLevel, fdrThresh );
       std::cout << "fdr thresh (Pearson distance) is = " << fdrThresh << std::endl;
       
       output_vector(bonferroniP, outbase, std::string("_normDistProjectionsPearsonPvalBonferroni.txt"));
       output_vector(fdrP, outbase, std::string("_normDistProjectionsPearsonPvalFDR.txt"));
       
       bonferroniP = bonferroniCorrection( pearsonRhoProPval );
-      fdrP = fdrCorrection( pearsonRhoProPval, significanceLevel, fdrThresh );
+      fdrP = fdrCorrection( pearsonRhoProPval,FDRdiscoveryLevel, fdrThresh );
       std::cout << "fdr thresh (Pearson projection) is = " << fdrThresh << std::endl;
       
       output_vector(bonferroniP, outbase, std::string("_normProjectionsPearsonPvalBonferroni.txt"));
       output_vector(fdrP, outbase, std::string("_normProjectionsPearsonPvalFDR.txt"));
 
       bonferroniP = bonferroniCorrection( spearmanRhoDistPval );
-      fdrP = fdrCorrection( spearmanRhoDistPval, significanceLevel, fdrThresh );
+      fdrP = fdrCorrection( spearmanRhoDistPval, FDRdiscoveryLevel , fdrThresh );
       std::cout << "fdr thresh (Spearman distance) is = " << fdrThresh << std::endl;
       
       output_vector(bonferroniP, outbase, std::string("_normDistProjectionsSpearmanPvalBonferroni.txt"));
       output_vector(fdrP, outbase, std::string("_normDistProjectionsSpearmanPvalFDR.txt"));
       
       bonferroniP = bonferroniCorrection( spearmanRhoProPval );
-      fdrP = fdrCorrection( spearmanRhoProPval, significanceLevel, fdrThresh );
+      fdrP = fdrCorrection( spearmanRhoProPval, FDRdiscoveryLevel , fdrThresh );
       std::cout << "fdr thresh (Spearman projection) is = " << fdrThresh << std::endl;
       
       output_vector(bonferroniP, outbase, std::string("_normProjectionsSpearmanPvalBonferroni.txt"));
@@ -361,7 +363,7 @@ if (KWMreadableInputFile==0)
   SOMesh->Delete();
   }
 
-  write_ColorMap(outbase,interactionTest,significanceLevel);
+  write_ColorMap(outbase,interactionTest,significanceLevel,FDRdiscoveryLevel);
 
   write_MRMLScene(outbase,interactionTest);
 
@@ -399,7 +401,8 @@ char fileCommanLine[512];
 				file<<" --scaleColumn "<<scaleColumn  ;}
 		file<<" --testColumn "<< testColumn;
 		if(KWMreadableInputFile) file<<" --KWMinput" ;
-		file<<" --significanceLevel "<<significanceLevel;
+		file<<" --significanceLevel"<<significanceLevel;
+		file<<" --FDRdiscoveryLevel "<<FDRdiscoveryLevel;
 		if(writeZScores)file<<" --writeZScores" ;
 		if(computeScaleFactorFromVolumes) file<<" --computeScaleFactorFromVolumes";
 		if(interactionTest)file<<" --interactionTest" ;

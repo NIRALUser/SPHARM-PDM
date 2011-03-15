@@ -135,7 +135,7 @@
     <double>
     <name>significanceLevel</name>
     <label>Cutoff of p-values considering significant.</label>
-    <longflag>--significanceLevel</longflag>
+    <longflag>--significanceLevelRawP</longflag>
     <flag>p</flag>
     <description>What cutoff of p-values is considered significant. Only affects the FDR corrected results.</description>
     <default>0.05</default>
@@ -144,6 +144,19 @@
     <maximum>1</maximum>
     <step>.001</step>
     </constraints>
+    </double>
+    <double>
+	    <name>FDRdiscoveryLevel</name>
+	    <label>Cutoff of p-values considering significant.</label>
+	    <longflag>--FDRdiscoveryLevel</longflag>
+	    <flag>p</flag>
+	    <description>What cutoff of p-values is considered significant. Only affects the FDR corrected results.</description>
+	    <default>0.05</default>
+	    <constraints>
+		    <minimum>0</minimum>
+		    <maximum>1</maximum>
+		    <step>.001</step>
+	    </constraints>
     </double>
 
     <boolean>

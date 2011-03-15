@@ -851,7 +851,10 @@ int main (int argc, const char ** argv)
   } 
 
   const int numPerms = ipGetIntArgument(argv, "-numPerms", 10000);
-  const double significanceLevel = ipGetDoubleArgument(argv, "-signLevel", 0.05);
+ // const double significanceLevelRawP = ipGetDoubleArgument(argv, "-signLevel", 0.05);
+ //const double significanceLevelFDRP = ipGetDoubleArgument(argv, "-signLevel", 0.05);
+const double significanceLevel = ipGetDoubleArgument(argv, "-significanceLevel", 0.05);
+ const double FDRdiscoveryLevel = ipGetDoubleArgument(argv, "-FDRdiscoveryLevel", 0.05);
   const int significanceSteps = ipGetIntArgument(argv, "-signSteps", 100);
 
   const int featSelStart  = ipGetIntArgument(argv, "-featSelStart", -1);
@@ -914,8 +917,8 @@ int main (int argc, const char ** argv)
 
   double * pValue = new double [numFeatures];
   
-  doTesting(numSubjects, numFeatures, numPerms, tupel_size, groupLabel, featureValue,
-        significanceLevel, significanceSteps,pValue, outbase);
+  doTesting(numSubjects, numFeatures, numPerms, tupel_size, groupLabel, featureValue,significanceLevel,FDRdiscoveryLevel, significanceSteps,pValue, outbase);
+
 
   return 0; 
 }

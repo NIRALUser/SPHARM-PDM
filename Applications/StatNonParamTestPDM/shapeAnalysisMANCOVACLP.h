@@ -179,7 +179,20 @@ Module_EXPORT char XMLModuleDescription[] =
 "    <label>Cutoff of p-values considering significant.</label>\n"
 "    <longflag>--significanceLevel</longflag>\n"
 "    <flag>p</flag>\n"
-"    <description>What cutoff of p-values is considered significant. Only affects the FDR corrected results.</description>\n"
+"    <description>What cutoff of p-values is considered significant.</description>\n"
+"    <default>0.05</default>\n"
+"    <constraints>\n"
+"    <minimum>0</minimum>\n"
+"    <maximum>1</maximum>\n"
+"    <step>.001</step>\n"
+"    </constraints>\n"
+"    </double>\n"
+"    <double>\n"
+"    <name>FDRdiscoveryLevel</name>\n"
+"    <label>FDR threshold value</label>\n"
+"    <longflag>--FDRdiscoveryLevel</longflag>\n"
+"    <flag>r</flag>\n"
+"    <description> FDR discovery threshold for posttest correction</description>\n"
 "    <default>0.05</default>\n"
 "    <constraints>\n"
 "    <minimum>0</minimum>\n"
@@ -383,6 +396,7 @@ char *GetXMLModuleDescription()
     int testColumn = 0; \
     bool KWMreadableInputFile = false; \
     double significanceLevel = 0.05; \
+    double FDRdiscoveryLevel= 0.05; \
     bool writeZScores = false; \
     bool computeScaleFactorFromVolumes = false; \
     bool interactionTest = false; \
@@ -449,8 +463,11 @@ char *GetXMLModuleDescription()
     msg.str("");msg << "Input data will be obtained from a KWMeshVisu readable feature (vector) file instead of the 3-d coordinates in a MeshFile. (default: " << KWMreadableInputFile << ")"; \
     TCLAP::SwitchArg KWMreadableInputFileArg("", "KWMinput", msg.str(), commandLine, KWMreadableInputFile); \
  \
-    msg.str("");msg << "What cutoff of p-values is considered significant. Only affects the FDR corrected results. (default: " << significanceLevel << ")"; \
+    msg.str("");msg << "What cutoff of p-values is considered significant. Only affects the FDR corrected results. (default: " << significanceLevel<< ")"; \
     TCLAP::ValueArg<double > significanceLevelArg("p", "significanceLevel", msg.str(), 0, significanceLevel, "double", commandLine); \
+\
+msg.str("");msg << "What cutoff of p-values is considered significant. Only affects the FDR corrected results. (default: " << FDRdiscoveryLevel << ")"; \
+    TCLAP::ValueArg<double > FDRdiscoveryLevelArg("r", "FDRdiscoveryLevel", msg.str(), 0, FDRdiscoveryLevel, "double", commandLine); \
  \
     msg.str("");msg << "Writes out the z-scores. Only uses group assignments from the first group column currently. z-score of group A is computed with mean and standard deviation from group B and vice versa. z-scores are output based on the projections on the mean surface normal as well as the corresponding Mahalanobis distances (where no projection is performed). (default: " << writeZScores << ")"; \
     TCLAP::SwitchArg writeZScoresArg("", "writeZScores", msg.str(), commandLine, writeZScores); \
@@ -624,6 +641,7 @@ try \
     testColumn = testColumnArg.getValue(); \
     KWMreadableInputFile = KWMreadableInputFileArg.getValue(); \
     significanceLevel = significanceLevelArg.getValue(); \
+    FDRdiscoveryLevel = FDRdiscoveryLevelArg.getValue(); \
     writeZScores = writeZScoresArg.getValue(); \
     computeScaleFactorFromVolumes = computeScaleFactorFromVolumesArg.getValue(); \
     interactionTest = interactionTestArg.getValue(); \
@@ -691,6 +709,7 @@ std::cout << "    scaleColumn: " << scaleColumn << std::endl; \
 std::cout << "    testColumn: " << testColumn << std::endl; \
 std::cout << "    KWMreadableInputFile: " << KWMreadableInputFile << std::endl; \
 std::cout << "    significanceLevel: " << significanceLevel << std::endl; \
+std::cout << "    FDRdiscoveryLevel: " << FDRdiscoveryLevel << std::endl; \
 std::cout << "    writeZScores: " << writeZScores << std::endl; \
 std::cout << "    computeScaleFactorFromVolumes: " << computeScaleFactorFromVolumes << std::endl; \
 std::cout << "    interactionTest: " << interactionTest << std::endl; \

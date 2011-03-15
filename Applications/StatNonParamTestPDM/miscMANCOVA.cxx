@@ -1,6 +1,7 @@
 	#include "miscMANCOVA.h"
 	#include <sstream>
 	#include <boost/math/distributions/students_t.hpp>
+	#include <itksys/SystemTools.hxx>
 	
 	using namespace std;
 	vnl_vector<double> TiedRankCalc(vnl_vector<double>& data)
@@ -1373,7 +1374,7 @@ void Meta2VTK(char * infile, char* outfile)
 }
 
 
-void write_ColorMap(std::string outbase,bool interactionTest,double significanceLevel)
+void write_ColorMap(std::string outbase,bool interactionTest,double significanceLevel,double FDRdiscoveryLevel)
 {
 int end;
 if(interactionTest){end=8;} //nb of file have to be created
@@ -1393,114 +1394,101 @@ Meta2VTK(InputMetaFile,InputVTKFile);
   for(int i=0;i<end;i++)
   {
 
-  std::vector<const char*> args;  
-  char* data = NULL;
-  int length;
-  double timeout = 0.05;
-  int result;
-  //double PvalueColorMapNb =0.05;
-std::cout<<""<<std::endl;
-std::ostringstream tmp ;
-tmp << significanceLevel;
-std::string PvalueColorMapString(tmp.str());
-//tmp=tmp.str();
-std::cout<<"AAAAA"<<std::endl;
+	std::vector<const char*> args;  
+	char* data = NULL;
+	int length;
+	double timeout = 0.05;
+	int result;
+	//double PvalueColorMapNb =0.05;
+	std::cout<<""<<std::endl;
+	std::ostringstream tmp1 ;
+	tmp1 << significanceLevel;
+	std::string RawPvalueColorMapString(tmp1.str());
+	std::cout<<""<<std::endl;
+	std::ostringstream tmp2 ;
+	tmp2 << FDRdiscoveryLevel;
+	std::string FDRPvalueColorMapString(tmp2.str());
+	//tmp=tmp.str();
+
     switch(i)
     {
       case 0:
-	if(interactionTest){
-		strcpy(TextFile,outbase.c_str());
-      		strcat(TextFile,"_normProjectionsSpearman.txt");  //TODO fichier txt avec les info pour les overlay (activescalar)
-     		args.push_back("MeshMath"); //PROG appele
-      		args.push_back(OutputFile); //origine 
-     		args.push_back(OutputFile); // sortie (ou serotn stoquees les info de l overlay
-		args.push_back("-KWMtoPolyData");
-     		args.push_back(TextFile);
-      		args.push_back("normProjectionsSpearman"); //non de ton active scalar
-        } else{
+	
       		strcpy(TextFile,outbase.c_str());
       		strcat(TextFile,"_mancovaRawP.txt");
       		args.push_back("MeshMath");
       		args.push_back(OutputFile);
       		args.push_back(OutputFile);
       		args.push_back("-significanceLevel");
-      		args.push_back(PvalueColorMapString.c_str());
+      		args.push_back(RawPvalueColorMapString.c_str());
       		args.push_back("-KWMtoPolyData");
       		args.push_back(TextFile);
       		args.push_back("RawP");
-      		args.push_back("-significanceLevel");
-      		args.push_back(PvalueColorMapString.c_str() );
-	}
-
       break;
 
     case 1:
-	if(interactionTest){
-		strcpy(TextFile,outbase.c_str());
-      		strcat(TextFile,"_normProjectionsSpearmanPval.txt");
-        	args.push_back("MeshMath");
-      		args.push_back(OutputFile);
-      		args.push_back(OutputFile);
-      		args.push_back("-KWMtoPolyData");
-      		args.push_back(TextFile);
-      		args.push_back("normProjectionsSpearmanPval");
-      		args.push_back("-significanceLevel");
-      		args.push_back(PvalueColorMapString.c_str() );
-	} else{
+	
 		strcpy(TextFile,outbase.c_str());
       		strcat(TextFile,"_mancovaFDRP.txt");
       		args.push_back("MeshMath");
       		args.push_back(OutputFile);
       		args.push_back(OutputFile);    
       		args.push_back("-significanceLevel");
-      		args.push_back(PvalueColorMapString.c_str());
+      		args.push_back(FDRPvalueColorMapString.c_str());
       		args.push_back("-KWMtoPolyData");
       		args.push_back(TextFile);
       		args.push_back("FDRP");
-      		args.push_back("-significanceLevel");
-      		args.push_back(PvalueColorMapString.c_str() );
-
-
-      }
-
       break;
 
-      case 2:
-	if(interactionTest){
-	strcpy(TextFile,outbase.c_str());
-      strcat(TextFile,"_normProjectionsPearsonPval.txt");
-        args.push_back("MeshMath");
-      args.push_back(OutputFile);
-      args.push_back(OutputFile);
-      args.push_back("-KWMtoPolyData");
-      args.push_back(TextFile);
-      args.push_back("normProjectionsPearsonPval");
-      args.push_back("-significanceLevel");
-args.push_back(PvalueColorMapString.c_str());}
-	else{std::cout<<"2"<<std::endl;
-      strcpy(TextFile,outbase.c_str());
-      strcat(TextFile,"_normDistProjections.txt");
-        args.push_back("MeshMath");
-      args.push_back(OutputFile);
-      args.push_back(OutputFile);
-      args.push_back("-KWMtoPolyData");
-      args.push_back(TextFile);
-      args.push_back("normDistProjections");}
+	case 2:
+		if(interactionTest){
+			strcpy(TextFile,outbase.c_str());
+			strcat(TextFile,"_normProjectionsPearsonPval.txt");
+			args.push_back("MeshMath");
+			args.push_back(OutputFile);
+			args.push_back(OutputFile);
+			args.push_back("-KWMtoPolyData");
+			args.push_back(TextFile);
+			args.push_back("normProjectionsPearsonPval");
+			args.push_back("-significanceLevel");
+			args.push_back(RawPvalueColorMapString.c_str());}
+		else{
+			strcpy(TextFile,outbase.c_str());
+			strcat(TextFile,"_normDistProjections.txt");
+			args.push_back("MeshMath");
+			args.push_back(OutputFile);
+			args.push_back(OutputFile);
+			args.push_back("-KWMtoPolyData");
+			args.push_back(TextFile);
+			args.push_back("normDistProjections");}
 
       break;
 
 	case 3:
-      strcpy(TextFile,outbase.c_str());
+     /* strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normDistProjectionsSpearman.txt");
       args.push_back("MeshMath");
       args.push_back(OutputFile);  
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
       args.push_back(TextFile);
-      args.push_back("normDistProjectionsSpearman");
+      args.push_back("normDistProjectionsSpearman");*/
+strcpy(TextFile,outbase.c_str());
+      strcat(TextFile,"_normProjectionsSpearmanPvalFDR.txt");
+      args.push_back("MeshMath");
+std::cout<<OutputFile<<std::endl;
+      args.push_back(OutputFile);  
+      args.push_back(OutputFile);
+      args.push_back("-KWMtoPolyData");
+      args.push_back(TextFile);
+      args.push_back("normProjectionsSpearmanPvalFDR");
+      args.push_back("-significanceLevel");
+	args.push_back(FDRPvalueColorMapString.c_str());
+
+
       break;
 
-	case 4:
+	/*case 4:
 	strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normDistProjectionsPearson.txt");
       args.push_back("MeshMath");
@@ -1512,7 +1500,7 @@ args.push_back(PvalueColorMapString.c_str());}
       break;
 
 	case 5:
-     strcpy(TextFile,outbase.c_str());
+    strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normDistProjectionsSpearmanPval.txt");
       args.push_back("MeshMath");
       args.push_back(OutputFile);  
@@ -1523,24 +1511,37 @@ args.push_back(PvalueColorMapString.c_str());}
       args.push_back("-significanceLevel");
 	args.push_back(PvalueColorMapString.c_str());
 
+      break;*/
+
+	//case 6:
+case 4:
+	/*	strcpy(TextFile,outbase.c_str());
+	strcat(TextFile,"_normDistProjectionsPearsonPval.txt");
+	args.push_back("MeshMath");
+	args.push_back(OutputFile);  
+	args.push_back(OutputFile);
+	args.push_back("-KWMtoPolyData");
+	args.push_back(TextFile);
+	args.push_back("normDistProjectionsPearsonPval");
+	args.push_back("-significanceLevel");
+	args.push_back(PvalueColorMapString.c_str());*/
+strcpy(TextFile,outbase.c_str());
+	strcat(TextFile,"_normProjectionsPearsonPvalFDR.txt");
+	args.push_back("MeshMath");
+	args.push_back(OutputFile);  
+std::cout<<OutputFile<<std::endl;
+	args.push_back(OutputFile);
+	args.push_back("-KWMtoPolyData");
+	args.push_back(TextFile);
+	args.push_back("normProjectionsPearsonPvalFDR");
+	args.push_back("-significanceLevel");
+	args.push_back(FDRPvalueColorMapString.c_str());
+
+
       break;
 
-	case 6:
-	strcpy(TextFile,outbase.c_str());
-      strcat(TextFile,"_normDistProjectionsPearsonPval.txt");
-      args.push_back("MeshMath");
-      args.push_back(OutputFile);  
-      args.push_back(OutputFile);
-      args.push_back("-KWMtoPolyData");
-      args.push_back(TextFile);
-      args.push_back("normDistProjectionsPearsonPval");
-  args.push_back("-significanceLevel");
-args.push_back(PvalueColorMapString.c_str());
-
-
-      break;
-
-	case 7:
+	//case 7:
+case 5:
 	strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normProjectionsPearson.txt");
       args.push_back("MeshMath");
@@ -1552,7 +1553,35 @@ args.push_back(PvalueColorMapString.c_str());
 
       break;
 
+	//case 8:
+case 6:
+		strcpy(TextFile,outbase.c_str());
+      		strcat(TextFile,"_normProjectionsSpearman.txt");  //TODO fichier txt avec les info pour les overlay (activescalar)
+     		args.push_back("MeshMath"); //PROG appele
+      		args.push_back(OutputFile); //origine 
+     		args.push_back(OutputFile); // sortie (ou serotn stoquees les info de l overlay
+		args.push_back("-KWMtoPolyData");
+     		args.push_back(TextFile);
+      		args.push_back("normProjectionsSpearman"); //non de ton active scalar
 
+break;
+
+	//case 9:
+case 7:
+
+
+		strcpy(TextFile,outbase.c_str());
+      		strcat(TextFile,"_normProjectionsSpearmanPval.txt");
+        	args.push_back("MeshMath");
+      		args.push_back(OutputFile);
+      		args.push_back(OutputFile);
+      		args.push_back("-KWMtoPolyData");
+      		args.push_back(TextFile);
+      		args.push_back("normProjectionsSpearmanPval");
+      		args.push_back("-significanceLevel");
+      		args.push_back(RawPvalueColorMapString.c_str() );
+
+break;
 	}
 
   
@@ -1567,7 +1596,7 @@ args.push_back(PvalueColorMapString.c_str());
   itksysProcess_Execute(gp);
 
 
-
+std::cout<<"MeshMath"<<std::endl;
   while(int Value = itksysProcess_WaitForData(gp,&data,&length,&timeout)) // wait for 1s
   {
     if ( ((Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR)) && data[0]=='D' )
@@ -1653,185 +1682,360 @@ void write_MRMLScene(std::string outbase,bool interactionTest)
 {
 
 if(interactionTest)
-	{	
-	cout<<"outbase: "<<outbase<<endl;
+	{
 
-	char file[512];
+/*
+std::vector<const char*> args;
+char* data = NULL;
+int length;
+double timeout = 0.05;
+int result;
+
+
+char mrmlfile[512];
+std::strcpy (mrmlfile,outbase.c_str());
+std::strcat(mrmlfile,"_MRMLscene.mrml");
+char nameVTK[512];
+std::strcpy (nameVTK,outbase.c_str());
+std::strcat(nameVTK,"_meanAll_uncorrected.vtk");
+stringstream ss;
+string s_nameVTK;
+ss << nameVTK;
+ss >> s_nameVTK;
+size_t found;
+found=s_nameVTK.find_last_of("/\\");
+
+//create a directory to save the transfoms files
+std::string s_outputdirectory;
+s_outputdirectory.append(s_nameVTK);
+s_outputdirectory.erase (found,s_outputdirectory.size()-1);
+s_outputdirectory.append("/transformFiles");
+ itksys::SystemTools::MakeDirectory(s_outputdirectory.c_str());
+
+//the name of the vtk 
+s_nameVTK.erase (0,found+1);
+std::strcpy (nameVTK,s_nameVTK.c_str());
+
+
+
+args.push_back("/opt/local/ShapeTools/linux64/CreateMRML");
+
+//name the mrml
+args.push_back(mrmlfile);
+
+// shape and tranfoms
+
+args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransRawP.tfm"); args.push_back("-n"); args.push_back("transRawP"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-165,27,-62");
+args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("RawP"); args.push_back("-p"); args.push_back("transRawP"); args.push_back("-as"); args.push_back("RawP"); args.push_back("-cc"); args.push_back("customLUT_RawP.txt");
+
+args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransFDRP.tfm"); args.push_back("-n"); args.push_back("transFDRP"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-165,27,-1");
+args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("FDRP"); args.push_back("-p"); args.push_back("transFDRP"); args.push_back("-as"); args.push_back("FDRP"); args.push_back("-cc"); args.push_back("customLUT_FDRP.txt");
+
+args.push_back("-t"); args.push_back("-f"); args.push_back("transformFiles/TransnormProjectionsPearson.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearson"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-200");
+args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearson"); args.push_back("-p"); args.push_back("transnormProjectionsPearson"); args.push_back("-as"); args.push_back("normProjectionsPearson"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearson.txt");
+
+args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsPearsonPval.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearsonPval"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-146");
+args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearsonPval"); args.push_back("-p"); args.push_back("transnormProjectionsPearsonPval"); args.push_back("-as"); args.push_back("normProjectionsPearsonPval"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearsonPval.txt");
+
+args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsPearsonPvalFDR.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearsonPvalFDR"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-85");
+args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearsonPvalFDR"); args.push_back("-p"); args.push_back("transnormProjectionsPearsonPvalFDR"); args.push_back("-as"); args.push_back("normProjectionsPearsonPvalFDR"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearsonPvalFDR.txt");
+
+args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearman.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearman"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-200");
+args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearman"); args.push_back("-p"); args.push_back("transnormProjectionsSpearman"); args.push_back("-as"); args.push_back("normProjectionsSpearman"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearman.txt");
+
+args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearmanPval.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearmanPval"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-146");
+args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-p"); args.push_back("transnormProjectionsSpearmanPval"); args.push_back("-as"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearmanPval.txt");
+
+args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearmanPvalFDR.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearmanPvalFDR"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-85");
+args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-p"); args.push_back("transnormProjectionsSpearmanPvalFDR"); args.push_back("-as"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearmanPvalFDR.txt");
+
+//fiducial 
+args.push_back("-q"); args.push_back("-id"); args.push_back("MANCOVA_RawP"); args.push_back("-lbl"); args.push_back("MANCOVA_RawP"); args.push_back("-pos"); args.push_back("-156,38,35");
+
+args.push_back("-q"); args.push_back("-id"); args.push_back("MANCOVA_FDRP"); args.push_back("-lbl"); args.push_back("MANCOVA_FDRP"); args.push_back("-pos"); args.push_back("-156,38,85");
+
+args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsPearson"); args.push_back("-lbl"); args.push_back("normProjectionsPearson"); args.push_back("-pos"); args.push_back("-197,38,235");
+
+args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsPearsonPval"); args.push_back("-lbl"); args.push_back("normProjectionsPearsonPval"); args.push_back("-pos"); args.push_back("-197,38,177");
+
+args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsPearsonPvalFDR"); args.push_back("-lbl"); args.push_back("normProjectionsPearsonPvalFDR"); args.push_back("-pos"); args.push_back("-197,38,123");
+
+args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsSpearman"); args.push_back("-lbl"); args.push_back("normProjectionsSpearman"); args.push_back("-pos"); args.push_back("-60,38,250");
+
+args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-lbl"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-pos"); args.push_back("-60,38,187");
+
+args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-lbl"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-pos"); args.push_back("-60,38,121");
+
+
+//end
+args.push_back(0);
+
+for(unsigned int i=0; i<args.size();i++)
+{
+std::cout<<args.at(i)<<std::endl;
+}
+
+std::cout<<"Mrml"<<std::endl;
+// Run the application
+
+  itksysProcess* gp = itksysProcess_New();
+  itksysProcess_SetCommand(gp, &*args.begin());
+  itksysProcess_SetOption(gp,itksysProcess_Option_HideWindow,1);
+  itksysProcess_Execute(gp);
+
+while(int Value = itksysProcess_WaitForData(gp,&data,&length,&timeout)) // wait for 1s
+  {
+    if ( ((Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR)) && data[0]=='D' )
+    {
+	strstream st;
+      	for(int i=0;i<length;i++) 	
+	{
+		st<<data[i];
+	}
+	string dim=st.str();
+    }
+    	timeout = 0.05;   	
+  }
+
+  itksysProcess_WaitForExit(gp, 0);
+  
+  result = 1;
+  switch(itksysProcess_GetState(gp))
+  {
+  case itksysProcess_State_Exited:
+  {
+    result = itksysProcess_GetExitValue(gp);
+  } break;
+  case itksysProcess_State_Error:
+  {
+    std::cerr<<"Error: Could not run " << args[0]<<":\n";
+    std::cerr<<itksysProcess_GetErrorString(gp)<<"\n";
+    std::cout<<"Error: Could not run " << args[0]<<":\n";
+    std::cout<<itksysProcess_GetErrorString(gp)<<"\n";
+  } break;
+  case itksysProcess_State_Exception:
+  {
+    std::cerr<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
+    std::cout<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
+  } break;
+  case itksysProcess_State_Starting:
+  case itksysProcess_State_Executing:
+  case itksysProcess_State_Expired:
+  case itksysProcess_State_Killed:
+  {
+    // Should not get here.
+    std::cerr<<"Unexpected ending state after running "<<args[0]<<std::endl;
+    std::cout<<"Unexpected ending state after running "<<args[0]<<std::endl;
+  } break;
+  }
+  itksysProcess_Delete(gp);  */
+
+
+char file[512];
 	std::strcpy (file,outbase.c_str());
 	std::strcat(file,"_MRMLscene.mrml");
+std::ofstream MRMLFile(file);
 
-	char nameVTK[512];
-
-	std::strcpy (nameVTK,outbase.c_str());
-	std::strcat(nameVTK,"_meanAll_uncorrected.vtk");
-
-	std::ofstream MRMLFile(file);
+char meanAll_uncorrected[512];
+std::strcpy (meanAll_uncorrected,outbase.c_str());
+	std::strcat(meanAll_uncorrected,"_meanAll_uncorrected.vtk");
 
 
-	MRMLFile<<"<MRML userTags=\"\">"<<std::endl;
-	MRMLFile<<"<Selection"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLSelectionNode1\"  name=\"vtkMRMLSelectionNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  activeVolumeID=\"NULL\"  secondaryVolumeID=\"NULL\"  activeLabelVolumeID=\"NULL\"  activeFiducialListID=\"vtkMRMLFiducialListNode1\"  activeROIListID=\"NULL\"  activeCameraID=\"NULL\"  activeViewID=\"NULL\"  activeLayoutID=\"vtkMRMLLayoutNode1\"></Selection>"<<std::endl;
+MRMLFile<<"<MRML >"<<std::endl;
+
+MRMLFile<<"<Selection"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLSelectionNode1\" name=\"vtkMRMLSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" secondaryVolumeID=\"NULL\" activeLabelVolumeID=\"NULL\" activeFiducialListID=\"vtkMRMLFiducialListNode5\" activeROIListID=\"NULL\" activeCameraID=\"NULL\" activeViewID=\"NULL\" activeLayoutID=\"vtkMRMLLayoutNode1\"></Selection>"<<std::endl;
+
 	MRMLFile<<"<Interaction"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLInteractionNode1\"  name=\"vtkMRMLInteractionNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\" currentInteractionMode=\"ViewTransform\"  lastInteractionMode=\"ViewTransform\" ></Interaction>"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLInteractionNode1\" name=\"vtkMRMLInteractionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentInteractionMode=\"ViewTransform\" lastInteractionMode=\"ViewTransform\"></Interaction>"<<std::endl;
 	MRMLFile<<"<Layout"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLLayoutNode1\"  name=\"vtkMRMLLayoutNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  currentViewArrangement=\"4\"  guiPanelVisibility=\"1\"  bottomPanelVisibility =\"0\"  guiPanelLR=\"0\"  collapseSliceControllers=\"0\" numberOfCompareViewRows=\"1\"  numberOfCompareViewColumns=\"1\"  numberOfLightboxRows=\"1\"  numberOfLightboxColumns=\"1\"  mainPanelSize=\"400\"  secondaryPanelSize=\"400\"  selectedModule=\"Fiducials\" ></Layout>"<<std::endl;
-	MRMLFile<<"<TGParameters"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLChangeTrackerNode1\"  name=\"vtkMRMLChangeTrackerNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  ROIMin=\"-1 -1 -1\"  ROIMax=\"-1 -1 -1\"  SegmentThresholdMin=\"-1\"  SegmentThresholdMax=\"-1\"  Analysis_Intensity_Flag=\"0\"  Analysis_Deformable_Flag=\"0\"  UseITK=\"1\"  RegistrationChoice=\"3\"  ROIRegistration=\"1\"  ResampleChoice=\"3\"  ResampleConst=\"0.5\" ></TGParameters>"<<std::endl;
-	MRMLFile<<"<Crosshair"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLCrosshairNode1\"  name=\"vtkMRMLCrosshairNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  crosshairMode=\"NoCrosshair\"  navigation=\"true\"  crosshairBehavior=\"Normal\"  crosshairThickness=\"Fine\"  crosshairRAS=\"0 0 0\" ></Crosshair>"<<std::endl;
-	MRMLFile<<"<ClipModels"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLClipModelsNode1\"  name=\"vtkMRMLClipModelsNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  clipType=\"0\"  redSliceClipState=\"0\"  yellowSliceClipState=\"0\"  greenSliceClipState=\"0\" ></ClipModels>"<<std::endl;
-	MRMLFile<<"<ScriptedModule"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLScriptedModuleNode1\"  name=\"vtkMRMLScriptedModuleNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\" ModuleName =\"Editor\" parameter0=\"label 1\"></ScriptedModule>"<<std::endl;
-	MRMLFile<<"<ScriptedModule"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLScriptedModuleNode2\"  name=\"vtkMRMLScriptedModuleNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\" ModuleName =\"Editor\" parameter0=\"label 1\"></ScriptedModule>"<<std::endl;
-	MRMLFile<<"<ScriptedModule"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLScriptedModuleNode3\"  name=\"vtkMRMLScriptedModuleNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\" ModuleName =\"Editor\" parameter0=\"label 1\"></ScriptedModule>"<<std::endl;
-	MRMLFile<<"<ScriptedModule"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLScriptedModuleNode4\"  name=\"vtkMRMLScriptedModuleNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\" ModuleName =\"Editor\" parameter0=\"label 1\"></ScriptedModule>"<<std::endl;
-	MRMLFile<<"<ScriptedModule"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLScriptedModuleNode5\"  name=\"vtkMRMLScriptedModuleNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\" ModuleName =\"Editor\" parameter0=\"label 1\"></ScriptedModule>"<<std::endl;
-	MRMLFile<<"<ScriptedModule"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLScriptedModuleNode6\"  name=\"vtkMRMLScriptedModuleNode2\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\" ModuleName =\"Editor\" parameter0=\"label 1\"></ScriptedModule>"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLLayoutNode1\" name=\"vtkMRMLLayoutNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentViewArrangement=\"4\" guiPanelVisibility=\"1\" bottomPanelVisibility =\"0\" guiPanelLR=\"0\" numberOfCompareViewRows=\"0\" numberOfCompareViewColumns=\"0\" numberOfLightboxRows=\"1\" numberOfLightboxColumns=\"1\" mainPanelSize=\"400\" secondaryPanelSize=\"400\"></Layout>"<<std::endl;
 	MRMLFile<<"<View"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLViewNode1\"  name=\"vtkMRMLViewNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  active=\"true\"  visibility=\"true\"  fieldOfView=\"200\"  letterSize=\"0.05\"  boxVisible=\"false\"  fiducialsVisible=\"true\"  fiducialLabelsVisible=\"true\"  axisLabelsVisible=\"false\"  backgroundColor=\"0.701961 0.701961 0.905882\"  animationMode=\"Off\"  viewAxisMode=\"LookFrom\"  spinDegrees=\"2\"  spinMs=\"5\"  spinDirection=\"YawLeft\"  rotateDegrees=\"5\"  rockLength=\"200\"  rockCount=\"0\"  stereoType=\"NoStereo\"  renderMode=\"Perspective\" ></View>"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLViewNode1\" name=\"vtkMRMLViewNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" active=\"false\" fieldOfView=\"200\" letterSize=\"0.05\" boxVisible=\"false\" fiducialsVisible=\"true\" fiducialLabelsVisible=\"true\" axisLabelsVisible=\"false\" backgroundColor=\"0.701961 0.701961 0.905882\" animationMode=\"Off\" viewAxisMode=\"LookFrom\" spinDegrees=\"2\" spinMs=\"5\" spinDirection=\"YawLeft\" rotateDegrees=\"5\" rockLength=\"200\" rockCount=\"0\" stereoType=\"NoStereo\" renderMode=\"Perspective\"></View>"<<std::endl;
 	MRMLFile<<"<Camera"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLCameraNode1\"  name=\"vtkMRMLCameraNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  position=\"-270.792 183.224 665.108\"  focalPoint=\"-129.448 93.8171 81.265\"  viewUp=\"0.971364 -0.0134305 0.237216\"  parallelProjection=\"false\"  parallelScale=\"1\"  activetag=\"vtkMRMLViewNode1\" ></Camera>"<<std::endl;
-	MRMLFile<<"<ModelStorage"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLModelStorageNode1\"  name=\"vtkMRMLModelStorageNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\" fileName=\""<<nameVTK<<"\"   useCompression=\"1\"  readState=\"0\"  writeState=\"4\" ></ModelStorage>"<<std::endl;
-	MRMLFile<<"<ModelDisplay"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLModelDisplayNode2\"  name=\"vtkMRMLModelDisplayNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\"  colorNodeRef=\"vtkMRMLColorTableNodeFilecustomLUT_Pval.txt\"  activeScalarName=\"normProjectionsPearsonPval\"  ></ModelDisplay>"<<std::endl;
-	MRMLFile<<" <Model"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLModelNode2\"  name=\"normProjectionsPearsonPval\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode3\"  storageNodeRef=\"vtkMRMLModelStorageNode1\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode2\" ></Model>"<<std::endl;
-	MRMLFile<<" <ModelStorage"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLModelStorageNode2\"  name=\"vtkMRMLModelStorageNode2\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<nameVTK<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"4\" ></ModelStorage>"<<std::endl;
-	MRMLFile<<" <ModelDisplay"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLModelDisplayNode3\"  name=\"vtkMRMLModelDisplayNode2\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"1 0 0\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\"  colorNodeRef=\"vtkMRMLColorTableNodeFilecustomLUT_Pval.txt\"  activeScalarName=\"normDistProjectionsSpearmanPval\"  ></ModelDisplay>"<<std::endl;
-	MRMLFile<<" <Model"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLModelNode3\"  name=\"normDistProjectionSpearmanPval\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode2\"  storageNodeRef=\"vtkMRMLModelStorageNode2\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode3\" ></Model>"<<std::endl;
-	MRMLFile<<"<FiducialListStorage"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLFiducialListStorageNode1\"  name=\"vtkMRMLFiducialListStorageNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"L1.fcsv\"  useCompression=\"1\"  readState=\"4\"  writeState=\"4\" ></FiducialListStorage>"<<std::endl;
-	MRMLFile<<"<FiducialList"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLFiducialListNode1\"  name=\"L1\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLFiducialListStorageNode1\"  userTags=\"\" symbolScale=\"0\" symbolType=\"12\" textScale=\"2.5\" visibility=\"1\" color=\"0.4 1 1\" selectedcolor=\"1 0.5 0.5\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\"  opacity=\"1\" fiducials=\" "<<std::endl;
-	MRMLFile<<"id normDistProjectionSpearmanPval labeltext normDistProjectionSpearmanPval xyz -258.896 193.705 118.184 orientationwxyz 0 0 0 1 selected 0 visibility 1"<<std::endl;
-	MRMLFile<<"id normProjectionPearsonPval labeltext normProjectionPearsonPval xyz -95.1053 -22.4888 151.176 orientationwxyz 0 0 0 1 selected 0 visibility 1"<<std::endl;
-	MRMLFile<<"id normDistProjectionPearsonPval labeltext normDistProjectionPearsonPval xyz -246.652 -22.4514 158.584 orientationwxyz 0 0 0 1 selected 0 visibility 1"<<std::endl;
-	MRMLFile<<"id normProjectionDistPearson labeltext normProjectionDistPearson xyz -170.672 -22.2909 162.53 orientationwxyz 0 0 0 1 selected 0 visibility 1"<<std::endl;
-	MRMLFile<<"id normProjectionPearson labeltext normProjectionPearson xyz -23.9077 -19.4522 157.244 orientationwxyz 0 0 0 1 selected 0 visibility 1"<<std::endl;
-	MRMLFile<<"id normDistProjectionSpearman labeltext normDistProjectionSpearman xyz -184.426 195.646 114.445 orientationwxyz 0 0 0 1 selected 0 visibility 1"<<std::endl;
-	MRMLFile<<"id normProjectionSpearmanPval labeltext normProjectionSpearmanPval xyz -106.315 197.193 111.159 orientationwxyz 0 0 0 1 selected 0 visibility 1"<<std::endl;
-	MRMLFile<<"id normProjectionSpearman labeltext normProjectionSpearman xyz -32.4964 189.799 117.304 orientationwxyz 0 0 0 1 selected 0 visibility 1\" ></FiducialList>"<<std::endl;
-	MRMLFile<<"<ModelStorage"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLModelStorageNode7\"  name=\"vtkMRMLModelStorageNode7\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<nameVTK<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
-	MRMLFile<<"<ModelDisplay"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLModelDisplayNode10\"  name=\"vtkMRMLModelDisplayNode10\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFilecustomLUT_normDistProjectionsSpearman.txt\" activeScalarName=\"normDistProjectionsSpearman\"  ></ModelDisplay>"<<std::endl;
-	MRMLFile<<"<Model"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLModelNode10\"  name=\"normDistProjectionsSpearman\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\" transformNodeRef=\"vtkMRMLLinearTransformNode4\"  storageNodeRef=\"vtkMRMLModelStorageNode7\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode10\" ></Model>"<<std::endl;
-	MRMLFile<<" <ModelStorage"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLModelStorageNode8\"  name=\"vtkMRMLModelStorageNode8\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<nameVTK<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
-	MRMLFile<<" <ModelDisplay"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLModelDisplayNode11\"  name=\"vtkMRMLModelDisplayNode11\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\"  colorNodeRef=\"vtkMRMLColorTableNodeFilecustomLUT_normDistProjectionsPearson.txt\" activeScalarName=\"normDistProjectionsPearson\"  ></ModelDisplay>"<<std::endl;
-	MRMLFile<<" <Model"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLModelNode11\"  name=\"normDistProjectionsPearson\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode5\"  storageNodeRef=\"vtkMRMLModelStorageNode8\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode11\" ></Model>"<<std::endl;
-	MRMLFile<<"<ModelStorage"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLModelStorageNode10\"  name=\"vtkMRMLModelStorageNode10\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<nameVTK<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
-	MRMLFile<<" <ModelDisplay"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLModelDisplayNode13\"  name=\"vtkMRMLModelDisplayNode13\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFilecustomLUT_Pval.txt\" activeScalarName=\"normDistProjectionsPearsonPval\"  ></ModelDisplay>"<<std::endl;
-	MRMLFile<<" <Model"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLModelNode13\"  name=\"normDistProjectionsPearsonPval\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode6\"  storageNodeRef=\"vtkMRMLModelStorageNode10\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode13\" ></Model>"<<std::endl;
-	MRMLFile<<" <ModelStorage"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLModelStorageNode11\"  name=\"vtkMRMLModelStorageNode11\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<nameVTK<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
-	MRMLFile<<" <ModelDisplay"<<std::endl;    
-	MRMLFile<<" id=\"vtkMRMLModelDisplayNode14\"  name=\"vtkMRMLModelDisplayNode14\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFilecustomLUT_normProjectionsPearson.txt\" activeScalarName=\"normProjectionsPearson\"  ></ModelDisplay>"<<std::endl;
-	MRMLFile<<"<Model"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLModelNode14\"  name=\"normProjectionsPearson\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode8\"  storageNodeRef=\"vtkMRMLModelStorageNode11\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode14\" ></Model>"<<std::endl;
-	MRMLFile<<"<ModelStorage"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLModelStorageNode12\"  name=\"vtkMRMLModelStorageNode12\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<nameVTK<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
-	MRMLFile<<"<ModelDisplay"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLModelDisplayNode15\"  name=\"vtkMRMLModelDisplayNode15\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFilecustomLUT_normProjectionsSpearman.txt\" activeScalarName=\"normProjectionsSpearman\"  ></ModelDisplay>"<<std::endl;
-	MRMLFile<<" <Model"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLModelNode15\"  name=\"normProjectionsSpearman\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode7\"  storageNodeRef=\"vtkMRMLModelStorageNode12\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode15\" ></Model>"<<std::endl;
-	MRMLFile<<"<ModelStorage"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLModelStorageNode14\"  name=\"vtkMRMLModelStorageNode14\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<nameVTK<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
-	MRMLFile<<" <ModelDisplay"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLModelDisplayNode17\"  name=\"vtkMRMLModelDisplayNode17\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFilecustomLUT_Pval.txt\" activeScalarName=\"normProjectionsSpearmanPval\"  ></ModelDisplay>"<<std::endl;
-	MRMLFile<<"<Model"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLModelNode17\"  name=\"normProjectionsSpearmanPval\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode1\"  storageNodeRef=\"vtkMRMLModelStorageNode14\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode17\" ></Model>"<<std::endl;
-	MRMLFile<<" <TransformStorage"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLTransformStorageNode2\"  name=\"vtkMRMLTransformStorageNode2\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"LinearTransform2.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
-	MRMLFile<<" <LinearTransform"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLLinearTransformNode6\"  name=\"LinearTransform8\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode3\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 -99  0 1 0 -117  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
-	MRMLFile<<" <LinearTransform"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLLinearTransformNode7\"  name=\"LinearTransform3\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode4\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 126  0 1 0 71  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
-	MRMLFile<<" <LinearTransform"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLLinearTransformNode8\"  name=\"LinearTransform4\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode5\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 126  0 1 0 -117  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
-	MRMLFile<<" <LinearTransform"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLLinearTransformNode4\"  name=\"LinearTransform5\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode6\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 -24  0 1 0 71  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
-	MRMLFile<<" <LinearTransform"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLLinearTransformNode5\"  name=\"LinearTransform6\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode7\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 -24  0 1 0 -117  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
-	MRMLFile<<" <LinearTransform"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLLinearTransformNode1\"  name=\"LinearTransform7\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode8\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 51  0 1 0 71  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
-	MRMLFile<<" <LinearTransform"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLLinearTransformNode2\"  name=\"LinearTransform1\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode1\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 -99  0 1 0 71  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
-	MRMLFile<<" <LinearTransform"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLLinearTransformNode3\"  name=\"LinearTransform2\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode2\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 51  0 1 0 -117  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
-	MRMLFile<<" <TransformStorage"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLTransformStorageNode3\"  name=\"vtkMRMLTransformStorageNode3\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"LinearTransform8.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
-	MRMLFile<<"<TransformStorage"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLTransformStorageNode4\"  name=\"vtkMRMLTransformStorageNode4\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"LinearTransform3.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
-	MRMLFile<<" <TransformStorage"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLTransformStorageNode5\"  name=\"vtkMRMLTransformStorageNode5\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"LinearTransform4.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
-	MRMLFile<<"<TransformStorage"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLTransformStorageNode6\"  name=\"vtkMRMLTransformStorageNode6\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"LinearTransform5.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
-	MRMLFile<<" <TransformStorage"<<std::endl;
-	MRMLFile<<"  id=\"vtkMRMLTransformStorageNode7\"  name=\"vtkMRMLTransformStorageNode7\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"LinearTransform6.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
-	MRMLFile<<" <TransformStorage"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLTransformStorageNode8\"  name=\"vtkMRMLTransformStorageNode8\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"LinearTransform7.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
-	MRMLFile<<" <Slice"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLSliceNode1\"  name=\"Green\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fieldOfView=\"389.844 250 1\"  dimensions=\"499 320 1\"  activeSlice=\"0\"  layoutGridRows=\"1\"  layoutGridColumns=\"1\"  sliceToRAS=\"-1 0 0 0 0 0 1 0 0 1 0 0 0 0 0 1\"  layoutName=\"Green\"  orientation=\"Coronal\"  jumpMode=\"1\"  sliceVisibility=\"false\"  widgetVisibility=\"false\"  useLabelOutline=\"false\"  sliceSpacingMode=\"0\"  prescribedSliceSpacing=\"1 1 1\" ></Slice>"<<std::endl;
-	MRMLFile<<"<SliceComposite"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLSliceCompositeNode1\"  name=\"vtkMRMLSliceCompositeNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  backgroundVolumeID=\"\"  foregroundVolumeID=\"\"  labelVolumeID=\"\"  compositing=\"0\"  labelOpacity=\"1\"  linkedControl=\"0\"  foregroundGrid=\"0\"  backgroundGrid=\"0\"  labelGrid=\"1\"  fiducialVisibility=\"1\"  fiducialLabelVisibility=\"1\"  sliceIntersectionVisibility=\"0\"  layoutName=\"Green\"  annotationMode=\"All\"  doPropagateVolumeSelection=\"1\" ></SliceComposite>"<<std::endl;
-	MRMLFile<<"<Slice"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLSliceNode2\"  name=\"Red\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fieldOfView=\"389.062 250 1\"  dimensions=\"498 320 1\"  activeSlice=\"0\"  layoutGridRows=\"1\"  layoutGridColumns=\"1\"  sliceToRAS=\"-1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1\"  layoutName=\"Red\"  orientation=\"Axial\"  jumpMode=\"1\"  sliceVisibility=\"false\"  widgetVisibility=\"false\"  useLabelOutline=\"false\"  sliceSpacingMode=\"0\"  prescribedSliceSpacing=\"1 1 1\" ></Slice>"<<std::endl;
-	MRMLFile<<"<SliceComposite"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLSliceCompositeNode2\"  name=\"vtkMRMLSliceCompositeNode2\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  backgroundVolumeID=\"\"  foregroundVolumeID=\"\"  labelVolumeID=\"\"  compositing=\"0\"  labelOpacity=\"1\"  linkedControl=\"0\"  foregroundGrid=\"0\"  backgroundGrid=\"0\"  labelGrid=\"1\"  fiducialVisibility=\"1\"  fiducialLabelVisibility=\"1\"  sliceIntersectionVisibility=\"0\"  layoutName=\"Red\"  annotationMode=\"All\"  doPropagateVolumeSelection=\"1\" ></SliceComposite>"<<std::endl;
-	MRMLFile<<"<Slice"<<std::endl;
-	MRMLFile<<" id=\"vtkMRMLSliceNode3\"  name=\"Yellow\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fieldOfView=\"389.844 250 1\"  dimensions=\"499 320 1\"  activeSlice=\"0\"  layoutGridRows=\"1\"  layoutGridColumns=\"1\"  sliceToRAS=\"0 0 1 0 -1 0 0 0 0 1 0 0 0 0 0 1\"  layoutName=\"Yellow\"  orientation=\"Sagittal\"  jumpMode=\"1\"  sliceVisibility=\"false\"  widgetVisibility=\"false\"  useLabelOutline=\"false\"  sliceSpacingMode=\"0\"  prescribedSliceSpacing=\"1 1 1\" ></Slice>"<<std::endl;
-	MRMLFile<<" <SliceComposite"<<std::endl;
-	MRMLFile<<"id=\"vtkMRMLSliceCompositeNode3\"  name=\"vtkMRMLSliceCompositeNode3\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  backgroundVolumeID=\"\"  foregroundVolumeID=\"\"  labelVolumeID=\"\"  compositing=\"0\"  labelOpacity=\"1\"  linkedControl=\"0\"  foregroundGrid=\"0\"  backgroundGrid=\"0\"  labelGrid=\"1\"  fiducialVisibility=\"1\"  fiducialLabelVisibility=\"1\"  sliceIntersectionVisibility=\"0\"  layoutName=\"Yellow\"  annotationMode=\"All\"  doPropagateVolumeSelection=\"1\" ></SliceComposite>"<<std::endl;
-	MRMLFile<<"<ColorTableStorage"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableStorageNode1\"  name=\"vtkMRMLColorTableStorageNode1\"  hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\"customLUT_normDistProjectionsSpearman.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
-	MRMLFile<<"<ColorTable"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableNodeFilecustomLUT_normDistProjectionsSpearman.txt\"  name=\"customLUT_normDistProjectionsSpearman.txt\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode1\"  userTags=\"\" type=\"14\" numcolors=\"256\"></ColorTable>"<<std::endl;
-	/*MRMLFile<<"<ColorTableStorage"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableStorageNode2\"  name=\"vtkMRMLColorTableStorageNode2\"  hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\"customLUT_normDistProjectionsSpearmanPval.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
- 	MRMLFile<<"<ColorTable"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableNodeFilecustomLUT_normDistProjectionsSpearmanPval.txt\" name=\"customLUT_normDistProjectionsSpearmanPval.txt\"   selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode2\"  userTags=\"\" type=\"14\" numcolors=\"256\"></ColorTable>"<<std::endl;*/
-	MRMLFile<<"<ColorTableStorage"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableStorageNode3\"  name=\"vtkMRMLColorTableStorageNode3\"  hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\"customLUT_normDistProjectionsPearson.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
- 	MRMLFile<<"<ColorTable"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableNodeFilecustomLUT_normDistProjectionsPearson.txt\"  name=\"customLUT_normDistProjectionsPearson.txt\"   hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode3\"  userTags=\"\" type=\"14\" numcolors=\"256\"></ColorTable>"<<std::endl;
-	/*MRMLFile<<"<ColorTableStorage"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableStorageNode4\"  name=\"vtkMRMLColorTableStorageNode4\"  hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\"customLUT_normDistProjectionsPearsonPval.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
- 	MRMLFile<<"<ColorTable"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableNodeFilecustomLUT_normDistProjectionsPearsonPval.txt\"  name=\"customLUT_normDistProjectionsPearsonPval.txt\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode4\"  userTags=\"\" type=\"14\" numcolors=\"256\"></ColorTable>"<<std::endl;*/
-	MRMLFile<<"<ColorTableStorage"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableStorageNode5\"  name=\"vtkMRMLColorTableStorageNode5\"  hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\"customLUT_normProjectionsPearson.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
- 	MRMLFile<<"<ColorTable"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableNodeFilecustomLUT_normProjectionsPearson.txt\"  name=\"customLUT_normProjectionsPearson.txt\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode5\"  userTags=\"\" type=\"14\" numcolors=\"256\"></ColorTable>"<<std::endl;
-	/*MRMLFile<<"<ColorTableStorage"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableStorageNode6\"  name=\"vtkMRMLColorTableStorageNode6\"  hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\"customLUT_normProjectionsPearsonPval.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
- 	MRMLFile<<"<ColorTable"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableNodeFilecustomLUT_normProjectionsPearsonPval.txt\"  name=\"customLUT_normProjectionsPearsonPval.txt\"   hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode6\"  userTags=\"\" type=\"14\" numcolors=\"256\"></ColorTable>"<<std::endl;*/
-	MRMLFile<<"<ColorTableStorage"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableStorageNode7\"  name=\"vtkMRMLColorTableStorageNode7\"  hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\"customLUT_normProjectionsSpearman.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
- 	MRMLFile<<"<ColorTable"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableNodeFilecustomLUT_normProjectionsSpearman.txt\"  name=\"customLUT_normProjectionsSpearman.txt\"    hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode7\"  userTags=\"\" type=\"14\" numcolors=\"256\"></ColorTable>"<<std::endl;
-	MRMLFile<<"<ColorTableStorage"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableStorageNode8\"  name=\"vtkMRMLColorTableStorageNode8\"  hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\"customLUT_normProjectionsSpearmanPval.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
- 	MRMLFile<<"<ColorTable"<<std::endl;
-  	MRMLFile<<"id=\"vtkMRMLColorTableNodeFilecustomLUT_Pval.txt\"  name=\"customLUT_Pval.txt\"   hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode8\"  userTags=\"\" type=\"14\" numcolors=\"256\"></ColorTable>"<<std::endl;
-	MRMLFile<<"</MRML>"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLCameraNode1\" name=\"vtkMRMLCameraNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" position=\"112.867 11.9209 77.899\" focalPoint=\"20.6743 20.0683 35.2938\" viewUp=\"-0.374928 0.315652 0.871661\" parallelProjection=\"false\" parallelScale=\"1\" active=\"false\"></Camera>"<<std::endl;
+	MRMLFile<<"<TGParameters"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLChangeTrackerNode1\" name=\"vtkMRMLChangeTrackerNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ROIMin=\"-1 -1 -1\" ROIMax=\"-1 -1 -1\" SegmentThresholdMin=\"-1\" SegmentThresholdMax=\"-1\" Analysis_Intensity_Flag=\"0\" Analysis_Deformable_Flag=\"0\" UseITK=\"1\"></TGParameters>"<<std::endl;
+	MRMLFile<<"<VolumeRenderingSelection"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLVolumeRenderingSelectionNode1\" name=\"vtkMRMLVolumeRenderingSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" activeVolumeRenderingID=\"NULL\"></VolumeRenderingSelection>\\"<<std::endl;
+	MRMLFile<<"<Crosshair"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLCrosshairNode1\" name=\"vtkMRMLCrosshairNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" crosshairMode=\"NoCrosshair\" crosshairBehavior=\"Normal\" crosshairThickness=\"Fine\" crosshairRAS=\"-17.719 127.24 -1.90859\"></Crosshair>"<<std::endl;
+	MRMLFile<<"<VolumeRenderingSelection"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLVolumeRenderingParametersNode1\" name=\"vtkMRMLVolumeRenderingSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" volumeNodeID=\"NULL\" croppingEnabled=\"0\" ROINodeID=\"NULL\" volumePropertyNodeID=\"NULL\"></VolumeRenderingSelection>"<<std::endl;
+	MRMLFile<<"<VolumeRenderingSelection"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLVolumeRenderingParametersNode2\" name=\"vtkMRMLVolumeRenderingSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" volumeNodeID=\"NULL\" croppingEnabled=\"0\" ROINodeID=\"NULL\" volumePropertyNodeID=\"NULL\"></VolumeRenderingSelection>"<<std::endl;
+	MRMLFile<<"<ClipModels"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLClipModelsNode1\" name=\"vtkMRMLClipModelsNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" clipType=\"0\" redSliceClipState=\"0\" yellowSliceClipState=\"0\" greenSliceClipState=\"0\"></ClipModels>\\"<<std::endl;
+	MRMLFile<<"<VolumeRenderingSelection"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLVolumeRenderingParametersNode3\" name=\"vtkMRMLVolumeRenderingSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" volumeNodeID=\"NULL\" croppingEnabled=\"0\" ROINodeID=\"NULL\" volumePropertyNodeID=\"NULL\"></VolumeRenderingSelection>"<<std::endl;
+	MRMLFile<<"<VolumeRenderingSelection"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLVolumeRenderingParametersNode4\" name=\"vtkMRMLVolumeRenderingSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" volumeNodeID=\"NULL\" croppingEnabled=\"0\" ROINodeID=\"NULL\" volumePropertyNodeID=\"NULL\"></VolumeRenderingSelection>"<<std::endl;
+	MRMLFile<<"<ScriptedModule"<<std::endl;
+	MRMLFile<<"id=\"vtkMRMLScriptedModuleNode1\" name=\"vtkMRMLScriptedModuleNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ModuleName =\"Editor\" parameter0= \"label 1\"></ScriptedModule>\\"<<std::endl;
+
+/*MRMLFile<<"<TransformStorage"<<std::endl;
+ MRMLFile<<"id=\"vtkMRMLTransformStorageNode1\" name=\"vtkMRMLTransformStorageNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"./transformFiles/TransRawP.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\"></TransformStorage>"<<std::endl;
+ MRMLFile<<"<LinearTransform"<<std::endl;
+ MRMLFile<<" vtkMRMLLinearTransformNode1\"  name=\"transRawP\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode1\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 0  0 1 0 0  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;*/
+MRMLFile<<" <ModelStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelStorageNode1\"  name=\"vtkMRMLModelStorageNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\" fileName=\""<<meanAll_uncorrected<<"\" useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
+MRMLFile<<" <ColorTableStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableStorageNode1\"  name=\"vtkMRMLColorTableStorageNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"customLUT_RawP.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
+ MRMLFile<<"<ColorTable"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableNode1\"  name=\"customLUT_RawP\"  description=\"Color Table\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode1\"  userTags=\"\" type=\"-1\" ></ColorTable>"<<std::endl;
+ MRMLFile<<"<ModelDisplay"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelDisplayNode1\"  name=\"vtkMRMLModelDisplayNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\"  colorNodeRef=\"vtkMRMLColorTableNode1\"  activeScalarName=\"RawP\"  ></ModelDisplay>"<<std::endl;
+ MRMLFile<<"<Model"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelNode1\"  name=\"RawP\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode1\"  storageNodeRef=\"vtkMRMLModelStorageNode1\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode1\" ></Model>"<<std::endl;
+
+
+MRMLFile<<"<ModelStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelStorageNode2\"  name=\"vtkMRMLModelStorageNode2\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<meanAll_uncorrected<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
+MRMLFile<<" <ColorTableStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableStorageNode2\"  name=\"vtkMRMLColorTableStorageNode2\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"customLUT_FDRP.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
+MRMLFile<<" <ColorTable"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableNode2\"  name=\"customLUT_FDRP\"  description=\"Color Table\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode2\"  userTags=\"\" type=\"-1\" ></ColorTable>"<<std::endl;
+MRMLFile<<" <ModelDisplay"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelDisplayNode2\"  name=\"vtkMRMLModelDisplayNode2\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\"  colorNodeRef=\"vtkMRMLColorTableNode2\"  activeScalarName=\"FDRP\"  ></ModelDisplay>"<<std::endl;
+ MRMLFile<<"<Model"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelNode2\"  name=\"FDRP\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode2\"  storageNodeRef=\"vtkMRMLModelStorageNode2\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode2\" ></Model>"<<std::endl;
+
+MRMLFile<<"<ModelStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelStorageNode3\"  name=\"vtkMRMLModelStorageNode3\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<meanAll_uncorrected<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
+MRMLFile<<" <ColorTableStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableStorageNode3\"  name=\"vtkMRMLColorTableStorageNode3\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"customLUT_normProjectionsPearson.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
+ MRMLFile<<"<ColorTable"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableNode3\"  name=\"customLUT_normProjectionsPearson\"  description=\"Color Table\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode3\"  userTags=\"\" type=\"-1\" ></ColorTable>"<<std::endl;
+MRMLFile<<" <ModelDisplay"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelDisplayNode3\"  name=\"vtkMRMLModelDisplayNode3\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\"  colorNodeRef=\"vtkMRMLColorTableNode3\"  activeScalarName=\"normProjectionsPearson\"  ></ModelDisplay>"<<std::endl;
+MRMLFile<<" <Model"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelNode3\"  name=\"normProjectionsPearson\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode3\"  storageNodeRef=\"vtkMRMLModelStorageNode3\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode3\" ></Model>"<<std::endl;
+
+MRMLFile<<"<ModelStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelStorageNode4\"  name=\"vtkMRMLModelStorageNode4\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<meanAll_uncorrected<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
+ MRMLFile<<"<ColorTableStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableStorageNode4\"  name=\"vtkMRMLColorTableStorageNode4\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"customLUT_normProjectionsPearsonPval.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
+MRMLFile<<" <ColorTable"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableNode4\"  name=\"customLUT_normProjectionsPearsonPval\"  description=\"Color Table\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode4\"  userTags=\"\" type=\"-1\" ></ColorTable>"<<std::endl;
+MRMLFile<<" <ModelDisplay"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelDisplayNode4\"  name=\"vtkMRMLModelDisplayNode4\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\"  colorNodeRef=\"vtkMRMLColorTableNode4\"  activeScalarName=\"normProjectionsPearsonPval\"  ></ModelDisplay>"<<std::endl;
+MRMLFile<<" <Model"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelNode4\"  name=\"normProjectionsPearsonPval\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode4\"  storageNodeRef=\"vtkMRMLModelStorageNode4\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode4\" ></Model>"<<std::endl;
+
+MRMLFile<<"<ModelStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelStorageNode5\"  name=\"vtkMRMLModelStorageNode5\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<meanAll_uncorrected<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
+ MRMLFile<<"<ColorTableStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableStorageNode5\"  name=\"vtkMRMLColorTableStorageNode5\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"customLUT_normProjectionsPearsonPvalFDR.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
+ MRMLFile<<"<ColorTable"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableNode5\"  name=\"customLUT_normProjectionsPearsonPvalFDR\"  description=\"Color Table\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode5\"  userTags=\"\" type=\"-1\" ></ColorTable>"<<std::endl;
+MRMLFile<<" <ModelDisplay"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelDisplayNode5\"  name=\"vtkMRMLModelDisplayNode5\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\"  colorNodeRef=\"vtkMRMLColorTableNode5\"  activeScalarName=\"normProjectionsPearsonPvalFDR\"  ></ModelDisplay>"<<std::endl;
+ MRMLFile<<"<Model"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelNode5\"  name=\"normProjectionsPearsonPvalFDR\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode5\"  storageNodeRef=\"vtkMRMLModelStorageNode5\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode5\" ></Model>"<<std::endl;
+
+ MRMLFile<<"<ModelStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelStorageNode6\"  name=\"vtkMRMLModelStorageNode6\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<meanAll_uncorrected<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
+ MRMLFile<<"<ColorTableStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableStorageNode6\"  name=\"vtkMRMLColorTableStorageNode6\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"customLUT_normProjectionsSpearman.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
+ MRMLFile<<"<ColorTable"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableNode6\"  name=\"customLUT_normProjectionsSpearman\"  description=\"Color Table\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode6\"  userTags=\"\" type=\"-1\" ></ColorTable>"<<std::endl;
+MRMLFile<<" <ModelDisplay"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelDisplayNode6\"  name=\"vtkMRMLModelDisplayNode6\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\"  colorNodeRef=\"vtkMRMLColorTableNode6\"  activeScalarName=\"normProjectionsSpearman\"  ></ModelDisplay>"<<std::endl;
+MRMLFile<<" <Model"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelNode6\"  name=\"normProjectionsSpearman\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode6\"  storageNodeRef=\"vtkMRMLModelStorageNode6\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode6\" ></Model>"<<std::endl;
+
+ MRMLFile<<"<ModelStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelStorageNode7\"  name=\"vtkMRMLModelStorageNode7\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<meanAll_uncorrected<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
+ MRMLFile<<"<ColorTableStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableStorageNode7\"  name=\"vtkMRMLColorTableStorageNode7\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"customLUT_normProjectionsSpearmanPval.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
+MRMLFile<<" <ColorTable"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableNode7\"  name=\"customLUT_normProjectionsSpearmanPval\"  description=\"Color Table\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode7\"  userTags=\"\" type=\"-1\" ></ColorTable>"<<std::endl;
+MRMLFile<<" <ModelDisplay"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelDisplayNode7\"  name=\"vtkMRMLModelDisplayNode7\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\"  colorNodeRef=\"vtkMRMLColorTableNode7\"  activeScalarName=\"normProjectionsSpearmanPval\"  ></ModelDisplay>"<<std::endl;
+MRMLFile<<" <Model"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelNode7\"  name=\"normProjectionsSpearmanPval\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode7\"  storageNodeRef=\"vtkMRMLModelStorageNode7\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode7\" ></Model>"<<std::endl;
+
+MRMLFile<<"<ModelStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelStorageNode8\"  name=\"vtkMRMLModelStorageNode8\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\""<<meanAll_uncorrected<<"\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ModelStorage>"<<std::endl;
+ MRMLFile<<"<ColorTableStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableStorageNode8\"  name=\"vtkMRMLColorTableStorageNode8\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"customLUT_normProjectionsSpearmanPvalFDR.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
+MRMLFile<<" <ColorTable"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLColorTableNode8\"  name=\"customLUT_normProjectionsSpearmanPvalFDR\"  description=\"Color Table\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode8\"  userTags=\"\" type=\"-1\" ></ColorTable>"<<std::endl;
+MRMLFile<<"<ModelDisplay"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelDisplayNode8\"  name=\"vtkMRMLModelDisplayNode8\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  color=\"0.5 0.5 0.5\"  selectedColor=\"1 0 0\"  selectedAmbient=\"0.4\"  ambient=\"0\"  diffuse=\"1\"  selectedSpecular=\"0.5\"  specular=\"0\"  power=\"1\"  opacity=\"1\"  visibility=\"true\"  clipping=\"false\"  sliceIntersectionVisibility=\"false\"  backfaceCulling=\"true\"  scalarVisibility=\"true\"  vectorVisibility=\"false\"  tensorVisibility=\"false\"  autoScalarRange=\"true\"  scalarRange=\"0 100\"  colorNodeRef=\"vtkMRMLColorTableNode8\"  activeScalarName=\"normProjectionsSpearmanPvalFDR\"  ></ModelDisplay>"<<std::endl;
+ MRMLFile<<"<Model"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLModelNode8\"  name=\"normProjectionsSpearmanPvalFDR\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  transformNodeRef=\"vtkMRMLLinearTransformNode8\"  storageNodeRef=\"vtkMRMLModelStorageNode8\"  userTags=\"\"  displayNodeRef=\"vtkMRMLModelDisplayNode8\" ></Model>"<<std::endl;
+
+MRMLFile<<"<TransformStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLTransformStorageNode2\"  name=\"vtkMRMLTransformStorageNode2\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"    useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
+MRMLFile<<" <LinearTransform"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLLinearTransformNode2\"  name=\"transFDRP\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode2\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 -165  0 1 0 27  0 0 1 -1  0 0 0 1\" ></LinearTransform>"<<std::endl;
+
+MRMLFile<<"<TransformStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLTransformStorageNode1\"  name=\"vtkMRMLTransformStorageNode1\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"    useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
+MRMLFile<<" <LinearTransform"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLLinearTransformNode1\"  name=\"transrawP\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode1\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 -165  0 1 0 27  0 0 1 -76.3  0 0 0 1\" ></LinearTransform>"<<std::endl;
+
+MRMLFile<<"<TransformStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLTransformStorageNode3\"  name=\"vtkMRMLTransformStorageNode3\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"transformFiles/TransnormProjectionsPearson.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
+MRMLFile<<" <LinearTransform"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLLinearTransformNode3\"  name=\"transnormProjectionsPearson\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode3\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 0  0 1 0 0  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
+ 
+ MRMLFile<<"<TransformStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLTransformStorageNode4\"  name=\"vtkMRMLTransformStorageNode4\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"./transformFiles/TransnormProjectionsPearsonPval.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
+ MRMLFile<<"<LinearTransform"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLLinearTransformNode4\"  name=\"transnormProjectionsPearsonPval\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode4\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 0  0 1 0 0  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
+ 
+ MRMLFile<<"<TransformStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLTransformStorageNode5\"  name=\"vtkMRMLTransformStorageNode5\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"./transformFiles/TransnormProjectionsPearsonPvalFDR.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
+MRMLFile<<" <LinearTransform"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLLinearTransformNode5\"  name=\"transnormProjectionsPearsonPvalFDR\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode5\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 0  0 1 0 0  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
+ 
+MRMLFile<<" <TransformStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLTransformStorageNode6\"  name=\"vtkMRMLTransformStorageNode6\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"./transformFiles/TransnormProjectionsSpearman.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
+ MRMLFile<<"<LinearTransform"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLLinearTransformNode6\"  name=\"transnormProjectionsSpearman\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode6\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 0  0 1 0 0  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
+
+ MRMLFile<<"<TransformStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLTransformStorageNode7\"  name=\"vtkMRMLTransformStorageNode7\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"./transformFiles/TransnormProjectionsSpearmanPval.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
+ MRMLFile<<"<LinearTransform"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLLinearTransformNode7\"  name=\"transnormProjectionsSpearmanPval\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode7\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 0  0 1 0 0  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
+
+ MRMLFile<<"<TransformStorage"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLTransformStorageNode8\"  name=\"vtkMRMLTransformStorageNode8\"  hideFromEditors=\"true\"  selectable=\"true\"  selected=\"false\"  fileName=\"./transformFiles/TransnormProjectionsSpearmanPvalFDR.tfm\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></TransformStorage>"<<std::endl;
+MRMLFile<<" <LinearTransform"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLLinearTransformNode8\"  name=\"transnormProjectionsSpearmanPvalFDR\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLTransformStorageNode8\"  userTags=\"\"  matrixTransformToParent=\"1 0 0 0  0 1 0 0  0 0 1 0  0 0 0 1\" ></LinearTransform>"<<std::endl;
+ 
+
+MRMLFile<<" <FiducialList"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLFiducialListNode1\"  name=\"vtkMRMLFiducialListNode1\"  hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode4\" userTags=\"\" symbolScale=\"0\" symbolType=\"11\" textScale=\"6\" visibility=\"1\" color=\"0.4 1 1\" selectedcolor=\"0 0 0\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\""<<std::endl;
+MRMLFile<<"id MANCOVA_RawP labeltext MANCOVA_RawP xyz -135 25 -32 orientationwxyz 0 0 0 0 selected 1 visibility 1\" ></FiducialList>"<<std::endl;
+
+MRMLFile<<"<FiducialList"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLFiducialListNode2\"  name=\"vtkMRMLFiducialListNode2\"  hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode4\" userTags=\"\" symbolScale=\"0\" symbolType=\"11\" textScale=\"6\" visibility=\"1\" color=\"0.4 1 1\" selectedcolor=\"0 0 0\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\""<<std::endl;
+MRMLFile<<"id MANCOVA_FDRP labeltext MANCOVA_FDRP xyz -134 36 44 orientationwxyz 0 0 0 0 selected 1 visibility 1\" ></FiducialList>"<<std::endl;
+MRMLFile<<" <FiducialList"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLFiducialListNode3\"  name=\"vtkMRMLFiducialListNode3\"  hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode4\" userTags=\"\" symbolScale=\"0\" symbolType=\"11\" textScale=\"6\" visibility=\"1\" color=\"0.4 1 1\" selectedcolor=\"0 0 0\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\""<<std::endl;
+MRMLFile<<"id normProjectionsPearson labeltext normProjectionsPearson xyz -197 38 235 orientationwxyz 0 0 0 0 selected 1 visibility 1\" ></FiducialList>"<<std::endl;
+MRMLFile<<" <FiducialList"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLFiducialListNode4\"  name=\"vtkMRMLFiducialListNode4\"  hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode4\" userTags=\"\" symbolScale=\"0\" symbolType=\"11\" textScale=\"6\" visibility=\"1\" color=\"0.4 1 1\" selectedcolor=\"0 0 0\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\""<<std::endl;
+MRMLFile<<"id normProjectionsPearsonPval labeltext normProjectionsPearsonPval xyz -197 38 177 orientationwxyz 0 0 0 0 selected 1 visibility 1\" ></FiducialList>"<<std::endl;
+ MRMLFile<<"<FiducialList"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLFiducialListNode5\"  name=\"vtkMRMLFiducialListNode5\"  hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode4\" userTags=\"\" symbolScale=\"0\" symbolType=\"11\" textScale=\"6\" visibility=\"1\" color=\"0.4 1 1\" selectedcolor=\"0 0 0\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\""<<std::endl;
+MRMLFile<<"id normProjectionsPearsonPvalFDR labeltext normProjectionsPearsonPvalFDR xyz -197 38 123 orientationwxyz 0 0 0 0 selected 1 visibility 1\" ></FiducialList>"<<std::endl;
+ MRMLFile<<"<FiducialList"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLFiducialListNode6\"  name=\"vtkMRMLFiducialListNode6\"  hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode4\" userTags=\"\" symbolScale=\"0\" symbolType=\"11\" textScale=\"6\" visibility=\"1\" color=\"0.4 1 1\" selectedcolor=\"0 0 0\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\""<<std::endl;
+MRMLFile<<"id normProjectionsSpearman labeltext normProjectionsSpearman xyz -60 38 250 orientationwxyz 0 0 0 0 selected 1 visibility 1\" ></FiducialList>"<<std::endl;
+ MRMLFile<<"<FiducialList"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLFiducialListNode7\"  name=\"vtkMRMLFiducialListNode7\"  hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode4\" userTags=\"\" symbolScale=\"0\" symbolType=\"11\" textScale=\"6\" visibility=\"1\" color=\"0.4 1 1\" selectedcolor=\"0 0 0\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\""<<std::endl;
+MRMLFile<<"id normProjectionsSpearmanPval labeltext normProjectionsSpearmanPval xyz -60 38 187 orientationwxyz 0 0 0 0 selected 1 visibility 1\" ></FiducialList>"<<std::endl;
+MRMLFile<<" <FiducialList"<<std::endl;
+  MRMLFile<<"id=\"vtkMRMLFiducialListNode8\"  name=\"vtkMRMLFiducialListNode8\"  hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode4\" userTags=\"\" symbolScale=\"0\" symbolType=\"11\" textScale=\"6\" visibility=\"1\" color=\"0.4 1 1\" selectedcolor=\"0 0 0\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\""<<std::endl;
+MRMLFile<<"id normProjectionsSpearmanPvalFDR labeltext normProjectionsSpearmanPvalFDR xyz -60 38 121 orientationwxyz 0 0 0 0 selected 1 visibility 1\" ></FiducialList>"<<std::endl;
+ 
+MRMLFile<<"</MRML>"<<std::endl;
+
+
 	}
 
 
@@ -2043,6 +2247,7 @@ if(interactionTest)
   	MRMLFile<<"id=\"vtkMRMLColorTableStorageNode14\"  name=\"vtkMRMLColorTableStorageNode14\"  hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\"customLUT_normDistProjections.txt\"  useCompression=\"1\"  readState=\"0\"  writeState=\"0\" ></ColorTableStorage>"<<std::endl;
  	MRMLFile<<"<ColorTable"<<std::endl;
   	MRMLFile<<"id=\"vtkMRMLColorTableNodeFilecustomLUT_normDistProjections.txt\"  name=\"customLUT_normDistProjections.txt\"  description=\"A color table read in from a text file, each line of the format: IntegerLabel  Name  R  G  B  Alpha\"  hideFromEditors=\"false\"  selectable=\"true\"  selected=\"false\"  storageNodeRef=\"vtkMRMLColorTableStorageNode14\"  userTags=\"\" type=\"14\" numcolors=\"256\"></ColorTable>"<<std::endl;
+
 
 
 	MRMLFile<<"</MRML>"<<std::endl;
