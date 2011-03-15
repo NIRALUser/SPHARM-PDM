@@ -3505,11 +3505,11 @@ std::cout<<PvalueColorMapNb<<std::endl;
     	float value;
     	char *aux;
 	input.open(files[0], ios::in);
-std::cout <<files[0]<<std::endl;
+
     	input.getline(line,70,'\n');
-std::cout <<line<<std::endl;
+
     	aux=strtok(line, " = ");
-    	aux=strtok(NULL, " = ");std::cout <<"123b4"<<std::endl;
+    	aux=strtok(NULL, " = ");
 ;
     	NPoints=atof(aux);
 

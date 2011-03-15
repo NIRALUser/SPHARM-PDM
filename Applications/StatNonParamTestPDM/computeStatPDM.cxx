@@ -193,7 +193,7 @@ void computeGroupStudentTDiffStat(int numSubjects, int numFeatures,
 
 int doTesting(int numSubjects, int numFeatures, int numPerms, int tupelSize,
            int * groupLabel, double * featureValue,
-           double significanceLevel, int significanceSteps,
+           double significanceLevel, double FDRdiscoveryLevel,int significanceSteps,
            double * pValue, char *outbase)
 // computes the local pValues for each feature according to non-parametric permutation tests
 //
@@ -416,7 +416,7 @@ int doTesting(int numSubjects, int numFeatures, int numPerms, int tupelSize,
       typedef neurolib::Statistics::SampleFalseDiscoveryRateCorrectionFilter<PvalueSampleType> FDRFilterType;
       
       FDRFilterType::Pointer FDRFilter = FDRFilterType::New();
-      FDRFilter->SetMaximumFalseDiscoveryRate(significanceLevel);
+      FDRFilter->SetMaximumFalseDiscoveryRate(FDRdiscoveryLevel);
       FDRFilter->SetNumberOfSteps(significanceSteps);
       
       PvalueSampleType::Pointer pvalueSample = PvalueSampleType::New();  
@@ -474,8 +474,8 @@ int doTesting(int numSubjects, int numFeatures, int numPerms, int tupelSize,
     for (feat = 0; feat < numFeatures / tupelSize; feat++) pValue[feat] = 1.0;
     
     // loop over all significance levels
-    double significanceStepsize = significanceLevel / significanceSteps;
-    for (double curSignLevel = significanceLevel; curSignLevel >= 0.00001;
+    double significanceStepsize = FDRdiscoveryLevel / significanceSteps;
+    for (double curSignLevel = FDRdiscoveryLevel; curSignLevel >= 0.00001;
       curSignLevel = curSignLevel - significanceStepsize) {
 
      // compute significance value in minimum statistic at significance level 

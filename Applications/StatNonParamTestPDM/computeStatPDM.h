@@ -35,7 +35,7 @@ typedef struct
 
 int doTesting(int numSubjects, int numFeatures, int numPerms, int tupelSize,
            int * groupLabel, double * featureValue,
-           double significanceLevel, int significanceSteps, double * pValue, char *outbase);
+           double significanceLevel,double FDRdiscoveryLevel, int significanceSteps, double * pValue, char *outbase);
 // computes the local pValues for each feature according to non-parametric permutation tests, considering p-values for equalizing sensitivity
      
 void computeGroupVecHotelDiffStat(int numSubjects, int numFeatures, int tupelSize, 

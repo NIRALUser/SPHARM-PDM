@@ -12,7 +12,7 @@ void ShapeAnalysisModuleComputation::Computation()
 {
 	std::cout<<"\n\nComputing ShapeAnalysisModule..."<<std::endl<<std::endl;
 
-SetBMSShapeAnalysisModuleFile(false);
+	SetBMSShapeAnalysisModuleFile(false);
 	SetBMSShapeAnalysisModuleMRMLFile(false);
 	SetAllFilesName();
 	OverWrite();
@@ -53,116 +53,116 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, char * scalar)
 {
 
 //execute MeshMath for each volume file: Original, Ellalign, Procalign
-for(int j=0;j<3;j++)
-{
-
-  std::vector<const char*> args;  
-  char* data = NULL;
-  int length;
-  double timeout = 0.05;
-  int result;
-  char *fileType=NULL;
-
-  args.push_back("MeshMath");
-
-if (GetTemplateMState()==true) 
-{
-   if(j==0) fileType=GetAllSurfmeanSPHARMFiles(numData);
-  else if (j==1) fileType=GetAllSurfmeanSPHARMellalignFiles(numData);
-  else if (j==2) fileType=GetAllSurfmeanSPHARMprocalignFiles(numData);
-}
-else
-{
-  if(j==0) fileType=GetAllSurfSPHARMFiles(numData);
-  else if (j==1) fileType=GetAllSurfSPHARMellalignFiles(numData);
-  else if (j==2) fileType=GetAllSurfSPHARMprocalignFiles(numData);
-}
-  
-  args.push_back(fileType);
-  args.push_back(fileType);
-  args.push_back("-KWMtoPolyData");
-
-  if(scalar=="phi")
-  {  
-    args.push_back(GetAllPhiFiles(0));
-    args.push_back("Color Map Phi");
-  }
-  if(scalar=="theta")
-  { 
-    args.push_back(GetAllThetaFiles(0));
-    args.push_back("Color Map Theta");
-  }
-
-  args.push_back(0);
-/*for(unsigned int i=0 ; i<args.size();i++)
-{
-	std::cout<<args[i]<<std::endl;
-}*/
-
-  // Run the application
-  itksysProcess* gp = itksysProcess_New();
-  itksysProcess_SetCommand(gp, &*args.begin());
-  itksysProcess_SetOption(gp,itksysProcess_Option_HideWindow,1);
-  itksysProcess_Execute(gp);
-
-
-  while(int Value = itksysProcess_WaitForData(gp,&data,&length,&timeout)) // wait for 1s
-  {
-    if ( ((Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR)) && data[0]=='D' )
-    {
-	strstream st;
-      	for(int i=0;i<length;i++) 	
+	for(int j=0;j<3;j++)
 	{
-		st<<data[i];
-	}
-	string dim=st.str();
-	istringstream s(dim);
-	string value;
-			
-	while(getline(s,value,' '))
-	{	
-		m_Dims.push_back((atoi(value.c_str()))/2);		
-	}
 	
-	m_Dims.erase(m_Dims.begin());
-    }
-    	timeout = 0.05;   	
-  }
-
-  itksysProcess_WaitForExit(gp, 0);
-  
-  result = 1;
-  switch(itksysProcess_GetState(gp))
-  {
-  case itksysProcess_State_Exited:
-  {
-    result = itksysProcess_GetExitValue(gp);
-  } break;
-  case itksysProcess_State_Error:
-  {
-    std::cerr<<"Error: Could not run " << args[0]<<":\n";
-    std::cerr<<itksysProcess_GetErrorString(gp)<<"\n";
-    std::cout<<"Error: Could not run " << args[0]<<":\n";
-    std::cout<<itksysProcess_GetErrorString(gp)<<"\n";
-  } break;
-  case itksysProcess_State_Exception:
-  {
-    std::cerr<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
-    std::cout<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
-  } break;
-  case itksysProcess_State_Starting:
-  case itksysProcess_State_Executing:
-  case itksysProcess_State_Expired:
-  case itksysProcess_State_Killed:
-  {
-    // Should not get here.
-    std::cerr<<"Unexpected ending state after running "<<args[0]<<std::endl;
-    std::cout<<"Unexpected ending state after running "<<args[0]<<std::endl;
-  } break;
-  }
-  itksysProcess_Delete(gp);  
-
-}
+		std::vector<const char*> args;  
+		char* data = NULL;
+		int length;
+		double timeout = 0.05;
+		int result;
+		char *fileType=NULL;
+		
+		args.push_back("MeshMath");
+		
+		if (GetTemplateMState()==true) 
+		{
+			if(j==0) fileType=GetAllSurfmeanSPHARMFiles(numData);
+			else if (j==1) fileType=GetAllSurfmeanSPHARMellalignFiles(numData);
+			else if (j==2) fileType=GetAllSurfmeanSPHARMprocalignFiles(numData);
+		}
+		else
+		{
+			if(j==0) fileType=GetAllSurfSPHARMFiles(numData);
+			else if (j==1) fileType=GetAllSurfSPHARMellalignFiles(numData);
+			else if (j==2) fileType=GetAllSurfSPHARMprocalignFiles(numData);
+		}
+	
+		args.push_back(fileType);
+		args.push_back(fileType);
+		args.push_back("-KWMtoPolyData");
+		
+		if(scalar=="phi")
+		{  
+			args.push_back(GetAllPhiFiles(0));  
+			args.push_back("Color Map Phi");
+		}
+		if(scalar=="theta")
+		{ 
+			args.push_back(GetAllThetaFiles(0));
+			args.push_back("Color Map Theta");
+		}
+		
+		args.push_back(0);
+		/*for(unsigned int i=0 ; i<args.size();i++)
+		{
+			std::cout<<args[i]<<std::endl;
+		}*/
+		
+		// Run the application
+		itksysProcess* gp = itksysProcess_New();
+		itksysProcess_SetCommand(gp, &*args.begin());
+		itksysProcess_SetOption(gp,itksysProcess_Option_HideWindow,1);
+		itksysProcess_Execute(gp);
+	
+	
+		while(int Value = itksysProcess_WaitForData(gp,&data,&length,&timeout)) // wait for 1s
+		{
+		if ( ((Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR)) && data[0]=='D' )
+		{
+			strstream st;
+			for(int i=0;i<length;i++) 	
+			{
+				st<<data[i];
+			}
+			string dim=st.str();
+			istringstream s(dim);
+			string value;
+					
+			while(getline(s,value,' '))
+			{	
+				m_Dims.push_back((atoi(value.c_str()))/2);		
+			}
+			
+			m_Dims.erase(m_Dims.begin());
+		}
+			timeout = 0.05;   	
+		}
+		
+		itksysProcess_WaitForExit(gp, 0);
+		
+		result = 1;
+		switch(itksysProcess_GetState(gp))
+		{
+		case itksysProcess_State_Exited:
+		{
+			result = itksysProcess_GetExitValue(gp);
+		} break;
+		case itksysProcess_State_Error:
+		{
+			std::cerr<<"Error: Could not run " << args[0]<<":\n";
+			std::cerr<<itksysProcess_GetErrorString(gp)<<"\n";
+			std::cout<<"Error: Could not run " << args[0]<<":\n";
+			std::cout<<itksysProcess_GetErrorString(gp)<<"\n";
+		} break;
+		case itksysProcess_State_Exception:
+		{
+			std::cerr<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
+			std::cout<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
+		} break;
+		case itksysProcess_State_Starting:
+		case itksysProcess_State_Executing:
+		case itksysProcess_State_Expired:
+		case itksysProcess_State_Killed:
+		{
+		// Should not get here.
+			std::cerr<<"Unexpected ending state after running "<<args[0]<<std::endl;
+			std::cout<<"Unexpected ending state after running "<<args[0]<<std::endl;
+		} break;
+		}
+		itksysProcess_Delete(gp);  
+	
+	}
 }
 // Create BMS File to compute the SPHARM pipeline
 void ShapeAnalysisModuleComputation::SetBMSShapeAnalysisModuleFile(bool changeDirectory)
@@ -279,15 +279,16 @@ void ShapeAnalysisModuleComputation::ExecuteBatchMake(char *_Input)
 // Write the BMS script to create a MRML file
 void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 {
+	int SnapShotNumber = SetNbSnapShot();
 	SetAllFilesName();
 	std::ofstream BMSShapeAnalysisModuleMRML(m_BMSShapeAnalysisModuleMRLMFile);
-	
-	
+
 	BMSShapeAnalysisModuleMRML<<"  echo()"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  echo(\t'Wrting MRML scripts...')"<<std::endl;
 	for(int count=0;count<3;count++)
 	{
 		BMSShapeAnalysisModuleMRML<<"  # Script to create a MRML scene"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(countSnapNb 0)"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  MakeDirectory("<<GetOutputDirectory()<<"/MRML)"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<" Set(FileDir '"<<GetOutputDirectory()<<"/Mesh/SPHARM')"<<std::endl;
 	
@@ -301,13 +302,8 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 		vector<double>Dims;
 		SetImageDimensions(firstFile1);
 		Dims=GetImageDimensions();
-		const_orientation=GetConstantOrientation();
-		if (GetTemplateMState()==true) 
-			{BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *tMeanSPHARM.vtk)"<<std::endl;
-			BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_mean.mrml)"<<std::endl;}
-		else		
-			{BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *surfSPHARM.vtk)"<<std::endl;
-			BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene.mrml)"<<std::endl;}
+		BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *SPHARM.vtk)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene.mrml)"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim0 "<<Dims[0]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim1 "<<Dims[1]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim2 "<<Dims[2]<<")"<<std::endl;
@@ -323,13 +319,8 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 		vector<double>Dims;
 		SetImageDimensions(firstFile2);
 		Dims=GetImageDimensions();
-		const_orientation=GetConstantOrientation();
-		if (GetTemplateMState()==true) 
-			{BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *tMeanSPHARM_ellalign.vtk)"<<std::endl;
-			BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_ellalign_mean.mrml)"<<std::endl;}
-		else		
-			{BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *surfSPHARM_ellalign.vtk)"<<std::endl;
-			BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_ellalign.mrml)"<<std::endl;}
+		BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *SPHARM_ellalign.vtk)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_ellalign.mrml)"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim0 "<<Dims[0]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim1 "<<Dims[1]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim2 "<<Dims[2]<<")"<<std::endl;
@@ -345,19 +336,18 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 		vector<double>Dims;
 		SetImageDimensions(firstFile3);
 		Dims=GetImageDimensions();
-		const_orientation=GetConstantOrientation();
-		if (GetTemplateMState()==true) 
-			{BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *tMeanSPHARM_procalign.vtk)"<<std::endl;
-			BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_procalign_mean.mrml)"<<std::endl;}
-		else		
-			{BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *surfSPHARM_procalign.vtk)"<<std::endl;
-			BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_procalign.mrml)"<<std::endl;}
+		BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *SPHARM_procalign.vtk)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_procalign.mrml)"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim0 "<<Dims[0]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim1 "<<Dims[1]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim2 "<<Dims[2]<<")"<<std::endl;
 	}
 	BMSShapeAnalysisModuleMRML<<"  WriteFile(${MRMLScene} '<MRML userTags=\"\">\\n')"<<std::endl;
-	for(int j=0;j<3;j++)
+
+		BMSShapeAnalysisModuleMRML<<"  Set(countsnap 1)"<<std::endl;
+BMSShapeAnalysisModuleMRML<<"  Set(countj 0)"<<std::endl;
+	//for(int j=0;j<3;j++)
+for(int j=0;j<SnapShotNumber*2+3;j++)
 	{
 	if(j==1)
 	{
@@ -369,6 +359,24 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SceneSnapshot\\n')"<<std::endl;
  	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Theta\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\\n')"<<std::endl;
 	}
+	else if(j>2)
+	{
+		if(j%2==0)
+			{
+					
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SceneSnapshot\\n')"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Theta'${countsnap}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\\n')"<<std::endl;
+				
+			}
+		else
+		{
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SceneSnapshot\\n')"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Phi'${countsnap}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\\n')"<<std::endl;
+		}
+	}
+
+
+
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Selection\\n')"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSelectionNode1\" name=\"vtkMRMLSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" secondaryVolumeID=\"NULL\" activeLabelVolumeID=\"NULL\" activeFiducialListID=\"NULL\" activeROIListID=\"NULL\" activeCameraID=\"NULL\" activeViewID=\"NULL\" activeLayoutID=\"vtkMRMLLayoutNode1\"></Selection>\\n')"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Interaction\\n' )"<<std::endl;
@@ -406,10 +414,13 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	BMSShapeAnalysisModuleMRML<<"  Set(res 1)"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  Set(Dim1 0)"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  Set(count3 1)"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  Set(countdata 0)"<<std::endl;
+	if(j>2 && j%2==0){BMSShapeAnalysisModuleMRML<<"  Inc(${countsnap} 1)"<<std::endl;}
+	
+
 
 	BMSShapeAnalysisModuleMRML<<"  ForEach(files ${MRMLfiles})"<<std::endl;
-	//BMSShapeAnalysisModuleMRML<<" echo(hello)"<<endl;
-	BMSShapeAnalysisModuleMRML<<" echo(${files})"<<endl;
+	
 	BMSShapeAnalysisModuleMRML<<"  GetParam(data ${files} '${count2}' )"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelStorage\\n')"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelStorageNode'${count}'\" name=\"vtkMRMLModelStorageNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\""<<GetOutputDirectory()<<"/Mesh/SPHARM/'${data}'\" useCompression=\"1\" readState=\"0\" writeState=\"0\"></ModelStorage>\\n')"<<std::endl;
@@ -429,8 +440,71 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	{
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Theta\" ></ModelDisplay>\\n')"<<std::endl;
 	}
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Model\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelNode'${count}'\" name=\""<<GetOutputDirectory()<<"/Mesh/SPHARM/'${data}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" transformNodeRef=\"vtkMRMLLinearTransformNode'${count}'\" storageNodeRef=\"vtkMRMLModelStorageNode'${count}'\" userTags=\"\" displayNodeRef=\"vtkMRMLModelDisplayNode'${count}'\"></Model>\\n')"<<std::endl;
+
+	else if(j>2)
+	{
+		if(j%2==0)
+			{
+				
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Theta\" ></ModelDisplay>\\n')"<<std::endl;
+				
+			}
+		else
+		{
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Phi\" ></ModelDisplay>\\n')"<<std::endl;
+		}
+
+			//template displayed
+			BMSShapeAnalysisModuleMRML<<" set(firstdata 0)"<<std::endl;
+
+			BMSShapeAnalysisModuleMRML<<" If(${firstdata} == ${countdata})"<<std::endl;
+	
+			BMSShapeAnalysisModuleMRML<<"set(tdir '"<<GetOutputDirectory()<<"/Template/')"<<std::endl;
+			if(count == 0){BMSShapeAnalysisModuleMRML<<"  listFileInDir(basename ${tdir} *_pp_surfSPHARM.vtk)"<<std::endl;}
+			if(count == 1){BMSShapeAnalysisModuleMRML<<"  listFileInDir(basename ${tdir} *_pp_surfSPHARM_ellalign.vtk)"<<std::endl;}
+			if(count == 2){BMSShapeAnalysisModuleMRML<<"  listFileInDir(basename ${tdir} *_pp_surfSPHARM_procalign.vtk)"<<std::endl;}
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Model\\n')"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelNode'${count}'\" name=\"'${tdir}''${basename}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" transformNodeRef=\"vtkMRMLLinearTransformNode'${count}'\" storageNodeRef=\"vtkMRMLModelStorageNode'${count}'\" userTags=\"\" displayNodeRef=\"vtkMRMLModelDisplayNode'${count}'\"></Model>\\n')"<<std::endl;	
+			BMSShapeAnalysisModuleMRML<<"  Inc(${count} 1)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" EndIf(${firstdata})"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  Inc(${countdatapersnap} 1)"<<std::endl;
+
+
+			BMSShapeAnalysisModuleMRML<<" Math( infj ${countSnapNb} * 2 )"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" Math( infj ${infj} + 3 )"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" Math( supj ${countSnapNb} + 1)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" Math( supj ${supj} * 2)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" Math( supj ${supj} + 2)"<<std::endl;
+
+			
+
+	
+			BMSShapeAnalysisModuleMRML<<" Math( infsnap ${countSnapNb} * 30 )"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" Math( supsnap ${countSnapNb} + 1)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" Math( supsnap ${supsnap} * 30)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" Math( supsnap ${supsnap} + 0)"<<std::endl;		
+
+			BMSShapeAnalysisModuleMRML<<" If(${infj} <= ${countj})"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" If(${supj} >= ${countj})"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" If(${infsnap} <= ${countdata})"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" If(${supsnap} >= ${countdata})"<<std::endl;
+
+
+
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Model\\n')"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelNode'${count}'\" name=\""<<GetOutputDirectory()<<"/Mesh/SPHARM/'${data}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" transformNodeRef=\"vtkMRMLLinearTransformNode'${count}'\" storageNodeRef=\"vtkMRMLModelStorageNode'${count}'\" userTags=\"\" displayNodeRef=\"vtkMRMLModelDisplayNode'${count}'\"></Model>\\n')"<<std::endl;
+
+			BMSShapeAnalysisModuleMRML<<" EndIf(${supsnap})"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" EndIf(${infsnap})"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" EndIf(${supj})"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" EndIf(${infj})"<<std::endl;
+			
+	}
+
+	if(j<3){
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Model\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelNode'${count}'\" name=\""<<GetOutputDirectory()<<"/Mesh/SPHARM/'${data}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" transformNodeRef=\"vtkMRMLLinearTransformNode'${count}'\" storageNodeRef=\"vtkMRMLModelStorageNode'${count}'\" userTags=\"\" displayNodeRef=\"vtkMRMLModelDisplayNode'${count}'\"></Model>\\n')"<<std::endl;
+	}//end if(j<3)
 
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n')"<<std::endl;
 
@@ -619,9 +693,17 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 
 	BMSShapeAnalysisModuleMRML<<"  Inc(${count} 1)"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  Inc(${res} 1)"<<std::endl;
+	
+	
+
+	BMSShapeAnalysisModuleMRML<<"  Inc(${countdata} 1)"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  Inc(${counter} 1)"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  EndForEach(files)"<<std::endl;
 
 
+
+	if(j==0 || j==1 || j==2)
+	{
 	BMSShapeAnalysisModuleMRML<<"  # Creating the fiducials )"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode1\" name=\"label: \" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode1\" userTags=\"\" symbolScale=\"0\" symbolType=\"1\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\"')"<<std::endl;
@@ -636,52 +718,159 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 	{
 	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' "<<const_orientation<<" orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
 	}
 
 	if(GetDirectionToDisplay()=="XZY")
 	{
 	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' "<<const_orientation<<" '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
 	}
 
 	if(GetDirectionToDisplay()=="YXZ")
 	{
 	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' "<<const_orientation<<" orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
 	}
 
 	if(GetDirectionToDisplay()=="YZX")
 	{
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '"<<const_orientation<<" '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
 	}
 
 	if(GetDirectionToDisplay()=="ZXY")
 	{
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' "<<const_orientation<<" '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
 	}
 
 	if(GetDirectionToDisplay()=="ZYX")
 	{
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '"<<const_orientation<<" '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
 	}
 	
 
 	BMSShapeAnalysisModuleMRML<<"  Inc(${counter} 1)"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  EndForEach(files)"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '\"></FiducialList>\\n')"<<std::endl;
+	}
+	else
+	{
+	BMSShapeAnalysisModuleMRML<<" Set(zero 0)"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  # Creating the fiducials )"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode1\" name=\"label: \" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode1\" userTags=\"\" symbolScale=\"0\" symbolType=\"1\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\"')"<<std::endl;
+
+	BMSShapeAnalysisModuleMRML<<"  Set(counter 0)"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  ForEach(files ${MRMLfiles})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" If(${counter} >= ${zero})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" Math( infj ${countSnapNb} * 2 )"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" Math( infj ${infj} + 3 )"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" Math( supj ${countSnapNb} + 1)"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" Math( supj ${supj} * 2)"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" Math( supj ${supj} + 2)"<<std::endl;
+
+	
+
+
+	BMSShapeAnalysisModuleMRML<<" Math( infsnap ${countSnapNb} * 30 )"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" Math( supsnap ${countSnapNb} + 1)"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" Math( supsnap ${supsnap} * 30)"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" Math( supsnap ${supsnap} + 0)"<<std::endl;	
+
+	BMSShapeAnalysisModuleMRML<<"  GetParam(data ${files} '${counter}' )"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  RegEx( result ${data} '_pp_.*' REPLACE ' ' )"<<std::endl;
+
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id '${result}' labeltext '${result}' xyz ')"<<std::endl;
+	if(GetDirectionToDisplay()=="XYZ")
+	{
+	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1  ')"<<std::endl;
+	}
+
+	if(GetDirectionToDisplay()=="XZY")
+	{
+	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter} )"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1  ')"<<std::endl;
+	}
+
+	if(GetDirectionToDisplay()=="YXZ")
+	{
+	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1  ')"<<std::endl;
+	}
+
+	if(GetDirectionToDisplay()=="YZX")
+	{
+	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1  ')"<<std::endl;
+	}
+
+	if(GetDirectionToDisplay()=="ZXY")
+	{
+	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter} )"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1  ')"<<std::endl;
+	}
+
+	if(GetDirectionToDisplay()=="ZYX")
+	{
+	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1  ')"<<std::endl;
+	}
+	
+
+	BMSShapeAnalysisModuleMRML<<" If(${infj} <= ${countj})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" If(${supj} >= ${countj})"<<std::endl;
+	
+	BMSShapeAnalysisModuleMRML<<" If(${infsnap} <= ${counter})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" If(${supsnap} >= ${counter})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'visibility 1 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" EndIf(${supsnap})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" EndIf(${infsnap})"<<std::endl;
+	
+	BMSShapeAnalysisModuleMRML<<" If(${infsnap} >= ${counter})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'visibility 0 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" EndIf(${infsnap})"<<std::endl;
+	
+	
+	BMSShapeAnalysisModuleMRML<<" If(${supsnap} <= ${counter})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'visibility 0 ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" EndIf(${supsnap})"<<std::endl;
+	
+	
+	BMSShapeAnalysisModuleMRML<<" EndIf(${supj})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<" EndIf(${infj})"<<std::endl;
+	
+	BMSShapeAnalysisModuleMRML<<" EndIf(${counter})"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  Inc(${counter} 1)"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  EndForEach(files)"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '\"></FiducialList>\\n')"<<std::endl;
+	}
 
 
 
-	if(j==1 || j==2)
+
+	BMSShapeAnalysisModuleMRML<<"  Inc(${countj} 1)"<<std::endl;
+
+	if(j>2){
+	if(j%2==0){
+		BMSShapeAnalysisModuleMRML<<"Inc(${countSnapNb} 1)"<<std::endl;//BMSShapeAnalysisModuleMRML<<" echo(countSnapNb)"<<std::endl;
+		}}
+
+	if(j!=0)
 	{
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '</SceneSnapshot>\\n')"<<std::endl;
 	}
@@ -808,7 +997,7 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
 	BMSShapeAnalysisModuleFile<<"    Run(output ${Seg} error)"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"    echo('SegPostProcess Error:' ${error}')"<<std::endl;
-	BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+	//BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  endif(${testSeg})"<<std::endl;
 	BMSShapeAnalysisModuleFile<<""<<std::endl;
@@ -837,7 +1026,7 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
 	BMSShapeAnalysisModuleFile<<"    Run(output ${Gen} error)"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"    echo('GenParaMesh Error:' ${error})"<<std::endl;
-	BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+	//BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  endif(${value})"<<std::endl;
 	BMSShapeAnalysisModuleFile<<""<<std::endl;
@@ -897,7 +1086,7 @@ if (GetParaOut1State()==true)
 		BMSShapeAnalysisModuleFile<<"    Run(output ${ParaT} error)"<<std::endl;
 		BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
 		BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
-		BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+		//BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
 		BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
 		BMSShapeAnalysisModuleFile<<" DeleteFile("<<GetOutputDirectory()<<"/Template/${basename}_pp_surf_paraPhiHalf.txt)"<<std::endl;
 		BMSShapeAnalysisModuleFile<<" DeleteFile("<<GetOutputDirectory()<<"/Template/${basename}_pp_surf_paraMix.txt)"<<std::endl;
@@ -971,7 +1160,7 @@ if (GetRegTemplateState()==false && GetFlipTemplateState()==false)//TODO
 				BMSShapeAnalysisModuleFile<<"        Run(output ${Para} error)"<<std::endl;
 				BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
 				BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
-				BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+				//BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
 				BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
 				BMSShapeAnalysisModuleFile<<"      endif(${value})"<<std::endl;
 				BMSShapeAnalysisModuleFile<<"    endif(${value})"<<std::endl;
@@ -1034,7 +1223,7 @@ if (GetRegTemplateState()==false && GetFlipTemplateState()==false)//TODO
 				BMSShapeAnalysisModuleFile<<"      Run(output ${Para} error)"<<std::endl;
 				BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
 				BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
-				BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+				//BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
 				BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
 				BMSShapeAnalysisModuleFile<<"    endif(${value})"<<std::endl;
 			}
@@ -1099,7 +1288,7 @@ if (GetRegTemplateState()==false && GetFlipTemplateState()==false)//TODO
 			BMSShapeAnalysisModuleFile<<"        Run(output ${Para} error)"<<std::endl;
 			BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
 			BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
-			BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+			//BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
 			BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
 			BMSShapeAnalysisModuleFile<<"      endif(${value})"<<std::endl;
 			BMSShapeAnalysisModuleFile<<"    endif(${value})"<<std::endl;
@@ -1195,7 +1384,7 @@ BMSShapeAnalysisModuleFile<<"SetAppOption(Para.inParaFile  ${SPHARMdir}${basenam
 		BMSShapeAnalysisModuleFile<<"    Run(output ${Para} error)"<<std::endl;
 		BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
 		BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
-		BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+		//BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
 		BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;}
 
 	
@@ -1255,6 +1444,7 @@ BMSShapeAnalysisModuleFile<<"SetAppOption(Para.inParaFile  ${SPHARMdir}${basenam
 	BMSShapeAnalysisModuleFile<<"  If(${testProcalignFile} == 0)"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} 'none')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"  EndIf(${testProcalignFile})"<<std::endl;
+
 
 
 	BMSShapeAnalysisModuleFile<<"  appendFile(${OutputFile} '\\n' )"<<std::endl;
@@ -1356,7 +1546,7 @@ BMSShapeAnalysisModuleFile<<"      SetAppOption(Para.writePara 1)"<<std::endl;
 BMSShapeAnalysisModuleFile<<"      Run(output ${Para} error)"<<std::endl;
 BMSShapeAnalysisModuleFile<<"  if(${error} != '')"<<std::endl;
 BMSShapeAnalysisModuleFile<<"    echo('ParaToSPHARMMesh: '${error})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
+//BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
 BMSShapeAnalysisModuleFile<<"  endif(${error})"<<std::endl;
 BMSShapeAnalysisModuleFile<<"    endif(${value})"<<std::endl;
 

@@ -1008,6 +1008,7 @@ std::cout<<testCol<<"testCol"<<std::endl;
 
 
 	arguments.append( "--significanceLevel "+lineEdit_pvalue->text());
+	arguments.append( "--FDRdiscoveryLevel "+lineEdit_fdrp->text());
 	
 	if(checkBox_KWMinput->isChecked()){arguments.append( "--KWMinput" );}
 
