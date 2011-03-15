@@ -141,6 +141,10 @@ class Parameters
 	std::vector<std::string> EulerFile;
 	void FindFiles();
 	
+
+	int SetNbSnapShot();
+
+
 private:
  
 	char m_ModulePath[512];

@@ -205,43 +205,43 @@
 			<description>choose to use a gaussian filtering</description>
 		</boolean>
 		
-		<integer>
+		<float>
 			<name>VarianceX</name>
 			<label>Variance of Gauss filter (x)</label>
 			<longflag>varX</longflag>
 			<default>10</default>
 			<constraints>
-				<minimum>10</minimum>
+				<minimum>0</minimum>
 				<maximum>100</maximum>
 				<step>1</step>
 			</constraints>
 			<description>Variance of Gauss filter (x)</description>
-		</integer>
+		</float>
 	
-		<integer>
+		<float>
 			<name>VarianceY</name>
 			<label>Variance of Gauss filter (y)</label>
 			<longflag>varY</longflag>
 			<default>10</default>
 			<constraints>
-				<minimum>10</minimum>
+				<minimum>0</minimum>
 				<maximum>100</maximum>
 				<step>1</step>
 			</constraints>
 			<description>description>Variance of Gauss filter (y)</description>
-		</integer>
-		<integer>
+		</float>
+		<float>
 			<name>VarianceZ</name>
 			<label>Variance of Gauss filter (z)</label>
 			<longflag>varZ</longflag>
 			<default>10</default>
 			<constraints>
-				<minimum>10</minimum>
+				<minimum>0</minimum>
 				<maximum>100</maximum>
 				<step>1</step>
 			</constraints>
 			<description>description>Variance of Gauss filter (z)</description>
-		</integer>
+		</float>
 					
 		
 	</parameters>	

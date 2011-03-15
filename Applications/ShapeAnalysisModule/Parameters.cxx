@@ -887,3 +887,10 @@ void Parameters::FindFiles()
 	globEulerFile.FindFiles(pathFile);
 	EulerFile=globEulerFile.GetFiles();
 }
+
+int Parameters::SetNbSnapShot()
+{
+	int DataNumber=GetDataNumber();
+	int SnapShotNumber= (DataNumber-1)/30+1;
+	return SnapShotNumber;
+}
