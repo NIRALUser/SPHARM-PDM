@@ -136,7 +136,6 @@ int main( int argc, const char ** argv )
 			writer->SetInput(ParaMesh);
 			writer->SetFileName(outParaName.c_str());
 			writer->Write();  
-
 			if (logFile) 
 				log << "Computed " << infile << std::endl;
 		}
