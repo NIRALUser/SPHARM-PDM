@@ -174,7 +174,14 @@ void ShapeAnalysisModuleComputation::SetBMSShapeAnalysisModuleFile(bool changeDi
 
 	else std::strcat(m_BMSShapeAnalysisModuleFile, "/BatchMake_Scripts/");
 
-	std::strcat(m_BMSShapeAnalysisModuleFile, "ShapeAnalysisModule.bms");
+	if (GetRandomizeInputs())
+	{
+		int pID=getpid();
+		sprintf(m_BMSShapeAnalysisModuleFile,"ShapeAnalysisModule_id%d.bms",pID);
+		std::cout << " " << std::endl;
+	}	
+	else
+		std::strcat(m_BMSShapeAnalysisModuleFile, "ShapeAnalysisModule.bms");
 
 	return;  
 }
@@ -900,29 +907,67 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
 	BMSShapeAnalysisModuleFile<<"#------------------------------------------------------------------------"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"#------------------------------------------------------------------------"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"#------------------------------------------------------------------------"<<std::endl;
-	
-	//Set the headers for the output file
-	for(unsigned int i=0;i<OutputFileHeaders.size();i++)
-	{
-		BMSShapeAnalysisModuleFile<<" Set(Header"<<i<<" '"<<GetNthDataListValue(1,i)<<"')"<<std::endl;
-	
-	}
 
-	BMSShapeAnalysisModuleFile<<"set (OrigCasesList '"<<GetNthDataListValue(1,GetColumnVolumeFile())<<"')"<<std::endl;
+
+        for( int i = 0; i < GetDataNumber(); i++)
+		m_permutations.push_back(0);
+        //get here the permutation vector
+        GetRandomNum(1, GetDataNumber());
+	//for( int i = 0; i < GetDataNumber(); i++)
+	//	std::cout << m_permutations[i] << std::endl;
+	
+	if (GetRandomizeInputs())
+	{
+		for(unsigned int i=0;i<OutputFileHeaders.size();i++)
+		{
+			BMSShapeAnalysisModuleFile<<" Set(Header"<<i<<" '"<<GetNthDataListValue(m_permutations[0],i)<<"')"<<std::endl;
+		
+		}
+	
+		BMSShapeAnalysisModuleFile<<"set (OrigCasesList '"<<GetNthDataListValue(m_permutations[0],GetColumnVolumeFile())<<"')"<<std::endl;
+	}
+	else
+	{
+	//Set the headers for the output file
+		for(unsigned int i=0;i<OutputFileHeaders.size();i++)
+		{
+			BMSShapeAnalysisModuleFile<<" Set(Header"<<i<<" '"<<GetNthDataListValue(1,i)<<"')"<<std::endl;
+		
+		}
+	
+		BMSShapeAnalysisModuleFile<<"set (OrigCasesList '"<<GetNthDataListValue(1,GetColumnVolumeFile())<<"')"<<std::endl;
+	}
 	
 	std::cout<<"Number of Datas: "<<GetDataNumber()<<std::endl;
 	
-	for (DataNumber = 2; DataNumber <=GetDataNumber(); DataNumber++)
+	if (GetRandomizeInputs())
 	{
-	
-		for(unsigned int i=0;i<OutputFileHeaders.size();i++)
+		for (DataNumber = 1; DataNumber <GetDataNumber(); DataNumber++)
 		{
-			BMSShapeAnalysisModuleFile<<"set (Header"<<i<<" ${Header"<<i<<"} '" <<GetNthDataListValue(DataNumber,i)<<"')"<<std::endl;
 		
+			for(unsigned int i=0;i<OutputFileHeaders.size();i++)
+			{
+				BMSShapeAnalysisModuleFile<<"set (Header"<<i<<" ${Header"<<i<<"} '" <<GetNthDataListValue(m_permutations[DataNumber],i)<<"')"<<std::endl;
+			
+			}
+			BMSShapeAnalysisModuleFile<<"set (OrigCasesList ${OrigCasesList} '"<<GetNthDataListValue(m_permutations[DataNumber],GetColumnVolumeFile())<<"')"<<std::endl;
 		}
-		BMSShapeAnalysisModuleFile<<"set (OrigCasesList ${OrigCasesList} '"<<GetNthDataListValue(DataNumber,GetColumnVolumeFile())<<"')"<<std::endl;
+		BMSShapeAnalysisModuleFile<<""<<std::endl;
 	}
-	BMSShapeAnalysisModuleFile<<""<<std::endl;
+	else
+	{
+		for (DataNumber = 2; DataNumber <=GetDataNumber(); DataNumber++)
+		{
+		
+			for(unsigned int i=0;i<OutputFileHeaders.size();i++)
+			{
+				BMSShapeAnalysisModuleFile<<"set (Header"<<i<<" ${Header"<<i<<"} '" <<GetNthDataListValue(DataNumber,i)<<"')"<<std::endl;
+			
+			}
+			BMSShapeAnalysisModuleFile<<"set (OrigCasesList ${OrigCasesList} '"<<GetNthDataListValue(DataNumber,GetColumnVolumeFile())<<"')"<<std::endl;
+		}
+		BMSShapeAnalysisModuleFile<<""<<std::endl;
+	}
 	
 	BMSShapeAnalysisModuleFile<<"#Create directories"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/BatchMake_Scripts/)"<<std::endl;
@@ -1903,5 +1948,43 @@ void ShapeAnalysisModuleComputation::WriteMeanFile(int nbPoints)
 	remove( m_PolyFile );
 
 
+}
+
+void ShapeAnalysisModuleComputation::GetRandomNum(int min, int max)
+{
+  //int min, max;
+
+  srand(getpid()+time(NULL));
+
+  int nofNum = max - min + 1;
+  //std::cout << nofNum << " " << max << " " << min << std::endl;
+
+  // Create a random permutation
+  int index, temp;
+  for (int i = 0; i < nofNum; i++)
+    m_permutations[i] = i;
+  
+  for (int i = 1; i < nofNum; i++) {
+    index = i + (rand() % (nofNum - i));
+    temp = m_permutations[i];
+    m_permutations[i] = m_permutations[index];
+    m_permutations[index] = temp;
+  }
+
+  for (int i = 0; i < nofNum; i++)
+    m_permutations[i]++;
+  // random swaps
+
+  //print perm
+  //cout << "permutation : ";
+  /*for (int i = 0; i < nofNum; i++)
+    if (i == 0)
+	{
+		//m_permutations[i] = min + m_permutations[i];
+		cout << min + m_permutations[i];
+      	}
+    else
+      cout << " " << min + m_permutations[i];
+ cout << endl;*/
 }
 
