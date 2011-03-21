@@ -9,7 +9,7 @@
 	<documentation-url>http://www.nitrc.org/projects/spharm-pdm/</documentation-url>
 	<license></license>
 	<contributor>
-		Corentin Hamel </contributor>
+		Corentin Hamel, Lucile Bompard, Beatriz Paniagua </contributor>
 	<acknowledgements>
 		This work is part of the National Alliance for Medical Image Computing (NAMIC), funded by the National Institutes of Health through the NIH Roadmap for Medical Research, Grant U54 EB005149. </acknowledgements>
 	<parameters>
@@ -23,6 +23,14 @@
 			<default>None</default>
 			<description>Input file</description>
 		</file>
+		
+		<boolean>
+			<name>RandomizeInputs</name>
+			<label>Randomize Inputs</label>
+			<longflag>RandomizeInputs</longflag>
+			<default>false</default>
+			<description>Randomize input files</description>
+		</boolean>
 		
 		<directory>
 			<name>GroupeProjectOutputDirectory</name>
