@@ -41,6 +41,7 @@ class Parameters
 	void SetModulePath(char*);
 	void SetParameterFile(const char *_ParamFile);
 	void SetDataList(vector < vector<string> > _List);
+	int GetListSize ();
 
 	void SetOutputDirectory(const char *_OutputDirectory);
 	void SetChooseInputColumnState(bool inputColumn);
@@ -125,10 +126,12 @@ class Parameters
 	void SetOverwriteSegPostProcess(bool);
 	void SetOverwriteGenParaMesh(bool);
 	void SetOverwriteParaToSPHARMMesh(bool);
+	void SetRandomizeInputs(bool);
 
 	bool GetOverwriteSegPostProcess();
 	bool GetOverwriteGenParaMesh();
 	bool GetOverwriteParaToSPHARMMesh();
+	bool GetRandomizeInputs();
 
 	bool DirectoryIsEmpty(const char*);
 
@@ -160,6 +163,7 @@ private:
   
 	char m_ParamFile[512];
 	char m_OutputDirectory[512];
+	bool m_RandomizeInputs;
 
 	int m_DataNumber;
 	
