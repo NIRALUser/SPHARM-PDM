@@ -424,6 +424,12 @@ int Parameters::GetFinalFlipXYZ()
 void Parameters::SetDataList(vector < vector<string> > _List)
 {	
 		m_List=_List;
+		ListSize = m_List.size();
+}
+
+int Parameters::GetListSize()
+{	
+		return ListSize;
 }
 
 int Parameters::MeanTemplateExist()
@@ -615,6 +621,17 @@ void Parameters::SetOverwriteSegPostProcess(bool overwrite)
 bool Parameters::GetOverwriteSegPostProcess()
 {
 	return m_OverwriteSegPostProcess;
+}
+
+
+void Parameters::SetRandomizeInputs(bool random)
+{
+	m_RandomizeInputs=random;
+}
+
+bool Parameters::GetRandomizeInputs()
+{
+	return m_RandomizeInputs;
 }
 
 void Parameters::SetOverwriteGenParaMesh(bool overwrite)
