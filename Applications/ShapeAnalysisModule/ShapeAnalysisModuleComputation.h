@@ -16,6 +16,7 @@
 #include <vtkPolyDataWriter.h>
 #include <vtkSmartPointer.h>
 #include <string>
+#include <stdio.h>
 #include <stdlib.h>
 #include <itksys/Glob.hxx>
 #include <dirent.h>
@@ -48,6 +49,7 @@ class ShapeAnalysisModuleComputation: public Parameters
 	void OverWrite();
 	void ComputationMean();
 	void WriteMeanFile(int);
+	void GetRandomNum(int,int);
   
 	private:
   
@@ -65,6 +67,8 @@ class ShapeAnalysisModuleComputation: public Parameters
 	vector<double>m_meanX;
 	vector<double>m_meanY;
 	vector<double>m_meanZ;	
+
+	vector<int> m_permutations;
 };
 
 #endif
