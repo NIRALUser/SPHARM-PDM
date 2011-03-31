@@ -147,6 +147,14 @@ class Parameters
 
 	int SetNbSnapShot();
 
+	
+	string m_ListFiles;
+	string m_ListFiles_ellalign;
+	string m_ListFiles_procalign;
+	string GetListFiles_ellalign();
+	string GetListFiles();
+	string GetListFiles_procalign();
+
 
 private:
  
@@ -214,6 +222,7 @@ private:
 	char** surfSPHARM_procalign_Files; 
 	char* Phi_Files; 
 	char* Theta_Files;
+
 
 	double m_const_orientation;
 

@@ -565,6 +565,7 @@ void Parameters::SetImageDimensions(char *filename)
 				m_const_orientation=m_Dims[2];}
 		}			
 	}
+	
 }
 
 vector <double> Parameters::GetImageDimensions()
@@ -588,6 +589,10 @@ void Parameters::SetAllFilesName()
 
 	int DataNumber=GetDataNumber();
 	m_AllFilesName = new char *[DataNumber];
+	
+		m_ListFiles.clear();
+		m_ListFiles_ellalign.clear();
+		m_ListFiles_procalign.clear();
 
 	for(int i=0;i<DataNumber;i++)
 	{	
@@ -605,6 +610,24 @@ void Parameters::SetAllFilesName()
 				file[j]='\0';
 		}
 		std::strcpy(m_AllFilesName[i],file);
+
+		
+if (GetTemplateMState()==true) {
+		m_ListFiles.append(file);
+		m_ListFiles.append("_pp_surf_tMeanSPHARM.vtk ");
+		m_ListFiles_ellalign.append(file);
+		m_ListFiles_ellalign.append("_pp_surf_tMeanSPHARM_ellalign.vtk ");
+		m_ListFiles_procalign.append(file);
+		m_ListFiles_procalign.append("_pp_surf_tMeanSPHARM_procalign.vtk ");}
+		
+else{
+		m_ListFiles.append(file);
+		m_ListFiles.append("_pp_surfSPHARM.vtk ");
+		m_ListFiles_ellalign.append(file);
+		m_ListFiles_ellalign.append("_pp_surfSPHARM_ellalign.vtk ");
+		m_ListFiles_procalign.append(file);
+		m_ListFiles_procalign.append("_pp_surfSPHARM_procalign.vtk ");}
+
 	}
 }
 
@@ -612,6 +635,20 @@ char* Parameters::GetAllFilesName(int i)
 {
 	return m_AllFilesName[i];
 }
+
+string Parameters::GetListFiles()
+{
+	return m_ListFiles;
+}
+string Parameters::GetListFiles_ellalign()
+{
+	return m_ListFiles_ellalign;
+}
+string Parameters::GetListFiles_procalign()
+{
+	return m_ListFiles_procalign;
+}
+
 
 void Parameters::SetOverwriteSegPostProcess(bool overwrite)
 {
@@ -908,6 +945,9 @@ void Parameters::FindFiles()
 int Parameters::SetNbSnapShot()
 {
 	int DataNumber=GetDataNumber();
-	int SnapShotNumber= (DataNumber-1)/30+1;
-	return SnapShotNumber;
+	if(DataNumber>25)
+	{int SnapShotNumber= (DataNumber-1)/24+1;
+	return SnapShotNumber;}
+	else
+	{return 0;}
 }
