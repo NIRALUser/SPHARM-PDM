@@ -996,6 +996,8 @@ std::cout<<testCol<<"testCol"<<std::endl;
 	
 	if(checkBox_debug->isChecked()){ arguments.append( "--debug" );}
 
+	if(checkBox_computeScaleFactorsFromVolumes->isChecked()){ arguments.append("--computeScaleFactorFromVolumes");}
+
 	if(checkBox_scale->isChecked()){ 
 		arguments.append("--scale");
 		qs = QString(intToString(scalecol).c_str());
@@ -1026,7 +1028,8 @@ std::cout<<testCol<<"testCol"<<std::endl;
 	arguments.append("--numGroupTypes "+qs);
 
 	arguments.append("--numPerms "+lineEdit_permu->text());
-
+ 
+	
 
 	qs = QString(intToString(infile).c_str());
 	arguments.append("--infileColumn "+qs);

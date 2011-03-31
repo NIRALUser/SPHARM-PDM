@@ -22,7 +22,7 @@
         <string notr="true">background-color: rgb(253, 245, 230);</string>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="csvedit">
         <property name="styleSheet">
@@ -752,15 +752,15 @@
         <widget class="QWidget" name="">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>12</y>
+           <x>11</x>
+           <y>14</y>
            <width>1103</width>
            <height>466</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
              <widget class="QFrame" name="frame_19">
               <property name="maximumSize">
@@ -795,7 +795,7 @@
                   <string>use Pillai statistic</string>
                  </property>
                  <property name="checked">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -803,6 +803,9 @@
                 <widget class="QRadioButton" name="radioButton_hotelling">
                  <property name="text">
                   <string>use Hotelling statistic</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -848,6 +851,13 @@
 from them.
 WARNING: This is different from the traditional file format where these scaling were 
 already pre-computed.</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBox_computeScaleFactorsFromVolumes">
+                 <property name="text">
+                  <string>computeScaleFactorsFromVolumes</string>
                  </property>
                 </widget>
                </item>
