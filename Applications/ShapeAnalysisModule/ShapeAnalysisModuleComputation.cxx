@@ -311,8 +311,8 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 		SetImageDimensions(firstFile1);
 		Dims=GetImageDimensions();
 		BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *SPHARM.vtk)"<<std::endl;
+		//BMSShapeAnalysisModuleMRML<<"  Set( MRMLfiles "<< GetListFiles() <<" )"<<std::endl; 
 		BMSShapeAnalysisModuleMRML<<" GetListSize( nbshape MRMLfiles)"<<std::endl;
-	//	BMSShapeAnalysisModuleMRML<<"  Set( MRMLfiles "<< GetListFiles() <<" )"<<std::endl; 
 		BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene.mrml)"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim0 "<<Dims[0]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim1 "<<Dims[1]<<")"<<std::endl;
@@ -331,8 +331,8 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 		SetImageDimensions(firstFile2);
 		Dims=GetImageDimensions();
 		BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *SPHARM_ellalign.vtk)"<<std::endl;
+	//	BMSShapeAnalysisModuleMRML<<"  Set( MRMLfiles "<< GetListFiles_ellalign() <<" )"<<std::endl; 		
 		BMSShapeAnalysisModuleMRML<<" GetListSize( nbshape MRMLfiles)"<<std::endl;
-	//	BMSShapeAnalysisModuleMRML<<"  Set( MRMLfiles "<< GetListFiles_ellalign() <<" )"<<std::endl; 
 		BMSShapeAnalysisModuleMRML<<"  Set( MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_ellalign.mrml)"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim0 "<<Dims[0]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim1 "<<Dims[1]<<")"<<std::endl;
@@ -351,8 +351,8 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 		SetImageDimensions(firstFile3);
 		Dims=GetImageDimensions();
 		BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *SPHARM_procalign.vtk)"<<std::endl;
-		BMSShapeAnalysisModuleMRML<<" GetListSize( nbshape MRMLfiles)"<<std::endl;
 	//	BMSShapeAnalysisModuleMRML<<"  Set( MRMLfiles "<< GetListFiles_procalign() <<" )"<<std::endl; 
+		BMSShapeAnalysisModuleMRML<<" GetListSize( nbshape MRMLfiles)"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set( MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_procalign.mrml)"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim0 "<<Dims[0]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim1 "<<Dims[1]<<")"<<std::endl;
