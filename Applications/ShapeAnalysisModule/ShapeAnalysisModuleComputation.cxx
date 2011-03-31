@@ -36,9 +36,8 @@ void ShapeAnalysisModuleComputation::Computation()
 	}
 
  	WriteBMSMRMLScene();
- 	ExecuteBatchMake(GetBMSShapeAnalysisModuleMRMLFile());
- 	SetBMSShapeAnalysisModuleFile(true);
-
+ 	ExecuteBatchMake(GetBMSShapeAnalysisModuleMRMLFile()); 
+	SetBMSShapeAnalysisModuleFile(true);
 
 	ModifyCSV();
 
@@ -94,10 +93,7 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, char * scalar)
 		}
 		
 		args.push_back(0);
-		/*for(unsigned int i=0 ; i<args.size();i++)
-		{
-			std::cout<<args[i]<<std::endl;
-		}*/
+		
 		
 		// Run the application
 		itksysProcess* gp = itksysProcess_New();
@@ -164,6 +160,8 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, char * scalar)
 	
 	}
 }
+
+
 // Create BMS File to compute the SPHARM pipeline
 void ShapeAnalysisModuleComputation::SetBMSShapeAnalysisModuleFile(bool changeDirectory)
 {
@@ -286,13 +284,15 @@ void ShapeAnalysisModuleComputation::ExecuteBatchMake(char *_Input)
 // Write the BMS script to create a MRML file
 void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 {
+ std::cout<<"\tWritting Mrml"<<std::endl<<endl;
 	int SnapShotNumber = SetNbSnapShot();
+
 	SetAllFilesName();
 	std::ofstream BMSShapeAnalysisModuleMRML(m_BMSShapeAnalysisModuleMRLMFile);
 
-	BMSShapeAnalysisModuleMRML<<"  echo()"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  echo(\t'Wrting MRML scripts...')"<<std::endl;
-	for(int count=0;count<3;count++)
+
+	BMSShapeAnalysisModuleMRML<<"  echo(\t'Writing MRML scripts...')"<<std::endl;
+	for(int count=0;count<4;count++)
 	{
 		BMSShapeAnalysisModuleMRML<<"  # Script to create a MRML scene"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(countSnapNb 0)"<<std::endl;
@@ -305,11 +305,14 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 		char *firstFile1;
 		firstFile1 = new char[512];
 		std::strcpy(firstFile1,GetAllSurfSPHARMFiles(0));
-		
+		BMSShapeAnalysisModuleMRML<<"  echo()"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  echo(\t'Writing 1st MRML scripts...')"<<std::endl;
 		vector<double>Dims;
 		SetImageDimensions(firstFile1);
 		Dims=GetImageDimensions();
 		BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *SPHARM.vtk)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<" GetListSize( nbshape MRMLfiles)"<<std::endl;
+	//	BMSShapeAnalysisModuleMRML<<"  Set( MRMLfiles "<< GetListFiles() <<" )"<<std::endl; 
 		BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene.mrml)"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim0 "<<Dims[0]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim1 "<<Dims[1]<<")"<<std::endl;
@@ -322,12 +325,15 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 		char *firstFile2;
 		firstFile2 = new char[512];
 		std::strcpy(firstFile2,GetAllSurfSPHARMellalignFiles(0));
-		
+		BMSShapeAnalysisModuleMRML<<"  echo()"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  echo(\t'Writing 2nd MRML scripts...')"<<std::endl;
 		vector<double>Dims;
 		SetImageDimensions(firstFile2);
 		Dims=GetImageDimensions();
 		BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *SPHARM_ellalign.vtk)"<<std::endl;
-		BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_ellalign.mrml)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<" GetListSize( nbshape MRMLfiles)"<<std::endl;
+	//	BMSShapeAnalysisModuleMRML<<"  Set( MRMLfiles "<< GetListFiles_ellalign() <<" )"<<std::endl; 
+		BMSShapeAnalysisModuleMRML<<"  Set( MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_ellalign.mrml)"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim0 "<<Dims[0]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim1 "<<Dims[1]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim2 "<<Dims[2]<<")"<<std::endl;
@@ -339,557 +345,1516 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene()
 		firstFile3 = new char[512];
 		std::strcpy(firstFile3,GetAllSurfSPHARMprocalignFiles(0));
 		//std::strcat(firstFile3,"_pp_surfSPHARM_procalign.vtk");
-		
+		BMSShapeAnalysisModuleMRML<<"  echo()"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  echo(\t'Writing 3rd MRML scripts...')"<<std::endl;
 		vector<double>Dims;
 		SetImageDimensions(firstFile3);
 		Dims=GetImageDimensions();
 		BMSShapeAnalysisModuleMRML<<" ListFileInDir(MRMLfiles ${FileDir} *SPHARM_procalign.vtk)"<<std::endl;
-		BMSShapeAnalysisModuleMRML<<"  Set(MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_procalign.mrml)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<" GetListSize( nbshape MRMLfiles)"<<std::endl;
+	//	BMSShapeAnalysisModuleMRML<<"  Set( MRMLfiles "<< GetListFiles_procalign() <<" )"<<std::endl; 
+		BMSShapeAnalysisModuleMRML<<"  Set( MRMLScene "<<GetOutputDirectory()<<"/MRML/ShapeAnalysisModuleMRMLScene_procalign.mrml)"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim0 "<<Dims[0]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim1 "<<Dims[1]<<")"<<std::endl;
 		BMSShapeAnalysisModuleMRML<<"  Set(dim2 "<<Dims[2]<<")"<<std::endl;
 	}
 	BMSShapeAnalysisModuleMRML<<"  WriteFile(${MRMLScene} '<MRML userTags=\"\">\\n')"<<std::endl;
 
-		BMSShapeAnalysisModuleMRML<<"  Set(countsnap 1)"<<std::endl;
-BMSShapeAnalysisModuleMRML<<"  Set(countj 0)"<<std::endl;
-	//for(int j=0;j<3;j++)
-for(int j=0;j<SnapShotNumber*2+3;j++)
+	BMSShapeAnalysisModuleMRML<<"  Set(countsnap 1)"<<std::endl;
+		
+	BMSShapeAnalysisModuleMRML<<"  Set(countj 0)"<<std::endl; //to know which scne is writting
+	BMSShapeAnalysisModuleMRML<<"   Set(SnapSaveTransform 0)"<<endl;
+
+	for(int j=0;j<SnapShotNumber*2+3;j++)
 	{
-	if(j==1)
-	{
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SceneSnapshot\\n')"<<std::endl;
- 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Phi\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\\n')"<<std::endl;
-	}
-	else if(j==2)
-	{
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SceneSnapshot\\n')"<<std::endl;
- 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Theta\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\\n')"<<std::endl;
-	}
-	else if(j>2)
-	{
-		if(j%2==0)
-			{
+
+		if(j==1)
+		{
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SceneSnapshot\\n id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Phi\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\\n')"<<std::endl;
+		}
+		else if(j==2)
+		{
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SceneSnapshot\\n id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Theta\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\\n')"<<std::endl;
+		}
+		else if(j>2)
+		{
+			if(j%2==0)
+				{
+					BMSShapeAnalysisModuleMRML<<"  Set(countnbsnapmorethan23 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SceneSnapshot\\n id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Theta'${countsnap}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\\n')"<<std::endl;
 					
-				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SceneSnapshot\\n')"<<std::endl;
-				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Theta'${countsnap}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\\n')"<<std::endl;
-				
-			}
-		else
-		{
-			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SceneSnapshot\\n')"<<std::endl;
-				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Phi'${countsnap}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\\n')"<<std::endl;
-		}
-	}
-
-
-
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Selection\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSelectionNode1\" name=\"vtkMRMLSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" secondaryVolumeID=\"NULL\" activeLabelVolumeID=\"NULL\" activeFiducialListID=\"NULL\" activeROIListID=\"NULL\" activeCameraID=\"NULL\" activeViewID=\"NULL\" activeLayoutID=\"vtkMRMLLayoutNode1\"></Selection>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Interaction\\n' )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLInteractionNode1\" name=\"vtkMRMLInteractionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentInteractionMode=\"ViewTransform\" lastInteractionMode=\"ViewTransform\"></Interaction>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Layout\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLLayoutNode1\" name=\"vtkMRMLLayoutNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentViewArrangement=\"2\" guiPanelVisibility=\"1\" bottomPanelVisibility =\"1\" guiPanelLR=\"0\" numberOfCompareViewRows=\"0\" numberOfCompareViewColumns=\"0\" numberOfLightboxRows=\"1\" numberOfLightboxColumns=\"1\" mainPanelSize=\"400\" secondaryPanelSize=\"400\"></Layout>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<View\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLViewNode1\" name=\"vtkMRMLViewNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" active=\"false\" fieldOfView=\"200\" letterSize=\"0.05\" boxVisible=\"true\" fiducialsVisible=\"true\" fiducialLabelsVisible=\"true\" axisLabelsVisible=\"true\" backgroundColor=\"0.70196 0.70196 0.90588\" animationMode=\"Off\" viewAxisMode=\"LookFrom\" spinDegrees=\"2\" spinMs=\"5\" spinDirection=\"YawLeft\" rotateDegrees=\"5\" rockLength=\"200\" rockCount=\"0\" stereoType=\"NoStereo\" renderMode=\"Perspective\"></View>\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Camera\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLCameraNode1\" name=\"vtkMRMLCameraNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" position=\"-726.497 88.984 13.4559\" focalPoint=\"0 0 0\" viewUp=\"0 0 1\" parallelProjection=\"false\" parallelScale=\"1\" active=\"false\"></Camera>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<TGParameters\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLChangeTrackerNode1\" name=\"vtkMRMLChangeTrackerNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ROIMin=\"-1 -1 -1\" ROIMax=\"-1 -1 -1\" SegmentThresholdMin=\"-1\" SegmentThresholdMax=\"-1\" Analysis_Intensity_Flag=\"0\" Analysis_Deformable_Flag=\"0\" UseITK=\"1\"></TGParameters>\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<VolumeRenderingSelection\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLVolumeRenderingSelectionNode1\" name=\"vtkMRMLVolumeRenderingSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" activeVolumeRenderingID=\"NULL\"></VolumeRenderingSelection>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Slice\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSliceNode1\" name=\"Green\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"387.5 250 1\" dimensions=\"496 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"-1 0 0 0 0 0 1 0 0 1 0 0 0 0 0 1\" layoutName=\"Green\" orientation=\"Coronal\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SliceComposite\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSliceCompositeNode1\" name=\"vtkMRMLSliceCompositeNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Green\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Slice\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSliceNode2\" name=\"Red\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"386.719 250 1\" dimensions=\"495 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"-1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1\" layoutName=\"Red\" orientation=\"Axial\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SliceComposite\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSliceCompositeNode2\" name=\"vtkMRMLSliceCompositeNode2\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Red\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Slice\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSliceNode3\" name=\"Yellow\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"386.719 250 1\" dimensions=\"495 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"0 0 1 0 -1 0 0 0 0 1 0 0 0 0 0 1\" layoutName=\"Yellow\" orientation=\"Sagittal\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SliceComposite\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSliceCompositeNode3\" name=\"vtkMRMLSliceCompositeNode3\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Yellow\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Crosshair\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLCrosshairNode1\" name=\"vtkMRMLCrosshairNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" crosshairMode=\"NoCrosshair\" crosshairBehavior=\"Normal\" crosshairThickness=\"Fine\" crosshairRAS=\"0 0 0\"></Crosshair>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ClipModels\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLClipModelsNode1\" name=\"vtkMRMLClipModelsNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" clipType=\"0\" redSliceClipState=\"0\" yellowSliceClipState=\"0\" greenSliceClipState=\"0\"></ClipModels>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ScriptedModule\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLScriptedModuleNode1\" name=\"vtkMRMLScriptedModuleNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ModuleName =\"Editor\" parameter0= \"label 1\"></ScriptedModule>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(count 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(res 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(Dim1 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(count3 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(countdata 0)"<<std::endl;
-	if(j>2 && j%2==0){BMSShapeAnalysisModuleMRML<<"  Inc(${countsnap} 1)"<<std::endl;}
+				}
+			else
+			{	if(j>3){BMSShapeAnalysisModuleMRML<<"  Inc(${countsnap} 1)"<<std::endl;}
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SceneSnapshot\\n id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Phi'${countsnap}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\\n')"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countnbsnapmorethan23 0)"<<std::endl;
 	
-
-
-	BMSShapeAnalysisModuleMRML<<"  ForEach(files ${MRMLfiles})"<<std::endl;
-	
-	BMSShapeAnalysisModuleMRML<<"  GetParam(data ${files} '${count2}' )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelStorage\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelStorageNode'${count}'\" name=\"vtkMRMLModelStorageNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\""<<GetOutputDirectory()<<"/Mesh/SPHARM/'${data}'\" useCompression=\"1\" readState=\"0\" writeState=\"0\"></ModelStorage>\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Randomize(Rvalue uniform 0 1) "<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Randomize(Gvalue uniform 0 1) "<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Randomize(Bvalue uniform 0 1) "<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelDisplay\\n')"<<std::endl;
-	if(j==0)
-	{
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"false\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"\" ></ModelDisplay>\\n')"<<std::endl;
-	}
-	else if(j==1)
-	{
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Phi\" ></ModelDisplay>\\n')"<<std::endl;
-	}
-	else if(j==2)
-	{
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Theta\" ></ModelDisplay>\\n')"<<std::endl;
-	}
-
-	else if(j>2)
-	{
-		if(j%2==0)
-			{
-				
-				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Theta\" ></ModelDisplay>\\n')"<<std::endl;
-				
 			}
-		else
-		{
-			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Phi\" ></ModelDisplay>\\n')"<<std::endl;
 		}
+		
+		if(j<3){BMSShapeAnalysisModuleMRML<<"   Set(nbLine 1)"<<endl;}
 
-			//template displayed
+
+/*	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Selection\\n id=\"vtkMRMLSelectionNode1\" name=\"vtkMRMLSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" secondaryVolumeID=\"NULL\" activeLabelVolumeID=\"NULL\" activeFiducialListID=\"NULL\" activeROIListID=\"NULL\" activeCameraID=\"NULL\" activeViewID=\"NULL\" activeLayoutID=\"vtkMRMLLayoutNode1\"></Selection>\\n <Interaction\\n id=\"vtkMRMLInteractionNode1\" name=\"vtkMRMLInteractionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentInteractionMode=\"ViewTransform\" lastInteractionMode=\"ViewTransform\"></Interaction>\\n <Layout\\n id=\"vtkMRMLLayoutNode1\" name=\"vtkMRMLLayoutNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentViewArrangement=\"2\" guiPanelVisibility=\"1\" bottomPanelVisibility =\"1\" guiPanelLR=\"0\" numberOfCompareViewRows=\"0\" numberOfCompareViewColumns=\"0\" numberOfLightboxRows=\"1\" numberOfLightboxColumns=\"1\" mainPanelSize=\"400\" secondaryPanelSize=\"400\"></Layout>\\n <View\\n id=\"vtkMRMLViewNode1\" name=\"vtkMRMLViewNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" active=\"false\" fieldOfView=\"200\" letterSize=\"0.05\" boxVisible=\"true\" fiducialsVisible=\"true\" fiducialLabelsVisible=\"true\" axisLabelsVisible=\"true\" backgroundColor=\"0.70196 0.70196 0.90588\" animationMode=\"Off\" viewAxisMode=\"LookFrom\" spinDegrees=\"2\" spinMs=\"5\" spinDirection=\"YawLeft\" rotateDegrees=\"5\" rockLength=\"200\" rockCount=\"0\" stereoType=\"NoStereo\" renderMode=\"Perspective\"></View>\\n <Camera\\n id=\"vtkMRMLCameraNode1\" name=\"vtkMRMLCameraNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" position=\"-726.497 88.984 13.4559\" focalPoint=\"0 0 0\" viewUp=\"0 0 1\" parallelProjection=\"false\" parallelScale=\"1\" active=\"false\"></Camera>\\n ')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<TGParameters\\n id=\"vtkMRMLChangeTrackerNode1\" name=\"vtkMRMLChangeTrackerNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ROIMin=\"-1 -1 -1\" ROIMax=\"-1 -1 -1\" SegmentThresholdMin=\"-1\" SegmentThresholdMax=\"-1\" Analysis_Intensity_Flag=\"0\" Analysis_Deformable_Flag=\"0\" UseITK=\"1\"></TGParameters>\n <VolumeRenderingSelection\\n id=\"vtkMRMLVolumeRenderingSelectionNode1\" name=\"vtkMRMLVolumeRenderingSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" activeVolumeRenderingID=\"NULL\"></VolumeRenderingSelection>\\n <Slice\\n' id=\"vtkMRMLSliceNode1\" name=\"Green\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"387.5 250 1\" dimensions=\"496 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"-1 0 0 0 0 0 1 0 0 1 0 0 0 0 0 1\" layoutName=\"Green\" orientation=\"Coronal\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\\n <SliceComposite\\n id=\"vtkMRMLSliceCompositeNode1\" name=\"vtkMRMLSliceCompositeNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Green\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\\n <Slice\\n id=\"vtkMRMLSliceNode2\" name=\"Red\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"386.719 250 1\" dimensions=\"495 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"-1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1\" layoutName=\"Red\" orientation=\"Axial\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\\n <SliceComposite\\n id=\"vtkMRMLSliceCompositeNode2\" name=\"vtkMRMLSliceCompositeNode2\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Red\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\\n '<Slice\\n id=\"vtkMRMLSliceNode3\" name=\"Yellow\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"386.719 250 1\" dimensions=\"495 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"0 0 1 0 -1 0 0 0 0 1 0 0 0 0 0 1\" layoutName=\"Yellow\" orientation=\"Sagittal\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\\n <SliceComposite\\n id=\"vtkMRMLSliceCompositeNode3\" name=\"vtkMRMLSliceCompositeNode3\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Yellow\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\\n <Crosshair\\n id=\"vtkMRMLCrosshairNode1\" name=\"vtkMRMLCrosshairNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" crosshairMode=\"NoCrosshair\" crosshairBehavior=\"Normal\" crosshairThickness=\"Fine\" crosshairRAS=\"0 0 0\"></Crosshair>\\n <ClipModels\\n id=\"vtkMRMLClipModelsNode1\" name=\"vtkMRMLClipModelsNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" clipType=\"0\" redSliceClipState=\"0\" yellowSliceClipState=\"0\" greenSliceClipState=\"0\"></ClipModels>\\n <ScriptedModule\\n id=\"vtkMRMLScriptedModuleNode1\" name=\"vtkMRMLScriptedModuleNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ModuleName =\"Editor\" parameter0= \"label 1\"></ScriptedModule>\\n')"<<std::endl;*/
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Selection\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSelectionNode1\" name=\"vtkMRMLSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" secondaryVolumeID=\"NULL\" activeLabelVolumeID=\"NULL\" activeFiducialListID=\"NULL\" activeROIListID=\"NULL\" activeCameraID=\"NULL\" activeViewID=\"NULL\" activeLayoutID=\"vtkMRMLLayoutNode1\"></Selection>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Interaction\\n' )"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLInteractionNode1\" name=\"vtkMRMLInteractionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentInteractionMode=\"ViewTransform\" lastInteractionMode=\"ViewTransform\"></Interaction>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Layout\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLLayoutNode1\" name=\"vtkMRMLLayoutNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentViewArrangement=\"2\" guiPanelVisibility=\"1\" bottomPanelVisibility =\"1\" guiPanelLR=\"0\" numberOfCompareViewRows=\"0\" numberOfCompareViewColumns=\"0\" numberOfLightboxRows=\"1\" numberOfLightboxColumns=\"1\" mainPanelSize=\"400\" secondaryPanelSize=\"400\"></Layout>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<View\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLViewNode1\" name=\"vtkMRMLViewNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" active=\"false\" fieldOfView=\"200\" letterSize=\"0.05\" boxVisible=\"true\" fiducialsVisible=\"true\" fiducialLabelsVisible=\"true\" axisLabelsVisible=\"true\" backgroundColor=\"0.70196 0.70196 0.90588\" animationMode=\"Off\" viewAxisMode=\"LookFrom\" spinDegrees=\"2\" spinMs=\"5\" spinDirection=\"YawLeft\" rotateDegrees=\"5\" rockLength=\"200\" rockCount=\"0\" stereoType=\"NoStereo\" renderMode=\"Perspective\"></View>\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Camera\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLCameraNode1\" name=\"vtkMRMLCameraNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" position=\"-726.497 88.984 13.4559\" focalPoint=\"0 0 0\" viewUp=\"0 0 1\" parallelProjection=\"false\" parallelScale=\"1\" active=\"false\"></Camera>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<TGParameters\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLChangeTrackerNode1\" name=\"vtkMRMLChangeTrackerNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ROIMin=\"-1 -1 -1\" ROIMax=\"-1 -1 -1\" SegmentThresholdMin=\"-1\" SegmentThresholdMax=\"-1\" Analysis_Intensity_Flag=\"0\" Analysis_Deformable_Flag=\"0\" UseITK=\"1\"></TGParameters>\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<VolumeRenderingSelection\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLVolumeRenderingSelectionNode1\" name=\"vtkMRMLVolumeRenderingSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" activeVolumeRenderingID=\"NULL\"></VolumeRenderingSelection>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Slice\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSliceNode1\" name=\"Green\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"387.5 250 1\" dimensions=\"496 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"-1 0 0 0 0 0 1 0 0 1 0 0 0 0 0 1\" layoutName=\"Green\" orientation=\"Coronal\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SliceComposite\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSliceCompositeNode1\" name=\"vtkMRMLSliceCompositeNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Green\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Slice\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSliceNode2\" name=\"Red\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"386.719 250 1\" dimensions=\"495 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"-1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1\" layoutName=\"Red\" orientation=\"Axial\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SliceComposite\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSliceCompositeNode2\" name=\"vtkMRMLSliceCompositeNode2\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Red\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Slice\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSliceNode3\" name=\"Yellow\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"386.719 250 1\" dimensions=\"495 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"0 0 1 0 -1 0 0 0 0 1 0 0 0 0 0 1\" layoutName=\"Yellow\" orientation=\"Sagittal\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<SliceComposite\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLSliceCompositeNode3\" name=\"vtkMRMLSliceCompositeNode3\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Yellow\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Crosshair\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLCrosshairNode1\" name=\"vtkMRMLCrosshairNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" crosshairMode=\"NoCrosshair\" crosshairBehavior=\"Normal\" crosshairThickness=\"Fine\" crosshairRAS=\"0 0 0\"></Crosshair>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ClipModels\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLClipModelsNode1\" name=\"vtkMRMLClipModelsNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" clipType=\"0\" redSliceClipState=\"0\" yellowSliceClipState=\"0\" greenSliceClipState=\"0\"></ClipModels>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ScriptedModule\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLScriptedModuleNode1\" name=\"vtkMRMLScriptedModuleNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ModuleName =\"Editor\" parameter0= \"label 1\"></ScriptedModule>\\n')"<<std::endl;
+	
+		BMSShapeAnalysisModuleMRML<<"  Set(count 1)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(res 1)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(resPerSnap 0)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(Dim1 0)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(count3 1)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(countdata 0)"<<std::endl;
+		
+
+
+		BMSShapeAnalysisModuleMRML<<"  Set(countY 0)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(countZ 0)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(countX 0)"<<std::endl;
+	
+	
+	
+		
+		BMSShapeAnalysisModuleMRML<<"  Set(column 0)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(columndisplay 0)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(linedisplay 0)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Set(nbLine 0)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"   Set(fiducialname 0)"<<endl;
+		BMSShapeAnalysisModuleMRML<<"  ForEach(files ${MRMLfiles})"<<std::endl;
+
+		if(j>2){
+		//template displayed on every snapshot
 			BMSShapeAnalysisModuleMRML<<" set(firstdata 0)"<<std::endl;
-
 			BMSShapeAnalysisModuleMRML<<" If(${firstdata} == ${countdata})"<<std::endl;
-	
 			BMSShapeAnalysisModuleMRML<<"set(tdir '"<<GetOutputDirectory()<<"/Template/')"<<std::endl;
 			if(count == 0){BMSShapeAnalysisModuleMRML<<"  listFileInDir(basename ${tdir} *_pp_surfSPHARM.vtk)"<<std::endl;}
 			if(count == 1){BMSShapeAnalysisModuleMRML<<"  listFileInDir(basename ${tdir} *_pp_surfSPHARM_ellalign.vtk)"<<std::endl;}
 			if(count == 2){BMSShapeAnalysisModuleMRML<<"  listFileInDir(basename ${tdir} *_pp_surfSPHARM_procalign.vtk)"<<std::endl;}
-			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Model\\n')"<<std::endl;
-			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelNode'${count}'\" name=\"'${tdir}''${basename}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" transformNodeRef=\"vtkMRMLLinearTransformNode'${count}'\" storageNodeRef=\"vtkMRMLModelStorageNode'${count}'\" userTags=\"\" displayNodeRef=\"vtkMRMLModelDisplayNode'${count}'\"></Model>\\n')"<<std::endl;	
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelStorage\\n id=\"vtkMRMLModelStorageNode'${count}'\" name=\"vtkMRMLModelStorageNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\""<<GetOutputDirectory()<<"/Template/'${data}'\" useCompression=\"1\" readState=\"0\" writeState=\"0\"></ModelStorage>\\n')"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  Randomize(Rvalue uniform 0 1) "<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  Randomize(Gvalue uniform 0 1) "<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  Randomize(Bvalue uniform 0 1) "<<std::endl;
+	
+			if(j%2==0) //if even: want to write a Theta snapshot
+			{
+				
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelDisplay\\n id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Theta\" ></ModelDisplay>\\n')"<<std::endl;
+				
+			}
+			else//if odd: want to write a Phi snapshot
+			{
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelDisplay\\n id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Phi\" ></ModelDisplay>\\n')"<<std::endl;
+			}
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Model\\n id=\"vtkMRMLModelNode'${count}'\" name=\"'${tdir}''${basename}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\"  storageNodeRef=\"vtkMRMLModelStorageNode'${count}'\" userTags=\"\" displayNodeRef=\"vtkMRMLModelDisplayNode'${count}'\"></Model>\\n')"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<"  Inc(${count} 1)"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<" EndIf(${firstdata})"<<std::endl;
+	
 			BMSShapeAnalysisModuleMRML<<"  Inc(${countdatapersnap} 1)"<<std::endl;
+		}
+	
+		BMSShapeAnalysisModuleMRML<<"  GetParam(data ${files} '${count2}' )"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelStorage\\n id=\"vtkMRMLModelStorageNode'${count}'\" name=\"vtkMRMLModelStorageNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fileName=\""<<GetOutputDirectory()<<"/Mesh/SPHARM/'${data}'\" useCompression=\"1\" readState=\"0\" writeState=\"0\"></ModelStorage>\\n')"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Randomize(Rvalue uniform 0 1) "<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Randomize(Gvalue uniform 0 1) "<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Randomize(Bvalue uniform 0 1) "<<std::endl;
+	
+		if(j==0)
+		{
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelDisplay\\n id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"false\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"\" ></ModelDisplay>\\n')"<<std::endl;
+		}
+		else if(j==1)
+		{
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelDisplay\\n id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Phi\" ></ModelDisplay>\\n')"<<std::endl;
+		}
+		else if(j==2)
+		{
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelDisplay\\n id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Theta\" ></ModelDisplay>\\n')"<<std::endl;
+		}
 
-
+		else if(j>2)
+		{
 			BMSShapeAnalysisModuleMRML<<" Math( infj ${countSnapNb} * 2 )"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<" Math( infj ${infj} + 3 )"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<" Math( supj ${countSnapNb} + 1)"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<" Math( supj ${supj} * 2)"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<" Math( supj ${supj} + 2)"<<std::endl;
-
-			
-
+			BMSShapeAnalysisModuleMRML<<" Math( infsnap ${countSnapNb} * 24 )"<<std::endl;
 	
-			BMSShapeAnalysisModuleMRML<<" Math( infsnap ${countSnapNb} * 30 )"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<" Math( supsnap ${countSnapNb} + 1)"<<std::endl;
-			BMSShapeAnalysisModuleMRML<<" Math( supsnap ${supsnap} * 30)"<<std::endl;
-			BMSShapeAnalysisModuleMRML<<" Math( supsnap ${supsnap} + 0)"<<std::endl;		
+			BMSShapeAnalysisModuleMRML<<" Math( supsnap ${supsnap} * 24)"<<std::endl;
 
+			if(j>4){
+				BMSShapeAnalysisModuleMRML<<" Math( infsnap ${infsnap} + ${countsnap} )"<<std::endl;BMSShapeAnalysisModuleMRML<<" Math( supsnap ${supsnap} + ${countsnap})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<" Math( infsnap ${infsnap} - 1 )"<<std::endl;BMSShapeAnalysisModuleMRML<<" Math( supsnap ${supsnap} - 1)"<<std::endl;
+			}	
+	
 			BMSShapeAnalysisModuleMRML<<" If(${infj} <= ${countj})"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<" If(${supj} >= ${countj})"<<std::endl;
+	
 			BMSShapeAnalysisModuleMRML<<" If(${infsnap} <= ${countdata})"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<" If(${supsnap} >= ${countdata})"<<std::endl;
 
 
+			if(j%2==0) //if even: want to write a Theta snapshot
+			{
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelDisplay\\n id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Theta\" ></ModelDisplay>\\n')"<<std::endl;
+				
+			}
+			else//if odd: want to write a Phi snapshot
+			{
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<ModelDisplay\\n id=\"vtkMRMLModelDisplayNode'${count}'\" name=\"vtkMRMLModelDisplayNode'${count}'\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" color=\"'${Rvalue}' '${Gvalue}' '${Bvalue}'\" selectedColor=\"1 0 0\" selectedAmbient=\"0.4\" ambient=\"0.18\" diffuse=\"0.82\" selectedSpecular=\"0.5\" specular=\"0.16\" power=\"1\" opacity=\"1\" visibility=\"true\" clipping=\"false\" sliceIntersectionVisibility=\"false\" backfaceCulling=\"true\" scalarVisibility=\"true\" vectorVisibility=\"false\" tensorVisibility=\"false\" autoScalarRange=\"true\" scalarRange=\"0 100\" colorNodeRef=\"vtkMRMLColorTableNodeFullRainbow\" activeScalarName=\"Color Map Phi\" ></ModelDisplay>\\n')"<<std::endl;
+			}
 
-			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Model\\n')"<<std::endl;
-			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelNode'${count}'\" name=\""<<GetOutputDirectory()<<"/Mesh/SPHARM/'${data}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" transformNodeRef=\"vtkMRMLLinearTransformNode'${count}'\" storageNodeRef=\"vtkMRMLModelStorageNode'${count}'\" userTags=\"\" displayNodeRef=\"vtkMRMLModelDisplayNode'${count}'\"></Model>\\n')"<<std::endl;
-
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Model\\n id=\"vtkMRMLModelNode'${count}'\" name=\""<<GetOutputDirectory()<<"/Mesh/SPHARM/'${data}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" transformNodeRef=\"vtkMRMLLinearTransformNode'${count}'\" storageNodeRef=\"vtkMRMLModelStorageNode'${count}'\" userTags=\"\" displayNodeRef=\"vtkMRMLModelDisplayNode'${count}'\"></Model>\\n')"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<" EndIf(${supsnap})"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<" EndIf(${infsnap})"<<std::endl;
+	
+
+			if(j>3) //j=3 coordinate save in the parameters SnapCoordY and SnapCoordZ
+			//j>3 just need to access to this parameters to write the <LinearTransform
+			{
+				BMSShapeAnalysisModuleMRML<<" set(infsnaptransform infsnap)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<" set(supsnaptransform supsnap)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<" Math( supsnaptransform ${supsnaptransform} + 1)"<<std::endl;
+				
+				if(j>4){BMSShapeAnalysisModuleMRML<<" Math( infsnaptransform ${infsnaptransform} + 1)"<<std::endl;}
+			
+				BMSShapeAnalysisModuleMRML<<" If(${infsnaptransform} <= ${res})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<" If(${supsnaptransform} >= ${res})"<<std::endl;
+
+				if(j==4){BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} == 0)"<<std::endl;	}
+				if(j>4){BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} == 1)"<<std::endl;	}
+
+				BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${data})"<<endl;
+
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+			
+				if(j==4){BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} > 0)"<<std::endl;	}
+				if(j>4){BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} > 1)"<<std::endl;	}
+			
+				BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${fiducialname} ${data})"<<endl;
+							
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+
+				//new line
+				if(GetDirectionToDisplay()=="ZYX")
+				{
+					BMSShapeAnalysisModuleMRML<<" If(${countZ} == 5)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} / 5 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} * 5 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(countZ  0)"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+				}
+				if(GetDirectionToDisplay()=="YZX")
+				{
+					BMSShapeAnalysisModuleMRML<<" If(${countY} == 5)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} / 5 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} * 5 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(countY  0)"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				}
+				if(GetDirectionToDisplay()=="YXZ")
+				{
+					BMSShapeAnalysisModuleMRML<<" If(${countY} == 5)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} / 5 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} * 5 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(countY  0)"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+				}
+				if(GetDirectionToDisplay()=="ZXY")
+				{
+					BMSShapeAnalysisModuleMRML<<" If(${countZ} == 5)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} / 5 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} * 5 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(countZ  0)"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+				}
+				if(GetDirectionToDisplay()=="XZY")
+				{
+					BMSShapeAnalysisModuleMRML<<" If(${countX} == 5)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} / 5 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} * 5 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(countX  0)"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+				}
+				if(GetDirectionToDisplay()=="XYZ")
+				{
+					BMSShapeAnalysisModuleMRML<<" If(${countX} == 5)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} / 5 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} * 5 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(countX  0)"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+				}
+
+				//file the<LinearTransform
+				if(GetDirectionToDisplay()=="XYZ")
+				{
+
+					BMSShapeAnalysisModuleMRML<<" If(${countX} == 4)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(countX4_1 ${SnapCoordX} 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(countX4_0 ${SnapCoordX} 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countX4 ${countX4_0} - {countX4_1} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(X ${X} + {countX4} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countY} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countX} )"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${X}'  0 1 0 '${Y}'  0 0 1 0  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+				}
+	
+				if(GetDirectionToDisplay()=="XZY")
+				{
+					BMSShapeAnalysisModuleMRML<<" If(${countX} == 4)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(countX4_1 ${SnapCoordX} 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(countX4_0 ${SnapCoordX} 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countX4 ${countX4_0} - {countX4_1} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(X ${X} + {countX4} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countZ} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countX} )"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${X}'  0 1 0 0  0 0 1 '${Z}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+				}
+	
+				if(GetDirectionToDisplay()=="YXZ")
+				{
+					BMSShapeAnalysisModuleMRML<<" If(${countY} == 4)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(countY4_1 ${SnapCoordY} 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(countY4_0 ${SnapCoordY} 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countY4 ${countY4_0} - {countY4_1} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Y ${Y} + {countY4} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countY} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countX} )"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${X}'  0 1 0 '${Y}'  0 0 1 0  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+				}
+	
+				if(GetDirectionToDisplay()=="YZX")
+				{
+					BMSShapeAnalysisModuleMRML<<" If(${countY} == 4)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(countY4_1 ${SnapCoordY} 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(countY4_0 ${SnapCoordY} 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countY4 ${countY4_0} - {countY4_1} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Y ${Y} + {countY4} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countY} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countZ} )"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 0  0 1 0 '${Y}'  0 0 1 '${Z}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+
+ 				}
+	
+				if(GetDirectionToDisplay()=="ZXY")
+				{
+					BMSShapeAnalysisModuleMRML<<" If(${countZ} == 4)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(countZ4_1 ${SnapCoordZ} 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(countZ4_0 ${SnapCoordZ} 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countZ4 ${countZ4_0} - {countZ4_1} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Z ${Z} + {countZ4} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countX} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countZ} )"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${X}'  0 1 0 0  0 0 1 '${Z}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+				}
+			
+				if(GetDirectionToDisplay()=="ZYX")
+				{
+
+					BMSShapeAnalysisModuleMRML<<" If(${countZ} == 4)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(countZ4_1 ${SnapCoordZ} 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(countZ4_0 ${SnapCoordZ} 1 )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(countZ4 ${countZ4_0} - {countZ4_1} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Z ${Z} + {countZ4} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countY} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countZ} )"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 0  0 1 0 '${Y}'  0 0 1 '${Z}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+
+					BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+				}
+
+				BMSShapeAnalysisModuleMRML<<" EndIf(${supsnaptransform})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<" EndIf(${infsnaptransform})"<<std::endl;
+			}//end if(j>3)
+	
 			BMSShapeAnalysisModuleMRML<<" EndIf(${supj})"<<std::endl;
 			BMSShapeAnalysisModuleMRML<<" EndIf(${infj})"<<std::endl;
 			
-	}
+		}//end else if(j>2)
 
-	if(j<3){
-		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Model\\n')"<<std::endl;
-		BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLModelNode'${count}'\" name=\""<<GetOutputDirectory()<<"/Mesh/SPHARM/'${data}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" transformNodeRef=\"vtkMRMLLinearTransformNode'${count}'\" storageNodeRef=\"vtkMRMLModelStorageNode'${count}'\" userTags=\"\" displayNodeRef=\"vtkMRMLModelDisplayNode'${count}'\"></Model>\\n')"<<std::endl;
-	}//end if(j<3)
-
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n')"<<std::endl;
+		if(j<3){
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<Model\\n id=\"vtkMRMLModelNode'${count}'\" name=\""<<GetOutputDirectory()<<"/Mesh/SPHARM/'${data}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" transformNodeRef=\"vtkMRMLLinearTransformNode'${count}'\" storageNodeRef=\"vtkMRMLModelStorageNode'${count}'\" userTags=\"\" displayNodeRef=\"vtkMRMLModelDisplayNode'${count}'\"></Model>\\n')"<<std::endl;
+		}//end if(j<3)
 
 
-	if(GetDirectionToDisplay()=="XYZ")
-	{
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count2})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count3} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 '${Dim1}'  0 0 1 0  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
-
-	if(j==0)
-	{
-	BMSShapeAnalysisModuleMRML<<"  If( ${count} == 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${Dim0})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY ${Dim1})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  If( ${count} > 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX  ${fiducialCoordX} ${Dim0})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY ${fiducialCoordY} ${Dim1})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
-	}
-
-	BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
- 	BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  If( ${res} == 10)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count3} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
-	}
-
-	else if(GetDirectionToDisplay()=="XZY")
-	{	
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count2})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 0  0 0 1 '${Dim2}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
-
-	if(j==0)
-	{
-	BMSShapeAnalysisModuleMRML<<"  If( ${count} == 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${Dim0})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ ${Dim2})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  If( ${count} > 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX  ${fiducialCoordX} ${Dim0})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ ${fiducialCoordZ} ${Dim2})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
-	}
 
 
-	BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
- 	BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  If( ${res} == 10)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
-	}
-
-	else if(GetDirectionToDisplay()=="YXZ")
-	{	
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count2})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 '${Dim1}'  0 0 1 0  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
-
-	if(j==0)
-	{
-	BMSShapeAnalysisModuleMRML<<"  If( ${count} == 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY ${Dim1})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${Dim0})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  If( ${count} > 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY  ${fiducialCoordY} ${Dim1})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${fiducialCoordX} ${Dim0})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
-	}
-
-	BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
- 	BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  If( ${res} == 10)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
-	}
-
-	else if(GetDirectionToDisplay()=="YZX")
-	{	
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count2})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 0  0 1 0 '${Dim1}'  0 0 1 '${Dim2}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
-
-	if(j==0)
-	{
-	BMSShapeAnalysisModuleMRML<<"  If( ${count} == 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim2} + ${dim2})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim1} + ${dim1})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY ${temp2})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ ${temp})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  If( ${count} > 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim1} + ${dim1})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY  ${fiducialCoordY} ${temp2})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim2} + ${dim2})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ ${fiducialCoordZ} ${temp})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
-	}
+		if(j<4){//display the scene and the 3 first snapshots
+		//BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n')"<<std::endl;
 	
-	BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
- 	BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  If( ${res} == 10)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+			if(j==3){BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} == 0)"<<std::endl;//if 1shape of the snapshot
+				BMSShapeAnalysisModuleMRML<<"  Set(res 01)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(count2 1)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(nbLine 0)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(count3 1)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;}		
 
-	}
+			if(GetDirectionToDisplay()=="XYZ")
+			{
+				if(j==3){
+	
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count2} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count3})"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 '${Dim1}'  0 0 1 0  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+	
+					BMSShapeAnalysisModuleMRML<<"   Set(max 26)"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} == 0)"<<std::endl;	
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordX ${Dim0})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordY ${Dim1})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${data})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapSaveTransform ${count})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} > 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${max} > ${resPerSnap} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordX ${SnapCoordX} ${Dim0})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordY ${SnapCoordY} ${Dim1})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${fiducialname} ${data})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${max} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+	
+			
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} != 5)"<<std::endl; //only 5 objects per line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+			
+					
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} == 5)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;//start the new line at the 1st position
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;//new line
+					//BMSShapeAnalysisModuleMRML<<"  Inc(${nbLine} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+				}
+	
+				else
+				{
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count2} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count3})"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 '${Dim1}'  0 0 1 0  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} == 10)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;//start the new line at the 1st position
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;//new line
+					BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					if(j==0)
+					{
+						BMSShapeAnalysisModuleMRML<<"  If( ${count} == 1)"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim0} + ${dim0})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim1} + ${dim1})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${temp})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY ${temp2})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"  If( ${count} > 1)"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim1} + ${dim1})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY  ${fiducialCoordY} ${temp2})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim0} + ${dim0})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${fiducialCoordX} ${temp})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
+					}
+				}
+			}//end if(GetDirectionToDisplay()=="XYZ")
 
-	else if(GetDirectionToDisplay()=="ZXY")
-	{	
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count2})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 0  0 0 1 '${Dim2}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
 
-	if(j==0)
-	{
-	BMSShapeAnalysisModuleMRML<<"  If( ${count} == 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ ${Dim2})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${Dim0})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  If( ${count} > 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ  ${fiducialCoordZ} ${Dim2})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${fiducialCoordX} ${Dim0})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
-	}
+			else if(GetDirectionToDisplay()=="XZY")
+			{	
+				if(j==3){
+	
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count2} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3})"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 0  0 0 1 '${Dim2}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+	
+					BMSShapeAnalysisModuleMRML<<"   Set(max 26)"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} == 0)"<<std::endl;	
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordX ${Dim0})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordZ ${Dim2})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${data})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapSaveTransform ${count})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} > 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${max} > ${resPerSnap} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordX ${SnapCoordX} ${Dim0})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordZ ${SnapCoordZ} ${Dim2})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${fiducialname} ${data})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${max} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+	
+			
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} != 5)"<<std::endl; //only 5 objects per line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+			
+					
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} == 5)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;//start the new line at the 1st position
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;//new line
+					BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					}
+	
+				else
+				{
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count2} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3})"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 0  0 0 1 '${Dim2}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} == 10)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;//start the new line at the 1st position
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;//new line
+					BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					if(j==0)
+					{
+						BMSShapeAnalysisModuleMRML<<"  If( ${count} == 1)"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim0} + ${dim0})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim2} + ${dim2})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ ${temp2})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${temp})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"  If( ${count} > 1)"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim2} + ${dim2})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ  ${fiducialCoordZ} ${temp2})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim0} + ${dim0})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${fiducialCoordX} ${temp})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
+					}
+				}
+			}//end else if(GetDirectionToDisplay()=="XZY")
 
-	BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
- 	BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  If( ${res} == 10)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
-	}
+			else if(GetDirectionToDisplay()=="YXZ")
+			{	
 
-	else if(GetDirectionToDisplay()=="ZYX")
-	{	
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count2})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim1} * ${count3} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLLinearTransformNode1\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 0  0 1 0 '${Dim1}'  0 0 1 '${Dim2}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+				if(j==3){
+	
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count2})"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 '${Dim1}'  0 0 1 0  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+	
+					BMSShapeAnalysisModuleMRML<<"   Set(max 26)"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} == 0)"<<std::endl;	
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordX ${Dim0})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordY ${Dim1})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${data})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapSaveTransform ${count})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} > 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${max} > ${resPerSnap} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordX ${SnapCoordX} ${Dim0})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordY ${SnapCoordY} ${Dim1})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${fiducialname} ${data})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${max} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+	
+			
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} != 5)"<<std::endl; //only 5 objects per line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+			
+					
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} == 5)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;//start the new line at the 1st position
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;//new line
+					BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+				}
+	
+				else
+				{
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count2})"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 '${Dim1}'  0 0 1 0  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} == 10)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;//start the new line at the 1st position
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;//new line
+					BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					if(j==0)
+					{
+						BMSShapeAnalysisModuleMRML<<"  If( ${count} == 1)"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim0} + ${dim0})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim1} + ${dim1})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY ${temp2})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${temp})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"  If( ${count} > 1)"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim1} + ${dim1})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY  ${fiducialCoordY} ${temp2})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim0} + ${dim0})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${fiducialCoordX} ${temp})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
+					}
+				}
 
-	if(j==0)
-	{
-	BMSShapeAnalysisModuleMRML<<"  If( ${count} == 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim2} + ${dim2})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ ${temp})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY ${Dim1})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  If( ${count} > 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ  ${fiducialCoordZ} ${temp})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim2} + ${dim2})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY ${fiducialCoordX} ${Dim1})"<<endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
-	}
+			}//end else if(GetDirectionToDisplay()=="YXZ")
 
-	BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
- 	BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  If( ${res} == 10)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count3} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
-	}
 
-	BMSShapeAnalysisModuleMRML<<"  Inc(${count} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Inc(${res} 1)"<<std::endl;
+			else if(GetDirectionToDisplay()=="ZXY")
+			{	
+				if(j==3){
+	
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count2} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3})"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 0  0 0 1 '${Dim2}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+	
+					BMSShapeAnalysisModuleMRML<<"   Set(max 26)"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} == 0)"<<std::endl;	
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordX ${Dim0})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordZ ${Dim2})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${data})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapSaveTransform ${count})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} > 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${max} > ${resPerSnap} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordX ${SnapCoordX} ${Dim0})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordZ ${SnapCoordZ} ${Dim2})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${fiducialname} ${data})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${max} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+	
+			
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} != 5)"<<std::endl; //only 5 objects per line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+			
+					
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} == 5)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;//start the new line at the 1st position
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;//new line
+					BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+				}
+		
+				else
+				{
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count2} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3})"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 '${Dim0}'  0 1 0 0  0 0 1 '${Dim2}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} == 10)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim0 ${dim0} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;//start the new line at the 1st position
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;//new line
+					BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					if(j==0)
+					{
+						BMSShapeAnalysisModuleMRML<<"  If( ${count} == 1)"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim0} + ${dim0})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim2} + ${dim2})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${temp})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ ${temp2})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"  If( ${count} > 1)"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim2} + ${dim2})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ  ${fiducialCoordZ} ${temp2})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim0} + ${dim0})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordX ${fiducialCoordX} ${temp})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
+					}
+				}
+			}//end else if(GetDirectionToDisplay()=="ZXY")
+
+			else if(GetDirectionToDisplay()=="ZYX")
+			{	
+	
+				if(j==3){
+	
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count2})"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 0  0 1 0 '${Dim1}'  0 0 1 '${Dim2}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+	
+					BMSShapeAnalysisModuleMRML<<"   Set(max 26)"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} == 0)"<<std::endl;	
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordY ${Dim1})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordZ ${Dim2})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${data})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapSaveTransform ${count})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} > 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${max} > ${resPerSnap} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordY ${SnapCoordY} ${Dim1})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordZ ${SnapCoordZ} ${Dim2})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${fiducialname} ${data})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${max} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+	
+			
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} != 5)"<<std::endl; //only 5 objects per line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+			
+					
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} == 5)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;//start the new line at the 1st position
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;//new line
+				//	BMSShapeAnalysisModuleMRML<<"  Inc(${nbLine} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+				}
+	
+				else
+				{
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count2})"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 0  0 1 0 '${Dim1}'  0 0 1 '${Dim2}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} == 10)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;//start the new line at the 1st position
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;//new line
+					BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					if(j==0)
+					{
+						BMSShapeAnalysisModuleMRML<<"  If( ${count} == 1)"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim1} + ${dim1})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim2} + ${dim2})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY ${temp})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ ${temp2})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"  If( ${count} > 1)"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim2} + ${dim2})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ  ${fiducialCoordZ} ${temp2})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim1} + ${dim1})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY ${fiducialCoordY} ${temp})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
+					}
+				}
+			}//end else if(GetDirectionToDisplay()=="ZYX")
+
+			if(GetDirectionToDisplay()=="YZX") 
+			{	
+				if(j==3){//j==3 save the coordinate in SnapCoordY SnapCoordZ
+	
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} == 0)"<<std::endl;//if 1shape of the snapshot
+					BMSShapeAnalysisModuleMRML<<"  Set(res 01)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(nbLine 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count3 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+					
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count2})"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 0  0 1 0 '${Dim1}'  0 0 1 '${Dim2}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(max 26)"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} == 0)"<<std::endl;	
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordZ ${Dim2})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordY ${Dim1})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${data})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapSaveTransform ${count})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${resPerSnap} > 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${max} > ${resPerSnap} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordZ ${SnapCoordZ} ${Dim2})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(SnapCoordY ${SnapCoordY} ${Dim1})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"   Set(fiducialname ${fiducialname} ${data})"<<endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${max} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${resPerSnap} )"<<std::endl;
+	
+			
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} != 5)"<<std::endl; //only 5 objects per line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+			
+					
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} == 5)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;//start the new line at the 1st position
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;//new line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${nbLine} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+				}
+	
+				else
+				{
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim1 ${dim1} * ${count2})"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<LinearTransform\\n id=\"vtkMRMLLinearTransformNode'${count}'\" name=\"vtkMRMLLinearTransformNode'${count}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" userTags=\"\" matrixTransformToParent=\"1 0 0 0  0 1 0 '${Dim1}'  0 0 1 '${Dim2}'  0 0 0 1\"></LinearTransform>\\n')"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} != 10)"<<std::endl; //only 10 objects per line
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count2} 1)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  If( ${res} == 10)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Math(Dim2 ${dim2} * ${count3} )"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  Set(count2 0)"<<std::endl;//start the new line at the 1st position
+					BMSShapeAnalysisModuleMRML<<"  Inc(${count3} 1)"<<std::endl;//new line
+					BMSShapeAnalysisModuleMRML<<"  Set(res 0)"<<std::endl;
+					BMSShapeAnalysisModuleMRML<<"  EndIf( ${res} )"<<std::endl;
+					if(j==0)
+					{
+						BMSShapeAnalysisModuleMRML<<"  If( ${count} == 1)"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim2} + ${dim2})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim1} + ${dim1})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY ${temp2})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ ${temp})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"  If( ${count} > 1)"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp2 ${Dim1} + ${dim1})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordY  ${fiducialCoordY} ${temp2})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"   Math(temp ${Dim2} + ${dim2})"<<std::endl;
+						BMSShapeAnalysisModuleMRML<<"   Set(fiducialCoordZ ${fiducialCoordZ} ${temp})"<<endl;
+						BMSShapeAnalysisModuleMRML<<"  EndIf( ${count} )"<<std::endl;
+		
+					}
+				}
+	
+			}//end if(GetDirectionToDisplay()=="YZX") 
+
+		}//end if(j<4)
+
+
+		BMSShapeAnalysisModuleMRML<<"  Inc(${count} 1)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<" If(${infsnap} <= ${res})"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<" If(${supsnap} >= ${res})"<<std::endl;
+		
+		BMSShapeAnalysisModuleMRML<<"  Inc(${resPerSnap} 1)"<<std::endl;
+		
+		BMSShapeAnalysisModuleMRML<<" EndIf(${supsnap})"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<" EndIf(${infsnap})"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Inc(${res} 1)"<<std::endl;
+	
+		
+		
+	
+		BMSShapeAnalysisModuleMRML<<"  Inc(${countdata} 1)"<<std::endl;
+		BMSShapeAnalysisModuleMRML<<"  Inc(${counter} 1)"<<std::endl;
 	
 	
-
-	BMSShapeAnalysisModuleMRML<<"  Inc(${countdata} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Inc(${counter} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndForEach(files)"<<std::endl;
-
-
-
-	if(j==0 || j==1 || j==2)
-	{
-	BMSShapeAnalysisModuleMRML<<"  # Creating the fiducials )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode1\" name=\"label: \" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode1\" userTags=\"\" symbolScale=\"0\" symbolType=\"1\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\"')"<<std::endl;
-
-	BMSShapeAnalysisModuleMRML<<"  Set(counter 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  ForEach(files ${MRMLfiles})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(data ${files} '${counter}' )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  RegEx( result ${data} '_pp_.*' REPLACE ' ' )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id '${result}' labeltext '${result}' xyz ')"<<std::endl;
-
-	if(GetDirectionToDisplay()=="XYZ")
-	{
-	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
-	}
-
-	if(GetDirectionToDisplay()=="XZY")
-	{
-	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
-	}
-
-	if(GetDirectionToDisplay()=="YXZ")
-	{
-	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
-	}
-
-	if(GetDirectionToDisplay()=="YZX")
-	{
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
-	}
-
-	if(GetDirectionToDisplay()=="ZXY")
-	{
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
-	}
-
-	if(GetDirectionToDisplay()=="ZYX")
-	{
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
-	}
 	
+		BMSShapeAnalysisModuleMRML<<"  EndForEach(files)"<<std::endl;
 
-	BMSShapeAnalysisModuleMRML<<"  Inc(${counter} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndForEach(files)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '\"></FiducialList>\\n')"<<std::endl;
-	}
-	else
-	{
-	BMSShapeAnalysisModuleMRML<<" Set(zero 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  # Creating the fiducials )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode1\" name=\"label: \" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode1\" userTags=\"\" symbolScale=\"0\" symbolType=\"1\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\"')"<<std::endl;
+		if(j>3)
+		{
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  Set(countsnapmax countsnap)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"   Math(countsnapmax ${countsnapmax} + 1)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode'${countsnapmax}'\" name=\"label'${countsnap}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode'${countsnapmax}'\" userTags=\"\" symbolScale=\"0\" symbolType=\"1\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" numberingScheme=\"0\" opacity=\"1\" fiducials=\"')"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  Set(countfidu 1)"<<std::endl;
+			
+			if(GetDirectionToDisplay()=="ZYX")
+			{
+				BMSShapeAnalysisModuleMRML<<"  Set(countY 0)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countZ 1)"<<std::endl;
+			}
 
-	BMSShapeAnalysisModuleMRML<<"  Set(counter 0)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  ForEach(files ${MRMLfiles})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" If(${counter} >= ${zero})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" Math( infj ${countSnapNb} * 2 )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" Math( infj ${infj} + 3 )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" Math( supj ${countSnapNb} + 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" Math( supj ${supj} * 2)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" Math( supj ${supj} + 2)"<<std::endl;
+			else if(GetDirectionToDisplay()=="YZX")
+			{
+				BMSShapeAnalysisModuleMRML<<"  Set(countY 1)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countZ 0)"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="YXZ")
+			{
+				BMSShapeAnalysisModuleMRML<<"  Set(countY 1)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countX 0)"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="ZXY")
+			{
+				BMSShapeAnalysisModuleMRML<<"  Set(countZ 1)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countX 0)"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="XZY")
+			{
+				BMSShapeAnalysisModuleMRML<<"  Set(countX 1)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countZ 0)"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="XYZ")
+			{
+				BMSShapeAnalysisModuleMRML<<"  Set(countX 1)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countY 0)"<<std::endl;
+			}
+
+
+
+
+
+			BMSShapeAnalysisModuleMRML<<"ForEach(fiduname ${fiducialname})"<<std::endl;
+
+
+			BMSShapeAnalysisModuleMRML<<"  If( ${countfidu} < 26)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  RegEx( result ${fiduname} '_pp_.*' REPLACE ' ' )"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id '${fiduname}' labeltext '${result}' xyz ')"<<std::endl;
+
+			if(GetDirectionToDisplay()=="ZYX")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} == 6)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countZ  1)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z5_1 ${SnapCoordZ} 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z5_0 ${SnapCoordZ} 0 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Z5 ${Z5_1} - {Z5_0} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Z ${Z} + {Z5} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countfidu} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="YZX")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countY} == 6)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countY  1)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countY} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y5_1 ${SnapCoordY} 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y5_0 ${SnapCoordY} 0 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Y5 ${Y5_1} - {Y5_0} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Y ${Y} + {Y5} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countZ})"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countY} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countY} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="YXZ")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countY} == 6)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countY  1)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countY} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y5_1 ${SnapCoordY} 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y5_0 ${SnapCoordY} 0 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Y5 ${Y5_1} - {Y5_0} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Y ${Y} + {Y5} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countX})"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countY} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countY} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="ZXY")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} == 6)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countZ  1)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z5_1 ${SnapCoordZ} 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z5_0 ${SnapCoordZ} 0 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Z5 ${Z5_1} - {Z5_0} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Z ${Z} + {Z5} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countfidu} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="XZY")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countX} == 6)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countX  1)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countX} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X5_1 ${SnapCoordX} 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X5_0 ${SnapCoordX} 0 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(X5 ${X5_1} - {X5_0} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(X ${X} + {X5} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countfidu} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countX} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="XYZ")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countX} == 6)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countX  1)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countX} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X5_1 ${SnapCoordX} 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X5_0 ${SnapCoordX} 0 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(X5 ${X5_1} - {X5_0} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(X ${X} + {X5} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countfidu} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countX} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+			}
 
 	
-
-
-	BMSShapeAnalysisModuleMRML<<" Math( infsnap ${countSnapNb} * 30 )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" Math( supsnap ${countSnapNb} + 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" Math( supsnap ${supsnap} * 30)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" Math( supsnap ${supsnap} + 0)"<<std::endl;	
-
-	BMSShapeAnalysisModuleMRML<<"  GetParam(data ${files} '${counter}' )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  RegEx( result ${data} '_pp_.*' REPLACE ' ' )"<<std::endl;
-
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id '${result}' labeltext '${result}' xyz ')"<<std::endl;
-	if(GetDirectionToDisplay()=="XYZ")
-	{
-	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1  ')"<<std::endl;
-	}
-
-	if(GetDirectionToDisplay()=="XZY")
-	{
-	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1  ')"<<std::endl;
-	}
-
-	if(GetDirectionToDisplay()=="YXZ")
-	{
-	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1  ')"<<std::endl;
-	}
-
-	if(GetDirectionToDisplay()=="YZX")
-	{
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1  ')"<<std::endl;
-	}
-
-	if(GetDirectionToDisplay()=="ZXY")
-	{
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1  ')"<<std::endl;
-	}
-
-	if(GetDirectionToDisplay()=="ZYX")
-	{
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1  ')"<<std::endl;
-	}
+			BMSShapeAnalysisModuleMRML<<" EndIf(${countfidu})"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  Inc(${countfidu} 1)"<<std::endl;
 	
-
-	BMSShapeAnalysisModuleMRML<<" If(${infj} <= ${countj})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" If(${supj} >= ${countj})"<<std::endl;
-	
-	BMSShapeAnalysisModuleMRML<<" If(${infsnap} <= ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" If(${supsnap} >= ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'visibility 1 ')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" EndIf(${supsnap})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" EndIf(${infsnap})"<<std::endl;
-	
-	BMSShapeAnalysisModuleMRML<<" If(${infsnap} >= ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'visibility 0 ')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" EndIf(${infsnap})"<<std::endl;
-	
-	
-	BMSShapeAnalysisModuleMRML<<" If(${supsnap} <= ${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'visibility 0 ')"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" EndIf(${supsnap})"<<std::endl;
-	
-	
-	BMSShapeAnalysisModuleMRML<<" EndIf(${supj})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" EndIf(${infj})"<<std::endl;
-	
-	BMSShapeAnalysisModuleMRML<<" EndIf(${counter})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  Inc(${counter} 1)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  EndForEach(files)"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '\"></FiducialList>\\n')"<<std::endl;
-	}
+			BMSShapeAnalysisModuleMRML<<"EndForEach(fiduname)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '\"></FiducialList>\\n')"<<std::endl;
+		}//end if(j>3)
 
 
+		if(j==3)
+		{
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  Set(countsnapmax countsnap)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"   Math(countsnapmax ${countsnapmax} + 1)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode'${countsnapmax}'\" name=\"label'${countsnap}'\" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode'${countsnapmax}'\" userTags=\"\" symbolScale=\"0\" symbolType=\"1\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" numberingScheme=\"0\" opacity=\"1\" fiducials=\"')"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  Set(countfidu 1)"<<std::endl;
+
+			if(GetDirectionToDisplay()=="ZYX")
+			{
+				BMSShapeAnalysisModuleMRML<<"  Set(countY 0)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countZ 1)"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="YZX")
+			{
+				BMSShapeAnalysisModuleMRML<<"  Set(countY 1)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countZ 0)"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="YXZ")
+			{
+				BMSShapeAnalysisModuleMRML<<"  Set(countY 1)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countX 0)"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="ZXY")
+			{
+				BMSShapeAnalysisModuleMRML<<"  Set(countZ 1)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countX 0)"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="XZY")
+			{
+				BMSShapeAnalysisModuleMRML<<"  Set(countX 1)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countZ 0)"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="XYZ")
+			{
+				BMSShapeAnalysisModuleMRML<<"  Set(countX 1)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Set(countY 0)"<<std::endl;
+			}
 
 
-	BMSShapeAnalysisModuleMRML<<"  Inc(${countj} 1)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"ForEach(fiduname ${fiducialname})"<<std::endl;
 
-	if(j>2){
-	if(j%2==0){
-		BMSShapeAnalysisModuleMRML<<"Inc(${countSnapNb} 1)"<<std::endl;//BMSShapeAnalysisModuleMRML<<" echo(countSnapNb)"<<std::endl;
-		}}
+			BMSShapeAnalysisModuleMRML<<"  If( ${countfidu} < 6)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  Echo(${countY})"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  RegEx( result ${fiduname} '_pp_.*' REPLACE ' ' )"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id '${fiduname}' labeltext '${result}' xyz ')"<<std::endl;
 
-	if(j!=0)
-	{
-	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '</SceneSnapshot>\\n')"<<std::endl;
-	}
+			if(GetDirectionToDisplay()=="ZYX")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z5_1 ${SnapCoordZ} 2 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z5_0 ${SnapCoordZ} 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Z5 ${Z5_1} - {Z5_0} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Z ${Z} + {Z5} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countfidu} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countZ  -1)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="YZX")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countY} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y5_1 ${SnapCoordY} 2 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y5_0 ${SnapCoordY} 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Y5 ${Y5_1} - {Y5_0} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Y ${Y} + {Y5} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countZ})"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countY} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countY} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countY} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countY  -1)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="YXZ")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countY} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y5_1 ${SnapCoordY} 2 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y5_0 ${SnapCoordY} 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Y5 ${Y5_1} - {Y5_0} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Y ${Y} + {Y5} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countX})"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countY} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countY} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countY} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countY  -1)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="ZXY")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z5_1 ${SnapCoordZ} 2 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z5_0 ${SnapCoordZ} 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Z5 ${Z5_1} - {Z5_0} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(Z ${Z} + {Z5} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countfidu} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countZ  -1)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="XZY")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countX} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X5_1 ${SnapCoordX} 2 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X5_0 ${SnapCoordX} 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(X5 ${X5_1} - {X5_0} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(X ${X} + {X5} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countfidu} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countX} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countX} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countX  -1)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+			}
+
+			else if(GetDirectionToDisplay()=="XYZ")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countX} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X5_1 ${SnapCoordX} 2 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X5_0 ${SnapCoordX} 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(X5 ${X5_1} - {X5_0} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(X ${X} + {X5} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countfidu} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countX} < 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<" If(${countX} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countX  -1)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+			}
+
+
+			BMSShapeAnalysisModuleMRML<<" EndIf(${countfidu})"<<std::endl;
+
+			//.......................................................................................................................................
+		
+			BMSShapeAnalysisModuleMRML<<"  If( ${countfidu} > 5)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" set(${twentyfive} 25)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" If(${twentyfive} < ${countfidu})"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  RegEx( result ${fiduname} '_pp_.*' REPLACE ' ' )"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id '${fiduname}' labeltext '${result}' xyz ')"<<std::endl;
+
+			if(GetDirectionToDisplay()=="XYZ")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countX} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countX  0)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countfidu} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+			}
+		
+			if(GetDirectionToDisplay()=="XZY")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countX} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countX  0)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countX} )"<<std::endl;
+				
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countfidu} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+			}
+		
+			if(GetDirectionToDisplay()=="YXZ")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countY} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countY  0)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countfidu} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+			}
+		
+			if(GetDirectionToDisplay()=="YZX")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countY} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countY  0)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countY} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countY} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countZ})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+				
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+
+			}
+	
+			if(GetDirectionToDisplay()=="ZXY")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countX ${countX} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countZ  0)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${SnapCoordX} ${countfidu} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+			}
+		
+			if(GetDirectionToDisplay()=="ZYX")
+			{
+				BMSShapeAnalysisModuleMRML<<" If(${countZ} == 5)"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} / 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} + 1 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  Math(countY ${countY} * 5 )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"   Set(countZ  0)"<<endl;
+				BMSShapeAnalysisModuleMRML<<"  EndIf( ${countZ} )"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${SnapCoordZ} ${countfidu})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${SnapCoordY} ${countfidu} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+
+				BMSShapeAnalysisModuleMRML<<"  Math(countZ ${countZ} + 1 )"<<std::endl;
+			}
+
+			BMSShapeAnalysisModuleMRML<<" EndIf(${twentyfive})"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<" EndIf(${countfidu})"<<std::endl;
+
+			BMSShapeAnalysisModuleMRML<<"  Inc(${countfidu} 1)"<<std::endl;
+
+			BMSShapeAnalysisModuleMRML<<"EndForEach(fiduname)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '\"></FiducialList>\\n')"<<std::endl;
+		}//end if(j==3)
+
+
+
+		if(j<3)
+		{
+			BMSShapeAnalysisModuleMRML<<"  # Creating the fiducials )"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '<FiducialList\\n')"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} 'id=\"vtkMRMLFiducialListNode1\" name=\"label: \" hideFromEditors=\"false\" selectable=\"true\" selected=\"false\" storageNodeRef=\"vtkMRMLFiducialListStorageNode1\" userTags=\"\" symbolScale=\"0\" symbolType=\"1\" textScale=\"2\" visibility=\"1\" color=\"0 0 0\" selectedcolor=\"0.0117647 0.00784314 0.00784314\" ambient=\"0\" diffuse=\"1\" specular=\"0\" power=\"1\" locked=\"0\" opacity=\"1\" fiducials=\"')"<<std::endl;
+	
+			BMSShapeAnalysisModuleMRML<<"  Set(counter 0)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  ForEach(files ${MRMLfiles})"<<std::endl;
+		
+			BMSShapeAnalysisModuleMRML<<"  GetParam(data ${files} '${counter}' )"<<std::endl;
+
+			BMSShapeAnalysisModuleMRML<<"  RegEx( result ${data} '_pp_.*' REPLACE ' ' )"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ' id '${result}' labeltext '${result}' xyz ')"<<std::endl;
+		
+		
+			if(GetDirectionToDisplay()=="XYZ")
+			{
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+			}
+		
+			if(GetDirectionToDisplay()=="XZY")
+			{
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+			}
+		
+			if(GetDirectionToDisplay()=="YXZ")
+			{
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' '${Y}' 15 orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+			}
+		
+			if(GetDirectionToDisplay()=="YZX")
+			{
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+			}
+		
+			if(GetDirectionToDisplay()=="ZXY")
+			{
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(X ${fiducialCoordX} ${counter} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} ''${X}' 15 '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+			}
+		
+			if(GetDirectionToDisplay()=="ZYX")
+			{
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Z ${fiducialCoordZ} ${counter})"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  GetParam(Y ${fiducialCoordY} ${counter} )"<<std::endl;
+				BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '15 '${Y}' '${Z}' orientationwxyz 0 0 0 1 selected 1 visibility 1 ')"<<std::endl;
+			}
+		
+		
+			BMSShapeAnalysisModuleMRML<<"  Inc(${counter} 1)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  EndForEach(files)"<<std::endl;
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '\"></FiducialList>\\n')"<<std::endl;
+		}//end if(j<3)
+
+	
+		BMSShapeAnalysisModuleMRML<<"  Inc(${countj} 1)"<<std::endl;
+
+		if(j>2){
+		if(j%2==0){BMSShapeAnalysisModuleMRML<<"Inc(${countSnapNb} 1)"<<std::endl;}
+			}
+
+		if(j!=0)
+		{
+			BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '</SceneSnapshot>\\n')"<<std::endl;
+		}
 	}
 	BMSShapeAnalysisModuleMRML<<"  AppendFile(${MRMLScene} '</MRML>\\n')"<<std::endl;
 	}
 	
+	
 	BMSShapeAnalysisModuleMRML<<" Set(BMSFile "<<GetOutputDirectory()<<"/BatchMake_Scripts/ShapeAnalysisModuleMRML.bms)"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<" CopyFile("<<GetBMSShapeAnalysisModuleMRMLFile()<<" ${BMSFile})"<<std::endl;
-	BMSShapeAnalysisModuleMRML<<" DeleteFile("<<GetBMSShapeAnalysisModuleMRMLFile()<<")"<<std::endl;
+	//BMSShapeAnalysisModuleMRML<<" DeleteFile("<<GetBMSShapeAnalysisModuleMRMLFile()<<")"<<std::endl;
 
-	BMSShapeAnalysisModuleMRML<<"  echo(\t'Wrting MRML script: Done!')"<<std::endl;
+	BMSShapeAnalysisModuleMRML<<"  echo(\t'Writing MRML script: Done!')"<<std::endl;
 	BMSShapeAnalysisModuleMRML<<"  echo()"<<std::endl;
 
 	return;
