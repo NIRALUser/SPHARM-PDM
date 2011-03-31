@@ -49,7 +49,14 @@ class ShapeAnalysisModuleComputation: public Parameters
 	void OverWrite();
 	void ComputationMean();
 	void WriteMeanFile(int);
+
+
+	vector<double> transformStorage;
+	int countline;
+	int countcol;
+	int countshape;
 	void GetRandomNum(int,int);
+
   
 	private:
   
@@ -68,7 +75,9 @@ class ShapeAnalysisModuleComputation: public Parameters
 	vector<double>m_meanY;
 	vector<double>m_meanZ;	
 
+
 	vector<int> m_permutations;
+
 };
 
 #endif
