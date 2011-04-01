@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 namespace neurolib
+
 {
 
 SphericalHarmonicCoefficientFileWriter::SphericalHarmonicCoefficientFileWriter()
