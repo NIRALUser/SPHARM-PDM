@@ -63,6 +63,8 @@ class Parameters
 	void SetParaOut1State(bool _ParaOut1State);
 	void SetParaOut2State(bool _ParaOut2State);
 	void SetFinalFlip(int _None_Flip, int _X_Flip, int _Y_Flip, int _Z_Flip, int _XY_Flip, int _YZ_Flip, int _XZ_Flip, int _XYZ_Flip);
+	int SetHorizontalGridPara(int _HorizontalGridPara);
+	int SetVerticalGridPara(int _VerticalGridPara);
 
 	char* GetModulePath();
 	vector<string> GetOutputFileHeaders();
@@ -105,10 +107,15 @@ class Parameters
 	int GetFinalFlipYZ();
 	int GetFinalFlipXZ();
 	int GetFinalFlipXYZ();
+
+	int GetHorizontalGridPara();
+	int GetVerticalGridPara();
  
 	string GetNthDataListValue(int line,int column);
 
 	void  SetAllFilesName();
+	void SetFilesNameMRML(int);
+	//void  SetAllFilesName25(int);
 	char* GetAllFilesName(int);
 	char* GetAllSurfSPHARMFiles(int);
 	char* GetAllSurfSPHARMellalignFiles(int);
@@ -120,6 +127,7 @@ class Parameters
 	char* GetAllThetaFiles(int);
 	void SetImageDimensions(char*);
 	vector <double> GetImageDimensions();
+	vector <double> GetBox();
 	double GetConstantOrientation();
 	string GetDirectionToDisplay();
 
@@ -138,22 +146,38 @@ class Parameters
 	void SetEulerNumbers();
 	void ModifyCSV();
 
+	void ModifyMRML(std::string ,std::string , std::string  );
+	std::string readMRML(std::string , bool);
+
 	vector<string >m_EulerNumber;
 	std::string GetEulerNumber(std::string txtFile);
 	vector<string>m_SphericalTopo;
 	std::vector<std::string> EulerFile;
 	void FindFiles();
 	
-
+void DeleteTransformsFolders(int type);
+void  FindTemplateFiles(int);
+std::string GetTemplate(int);
 	int SetNbSnapShot();
-
-	
-	string m_ListFiles;
+std::vector<std::string> name_template;
+	//string m_ListFiles;
 	string m_ListFiles_ellalign;
 	string m_ListFiles_procalign;
 	string GetListFiles_ellalign();
-	string GetListFiles();
+	//string GetListFiles();
 	string GetListFiles_procalign();
+	char** m_ListFiles;
+	//string m_ListFiles_ellalign;
+	//string m_ListFiles_procalign;
+	//string GetListFiles_ellalign();
+	char* GetListFiles(int);
+	//string GetListFiles_procalign();
+
+	bool m_FlipTemplateState;
+	bool m_RegTemplateState;
+	bool m_TemplateMState;
+	char m_FlipTemplate[512];
+	char m_RegTemplate[512];
 
 
 private:
@@ -191,11 +215,7 @@ private:
 	int m_vy;
 	int m_vz;
 	
-	bool m_FlipTemplateState;
-	bool m_RegTemplateState;
-	bool m_TemplateMState;
-	char m_FlipTemplate[512];
-	char m_RegTemplate[512];
+
 
 	bool m_ParaOut1State;
 	bool m_ParaOut2State;
@@ -215,15 +235,18 @@ private:
 
 	string m_directionToDisplay;
 	vector<double>m_Dims;
+	vector<double>m_Box;
 
 	char** m_AllFilesName; 
+	char** m_AllFilesName25; 
 	char** surfSPHARM_Files; 
 	char** surfSPHARM_ellalign_Files; 
 	char** surfSPHARM_procalign_Files; 
 	char* Phi_Files; 
 	char* Theta_Files;
 
-
+	int m_VerticalGridParaGrid;
+	int m_HorizontalGridParaGrid;
 	double m_const_orientation;
 
 };

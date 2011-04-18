@@ -39,12 +39,12 @@ class ShapeAnalysisModuleComputation: public Parameters
 	char* GetBMSShapeAnalysisModuleMRMLFile();
 	void SetOuputFile();
 	char* GetOutputFile();
-	void WriteBMSMRMLScene();
+	void WriteBMSMRMLScene(int);
   	void WriteBMSShapeAnalysisModuleFile();
 	void WriteBMSShapeAnalysisModuleFile2();
 	void ExecuteBatchMake(char *_Input);  
-  	void ExecuteMeshMath(int,char*);
-
+		void ExecuteMeshMath(int,char*);
+void ExecuteMeshMathTemplate();
 	void Computation();
 	void OverWrite();
 	void ComputationMean();
@@ -57,7 +57,7 @@ class ShapeAnalysisModuleComputation: public Parameters
 	int countshape;
 	void GetRandomNum(int,int);
 
-  
+
 	private:
   
 	int m_StudyNumber;
@@ -75,6 +75,15 @@ class ShapeAnalysisModuleComputation: public Parameters
 	vector<double>m_meanY;
 	vector<double>m_meanZ;	
 
+	vector<double>m_fidu0;
+	vector<double>m_fidu1;
+	vector<double>m_fidu2;
+
+
+
+  int m_nbHorizontal;
+int m_nbVertical;
+int nbShapesPerMRML;
 
 	vector<int> m_permutations;
 

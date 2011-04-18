@@ -367,4 +367,31 @@
 	</parameters>
 	
 
+
+<parameters advanced="true">
+	<label>Advanced Parameters to customize the grid parameters (MRML Scene)</label>
+	<description>grid parameters (MRML Scene)</description>
+	
+	<integer>
+		<name>HorizontalGridPara</name>
+		<label>number of vtk on each line of the mrml</label>
+		<longflag>--HorizontalGridPara</longflag>
+		<default>5</default>
+		<constraints>
+			<minimum>1</minimum>
+			<step>1</step>
+		</constraints>
+	</integer>	
+	<integer>
+		<name>VerticalGridPara</name>
+		<label>number of vtk on each column of the mrml</label>
+		<longflag>--VerticalGridPara</longflag>
+		<default>5</default>
+		<constraints>
+			<minimum>1</minimum>
+			<step>1</step>
+		</constraints>
+	</integer>
+	
+</parameters>	
 </executable>

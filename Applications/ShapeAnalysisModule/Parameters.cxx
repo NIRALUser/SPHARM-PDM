@@ -1,7 +1,7 @@
  #include "Parameters.h"
 #include <stdio.h>
 #include <string.h>
-
+#include <limits>
 #include <sstream>
 #include <string>
 using namespace std;
@@ -420,6 +420,26 @@ int Parameters::GetFinalFlipXYZ()
   	return m_XYZ_Flip;
 }
 
+int Parameters::SetHorizontalGridPara(int _HorizontalGridPara)
+{
+	m_HorizontalGridParaGrid = _HorizontalGridPara;
+//std::cout<<"m_HorizontalGridParaGrid "<<m_HorizontalGridParaGrid<<std::endl;
+}
+int Parameters::SetVerticalGridPara(int _VerticalGridPara)
+{
+	 m_VerticalGridParaGrid = _VerticalGridPara;
+//std::cout<<"m_VerticalGridParaGrid "<<m_VerticalGridParaGrid<<std::endl;
+}
+
+int Parameters::GetHorizontalGridPara()
+{
+	return	m_HorizontalGridParaGrid;
+}
+int Parameters::GetVerticalGridPara()
+{
+	return m_VerticalGridParaGrid;
+}
+
 //Set Data list containing all the data from csv file
 void Parameters::SetDataList(vector < vector<string> > _List)
 {	
@@ -545,6 +565,7 @@ void Parameters::SetImageDimensions(char *filename)
 		{
 			if(m_Dims[0]<m_Dims[2])
 				{m_directionToDisplay="YZX";
+
 				m_const_orientation=m_Dims[0];}
 			else 	{m_directionToDisplay="YXZ";
 				m_const_orientation=m_Dims[2];}
@@ -565,7 +586,21 @@ void Parameters::SetImageDimensions(char *filename)
 				m_const_orientation=m_Dims[2];}
 		}			
 	}
-	
+/*m_Dims.push_back(minCoord[0]);
+m_Dims.push_back(minCoord[1]);
+m_Dims.push_back(maxCoord[2]);*/
+
+
+
+
+
+m_Dims.push_back(minCoord[0]);//3
+m_Dims.push_back(maxCoord[0]);
+m_Dims.push_back(minCoord[1]);//5
+m_Dims.push_back(maxCoord[1]);
+m_Dims.push_back(minCoord[2]);//7
+m_Dims.push_back(maxCoord[2]);
+
 }
 
 vector <double> Parameters::GetImageDimensions()
@@ -589,14 +624,12 @@ void Parameters::SetAllFilesName()
 
 	int DataNumber=GetDataNumber();
 	m_AllFilesName = new char *[DataNumber];
-	
-		m_ListFiles.clear();
-		m_ListFiles_ellalign.clear();
-		m_ListFiles_procalign.clear();
+	//m_ListFiles= new char *[DataNumber];
 
 	for(int i=0;i<DataNumber;i++)
 	{	
 		m_AllFilesName[i] = new char[512];
+		//m_ListFiles[i] = new char[512];
 		char c[512];
 		char *file;
 	
@@ -610,35 +643,128 @@ void Parameters::SetAllFilesName()
 				file[j]='\0';
 		}
 		std::strcpy(m_AllFilesName[i],file);
-
-		
-if (GetTemplateMState()==true) {
-		m_ListFiles.append(file);
-		m_ListFiles.append("_pp_surf_tMeanSPHARM.vtk ");
-		m_ListFiles_ellalign.append(file);
-		m_ListFiles_ellalign.append("_pp_surf_tMeanSPHARM_ellalign.vtk ");
-		m_ListFiles_procalign.append(file);
-		m_ListFiles_procalign.append("_pp_surf_tMeanSPHARM_procalign.vtk ");}
-		
-else{
-		m_ListFiles.append(file);
-		m_ListFiles.append("_pp_surfSPHARM.vtk ");
-		m_ListFiles_ellalign.append(file);
-		m_ListFiles_ellalign.append("_pp_surfSPHARM_ellalign.vtk ");
-		m_ListFiles_procalign.append(file);
-		m_ListFiles_procalign.append("_pp_surfSPHARM_procalign.vtk ");}
+		//std::strcpy(m_ListFiles[i],file);
 
 	}
 }
+
+void Parameters::SetFilesNameMRML(int nummrml)
+{
+int m_nbHorizontal=GetHorizontalGridPara();
+int m_nbVertical=GetVerticalGridPara();
+int nbShapesPerMRML= m_nbHorizontal * m_nbVertical;
+
+	int DataNumber=GetDataNumber();
+	int DataNumber_csv=GetDataNumber();
+	
+	SetAllFilesName();
+
+	int begining, end,lastmrml;
+	/*begining=nummrml*25;
+	end=((nummrml+1)*25)-1;*/
+begining=nummrml*nbShapesPerMRML;
+	end=((nummrml+1)*nbShapesPerMRML)-1;
+
+	//to know if it's the last mrml
+	lastmrml=begining+(end-begining)+1;
+	if(DataNumber<=lastmrml)
+	{
+		end=DataNumber-1;
+		DataNumber=end;
+	}
+
+	m_ListFiles= new char *[DataNumber];
+	
+	int listfile_index=0;
+/*std::cout<<"end"<<end<<std::endl;
+std::cout<<"begining"<<begining<<std::endl;
+std::cout<<"DataNumber_csv"<<DataNumber_csv<<std::endl;*/
+	for(int i=0;i<DataNumber_csv;i++)
+	{
+		if(i<=end && i>=begining){
+
+m_ListFiles[listfile_index] = new char[512];
+
+			std::strcpy(m_ListFiles[listfile_index],m_AllFilesName[i]);
+			
+//std::cout<<"m_ListFiles[listfile_index]"<<m_ListFiles[listfile_index]<<std::endl;
+listfile_index++;
+		}
+	}
+//std::cout<<"end"<<std::endl;
+}
+/*
+void Parameters::SetAllFilesName(int nummrml)
+{
+	int DataNumber_csv=GetDataNumber();
+	int DataNumber=GetDataNumber();
+
+
+	int begining, end,lastmrml;
+
+	if(nummrml>=0){
+		
+		begining=nummrml*25;
+		end=((nummrml+1)*25)-1;
+	
+		//to know if it's the last mrml
+		lastmrml=begining+(end-begining)+1;
+		if(DataNumber<=lastmrml)
+		{
+			end=DataNumber-1;
+			DataNumber=end;
+		}
+	}
+
+	else{
+		begining=0;
+		end=DataNumber;
+	}
+
+	if(nummrml==-1){m_AllFilesName = new char *[DataNumber];}
+	else{m_ListFiles= new char *[DataNumber];}
+	
+
+	for(int i=0;i<DataNumber_csv;i++)
+	{	
+		if(nummrml==-1){m_AllFilesName[i] = new char[512];}
+		else{m_ListFiles[i] = new char[512];}
+		char c[512];
+		char *file;
+	
+		std::strcpy(c,GetNthDataListValue(i+1,GetColumnVolumeFile()).c_str());
+		file=std::strrchr(c,'/');
+
+		for(unsigned int j=0;j<strlen(file);j++)
+		{
+			file[j]=file[j+1];
+			if(file[j]=='.')
+				file[j]='\0';
+		}
+	if(nummrml==-1){	std::strcpy(m_AllFilesName[i],file);std::strcpy(m_ListFiles[i],file);}
+		else{ 
+
+//std::cout<<"end "<<end<<std::endl;
+//std::cout<<"begining "<<begining<<std::endl;
+
+if(i<=end && i>=begining) {
+std::cout<<"file "<<file<<std::endl;
+std::cout<<"m_ListFiles[i] "<<m_ListFiles[i]<<std::endl;
+std::strcpy(m_ListFiles[i],file);}}
+	}
+
+
+}
+*/
 
 char* Parameters::GetAllFilesName(int i)
 {
 	return m_AllFilesName[i];
 }
 
-string Parameters::GetListFiles()
+char* Parameters::GetListFiles(int i)
 {
-	return m_ListFiles;
+	return m_ListFiles[i];
 }
 string Parameters::GetListFiles_ellalign()
 {
@@ -782,6 +908,8 @@ char* Parameters::GetAllSurfmeanSPHARMFiles(int ind)
 		std::strcat(surfSPHARM_Files[i],GetAllFilesName(i));
 		std::strcat(surfSPHARM_Files[i],"_pp_surf_tMeanSPHARM.vtk");
 	}
+
+
 	return surfSPHARM_Files[ind];
 }
 
@@ -927,9 +1055,85 @@ void Parameters::ModifyCSV()
 			write.close();
 			read.close();
 		}
+
 	}
 	remove( csv_read );
 }
+
+std::string Parameters::readMRML(std::string nameMRML, bool colorMap)
+{
+	std::string textMRML;
+
+
+	ifstream read(nameMRML.c_str());
+	if(read){
+			std::string line;
+			while(getline(read, line))
+			{
+				textMRML.append(line);
+				textMRML.append("\n");
+			}
+			read.close();
+		}
+
+
+	if(colorMap ==0){ //delete the last line </ MRML >
+		textMRML.erase (textMRML.end()-9, textMRML.end());}
+
+	else{ //delete the last and first line <MRML >
+		textMRML.erase (textMRML.begin(), textMRML.begin()+7);
+		textMRML.erase (textMRML.end()-9, textMRML.end());}
+
+	return textMRML;
+
+}
+
+void Parameters::ModifyMRML(std::string nameMRML,std::string nameMRMLPhi, std::string nameMRMLTheta)
+{
+	std::string help;
+		
+	std::string textMRML;
+	std::string textMRMLPhi;
+	std::string textMRMLTheta;
+		
+	help.append(readMRML(nameMRML,0));
+	
+	std::string  mrml_write;
+
+	mrml_write.append(nameMRML);
+
+	ofstream filemrml(mrml_write.c_str(), ios::out ); 
+
+		if(filemrml)
+		{
+			
+			filemrml << help <<"\n";
+			help.clear();
+		
+			//add SceneSnapshot phi
+			filemrml <<"<SceneSnapshot\n id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Phi\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\n <Selection\n id=\"vtkMRMLSelectionNode1\" name=\"vtkMRMLSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" secondaryVolumeID=\"NULL\" activeLabelVolumeID=\"NULL\" activeFiducialListID=\"NULL\" activeROIListID=\"NULL\" activeCameraID=\"NULL\" activeViewID=\"NULL\" activeLayoutID=\"vtkMRMLLayoutNode1\"></Selection>\n <Interaction\n id=\"vtkMRMLInteractionNode1\" name=\"vtkMRMLInteractionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentInteractionMode=\"ViewTransform\" lastInteractionMode=\"ViewTransform\"></Interaction>\n <Layout\n id=\"vtkMRMLLayoutNode1\" name=\"vtkMRMLLayoutNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentViewArrangement=\"2\" guiPanelVisibility=\"1\" bottomPanelVisibility =\"1\" guiPanelLR=\"0\" numberOfCompareViewRows=\"0\" numberOfCompareViewColumns=\"0\" numberOfLightboxRows=\"1\" numberOfLightboxColumns=\"1\" mainPanelSize=\"400\" secondaryPanelSize=\"400\"></Layout>\n <View\n id=\"vtkMRMLViewNode1\" name=\"vtkMRMLViewNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" active=\"false\" fieldOfView=\"200\" letterSize=\"0.05\" boxVisible=\"true\" fiducialsVisible=\"true\" fiducialLabelsVisible=\"true\" axisLabelsVisible=\"true\" backgroundColor=\"0.70196 0.70196 0.90588\" animationMode=\"Off\" viewAxisMode=\"LookFrom\" spinDegrees=\"2\" spinMs=\"5\" spinDirection=\"YawLeft\" rotateDegrees=\"5\" rockLength=\"200\" rockCount=\"0\" stereoType=\"NoStereo\" renderMode=\"Perspective\"></View>\n <Camera\n id=\"vtkMRMLCameraNode1\" name=\"vtkMRMLCameraNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" position=\"-726.497 88.984 13.4559\" focalPoint=\"0 0 0\" viewUp=\"0 0 1\" parallelProjection=\"false\" parallelScale=\"1\" active=\"false\"></Camera>\n <TGParameters\n id=\"vtkMRMLChangeTrackerNode1\" name=\"vtkMRMLChangeTrackerNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ROIMin=\"-1 -1 -1\" ROIMax=\"-1 -1 -1\" SegmentThresholdMin=\"-1\" SegmentThresholdMax=\"-1\" Analysis_Intensity_Flag=\"0\" Analysis_Deformable_Flag=\"0\" UseITK=\"1\"></TGParameters> <VolumeRenderingSelection\n id=\"vtkMRMLVolumeRenderingSelectionNode1\" name=\"vtkMRMLVolumeRenderingSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" activeVolumeRenderingID=\"NULL\"></VolumeRenderingSelection>\n <Slice\n id=\"vtkMRMLSliceNode1\" name=\"Green\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"387.5 250 1\" dimensions=\"496 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"-1 0 0 0 0 0 1 0 0 1 0 0 0 0 0 1\" layoutName=\"Green\" orientation=\"Coronal\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\n <SliceComposite\n id=\"vtkMRMLSliceCompositeNode1\" name=\"vtkMRMLSliceCompositeNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Green\" annotationMode=\"All\"\n doPropagateVolumeSelection=\"1\"></SliceComposite>\n <Slice\n id=\"vtkMRMLSliceNode2\" name=\"Red\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"386.719 250 1\" dimensions=\"495 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"-1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1\" layoutName=\"Red\" orientation=\"Axial\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\n <SliceComposite\n id=\"vtkMRMLSliceCompositeNode2\" name=\"vtkMRMLSliceCompositeNode2\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Red\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\n <Slice\n id=\"vtkMRMLSliceNode3\" name=\"Yellow\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"386.719 250 1\" dimensions=\"495 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"0 0 1 0 -1 0 0 0 0 1 0 0 0 0 0 1\" layoutName=\"Yellow\" orientation=\"Sagittal\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\n <SliceComposite\n id=\"vtkMRMLSliceCompositeNode3\" name=\"vtkMRMLSliceCompositeNode3\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Yellow\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\n <Crosshair\n id=\"vtkMRMLCrosshairNode1\" name=\"vtkMRMLCrosshairNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" crosshairMode=\"NoCrosshair\" crosshairBehavior=\"Normal\" crosshairThickness=\"Fine\" crosshairRAS=\"0 0 0\"></Crosshair>\n <ClipModels\n id=\"vtkMRMLClipModelsNode1\" name=\"vtkMRMLClipModelsNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" clipType=\"0\" redSliceClipState=\"0\" yellowSliceClipState=\"0\" greenSliceClipState=\"0\"></ClipModels>\n <ScriptedModule\n id=\"vtkMRMLScriptedModuleNode1\" name=\"vtkMRMLScriptedModuleNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ModuleName =\"Editor\" parameter0= \"label 1\"></ScriptedModule>\n ";
+
+			help.append(readMRML(nameMRMLPhi,1));
+			filemrml << help <<"\n";
+			help.clear();
+			filemrml <<"</SceneSnapshot>"<<"\n";
+
+			//add SceneSnapshot theta
+			filemrml <<"<SceneSnapshot\n id=\"vtkMRMLSceneSnapshotNode1\" name=\"Color Map Theta\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\">\n <Selection\n id=\"vtkMRMLSelectionNode1\" name=\"vtkMRMLSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" secondaryVolumeID=\"NULL\" activeLabelVolumeID=\"NULL\" activeFiducialListID=\"NULL\" activeROIListID=\"NULL\" activeCameraID=\"NULL\" activeViewID=\"NULL\" activeLayoutID=\"vtkMRMLLayoutNode1\"></Selection>\n <Interaction\n id=\"vtkMRMLInteractionNode1\" name=\"vtkMRMLInteractionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentInteractionMode=\"ViewTransform\" lastInteractionMode=\"ViewTransform\"></Interaction>\n <Layout\n id=\"vtkMRMLLayoutNode1\" name=\"vtkMRMLLayoutNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" currentViewArrangement=\"2\" guiPanelVisibility=\"1\" bottomPanelVisibility =\"1\" guiPanelLR=\"0\" numberOfCompareViewRows=\"0\" numberOfCompareViewColumns=\"0\" numberOfLightboxRows=\"1\" numberOfLightboxColumns=\"1\" mainPanelSize=\"400\" secondaryPanelSize=\"400\"></Layout>\n <View\n id=\"vtkMRMLViewNode1\" name=\"vtkMRMLViewNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" active=\"false\" fieldOfView=\"200\" letterSize=\"0.05\" boxVisible=\"true\" fiducialsVisible=\"true\" fiducialLabelsVisible=\"true\" axisLabelsVisible=\"true\" backgroundColor=\"0.70196 0.70196 0.90588\" animationMode=\"Off\" viewAxisMode=\"LookFrom\" spinDegrees=\"2\" spinMs=\"5\" spinDirection=\"YawLeft\" rotateDegrees=\"5\" rockLength=\"200\" rockCount=\"0\" stereoType=\"NoStereo\" renderMode=\"Perspective\"></View>\n <Camera\n id=\"vtkMRMLCameraNode1\" name=\"vtkMRMLCameraNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" position=\"-726.497 88.984 13.4559\" focalPoint=\"0 0 0\" viewUp=\"0 0 1\" parallelProjection=\"false\" parallelScale=\"1\" active=\"false\"></Camera>\n <TGParameters\n id=\"vtkMRMLChangeTrackerNode1\" name=\"vtkMRMLChangeTrackerNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ROIMin=\"-1 -1 -1\" ROIMax=\"-1 -1 -1\" SegmentThresholdMin=\"-1\" SegmentThresholdMax=\"-1\" Analysis_Intensity_Flag=\"0\" Analysis_Deformable_Flag=\"0\" UseITK=\"1\"></TGParameters> <VolumeRenderingSelection\n id=\"vtkMRMLVolumeRenderingSelectionNode1\" name=\"vtkMRMLVolumeRenderingSelectionNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" activeVolumeID=\"NULL\" activeVolumeRenderingID=\"NULL\"></VolumeRenderingSelection>\n <Slice\n id=\"vtkMRMLSliceNode1\" name=\"Green\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"387.5 250 1\" dimensions=\"496 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"-1 0 0 0 0 0 1 0 0 1 0 0 0 0 0 1\" layoutName=\"Green\" orientation=\"Coronal\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\n <SliceComposite\n id=\"vtkMRMLSliceCompositeNode1\" name=\"vtkMRMLSliceCompositeNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Green\" annotationMode=\"All\"\n doPropagateVolumeSelection=\"1\"></SliceComposite>\n <Slice\n id=\"vtkMRMLSliceNode2\" name=\"Red\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"386.719 250 1\" dimensions=\"495 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"-1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1\" layoutName=\"Red\" orientation=\"Axial\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\n <SliceComposite\n id=\"vtkMRMLSliceCompositeNode2\" name=\"vtkMRMLSliceCompositeNode2\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Red\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\n <Slice\n id=\"vtkMRMLSliceNode3\" name=\"Yellow\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" fieldOfView=\"386.719 250 1\" dimensions=\"495 320 1\" activeSlice=\"0\" layoutGridRows=\"1\" layoutGridColumns=\"1\" sliceToRAS=\"0 0 1 0 -1 0 0 0 0 1 0 0 0 0 0 1\" layoutName=\"Yellow\" orientation=\"Sagittal\" jumpMode=\"1\" sliceVisibility=\"false\" widgetVisibility=\"false\" useLabelOutline=\"false\" sliceSpacingMode=\"0\" prescribedSliceSpacing=\"1 1 1\"></Slice>\n <SliceComposite\n id=\"vtkMRMLSliceCompositeNode3\" name=\"vtkMRMLSliceCompositeNode3\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" backgroundVolumeID=\"\" foregroundVolumeID=\"\" labelVolumeID=\"\" compositing=\"0\" labelOpacity=\"1\" linkedControl=\"0\" foregroundGrid=\"0\" backgroundGrid=\"0\" labelGrid=\"1\" fiducialVisibility=\"1\" fiducialLabelVisibility=\"1\" sliceIntersectionVisibility=\"0\" layoutName=\"Yellow\" annotationMode=\"All\" doPropagateVolumeSelection=\"1\"></SliceComposite>\n <Crosshair\n id=\"vtkMRMLCrosshairNode1\" name=\"vtkMRMLCrosshairNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" crosshairMode=\"NoCrosshair\" crosshairBehavior=\"Normal\" crosshairThickness=\"Fine\" crosshairRAS=\"0 0 0\"></Crosshair>\n <ClipModels\n id=\"vtkMRMLClipModelsNode1\" name=\"vtkMRMLClipModelsNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" clipType=\"0\" redSliceClipState=\"0\" yellowSliceClipState=\"0\" greenSliceClipState=\"0\"></ClipModels>\n <ScriptedModule\n id=\"vtkMRMLScriptedModuleNode1\" name=\"vtkMRMLScriptedModuleNode1\" hideFromEditors=\"true\" selectable=\"true\" selected=\"false\" ModuleName =\"Editor\" parameter0= \"label 1\"></ScriptedModule>\n ";
+
+			help.append(readMRML(nameMRMLTheta,1));
+			filemrml << help <<"\n";
+			help.clear();
+			filemrml <<"</SceneSnapshot>"<<"\n"<<"</MRML>";
+			
+			filemrml.close();
+	
+	}
+
+	//remove( nameMRMLPhi.c_str());
+	//remove( nameMRMLTheta.c_str() );
+}
+
 
 
 void Parameters::FindFiles()
@@ -942,6 +1146,44 @@ void Parameters::FindFiles()
 	EulerFile=globEulerFile.GetFiles();
 }
 
+void Parameters::FindTemplateFiles(int type)
+{
+	itksys::Glob globTemplateFile;
+	std::string pathFile =GetOutputDirectory();
+	std::string path;
+	if(GetTemplateMState()){
+		if(type==0){path="/Template/*_pp_tMeansurfSPHARM.vtk";}
+		if(type==1){ path="/Template/*_pp_tMeansurfSPHARM_ellalign.vtk";}
+		if(type==2){path="/Template/*_pp_tMeansurfSPHARM_procalign.vtk";}
+	}
+	else{
+		if(type==0){path="/Template/*_pp_surfSPHARM.vtk";}
+		if(type==1){ path="/Template/*_pp_surfSPHARM_ellalign.vtk";}
+		if(type==2){path="/Template/*_pp_surfSPHARM_procalign.vtk";}
+	}
+	pathFile=pathFile+path;
+	globTemplateFile.FindFiles(pathFile);
+	name_template=globTemplateFile.GetFiles();
+
+}
+
+std::string Parameters::GetTemplate( int type)
+{
+	FindTemplateFiles(type);
+size_t found;
+found=name_template[0].find("/Template");
+std::string mytemplate;
+std::string help;
+help.append(name_template[0]);
+//mytemplate.append("..")
+//name_template[0]).erase(0,found);
+if(type==1){mytemplate.append("../");}
+if(type==2){mytemplate.append("../");}
+mytemplate.append("..");
+mytemplate.append(help.begin()+found,help.end());
+	return mytemplate ;
+}
+
 int Parameters::SetNbSnapShot()
 {
 	int DataNumber=GetDataNumber();
@@ -950,4 +1192,39 @@ int Parameters::SetNbSnapShot()
 	return SnapShotNumber;}
 	else
 	{return 0;}
+}
+
+void Parameters::DeleteTransformsFolders(int type)
+{
+	char *dirTransform=NULL;
+	dirTransform=new  char[512] ;
+	std::strcpy(dirTransform, GetOutputDirectory());
+	if(type==0){std::strcat(dirTransform, "/MRML/TransformFiles/");}
+	if(type==1){std::strcat(dirTransform, "/MRML/Ellalign/TransformFiles/");}
+	if(type==2){std::strcat(dirTransform, "/MRML/Procalign/TransformFiles/");}
+	
+	bool transformDirectoryEmpty=DirectoryIsEmpty(dirTransform);
+	if(!transformDirectoryEmpty)
+	{
+		int length=strlen(GetOutputDirectory());
+		length=length+10;
+
+		DIR *pdir = NULL;
+		struct dirent *pent;
+		pdir = opendir (dirTransform);
+		while ((pent=readdir(pdir)))
+		{
+			char *file=NULL;
+			file= new char[512];
+			strcpy(file,dirTransform);
+			strcat(file, pent->d_name);
+			if(file[length]!='.')
+			{	
+				remove(file);
+				//cerr<<"Error deleting file "<<file<<endl;
+			}
+		}
+	}
+
+
 }

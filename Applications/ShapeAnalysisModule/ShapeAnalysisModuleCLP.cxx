@@ -46,6 +46,9 @@ int main(int argc, char * argv [])
 	m_computation.SetTemplateMState(MTemplate);
 	m_computation.SetParaOut1State(ParaOut1Template);
 
+m_computation.SetHorizontalGridPara(HorizontalGridPara);
+m_computation.SetVerticalGridPara(VerticalGridPara);
+
 
 	if(NoFLip) m_computation.SetFinalFlip(1,0,0,0,0,0,0,0);
 	else if(FlipALongAxisX) m_computation.SetFinalFlip(0,1,0,0,0,0,0,0);
@@ -57,6 +60,7 @@ int main(int argc, char * argv [])
 	else if (FlipALongAxisXandYandZ) m_computation.SetFinalFlip(0,0,0,0,0,0,0,1);
 	
 	m_computation.Computation();
+
 
 	return EXIT_SUCCESS ;
 }

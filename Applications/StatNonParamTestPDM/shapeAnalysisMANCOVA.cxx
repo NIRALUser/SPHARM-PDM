@@ -128,7 +128,7 @@ else{
 
   vnl_matrix<double> diffVectors(numFeatures,dimension);
   vnl_vector<double> normProjections(numFeatures);
-  vnl_vector<double> normDistProjections(numFeatures);
+  vnl_vector<double> DiffMagnitude(numFeatures);
 
   vnl_matrix<double> zScores(numFeatures,numSubjects);
   vnl_matrix<double> zScoresProjected(numFeatures,numSubjects);
@@ -143,11 +143,11 @@ else{
 
   time (&start);
 
-  compute_SurfaceProperties( meanPoints, meanPointsA, meanPointsB, diffVectors, normProjections, normDistProjections, zScores, zScoresProjected, numSubjects, numA, numB, numFeatures, groupLabel, featureValue, meanSurfaceNormals, surfaceMesh, outbase, meshFileNames , KWMreadableInputFile);
+  compute_SurfaceProperties( meanPoints, meanPointsA, meanPointsB, diffVectors, normProjections, DiffMagnitude, zScores, zScoresProjected, numSubjects, numA, numB, numFeatures, groupLabel, featureValue, meanSurfaceNormals, surfaceMesh, outbase, meshFileNames , KWMreadableInputFile);
 
   // write out additional mesh information (means, differences, etc.)
 
-  write_SurfaceProperties( outbase, meanPoints, meanPointsA, meanPointsB, diffVectors, normProjections, normDistProjections, zScoresProjected, zScores, writeZScores, surfaceMesh, SOMesh, meshFileNames, KWMreadableInputFile );
+  write_SurfaceProperties( outbase, meanPoints, meanPointsA, meanPointsB, diffVectors, normProjections, DiffMagnitude, zScoresProjected, zScores, writeZScores, surfaceMesh, SOMesh, meshFileNames, KWMreadableInputFile );
 
 
   // Now do the actual statistical testing based on Dimitrio's MANCOVA theory
@@ -305,8 +305,8 @@ if (KWMreadableInputFile==0)
       fdrP = fdrCorrection( pearsonRhoDistPval, FDRdiscoveryLevel, fdrThresh );
       std::cout << "fdr thresh (Pearson distance) is = " << fdrThresh << std::endl;
       
-      output_vector(bonferroniP, outbase, std::string("_normDistProjectionsPearsonPvalBonferroni.txt"));
-      output_vector(fdrP, outbase, std::string("_normDistProjectionsPearsonPvalFDR.txt"));
+      output_vector(bonferroniP, outbase, std::string("_DiffMagnitudePearsonPvalBonferroni.txt"));
+      output_vector(fdrP, outbase, std::string("_DiffMagnitudePearsonPvalFDR.txt"));
       
       bonferroniP = bonferroniCorrection( pearsonRhoProPval );
       fdrP = fdrCorrection( pearsonRhoProPval,FDRdiscoveryLevel, fdrThresh );
@@ -319,8 +319,8 @@ if (KWMreadableInputFile==0)
       fdrP = fdrCorrection( spearmanRhoDistPval, FDRdiscoveryLevel , fdrThresh );
       std::cout << "fdr thresh (Spearman distance) is = " << fdrThresh << std::endl;
       
-      output_vector(bonferroniP, outbase, std::string("_normDistProjectionsSpearmanPvalBonferroni.txt"));
-      output_vector(fdrP, outbase, std::string("_normDistProjectionsSpearmanPvalFDR.txt"));
+      output_vector(bonferroniP, outbase, std::string("_DiffMagnitudeSpearmanPvalBonferroni.txt"));
+      output_vector(fdrP, outbase, std::string("_DiffMagnitudeSpearmanPvalFDR.txt"));
       
       bonferroniP = bonferroniCorrection( spearmanRhoProPval );
       fdrP = fdrCorrection( spearmanRhoProPval, FDRdiscoveryLevel , fdrThresh );
@@ -332,16 +332,16 @@ if (KWMreadableInputFile==0)
       // write the simple correlation test results
       
       output_vector(spearmanRhoPro, outbase, std::string("_normProjectionsSpearman.txt"));
-      output_vector(spearmanRhoDist, outbase, std::string("_normDistProjectionsSpearman.txt"));
+      output_vector(spearmanRhoDist, outbase, std::string("_DiffMagnitudeSpearman.txt"));
       
       output_vector(spearmanRhoProPval, outbase, std::string("_normProjectionsSpearmanPval.txt"));
-      output_vector(spearmanRhoDistPval, outbase, std::string("_normDistProjectionsSpearmanPval.txt"));
+      output_vector(spearmanRhoDistPval, outbase, std::string("_DiffMagnitudeSpearmanPval.txt"));
       
       output_vector(pearsonRhoPro, outbase, std::string("_normProjectionsPearson.txt"));
-      output_vector(pearsonRhoDist, outbase, std::string("_normDistProjectionsPearson.txt"));
+      output_vector(pearsonRhoDist, outbase, std::string("_DiffMagnitudePearson.txt"));
       
       output_vector(pearsonRhoProPval, outbase, std::string("_normProjectionsPearsonPval.txt"));
-      output_vector(pearsonRhoDistPval, outbase, std::string("_normDistProjectionsPearsonPval.txt"));
+      output_vector(pearsonRhoDistPval, outbase, std::string("_DiffMagnitudePearsonPval.txt"));
       
       }
 

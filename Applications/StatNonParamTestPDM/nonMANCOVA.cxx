@@ -49,7 +49,7 @@ void do_ScalarInteractionTest( unsigned int numSubjects, unsigned int numFeature
 
 
       output_vector(projs, outbase, std::string("_normProjectionsVariabilityScore.txt"));
-      output_vector(dists, outbase, std::string("_normDistProjectionsVariabilityScore.txt"));
+      output_vector(dists, outbase, std::string("_DiffMagnitudeVariabilityScore.txt"));
       
       // compute the Pearson correlation coefficient
 

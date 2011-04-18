@@ -75,7 +75,7 @@ void write_SurfaceProperties(  std::string outbase,  PointsContainerPointer & me
 			       PointsContainerPointer & meanPointsB,   
 			       vnl_matrix<double>& diffVectors,  
 			       vnl_vector<double>& normProjections, 
-			       vnl_vector<double>& normDistProjections, 
+			       vnl_vector<double>& DiffMagnitude, 
 			       vnl_matrix<double>& zScoresProjected,
 			       vnl_matrix<double>& zScores,
 			       bool writeOutZScores,
@@ -83,7 +83,7 @@ void write_SurfaceProperties(  std::string outbase,  PointsContainerPointer & me
 			       MeshSpatialObjectType::Pointer & SOMesh, 
 			       std::string* &meshFileNames , int KWMreadableInputFile);
 
-void compute_SurfaceProperties( PointsContainerPointer & meanPoints, PointsContainerPointer & meanPointsA, PointsContainerPointer & meanPointsB, vnl_matrix<double> & diffVectors, vnl_vector<double>& normProjections, vnl_vector<double>& normDistProjections, vnl_matrix<double>& zScores, vnl_matrix<double>& zScoresProjected, unsigned int numSubjects, unsigned int numA, unsigned int numB, unsigned int numFeatures, vnl_matrix<int> * &groupLabel, vnl_matrix<double>* &featureValue, vtkPolyDataNormals *& MeshNormals, MeshType::Pointer & surfaceMesh, std::string outbase, std::string* &meshFileNames, int KWMreadableInputFile);
+void compute_SurfaceProperties( PointsContainerPointer & meanPoints, PointsContainerPointer & meanPointsA, PointsContainerPointer & meanPointsB, vnl_matrix<double> & diffVectors, vnl_vector<double>& normProjections, vnl_vector<double>& DiffMagnitude, vnl_matrix<double>& zScores, vnl_matrix<double>& zScoresProjected, unsigned int numSubjects, unsigned int numA, unsigned int numB, unsigned int numFeatures, vnl_matrix<int> * &groupLabel, vnl_matrix<double>* &featureValue, vtkPolyDataNormals *& MeshNormals, MeshType::Pointer & surfaceMesh, std::string outbase, std::string* &meshFileNames, int KWMreadableInputFile);
 
 double computePearsonCorrelation( vnl_vector<double>& x, vnl_vector<double>& y );
 double computePearsonCorrelationWithP( vnl_vector<double>& x, vnl_vector<double>& y, double &dP, double &dPP, double &dPN );
