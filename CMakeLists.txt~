@@ -11,6 +11,9 @@ IF (Slicer3_FOUND)
   slicer3_set_default_install_prefix_for_external_projects()
 
 ELSE (Slicer3_FOUND)
+#  SET (LIBRARY_OUTPUT_PATH ${SPHARMPDM_BINARY_DIR}/bin CACHE PATH "Single output directory for building all libraries.")
+ # SET (EXECUTABLE_OUTPUT_PATH ${SPHARMPDM_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
+
   FIND_PACKAGE(ITK REQUIRED)
   IF (ITK_FOUND)
     INCLUDE(${USE_ITK_FILE})

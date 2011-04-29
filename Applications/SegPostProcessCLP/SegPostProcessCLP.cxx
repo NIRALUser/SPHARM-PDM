@@ -49,11 +49,17 @@
 
 #include <math.h>
 #include <algorithm>
-#include "itkListSample.h"
+/*#include "itkListSample.h"
 #include "itkVector.h"
 #include "itkScalarImageToListAdaptor.h"
 #include "itkMembershipSample.h"
-#include "itkCovarianceCalculator.h"
+#include "itkCovarianceCalculator.h"*/
+#include <itkListSample.h>
+#include <itkVector.h>
+#include <itkImageToListSampleAdaptor.h>
+#include <itkMembershipSample.h>
+#include <itkSubsample.h>
+#include <itkStatisticsAlgorithm.h>
 
 #include "SegPostProcessCLPCLP.h"
 
@@ -129,7 +135,7 @@ int main( int argc, char * argv[] )
   typedef ImageRegionIteratorWithIndex< ImageType > IteratorType;
   typedef Index<Dimension> IndexType;
 
-  typedef short PixelType;
+ /* typedef short PixelType;
   typedef ImageFileReader< ImageType >          VolumeReaderType;
   typedef ImageRegionIterator< ImageType >      Iterator;
   typedef ImageType::Pointer                    ImagePointer;
@@ -137,6 +143,15 @@ int main( int argc, char * argv[] )
   typedef ImageSampleType::Iterator				ImageSampleIterator;
   typedef itk::Statistics::MembershipSample< ImageSampleType >	MembershipSampleType;
   typedef itk::Statistics::CovarianceCalculator< MembershipSampleType::ClassSampleType >	CovarianceAlgorithmType;
+  typedef itk::Vector< float, 3 > VectorType;*/
+  typedef short PixelType;
+  typedef ImageFileReader< ImageType >          VolumeReaderType;
+  typedef ImageRegionIterator< ImageType >      Iterator;
+  typedef ImageType::Pointer                    ImagePointer;
+  typedef itk::Statistics::ImageToListSampleAdaptor<ImageType>	ImageSampleType;
+  typedef ImageSampleType::Iterator				ImageSampleIterator;
+  typedef itk::Statistics::MembershipSample< ImageSampleType >	MembershipSampleType;
+  typedef itk::Statistics::Subsample<MembershipSampleType::ClassSampleType> SubsampleType;
   typedef itk::Vector< float, 3 > VectorType;
   
   
@@ -720,15 +735,21 @@ int main( int argc, char * argv[] )
       exit(0) ;
   }*/
     
-    ImageSampleType::Pointer imageSample;
+  /*  ImageSampleType::Pointer imageSample;
     ImageSampleType::Pointer labelSample;
     MembershipSampleType::Pointer membershipSample;
     CovarianceAlgorithmType::Pointer covarianceAlgorithm;
     MembershipSampleType::ClassSampleType::ConstPointer classSample;
     vector<int> labelList;
+    */
+ ImageSampleType::Pointer imageSample;
+    ImageSampleType::Pointer labelSample;
+    MembershipSampleType::Pointer membershipSample;
+    MembershipSampleType::ClassSampleType::ConstPointer classSample;
+    vector<int> labelList;    
     
     
-    cout << "2" << endl;
+  //  cout << "2" << endl;
     
     
     imageSample = ImageSampleType::New();
@@ -739,7 +760,8 @@ int main( int argc, char * argv[] )
     membershipSample = MembershipSampleType::New();
     membershipSample->SetSample(imageSample);
 
-    covarianceAlgorithm = CovarianceAlgorithmType::New();
+
+   // covarianceAlgorithm = CovarianceAlgorithmType::New();
     
     //Fill labelList vector with the labels IDs
     PixelType label ;
@@ -772,7 +794,7 @@ int main( int argc, char * argv[] )
       ++iterLabel;
     }
 	
-    int l;
+ /*   int l;
     l=labelList[0]; //the WM is the first in the list
     classSample = membershipSample->GetClassSample(l);
     covarianceAlgorithm->SetInputSample( classSample );
@@ -781,10 +803,36 @@ int main( int argc, char * argv[] )
     double meanInt, standartDev, thr;
     meanInt = (*covarianceAlgorithm->GetMean())[0];
     standartDev = sqrt((*covarianceAlgorithm->GetOutput())(0,0));
-    thr = meanInt + standartDev;
+    thr = meanInt + standartDev;*/
+
+    int l;
+    l=labelList[0]; //the WM is the first in the list
+    classSample = membershipSample->GetClassSample(l);
+
+    SubsampleType::Pointer Subsample = SubsampleType::New();
+    Subsample->SetSample(classSample);
+    Subsample->InitializeWithAllInstances();
+    
+    SubsampleType::Iterator SubsampleIter = Subsample->Begin();
+    itk::Statistics::Algorithm::HeapSort<SubsampleType>(Subsample,0,0,Subsample->Size());
+    SubsampleIter = Subsample->Begin();
+    
+    double meanSum = 0.0;
+    for (unsigned int k=0; k<Subsample->Size(); k++)
+      meanSum = meanSum + Subsample->GetMeasurementVectorByIndex(k)[0];
+
+    double mean = meanSum / Subsample->Size();
+    
+    // standart deviation computation    
+    double sdSum = 0.0;
+    for (unsigned int k=0; k<Subsample->Size(); k++)
+      sdSum = sdSum + pow(Subsample->GetMeasurementVectorByIndex(k)[0]-mean, 2);
+    double standardDeviation = sqrt(sdSum/Subsample->Size());
+    
+    double thr = mean + standardDeviation;
     
     
-    cout << "4" << endl;
+    //cout << "4" << endl;
     
     
     ImageType::Pointer labelImageSmooth ;

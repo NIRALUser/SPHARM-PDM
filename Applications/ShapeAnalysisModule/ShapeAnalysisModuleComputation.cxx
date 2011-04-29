@@ -34,7 +34,8 @@ void ShapeAnalysisModuleComputation::Computation()
 		WriteBMSShapeAnalysisModuleFile2();
 		ExecuteBatchMake(GetBMSShapeAnalysisModuleFile2());
 	}
-
+	
+std::cout<<"\n\nExecute Meshmath..."<<std::endl<<std::endl;
 	//execute MeshMath external application
 	for(int i=0;i<GetDataNumber();i++)
 	{
@@ -44,6 +45,10 @@ void ShapeAnalysisModuleComputation::Computation()
 	
 	ExecuteMeshMathTemplate();
 
+	// Delete the transform file;
+	for(int type=0; type<3;type++)
+	{ DeleteTransformsFolders(type);}
+			
 	int DataNumber=GetDataNumber();
 	int nbVTKlastMRML,nbMRML;
 	if(DataNumber>nbShapesPerMRML){
@@ -63,7 +68,7 @@ void ShapeAnalysisModuleComputation::Computation()
 
  /*	ExecuteBatchMake(GetBMSShapeAnalysisModuleMRMLFile()); 
 	SetBMSShapeAnalysisModuleFile(true);*/
-
+  
 	ModifyCSV();
 
 
@@ -440,6 +445,8 @@ void ShapeAnalysisModuleComputation::ExecuteBatchMake(char *_Input)
 // Write the BMS script to create a MRML file
 void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 {
+
+
 	for(int count=0;count<3;count++) // None,ecalign,procallign
 	{
 
@@ -448,11 +455,14 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 			std::string mrmlfilePhi;
 			std::string mrmlfileTheta;
 
-			// Delete the transform file;
-			if( whichmrml==-1 && count == 0){
-				for(int type=0; type<3;type++)
-				{ DeleteTransformsFolders(type);}
-			}
+	
+			double dim0,dim1,dim2;
+			int count_line, count_col,nbdisplay;
+			count_line=1;count_col=0;nbdisplay=1;	
+			dim0=0;dim1=0;dim2=0;
+std::cout<<"init"<<std::endl;
+
+			
 		
 			int DataNumber;
 			int Nb_Data=GetDataNumber();
@@ -516,7 +526,6 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 				if(count==2){help_NameVTK.append("_procalign");}
 				help_NameVTK.append(".vtk");
 				NameVTK.push_back(help_NameVTK);
-			std::cout<<help_NameVTK<<std::endl;
 			}
 		
 			//create the mrml name
@@ -527,14 +536,14 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 				mrmlfile.append("/MRML");
 				if(count==1){mrmlfile.append("/Ellalign");}
 				if(count==2){mrmlfile.append("/Procalign");}
-				if(nbcolormap==0){mrmlfile.append("/ShapeAnalysisModuleMRMLscene_Phi_");}
-				if(nbcolormap==1){mrmlfile.append("/ShapeAnalysisModuleMRMLscene_Theta_");}
+				if(nbcolormap==0){mrmlfile.append("/ShapeAnalysisModuleMRMLscene_Phi");}
+				if(nbcolormap==1){mrmlfile.append("/ShapeAnalysisModuleMRMLscene_Theta");}
 				if(nbcolormap==2){
-					mrmlfile.append("/ShapeAnalysisModuleMRMLscene_");
+					mrmlfile.append("/ShapeAnalysisModuleMRMLscene");
 					mrmlfilePhi.append(mrmlfile);
-					mrmlfilePhi.append("Phi_");
+					mrmlfilePhi.append("_Phi");
 					mrmlfileTheta.append(mrmlfile);
-					mrmlfileTheta.append("Theta_");	}
+					mrmlfileTheta.append("_Theta");	}
 				if(GetTemplateMState()){
 					mrmlfile.append("_tMean_");
 					if(nbcolormap==2){
@@ -588,10 +597,9 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 				if(nbcolormap==0){mrmlfile.append("/ShapeAnalysisModuleMRMLscene_allVTK_Phi");}
 				if(nbcolormap==1){mrmlfile.append("/ShapeAnalysisModuleMRMLscene_allVTK_Theta");}
 				if(nbcolormap==2){mrmlfile.append("/ShapeAnalysisModuleMRMLscene_allVTK");}
-				if(GetTemplateMState()){ mrmlfile.append("_tMean_");}
+				if(GetTemplateMState()){ mrmlfile.append("_tMean");}
 				mrmlfile.append(".mrml");
 			}
-
 			
 			std::cout<<"mrml "<<mrmlfile<<std::endl;	
 			args.push_back("CreateMRML");   
@@ -611,38 +619,41 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 			vector<double>Dims;
 			SetImageDimensions((char *)(firstFile1).c_str());
 			Dims=GetImageDimensions();
-	
-			double dim0,dim1,dim2;
-			int count_line, count_col,nbdisplay;
-			count_line=1;count_col=0;nbdisplay=1;	
+
+
 			int NbDataFirstMRML;
 			NbDataFirstMRML=GetDataNumber();
-		
+
 			for(int i=0;i<DataNumber;i++)
 			{
 
-				if(count !=2){  //add the template   NB no template for procalign
+				if((count ==0) ||(count ==1)|| ((count ==2) && (nbcolormap==2))){  //add the template   NB no template for procalign
+
 					if(i==0 &&  whichmrml>=0){
 						std::string tmp_NameTemplate;      
 						tmp_NameTemplate.append(GetTemplate(count));
 						NameTemplate.push_back(tmp_NameTemplate);
 
 						//add shape
-						args.push_back("-m" ); args.push_back("-f" ); args.push_back((NameTemplate.back()).c_str()); args.push_back("-n");  args.push_back("Template"); 
+						args.push_back("-m" ); args.push_back("-f" ); args.push_back((NameTemplate.back()).c_str()); args.push_back("-n"); args.push_back("template"); 
 
 						if(nbcolormap!=2){
 							//add color map
+							 
 							std::string tmp_NameColormap;
 							if(count==1){tmp_NameColormap.append("../");}
 							if(count==2){tmp_NameColormap.append("../");}
 							if(nbcolormap==0){tmp_NameColormap.append("../Mesh/SPHARM/customLUT_Color_Map_Phi.txt");}
 							if(nbcolormap==1){tmp_NameColormap.append("../Mesh/SPHARM/customLUT_Color_Map_Theta.txt");}
+
 							NameColormap.push_back(tmp_NameColormap);
+
 							args.push_back("-as" );
 							if(nbcolormap==0){args.push_back("Color_Map_Phi" );}
 							if(nbcolormap==1){args.push_back("Color_Map_Theta" );}
 							args.push_back("-cc" );
 							args.push_back((NameColormap.back()).c_str() );}
+
 				
 						else{
 							//random color
@@ -657,11 +668,12 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 							color = rand() % 255 + 1;
 							tmp_randomcolor.append(Convert_Double_To_CharArray(color/255));
 							randomcolor.push_back(tmp_randomcolor);
-							args.push_back("-dc" );args.push_back((randomcolor.back()).c_str()); }
+							args.push_back("-dc" );
+							args.push_back((randomcolor.back()).c_str()); }
 
 					}
 				}
-				
+			
 
 				//calculation of the transforms
 				if(GetDirectionToDisplay()=="XYZ")
@@ -694,9 +706,6 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 					dim2 = Dims[2] * count_col;
 					dim1 = Dims[1] * count_line;
 				}
-
-
-				
 	
 				if(nbcolormap!=2){
 					//create the transform file.
@@ -799,7 +808,7 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 					//link shape and transform
 					args.push_back("-p" );
 					args.push_back((NameTrans.at(i)).c_str());
-			
+	
 					//how many .vtk per line
 					if(whichmrml==-1){
 						if(nbdisplay!=10) {count_col++;}
@@ -808,7 +817,7 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 						count_line++;
 						nbdisplay=0;}
 					}
-					if(whichmrml==0){
+					else{std::cout<<"else "<<std::endl;
 						if(nbdisplay!=m_nbHorizontal) {count_col++;}
 						else{
 						count_col=0;
@@ -824,7 +833,7 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 					args.push_back("-sc");
 					args.push_back("0,0,0");
 					args.push_back("-pos"); 
-			
+
 					std::string tmp_NbFidu;
 					if(GetDirectionToDisplay()=="XYZ")
 					{
@@ -884,6 +893,28 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 
 			
 		args.push_back(0);
+
+
+		//write files with the commande line using to create the mrml
+		/*
+		char fileCommanLine[512];
+		std::strcpy (fileCommanLine,"/biomed-resimg/conte_projects/CONTE_NEO/Data/Vent_Shape/SPHARM/SPHARM_10_15_Slicer/LeftVentLong2/MRML/commandline");
+		std::strcat (fileCommanLine,Convert_Double_To_CharArray(whichmrml));
+		std::strcat (fileCommanLine,"_");
+		std::strcat (fileCommanLine,Convert_Double_To_CharArray(count));
+		std::strcat (fileCommanLine,"_");
+		std::strcat (fileCommanLine,Convert_Double_To_CharArray(nbcolormap));
+		std::strcat (fileCommanLine,".txt");
+		std::cout<<fileCommanLine<<std::endl;
+		std::ofstream file(fileCommanLine);
+	
+		if(file)
+		{
+			for(int k=0; k<args.size();k++)
+				{file<<args.at(k)<<" ";}
+			file.close();
+		}*/
+
 
 		//itk sys parameters
 			int length;

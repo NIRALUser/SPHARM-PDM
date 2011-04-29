@@ -1151,15 +1151,15 @@ void Parameters::FindTemplateFiles(int type)
 	itksys::Glob globTemplateFile;
 	std::string pathFile =GetOutputDirectory();
 	std::string path;
+
 	if(GetTemplateMState()){
-		if(type==0){path="/Template/*_pp_tMeansurfSPHARM.vtk";}
-		if(type==1){ path="/Template/*_pp_tMeansurfSPHARM_ellalign.vtk";}
-		if(type==2){path="/Template/*_pp_tMeansurfSPHARM_procalign.vtk";}
+		path="/Template/meanAll.vtk";
+		
 	}
 	else{
-		if(type==0){path="/Template/*_pp_surfSPHARM.vtk";}
+		if(type==0  ||type==2){path="/Template/*_pp_surfSPHARM.vtk";}
 		if(type==1){ path="/Template/*_pp_surfSPHARM_ellalign.vtk";}
-		if(type==2){path="/Template/*_pp_surfSPHARM_procalign.vtk";}
+		//if(type==2){path="/Template/*_pp_surfSPHARM_procalign.vtk";}
 	}
 	pathFile=pathFile+path;
 	globTemplateFile.FindFiles(pathFile);
@@ -1169,6 +1169,7 @@ void Parameters::FindTemplateFiles(int type)
 
 std::string Parameters::GetTemplate( int type)
 {
+
 	FindTemplateFiles(type);
 size_t found;
 found=name_template[0].find("/Template");

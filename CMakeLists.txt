@@ -12,7 +12,7 @@ IF (Slicer3_FOUND)
 
 ELSE (Slicer3_FOUND)
   SET (LIBRARY_OUTPUT_PATH ${SPHARMPDM_BINARY_DIR}/bin CACHE PATH "Single output directory for building all libraries.")
-  SET (EXECUTABLE_OUTPUT_PATH ${SPHARMPDM_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
+ SET (EXECUTABLE_OUTPUT_PATH ${SPHARMPDM_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
 
   FIND_PACKAGE(ITK REQUIRED)
   IF (ITK_FOUND)

@@ -13,6 +13,8 @@
 #include "itkSampleFalseDiscoveryRateCorrectionFilter.h"  
 
 
+
+
 using namespace std;
  
 const int debug = 1;
@@ -413,11 +415,13 @@ int doTesting(int numSubjects, int numFeatures, int numPerms, int tupelSize,
 
     // compute the correction via False Discovery Rate
     {
-      typedef neurolib::Statistics::SampleFalseDiscoveryRateCorrectionFilter<PvalueSampleType> FDRFilterType;
+
+     typedef neurolib::Statistics::SampleFalseDiscoveryRateCorrectionFilter<PvalueSampleType> FDRFilterType;
       
       FDRFilterType::Pointer FDRFilter = FDRFilterType::New();
-      FDRFilter->SetMaximumFalseDiscoveryRate(FDRdiscoveryLevel);
+      FDRFilter->SetMaximumFalseDiscoveryRate(significanceLevel);
       FDRFilter->SetNumberOfSteps(significanceSteps);
+  
       
       PvalueSampleType::Pointer pvalueSample = PvalueSampleType::New();  
       pvalueSample->SetMeasurementVectorSize( 1 );
@@ -430,7 +434,8 @@ int doTesting(int numSubjects, int numFeatures, int numPerms, int tupelSize,
 	  }
       }
       std::cout << "computing FDR " << std::endl;
-      FDRFilter->SetInputSample(pvalueSample.GetPointer());
+      //FDRFilter->SetInputSample(pvalueSample.GetPointer());
+FDRFilter->SetInput(pvalueSample.GetPointer());
       FDRFilter->Update() ;
       
       pvalueSample = FDRFilter->GetOutput();         

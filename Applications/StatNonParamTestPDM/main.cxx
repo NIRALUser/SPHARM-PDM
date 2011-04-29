@@ -21,6 +21,7 @@
 #include "itkMeshTovtkPolyData.h"
 #include "vtkPolyDataToitkMesh.h"
 
+
 #include <vtkPolyData.h>
 #include <vtkPolyDataNormals.h>
 #include <vtkPolyDataMapper.h>
@@ -343,11 +344,20 @@ load_MeshList_file(char * filename, char * subjInfo, bool scaleOn, bool signDist
       }
     }
 
-    CovarianceCalculatorType::Pointer covarianceCalculator = CovarianceCalculatorType::New() ;
+  /*  CovarianceCalculatorType::Pointer covarianceCalculator = CovarianceCalculatorType::New() ;
     covarianceCalculator->SetInputSample(sample.GetPointer()) ;
     covarianceCalculator->Update();
     
-    const CovarianceCalculatorType::OutputType*  outMatrix = covarianceCalculator->GetOutput();
+    const CovarianceCalculatorType::OutputType*  outMatrix = covarianceCalculator->GetOutput();*/
+
+CovarianceSampleFilterType:: Pointer covarianceSampleFilterType = CovarianceSampleFilterType::New() ;
+
+    covarianceSampleFilterType->SetInput(sample.GetPointer()) ;
+    covarianceSampleFilterType->Update();
+    
+    //const CovarianceSampleFilterType::OutputType*  outMatrix = covarianceSampleFilterType->GetOutputs();
+const CovarianceSampleFilterType::OutputType outMatrix = covarianceSampleFilterType->GetOutputs();
+
 
     // compute ellipsoid by solving the eigensystem of the covariance matrix
     EigenSystemType EigenSystem;
@@ -355,7 +365,8 @@ load_MeshList_file(char * filename, char * subjInfo, bool scaleOn, bool signDist
     MeasurementVectorType EigenValues;
     for (int dim = 0 ; dim < MeasurementVectorSize; dim++) {
       for (int dim2 = 0 ; dim2 < MeasurementVectorSize; dim2++) {
-	resMatrix[dim][dim2] = (float) (*outMatrix)[dim][dim2];
+	//resMatrix[dim][dim2] = (float) (*outMatrix)[dim][dim2];
+resMatrix[dim][dim2] = (float) (*outMatrix)[dim][dim2];
       }
     }
     EigenSystem.SetDimension(MeasurementVectorSize);
@@ -397,11 +408,17 @@ load_MeshList_file(char * filename, char * subjInfo, bool scaleOn, bool signDist
       }
     }
     
-    CovarianceCalculatorType::Pointer covarianceCalculator = CovarianceCalculatorType::New() ;
+  /*  CovarianceCalculatorType::Pointer covarianceCalculator = CovarianceCalculatorType::New() ;
     covarianceCalculator->SetInputSample(sample.GetPointer()) ;
     covarianceCalculator->Update();
     
-    const CovarianceCalculatorType::OutputType*  outMatrix = covarianceCalculator->GetOutput();
+    const CovarianceCalculatorType::OutputType*  outMatrix = covarianceCalculator->GetOutput();*/
+
+CovarianceSampleFilterType:: Pointer covarianceSampleFilterType = CovarianceSampleFilterType::New() ;
+ covarianceSampleFilterType->SetInput(sample.GetPointer()) ;
+    covarianceSampleFilterType->Update();
+    
+    const CovarianceSampleFilterType::OutputType*  outMatrix = covarianceSampleFilterType->GetOutputs();
     
     // compute ellipsoid by solving the eigensystem of the covariance matrix
     EigenSystemType EigenSystem;
@@ -451,23 +468,39 @@ load_MeshList_file(char * filename, char * subjInfo, bool scaleOn, bool signDist
       }      
       sample->PushBack(mv) ;
     }
-    MeanCalculatorType::Pointer meanCalculator = MeanCalculatorType::New() ;
+   /* MeanCalculatorType::Pointer meanCalculator = MeanCalculatorType::New() ;
     meanCalculator->SetInputSample(sample.GetPointer());
-    meanCalculator->Update() ;
+    meanCalculator->Update() ;*/
+
+    MeanSampleFilterType::Pointer meanSampleFilter = MeanSampleFilterType::New() ;
+   // meanSampleFilter->SetInputSample(sample.GetPointer());
+meanSampleFilter->SetInput(sample.GetPointer());
+    meanSampleFilter->Update() ;
 
     double vert[MeasurementVectorSize];
-    MeanCalculatorType::OutputType* meanOutput = meanCalculator->GetOutput();
+   // MeanCalculatorType::OutputType* meanOutput = meanCalculator->GetOutput();
+MeanSampleFilterType::OutputType* meanOutput = MeanSampleFilterType->GetOutput();
+
     for (int dim = 0 ; dim < MeasurementVectorSize; dim++) {
       vert[dim] = (*meanOutput)[dim];
     }
     pointsAB->InsertElement(feat, PointType(vert));
     
-    CovarianceCalculatorType::Pointer covarianceCalculator = CovarianceCalculatorType::New() ;
+  /*  CovarianceCalculatorType::Pointer covarianceCalculator = CovarianceCalculatorType::New() ;
     covarianceCalculator->SetInputSample(sample.GetPointer()) ;
-    covarianceCalculator->SetMean(meanCalculator->GetOutput()) ;
+  //  covarianceCalculator->SetMean(meanCalculator->GetOutput()) ;
+covarianceCalculator->SetMean(meanSampleFilter->GetOutput()) ;
     covarianceCalculator->Update();
     
-    const CovarianceCalculatorType::OutputType*  outMatrix = covarianceCalculator->GetOutput();
+    const CovarianceCalculatorType::OutputType*  outMatrix = covarianceCalculator->GetOutput();*/
+
+CovarianceSampleFilterType:: Pointer covarianceSampleFilterType = CovarianceSampleFilterType::New() ;
+ covarianceSampleFilterType->SetInput(sample.GetPointer()) ;
+covarianceSampleFilterType->SetMean(meanSampleFilter->GetOutputs()) ; 
+    covarianceSampleFilterType->Update();
+    
+    const CovarianceSampleFilterType::OutputType*  outMatrix = covarianceSampleFilterType->GetOutputs();
+    
 
     // compute ellipsoid by solving the eigensystem of the covariance matrix
     EigenSystemType EigenSystem;

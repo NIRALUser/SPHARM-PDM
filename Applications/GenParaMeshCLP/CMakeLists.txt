@@ -40,13 +40,13 @@ GENERATECLP(GenParaMeshCLP_SOURCE GenParaMeshCLP.xml)
 ADD_EXECUTABLE (GenParaMeshCLP ${GenParaMeshCLP_SOURCE})
 TARGET_LINK_LIBRARIES ( GenParaMeshCLP
 		   ${ITK_LIBRARIES}
-		   vtkIO SparseMatrixLib)
+		   vtkIO ShapeAlgorithms SparseMatrixLib)
 
 
-IF (Slicer3_FOUND)
-  slicer3_set_plugins_output_path(GenParaMeshCLP)
-  slicer3_install_plugins(GenParaMeshCLP)
-ENDIF (Slicer3_FOUND)
+#IF (Slicer3_FOUND)
+ # slicer3_set_plugins_output_path(GenParaMeshCLP)
+ # slicer3_install_plugins(GenParaMeshCLP)
+#ENDIF (Slicer3_FOUND)
 
 INSTALL(TARGETS
   GenParaMeshCLP

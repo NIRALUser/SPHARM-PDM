@@ -1,4 +1,4 @@
-LINK_LIBRARIES(ShapeAlgorithms)
+#LINK_LIBRARIES(ShapeAlgorithms)
 
 SUBDIRS(ImageMath)
 SUBDIRS(MetaMeshTools)
@@ -8,3 +8,6 @@ SUBDIRS(ParaToSPHARMMeshCLP)
 SUBDIRS(ShapeAnalysisModule)
 SUBDIRS(StatNonParamTestPDM)
 SUBDIRS(shapeAnalysisMANCOVA_Wizard)
+SUBDIRS(CreateMRML)
+
+

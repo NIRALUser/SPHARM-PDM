@@ -1,4 +1,4 @@
-/*=========================================================================
+  /*=========================================================================
 
   SampleFalseDiscoveryRateCorrectionFilter
 
@@ -7,8 +7,13 @@
 #define __SampleFalseDiscoveryRateCorrectionFilter_h
 
 #include "itkListSample.h"
-#include "itkSampleAlgorithmBase.h"
+//#include "itkSampleAlgorithmBase.h"
+#include "itkSubsample.h"
+//#include "itkMembershipSampleGenerator.h"
+//#include "itkSampleMeanShiftBlurringFilter.h"
+#include "itkImageToListSampleFilter.h"
 
+#include "itkSampleClassifierFilter.h"
 namespace neurolib{ 
 namespace Statistics{
   
@@ -49,27 +54,35 @@ public:
     SetDescription(message);
   }
 };
-  
-template< class TSample >
-class SampleFalseDiscoveryRateCorrectionFilter :
-  public itk::Statistics::SampleAlgorithmBase< TSample >
+//template < class TSample > 
+//class SampleFalseDiscoveryRateCorrectionFilter : public itk::Statistics::SampleAlgorithmBase< TSample >
+//public itk::Statistics::SubSample< TSample >
+ 
+template<class TSample > 
+class SampleFalseDiscoveryRateCorrectionFilter : public itk::Statistics::Subsample< TSample >
 {
 public:
   /** Standard class typedefs. */
   typedef SampleFalseDiscoveryRateCorrectionFilter Self ;
-  typedef itk::Statistics::SampleAlgorithmBase< TSample > Superclass ;
+ // typedef itk::Statistics::SampleAlgorithmBase< TSample > Superclass ;
+typedef itk::Statistics::SampleClassifierFilter< TSample > Superclass ;
+
   typedef itk::SmartPointer<Self> Pointer ;
   typedef itk::SmartPointer<const Self> ConstPointer;
 
   /** Standard Macros */
-  itkTypeMacro(SampleFalseDiscoveryRateCorrectionFilter, itk::Statistics::SampleAlgorithmBase);
+  //itkTypeMacro(SampleFalseDiscoveryRateCorrectionFilter, itk::Statistics::SampleAlgorithmBase);
+itkTypeMacro(SampleFalseDiscoveryRateCorrectionFilter, itk::Statistics::Subsample);
+
   itkNewMacro(Self) ;
   
 
   typedef typename TSample::MeasurementVectorType MeasurementVectorType ;
   typedef typename MeasurementVectorType::ValueType 	MeasurementType;
-  typedef typename Superclass::InputSampleType InputSampleType ;
-  typedef typename itk::Statistics::ListSample< MeasurementVectorType > OutputSampleType ;
+  typedef typename Superclass::SampleType InputSampleType ;
+//typedef typename Superclass InputSampleType ;
+  //typedef typename itk::Statistics::ListSample< MeasurementVectorType > OutputSampleType ;
+typedef typename itk::Statistics::ListSample< MeasurementVectorType > OutputSampleType ;
 
   /** Returns the correct p-value data in a ListSample object */
   typename OutputSampleType::Pointer GetOutput() ;

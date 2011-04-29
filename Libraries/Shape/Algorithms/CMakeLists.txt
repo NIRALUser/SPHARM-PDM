@@ -11,4 +11,4 @@ SET(ShapeAlgorithms_SRCS
  ParametricMeshToSPHARMSpatialObjectFilter.cxx       
 )
 
-ADD_LIBRARY(ShapeAlgorithms ${ShapeAlgorithms_SRCS})
+ADD_LIBRARY(ShapeAlgorithms  STATIC ${ShapeAlgorithms_SRCS})

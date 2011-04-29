@@ -66,8 +66,10 @@ void
 SampleFalseDiscoveryRateCorrectionFilter< TSample >
 ::GenerateData() 
 {
-  typename InputSampleType::ConstIterator iterInput = this->GetInputSample()->Begin() ;
-  typename InputSampleType::ConstIterator endInput = this->GetInputSample()->End() ;
+  //typename InputSampleType::ConstIterator iterInput = this->GetInputSample()->Begin() ;
+ // typename InputSampleType::ConstIterator endInput = this->GetInputSample()->End() ;
+typename Superclass::ConstIterator iterInput = this->GetInputSample()->Begin() ;
+  typename Superclass::ConstIterator endInput = this->GetInputSample()->End() ;
 
   if ( this->GetMeasurementVectorSize () > 1) 
     {

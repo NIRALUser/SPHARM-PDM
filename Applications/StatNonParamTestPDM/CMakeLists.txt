@@ -33,26 +33,6 @@ FIND_PACKAGE(ITK REQUIRED)
 
 ENDIF (Slicer3_FOUND)
 
-SET(StatNonParamTestPDMSRCS 
-  createPerm.cxx 
-  main.cxx
-  computeStatPDM.cxx 
-  computeStatPDM_vector.cxx 
-  itkMeshTovtkPolyData.cxx 
-  vtkPolyDataToitkMesh.cxx
-)
-
-ADD_EXECUTABLE( StatNonParamTestPDM ${StatNonParamTestPDMSRCS} )
-
-TARGET_LINK_LIBRARIES ( StatNonParamTestPDM 
-  ${ITK_LIBRARIES}  
-  vtkRendering
-  vtkGraphics
-  vtkImaging
-  vtkIO
-  vtkCommon
-  vtkHybrid
-  vtkFiltering )
 
 FIND_PATH(BOOST_INCLUDE_DIR boost/config.hpp)
 
@@ -89,12 +69,11 @@ ENDIF(NOT WIN32 OR CYGWIN)
     )	
 
 
-IF (Slicer3_FOUND)
-  slicer3_set_plugins_output_path(shapeAnalysisMANCOVA)
-  slicer3_install_plugins(shapeAnalysisMANCOVA)
-slicer3_set_plugins_output_path(StatNonParamTestPDM)
-  slicer3_install_plugins(StatNonParamTestPDM)
-ENDIF (Slicer3_FOUND)
+#IF (Slicer3_FOUND)
+  #slicer3_set_plugins_output_path(shapeAnalysisMANCOVA)
+  #slicer3_install_plugins(shapeAnalysisMANCOVA)
+
+#ENDIF (Slicer3_FOUND)
 
 INSTALL(TARGETS
   shapeAnalysisMANCOVA
@@ -103,12 +82,6 @@ INSTALL(TARGETS
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib/static  )
 
-INSTALL(TARGETS
-  StatNonParamTestPDM
-  BUNDLE DESTINATION  bin
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib/static  )
 
 
 

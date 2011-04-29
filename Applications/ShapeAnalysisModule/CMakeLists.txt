@@ -58,10 +58,10 @@ TARGET_LINK_LIBRARIES(ShapeAnalysisModule
   ${BatchMake_LIBRARIES} )
 
 
-IF (Slicer3_FOUND)
-  slicer3_set_plugins_output_path(ShapeAnalysisModule)
-  slicer3_install_plugins(ShapeAnalysisModule)
-ENDIF (Slicer3_FOUND)
+#IF (Slicer3_FOUND)
+#  slicer3_set_plugins_output_path(ShapeAnalysisModule)
+ # slicer3_install_plugins(ShapeAnalysisModule)
+#ENDIF (Slicer3_FOUND)
 
 INSTALL(TARGETS
   ShapeAnalysisModule

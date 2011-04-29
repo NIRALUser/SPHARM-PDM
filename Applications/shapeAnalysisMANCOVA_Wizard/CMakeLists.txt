@@ -37,7 +37,7 @@ ELSE (Slicer3_FOUND)
 ENDIF (Slicer3_FOUND)
 
 
-FIND_PACKAGE(Qt REQUIRED)
+FIND_PACKAGE(Qt4 REQUIRED)
 IF(QT_USE_FILE)
   INCLUDE_DIRECTORIES(${QT_INCLUDE_DIR})
   INCLUDE(${QT_USE_FILE})
@@ -70,10 +70,10 @@ TARGET_LINK_LIBRARIES(shapeAnalysisMANCOVA_Wizard
 )
 
 
-IF (Slicer3_FOUND)
-  slicer3_set_plugins_output_path(shapeAnalysisMANCOVA_Wizard)
-  slicer3_install_plugins(shapeAnalysisMANCOVA_Wizard)
-ENDIF (Slicer3_FOUND)
+#IF (Slicer3_FOUND)
+ # slicer3_set_plugins_output_path(shapeAnalysisMANCOVA_Wizard)
+ # slicer3_install_plugins(shapeAnalysisMANCOVA_Wizard)
+#ENDIF (Slicer3_FOUND)
 
 INSTALL(TARGETS
   shapeAnalysisMANCOVA_Wizard

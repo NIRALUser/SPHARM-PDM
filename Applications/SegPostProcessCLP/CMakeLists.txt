@@ -33,10 +33,10 @@ TARGET_LINK_LIBRARIES(SegPostProcessCLP ITKIO ITKBasicFilters ITKCommon)
 
 
 
-IF (Slicer3_FOUND)
-  slicer3_set_plugins_output_path(SegPostProcessCLP)
-  slicer3_install_plugins(SegPostProcessCLP)
-ENDIF (Slicer3_FOUND)
+#IF (Slicer3_FOUND)
+ # slicer3_set_plugins_output_path(SegPostProcessCLP)
+  #slicer3_install_plugins(SegPostProcessCLP)
+#ENDIF (Slicer3_FOUND)
 
 INSTALL(TARGETS
   SegPostProcessCLP

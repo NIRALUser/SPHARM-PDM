@@ -15,7 +15,7 @@ SET(SparseLib_SRCS compcol_double.cxx
   mvmc.cxx mvvdio.cxx qsort_double.cxx spsm.cxx
 )
 
-ADD_LIBRARY(SparseMatrixLib ${SparseLib_SRCS})
+ADD_LIBRARY(SparseMatrixLib STATIC  ${SparseLib_SRCS})
 
 INSTALL_TARGETS(/lib SparseMatrixLib)
 

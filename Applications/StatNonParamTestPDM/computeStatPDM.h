@@ -2,14 +2,22 @@
 #define COMPUTE_PERM_P_VAL_H__MST
  
 
-#include <itkMeanCalculator.h>
-#include <itkCovarianceCalculator.h>
+//#include <itkMeanCalculator.h>
+#include <itkMeanSampleFilter.h>
+
+//#include <itkCovarianceCalculator.h>
+#include <itkCovarianceSampleFilter.h>
+
 #include <itkArray.h>
 #include <itkMatrix.h>
 #include <itkListSample.h>
 #include <itkSymmetricEigenAnalysis.h>
 
+
+
+
 #include "createPerm.h"
+
 
 // rewrite this to be all included in a single class
 
@@ -18,8 +26,15 @@ typedef float MeasurementType ;
 typedef itk::Vector< MeasurementType, MeasurementVectorSize >  MeasurementVectorType ;
 typedef itk::Matrix< MeasurementType, MeasurementVectorSize, MeasurementVectorSize> MeasurementMatrixType;
 typedef itk::Statistics::ListSample< MeasurementVectorType > SampleType;
-typedef itk::Statistics::MeanCalculator< SampleType > MeanCalculatorType;
-typedef itk::Statistics::CovarianceCalculator< SampleType > CovarianceCalculatorType;
+
+//typedef itk::Statistics::MeanCalculator< SampleType > MeanCalculatorType;
+typedef itk::Statistics::MeanSampleFilter< SampleType > MeanSampleFilterType;
+
+//typedef itk::Statistics::CovarianceCalculator< SampleType > CovarianceCalculatorType;
+typedef itk::Statistics::CovarianceSampleFilter< SampleType > CovarianceSampleFilterType;
+
+
+
 typedef itk::SymmetricEigenAnalysis<MeasurementMatrixType,MeasurementVectorType> EigenSystemType;
 
 typedef itk::Vector< MeasurementType, 1 >  PvalueMeasurementVectorType ;
