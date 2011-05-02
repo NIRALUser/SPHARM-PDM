@@ -8,6 +8,6 @@ SUBDIRS(ParaToSPHARMMeshCLP)
 SUBDIRS(ShapeAnalysisModule)
 SUBDIRS(StatNonParamTestPDM)
 SUBDIRS(shapeAnalysisMANCOVA_Wizard)
-SUBDIRS(CreateMRML)
+#SUBDIRS(CreateMRML)
 
 
