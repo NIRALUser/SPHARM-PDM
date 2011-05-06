@@ -27,13 +27,13 @@ void ShapeAnalysisModuleComputation::Computation()
 	WriteBMSShapeAnalysisModuleFile();	
 	ExecuteBatchMake(GetBMSShapeAnalysisModuleFile());std::cout<<GetBMSShapeAnalysisModuleFile()<<std::endl;
 
-	if(GetTemplateMState()==true)
+	/*if(GetTemplateMState()==true)
 	{
 		ComputationMean();
 
 		WriteBMSShapeAnalysisModuleFile2();
 		ExecuteBatchMake(GetBMSShapeAnalysisModuleFile2());
-	}
+	}*/
 	
 std::cout<<"\n\nExecute Meshmath..."<<std::endl<<std::endl;
 	//execute MeshMath external application
@@ -68,7 +68,7 @@ std::cout<<"\n\nExecute Meshmath..."<<std::endl<<std::endl;
 
  /*	ExecuteBatchMake(GetBMSShapeAnalysisModuleMRMLFile()); 
 	SetBMSShapeAnalysisModuleFile(true);*/
-  
+  std::cout<<"Modify output csv"<<std::endl;
 	ModifyCSV();
 
 
@@ -460,9 +460,6 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 			int count_line, count_col,nbdisplay;
 			count_line=1;count_col=0;nbdisplay=1;	
 			dim0=0;dim1=0;dim2=0;
-std::cout<<"init"<<std::endl;
-
-			
 		
 			int DataNumber;
 			int Nb_Data=GetDataNumber();
@@ -817,7 +814,7 @@ std::cout<<"init"<<std::endl;
 						count_line++;
 						nbdisplay=0;}
 					}
-					else{std::cout<<"else "<<std::endl;
+					else{
 						if(nbdisplay!=m_nbHorizontal) {count_col++;}
 						else{
 						count_col=0;
@@ -896,7 +893,7 @@ std::cout<<"init"<<std::endl;
 
 
 		//write files with the commande line using to create the mrml
-		/*
+		
 		char fileCommanLine[512];
 		std::strcpy (fileCommanLine,"/biomed-resimg/conte_projects/CONTE_NEO/Data/Vent_Shape/SPHARM/SPHARM_10_15_Slicer/LeftVentLong2/MRML/commandline");
 		std::strcat (fileCommanLine,Convert_Double_To_CharArray(whichmrml));
@@ -913,7 +910,7 @@ std::cout<<"init"<<std::endl;
 			for(int k=0; k<args.size();k++)
 				{file<<args.at(k)<<" ";}
 			file.close();
-		}*/
+		}
 
 
 		//itk sys parameters

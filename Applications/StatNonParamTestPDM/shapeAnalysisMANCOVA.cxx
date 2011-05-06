@@ -82,11 +82,14 @@ int main(int argc, char *argv[])
   //testColumn = is index of match in independentColumns or groupTypeColumns
 //TODO
 if(interactionTest)
-	{for( int i =0; i<numIndependent;i++)
+	{
+	
+		for( int i =0; i<numIndependent;i++)
 		{ 
-std::cout << " vect indecol " <<i <<" "<<independentColumns[i]<< std::endl;
-if(independentColumns[i]==testColumn) { testColumn = i; }} }
+			std::cout << " vect indecol " <<i <<" "<<independentColumns[i]<< std::endl;
+			if(independentColumns[i]==testColumn) { testColumn = i; }} }
 else{
+
 	for( int i =0; i<numGroupTypes;i++)
 		{ if(groupTypeColumns[i]==testColumn) { testColumn = i; }} }
   unsigned int numSubjects, numFeatures;
@@ -220,8 +223,9 @@ if (KWMreadableInputFile==0)
   writer->SetFileName( FilenameCorrectedAverage.c_str() );
   writer->Update();
 } //end if (KWMreadableInputFile==0)
-  // compute simple interaction tests if desired
 
+  // compute simple interaction tests if desired
+    if ( interactionTest ) {simpleCorrs==1;}
   if ( simpleCorrs )
     {
 

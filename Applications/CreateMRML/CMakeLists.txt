@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 project (CreateMRML)
-
+IF (Slicer3_FOUND)
 set(CreateMRML_SOURCE
  CreateMRML.cxx
  MRMLColorableHelper.h
@@ -22,5 +22,6 @@ set(CreateMRML_SOURCE
 
 add_executable(CreateMRML ${CreateMRML_SOURCE})
 target_link_libraries(CreateMRML ${Slicer3_Libs_LIBRARIES} )
+ENDIF (Slicer3_FOUND)
 
 

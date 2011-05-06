@@ -1413,7 +1413,7 @@ Meta2VTK(InputMetaFile,InputVTKFile);
     switch(i)
     {
       case 0:
-	
+	std::cout<<i<<std::endl;
       		strcpy(TextFile,outbase.c_str());
       		strcat(TextFile,"_mancovaRawP.txt");
       		args.push_back("MeshMath");
@@ -1424,10 +1424,11 @@ Meta2VTK(InputMetaFile,InputVTKFile);
       		args.push_back("-KWMtoPolyData");
       		args.push_back(TextFile);
       		args.push_back("RawP");
+args.push_back(0);
       break;
 
     case 1:
-	
+	std::cout<<i<<std::endl;
 		strcpy(TextFile,outbase.c_str());
       		strcat(TextFile,"_mancovaFDRP.txt");
       		args.push_back("MeshMath");
@@ -1438,10 +1439,11 @@ Meta2VTK(InputMetaFile,InputVTKFile);
       		args.push_back("-KWMtoPolyData");
       		args.push_back(TextFile);
       		args.push_back("FDRP");
+args.push_back(0);
       break;
 
 	case 2:
-		if(interactionTest){
+		if(interactionTest){std::cout<<i<<std::endl;
 			strcpy(TextFile,outbase.c_str());
 			strcat(TextFile,"_normProjectionsPearsonPval.txt");
 			args.push_back("MeshMath");
@@ -1453,7 +1455,7 @@ Meta2VTK(InputMetaFile,InputVTKFile);
 			args.push_back(TextFile);
 			args.push_back("normProjectionsPearsonPval");}
 
-		else{
+		else{std::cout<<i<<std::endl;
 			strcpy(TextFile,outbase.c_str());
 			strcat(TextFile,"_DiffMagnitude.txt");
 			args.push_back("MeshMath");
@@ -1462,6 +1464,7 @@ Meta2VTK(InputMetaFile,InputVTKFile);
 			args.push_back("-KWMtoPolyData");
 			args.push_back(TextFile);
 			args.push_back("DiffMagnitude");}
+args.push_back(0);
 
       break;
 
@@ -1473,7 +1476,7 @@ Meta2VTK(InputMetaFile,InputVTKFile);
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
       args.push_back(TextFile);
-      args.push_back("DiffMagnitudeSpearman");*/
+      args.push_back("DiffMagnitudeSpearman");*/std::cout<<i<<std::endl;
 strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normProjectionsSpearmanPvalFDR.txt");
       args.push_back("MeshMath");
@@ -1485,6 +1488,7 @@ std::cout<<OutputFile<<std::endl;
       args.push_back("normProjectionsSpearmanPvalFDR");
       args.push_back("-significanceLevel");
 	args.push_back(FDRPvalueColorMapString.c_str());
+args.push_back(0);
 
 
       break;
@@ -1525,7 +1529,7 @@ case 4:
 	args.push_back(TextFile);
 	args.push_back("DiffMagnitudePearsonPval");
 	args.push_back("-significanceLevel");
-	args.push_back(PvalueColorMapString.c_str());*/
+	args.push_back(PvalueColorMapString.c_str());*/std::cout<<i<<std::endl;
 strcpy(TextFile,outbase.c_str());
 	strcat(TextFile,"_normProjectionsPearsonPvalFDR.txt");
 	args.push_back("MeshMath");
@@ -1537,12 +1541,13 @@ std::cout<<OutputFile<<std::endl;
 	args.push_back("normProjectionsPearsonPvalFDR");
 	args.push_back("-significanceLevel");
 	args.push_back(FDRPvalueColorMapString.c_str());
+args.push_back(0);
 
 
       break;
 
 	//case 7:
-case 5:
+case 5:std::cout<<i<<std::endl;
 	strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normProjectionsPearson.txt");
       args.push_back("MeshMath");
@@ -1551,11 +1556,12 @@ case 5:
       args.push_back("-KWMtoPolyData");
       args.push_back(TextFile);
       args.push_back("normProjectionsPearson");
+args.push_back(0);
 
       break;
 
 	//case 8:
-case 6:
+case 6:std::cout<<i<<std::endl;
 		strcpy(TextFile,outbase.c_str());
       		strcat(TextFile,"_normProjectionsSpearman.txt");  //TODO fichier txt avec les info pour les overlay (activescalar)
      		args.push_back("MeshMath"); //PROG appele
@@ -1564,13 +1570,14 @@ case 6:
 		args.push_back("-KWMtoPolyData");
      		args.push_back(TextFile);
       		args.push_back("normProjectionsSpearman"); //non de ton active scalar
+args.push_back(0);
 
 break;
 
 	//case 9:
 case 7:
 
-
+std::cout<<i<<std::endl;
 		strcpy(TextFile,outbase.c_str());
       		strcat(TextFile,"_normProjectionsSpearmanPval.txt");
         	args.push_back("MeshMath");
@@ -1581,13 +1588,15 @@ case 7:
       		args.push_back("normProjectionsSpearmanPval");
       		args.push_back("-significanceLevel");
       		args.push_back(RawPvalueColorMapString.c_str() );
+args.push_back(0);
 
-break;
+break;  
+
 	}
 /*for(int j =0; j<args.size();j++){
 std::cout<<args.at(j);
   }*/
-  args.push_back(0);
+
 	
 
    // Run the application
@@ -1596,7 +1605,9 @@ std::cout<<args.at(j);
   itksysProcess_SetCommand(gp, &*args.begin());
   itksysProcess_SetOption(gp,itksysProcess_Option_HideWindow,1);
   itksysProcess_Execute(gp);
-
+if (i>1){
+for(int k=0;k<args.size();k++)
+{std::cout<<args.at(k)<<" ";}}
 
 std::cout<<"MeshMath"<<std::endl;
   while(int Value = itksysProcess_WaitForData(gp,&data,&length,&timeout)) // wait for 1s
