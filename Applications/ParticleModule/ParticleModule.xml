@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+
+	<category>Shape Analysis</category>
+	<title> Particle Module</title>
+
+	<description>
+		Particle Correspondence </description>
+	<version>
+		1.0</version>
+	<documentation-url>http://www.nitrc.org/projects/spharm-pdm/</documentation-url>
+	<license></license>
+	<contributor>
+		Corentin Hamel, Lucile Bompard, Beatriz Paniagua </contributor>
+	<acknowledgements>
+		This work is part of the National Alliance for Medical Image Computing (NAMIC), funded by the National Institutes of Health through the NIH Roadmap for Medical Research, Grant U54 EB005149. </acknowledgements>
+	  
+ 	 <license></license>
+	<contributor> Lucile Bompard </contributor>
+	
+	<parameters>
+
+		<file>
+			<name>GroupeProjectInputFile</name>
+			<label>Input File</label>
+			<index>1</index>
+			<channel>input</channel>
+			<default>None</default>
+			<description>Input file</description>
+		</file>
+		
+		<directory>
+			<name>GroupeProjectOutputDirectory</name>
+			<label>Output Directory</label>
+			<index>2</index>
+			<channel>output</channel>
+			<default>None</default>
+			<description>Output Directory</description>
+		</directory>
+		
+		<label>Avanced Input File</label>
+		<description>Choose the colum of the volume file</description>
+		<integer>
+			<name>columMeshFile</name>
+			<label>Column number of Mesh input file</label>
+			<longflag>--columMeshFile</longflag>
+			<constraints>
+				<minimum>0</minimum>
+				<step>1</step>
+			</constraints>
+			<default>0</default>
+			<description>zero indexed</description>
+		</integer>	
+
+		
+	</parameters>
+	<parameters>
+		
+		<label>PreProcessing Options</label>
+		<double>
+			<name>SmoothingValue</name>
+			<label>smoothing</label>
+			<longflag>--smoothing</longflag>
+			<default>0.03</default>
+		</double>	
+		<float>
+			<name>sx</name>
+			<label>sx:</label>
+			<longflag>sx</longflag> 
+			<default>0.5</default>
+			<constraints>
+				<minimum>0</minimum>
+				<maximum>1</maximum>
+				<step>.1</step>
+			</constraints>
+			<description>enforced spacing in x</description>
+			
+		</float>
+		
+		<float>
+			<name>sy</name>
+			<label>sy:</label>
+			<longflag>sy</longflag> 
+			<default>0.5</default>
+			<constraints>
+				<minimum>0</minimum>
+				<maximum>1</maximum>
+				<step>.1</step>
+			</constraints>
+			<description>enforced spacing in y</description>
+		</float>
+		
+		
+		<float>
+			<name>sz</name>
+			<label>sz:</label>
+			<longflag>sz</longflag> 
+			<default>0.5</default>
+			<constraints>
+				<minimum>0</minimum>
+				<maximum>1</maximum>
+				<step>.1</step>
+			</constraints>
+			<description>enforced spacing in z</description>
+		</float>
+		
+	</parameters>
+	<parameters>
+		
+		<label>Correspondence Options</label>
+		<double>
+			<name>StartingRegularization</name>
+			<label>startRegularization</label>
+			<longflag>--startRegularization</longflag>
+			<default>10.0</default>
+		</double>	
+		<double>
+			<name>EndingRegularization</name>
+			<label>endRegularization</label>
+			<longflag>--endRegularization</longflag>
+			<default>0.01</default>
+		</double>
+		<integer>
+			<name>OptimizationIterations</name>
+			<label>optimizationIteration</label>
+			<longflag>--optimizationIt</longflag>
+			<default>200</default>
+		</integer>
+		<integer>
+			<name>CheckpointingInterval</name>
+			<label>checkpointingInterval</label>
+			<longflag>--checkpointInter</longflag>
+			<default>20</default>
+		</integer>
+		
+		<boolean>
+			<name>RelativeWeightingState</name>
+			<label>RelativeWeightingState</label>
+			<longflag>--RelativeWeightState</longflag>
+			<default>0</default>
+		</boolean>
+		<float>
+			<name>RelativeWeighting</name>
+			<label>RelativeWeighting</label>
+			<longflag>--RelativeWeight</longflag>
+			<default>1.0</default>
+			<description>value alpha</description>
+		</float>
+		<boolean>
+			<name>AdaptivityStrengthState</name>
+			<label>AdaptivityStrengthState</label>
+			<longflag>--AdaptivityStrengthState</longflag>
+			<default>0</default>
+		</boolean>
+		<float>
+			<name>AdaptivityStrength</name>
+			<label>AdaptivityStrength</label>
+			<longflag>--AdaptivityStrength</longflag>
+			<default>1.0</default>
+		</float>
+		<boolean>
+			<name>ProcrustesIntervalState</name>
+			<label>ProcrustesIntervalState</label>
+			<longflag>--ProcrustesIntState</longflag>
+			<default>0</default>
+		</boolean>
+		<integer>
+			<name>ProcrustesInterval</name>
+			<label>ProcrustesInterval</label>
+			<longflag>--ProcrustesInt</longflag>
+			<default>50</default>
+		</integer>
+		<boolean>
+			<name>ProcrustesScalingState</name>
+			<label>ProcrustesScalingState</label>
+			<longflag>--ProcrustesScalState</longflag>
+			<default>0</default>
+		</boolean>
+		<integer>
+			<name>ProcrustesScaling</name>
+			<label>ProcrustesScaling</label>
+			<longflag>--ProcrustesScal</longflag>
+			<default>1</default>
+		</integer>
+	</parameters>
+	<parameters>
+		
+		<label>MRML Options</label>
+		<integer>
+			<name>HorizontalGridPara</name>
+			<label>number of vtk on each line of the mrml</label>
+			<longflag>--HorizontalGridPara</longflag>
+			<default>5</default>
+			<constraints>
+				<minimum>1</minimum>
+				<step>1</step>
+			</constraints>
+		</integer>	
+		<integer>
+			<name>VerticalGridPara</name>
+			<label>number of vtk on each column of the mrml</label>
+			<longflag>--VerticalGridPara</longflag>
+			<default>5</default>
+			<constraints>
+				<minimum>1</minimum>
+				<step>1</step>
+			</constraints>
+		</integer>
+	</parameters>
+</executable>
+
