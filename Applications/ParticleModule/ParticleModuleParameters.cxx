@@ -446,8 +446,7 @@ void ParticleModuleParameters::ScaleMeta(std::string vtkinput,std::string vtkout
 	factor.append(Convert_Double_To_CharArray(factorZ));
 
 
-	//	args2.push_back("MeshMath");
-	args2.push_back("/biomed-resimg/home/lbompard/spharm-pdm_Slicer/bin/MeshMath");
+	args2.push_back("MeshMath");
 	args2.push_back(vtkinput.c_str());
 	args2.push_back(vtkoutput.c_str());
 	args2.push_back("-scaleMesh");
