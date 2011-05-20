@@ -154,7 +154,7 @@ int main(int argc, const char **argv)
       std::cout <<"     -subtract <meshfile>      Subtract mesh from inputmesh, write a KWMeshVisu readable text file" << std::endl ;
       std::cout <<"     -magnitude                Magnitude of the input metaArray file (mvh/mva) and writes a KWMeshVisu readable file" << std::endl ;
       std::cout <<"     -scaleMVA <double>        Scales the input metaArray file (mvh/mva) and writes a KWMeshVisu readable file" << std::endl ;
-      std::cout <<"     -scaleMesh <double>       Scales the input mesh file" << std::endl ;
+   std::cout <<"     -scaleMesh <DimX> <DimY> <DimZ>       Scales the input mesh file" << std::endl ;
       std::cout <<"     -avgMesh <Meshfile1> <Meshfile2> ..."  << std::endl;    
       std::cout <<"          Compute the average mesh from inputmesh file1, file2..." << std::endl;
       std::cout <<"     -ave <Vectorfile1> <Vectorfile2> ..."  << std::endl;
@@ -332,11 +332,22 @@ int main(int argc, const char **argv)
 
   bool scaleMVAOn = ipExistsArgument(argv, "-scaleMVA");
   bool scaleOn = ipExistsArgument(argv, "-scaleMesh");
+ //bool scale3DOn = ipExistsArgument(argv, "-scale3DMesh");
   double scaleFactor = 1.0;
+std::vector<std::string> vector_scaleFactor;
+int numscaleparams = nbfile+3;
+float *ScaleParams = new float [numscaleparams];
   if (scaleMVAOn)
     scaleFactor = ipGetDoubleArgument(argv,"-scaleMVA",1.0);
-  else 
-    scaleFactor = ipGetDoubleArgument(argv,"-scaleMesh",1.0);
+
+else if (scaleOn){
+char * tmp_str = ipGetStringArgument(argv, "-scaleMesh",NULL);
+int nbfactor = ipExtractFloatTokens(ScaleParams, tmp_str, numscaleparams);
+if (nbfactor ==1) {
+	ScaleParams[1]=ScaleParams[0];
+	ScaleParams[2]=ScaleParams[0];
+	}
+}
 
   bool aveOn = ipExistsArgument(argv, "-ave");
   bool normaveOn = ipExistsArgument(argv, "-normave");
@@ -685,30 +696,65 @@ std::cout<<PvalueColorMapNb<<std::endl;
         
     delete ( point1 ) ;
     delete ( point2 ) ;
-  } else if (scaleOn) {
-  
-    MeshConverterType * converter = new MeshConverterType () ;
-    if (debug)   std::cout << "Reading input mesh " << inputFilename << std::endl;
-    MeshSOType::Pointer inputMeshSO = converter->ReadMeta (inputFilename) ;
-    MeshType::Pointer inputMesh = inputMeshSO->GetMesh() ;
-    MeshType::PointsContainerPointer points = inputMesh->GetPoints();
+  } else if (scaleOn )  {
+	
+	//know if meta or vtk file
+	int bemeta;
+	char * pch;
+	pch=strrchr(inputFilename,'v');
+	if((strcmp ("vtk",pch) != 0)) {bemeta=1;}
+	else{bemeta=0;}
+	
+ 	if(bemeta==1){
+		MeshConverterType * converter = new MeshConverterType () ;
+		if (debug)   std::cout << "Reading input mesh " << inputFilename << std::endl;
+		MeshSOType::Pointer inputMeshSO = converter->ReadMeta (inputFilename) ;
+		MeshType::Pointer inputMesh = inputMeshSO->GetMesh() ;
+		MeshType::PointsContainerPointer points = inputMesh->GetPoints();
+		
+		MeshType::PointsContainerPointer pointsTmp = MeshType::PointsContainer::New();
+		for (unsigned int pointID = 0; pointID < points->Size();pointID++) {
+			PointType curPoint =  points->GetElement(pointID);
+			PointType vert;
+			for (unsigned int dim = 0; dim < 3; dim++) {
+				vert[dim] = curPoint[dim] * ScaleParams[dim];}
+			pointsTmp->InsertElement(pointID, vert);
+		}
 
-    MeshType::PointsContainerPointer pointsTmp = MeshType::PointsContainer::New();
-    for (unsigned int pointID = 0; pointID < points->Size();pointID++) {
-      PointType curPoint =  points->GetElement(pointID);
-      PointType vert;
-      for (unsigned int dim = 0; dim < 3; dim++) 
-	vert[dim] = curPoint[dim] * scaleFactor;
-      pointsTmp->InsertElement(pointID, vert);
-    }
+		inputMesh->SetPoints(pointsTmp); 
+		MeshWriterType::Pointer writer = MeshWriterType::New();
+		writer->SetInput(inputMeshSO);
+		writer->SetFileName(outputFilename);
+		writer->Update();
+	}
 
-    inputMesh->SetPoints(pointsTmp); 
-    MeshWriterType::Pointer writer = MeshWriterType::New();
-    writer->SetInput(inputMeshSO);
-    writer->SetFileName(outputFilename);
-    writer->Update();
+	else // =>vtk file
+	{	
+		vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+		meshin->SetFileName(inputFilename);
+		meshin->Update();
+		double x[3];
+		vtkPoints * PointVTK = vtkPoints::New();
+		PointVTK=meshin->GetOutput()->GetPoints();
+		vtkPoints * pointsTmp = vtkPoints::New();
+		for (int PointId = 0; PointId < (meshin->GetOutput()->GetNumberOfPoints()); PointId++)
+		{
+			PointVTK->GetPoint(PointId,x);
+			double vert[3];
+			for (unsigned int dim = 0; dim < 3; dim++) {
+				vert[dim] = x[dim] *ScaleParams[dim];
+			}
+			PointVTK->SetPoint(PointId,vert);}
+		vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+		SurfaceWriter->SetInput(meshin->GetOutput());
+		SurfaceWriter->SetFileName(outputFilename); 
+		SurfaceWriter->Update();
+	} 
+}
+
+
     
-  } else if (magnitudeOn) {
+   else if (magnitudeOn) {
     if (debug) std::cout << "Magnitude of Vector field" << std::endl;
     MeasurementVectorType mv;
     // load the metaArray
