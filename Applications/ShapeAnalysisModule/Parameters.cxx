@@ -440,6 +440,23 @@ int Parameters::GetVerticalGridPara()
 	return m_VerticalGridParaGrid;
 }
 
+void Parameters::SetParticlesState(bool _DoParticlesCorrespondence)
+{
+	m_DoParticlesCorrespondence=_DoParticlesCorrespondence;
+}
+bool Parameters::GetParticlesState()
+{
+	return m_DoParticlesCorrespondence;
+}
+
+void Parameters::SetUseProcalign(bool _UseProcalign)
+{
+	m_UseProcalign=_UseProcalign;
+}
+bool Parameters::GetUseProcalign()
+{
+	return m_UseProcalign;
+}
 //Set Data list containing all the data from csv file
 void Parameters::SetDataList(vector < vector<string> > _List)
 {	
@@ -1012,25 +1029,28 @@ void Parameters::SetEulerNumbers()
 
 }
 
-void Parameters::ModifyCSV()
+void Parameters::ModifyCSV(int Particles)
 {
 	FindFiles();
 	SetEulerNumbers();
+	
+	//GetPostCorrespondenceFiles();
 
 	char csv_read[512];
 	std::strcpy(csv_read,GetOutputDirectory());
-	std::strcat(csv_read,"/Output/");
+	std::strcat(csv_read,"/OutputGroupFile/");
 	std::strcat(csv_read,"ShapeAnalysisModule_OutputFileVersion1.csv");
 
 	char csv_write[512];
 	std::strcpy(csv_write,GetOutputDirectory());
-	std::strcat(csv_write,"/Output/");
+	std::strcat(csv_write,"/OutputGroupFile/");
 	std::strcat(csv_write,"ShapeAnalysisModule_OutputFile.csv");
 
 	ifstream read(csv_read);
 	ofstream write(csv_write, ios::out);
 
 	int nbline=0;
+	int in =0;
 
 	if(read){
 		if(write)
@@ -1040,15 +1060,27 @@ void Parameters::ModifyCSV()
 			{
 				if(nbline==0)
 				{
-					line.append( ", Euler Number, Spherical topology  ");
+					line.append( ", Euler Number, Spherical topology ,Correspondence ");
 					write<<line<<std::endl;
 				}
 				else{
-					line.append(",");
-					line.append(m_EulerNumber.at(nbline-1));
-					line.append(",");
-					line.append(m_SphericalTopo.at(nbline-1));
-					write<<line<<std::endl;
+					if( nbline< m_EulerNumber.size())
+					{					
+						line.append(",");
+						line.append(m_EulerNumber.at(nbline-1));
+						line.append(",");
+						line.append(m_SphericalTopo.at(nbline-1));
+					//	in=1;
+					//}
+					if(Particles ==1 )
+					{					
+						line.append(",");
+						line.append(GetPostCorrespondenceFiles(nbline-1));
+std::cout<<line<<std::endl;
+
+						//in=1;
+					}
+					/*if( in == 1) {*/write<<line<<std::endl; /*in =0;*/}
 				}
 			  nbline++;
 			}
@@ -1059,6 +1091,26 @@ void Parameters::ModifyCSV()
 	}
 	remove( csv_read );
 }
+
+char* Parameters::GetPostCorrespondenceFiles(int ind)
+{
+	int DataNumber=GetDataNumber();
+	Corres_Files = new char *[DataNumber];
+
+	for(int i=0;i<DataNumber;i++)
+	{	
+		Corres_Files[i] = new char[512];
+		std::strcpy(Corres_Files[i],GetOutputDirectory());
+		std::strcat(Corres_Files[i],"/ParticleCorrespondence/Corresponding_Meshes/");
+		std::strcat(Corres_Files[i],GetAllFilesName(i));
+		if(GetUseProcalign()){std::strcat(Corres_Files[i],"_pp_surfSPHARM_procalign_corr.vtk");}
+		else{std::strcat(Corres_Files[i],"_pp_surfSPHARM_corr.vtk");}
+	}
+	
+	return Corres_Files[ind];
+}
+
+
 
 std::string Parameters::readMRML(std::string nameMRML, bool colorMap)
 {
@@ -1228,4 +1280,16 @@ void Parameters::DeleteTransformsFolders(int type)
 	}
 
 
+}
+
+char * Parameters::Convert_Double_To_CharArray(double doubleVariable) 
+{
+	char *CharArrayOut;
+	CharArrayOut = new char [512];
+	std::string stringVariable;
+	std::stringstream strStream;
+	strStream << doubleVariable;
+	stringVariable = strStream.str();
+	strcpy(CharArrayOut,stringVariable.c_str());
+	return CharArrayOut;
 }

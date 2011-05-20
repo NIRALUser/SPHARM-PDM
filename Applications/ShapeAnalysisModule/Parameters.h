@@ -20,6 +20,7 @@
 #include "vtkPolyDataReader.h"
 #include "vtkPolyData.h"
 #include "vtkPointSet.h"
+#include "vtkCell.h"
 
 #include <itksys/Glob.hxx>
 #include <itksys/Process.h>
@@ -62,6 +63,10 @@ class Parameters
 	void SetRegTemplate(const char *_FlipTemplate);
 	void SetParaOut1State(bool _ParaOut1State);
 	void SetParaOut2State(bool _ParaOut2State);
+	void SetParticlesState(bool _DoParticlesCorrespondence);
+	bool GetParticlesState();
+	void SetUseProcalign(bool );
+	bool GetUseProcalign();
 	void SetFinalFlip(int _None_Flip, int _X_Flip, int _Y_Flip, int _Z_Flip, int _XY_Flip, int _YZ_Flip, int _XZ_Flip, int _XYZ_Flip);
 	int SetHorizontalGridPara(int _HorizontalGridPara);
 	int SetVerticalGridPara(int _VerticalGridPara);
@@ -141,10 +146,13 @@ class Parameters
 	bool GetOverwriteParaToSPHARMMesh();
 	bool GetRandomizeInputs();
 
+	bool m_DoParticlesCorrespondence;
+ 	bool m_UseProcalign;
+
 	bool DirectoryIsEmpty(const char*);
 
 	void SetEulerNumbers();
-	void ModifyCSV();
+	void ModifyCSV(int);
 
 	void ModifyMRML(std::string ,std::string , std::string  );
 	std::string readMRML(std::string , bool);
@@ -154,6 +162,9 @@ class Parameters
 	vector<string>m_SphericalTopo;
 	std::vector<std::string> EulerFile;
 	void FindFiles();
+
+char* GetPostCorrespondenceFiles(int);
+char * Convert_Double_To_CharArray(double ) ;
 	
 void DeleteTransformsFolders(int type);
 void  FindTemplateFiles(int);
@@ -178,6 +189,8 @@ std::vector<std::string> name_template;
 	bool m_TemplateMState;
 	char m_FlipTemplate[512];
 	char m_RegTemplate[512];
+
+
 
 
 private:
@@ -248,6 +261,8 @@ private:
 	int m_VerticalGridParaGrid;
 	int m_HorizontalGridParaGrid;
 	double m_const_orientation;
+
+	char** Corres_Files;
 
 };
 

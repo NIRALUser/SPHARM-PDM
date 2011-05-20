@@ -23,24 +23,24 @@ void ShapeAnalysisModuleComputation::Computation()
 	int nummrml=-1;//if -1 you will have one all the shapes 
 
 	SetAllFilesName();
-	OverWrite();
+	/*OverWrite();
 	WriteBMSShapeAnalysisModuleFile();	
 	ExecuteBatchMake(GetBMSShapeAnalysisModuleFile());std::cout<<GetBMSShapeAnalysisModuleFile()<<std::endl;
 
-	/*if(GetTemplateMState()==true)
+	if(GetTemplateMState()==true)
 	{
 		ComputationMean();
 
 		WriteBMSShapeAnalysisModuleFile2();
 		ExecuteBatchMake(GetBMSShapeAnalysisModuleFile2());
-	}*/
+	}
 	
-std::cout<<"\n\nExecute Meshmath..."<<std::endl<<std::endl;
+	std::cout<<"\n\nExecute Meshmath..."<<std::endl<<std::endl;
 	//execute MeshMath external application
 	for(int i=0;i<GetDataNumber();i++)
 	{
-		ExecuteMeshMath(i,"phi");
-		ExecuteMeshMath(i,"theta");
+		ExecuteMeshMath(i,"phi",0);
+		ExecuteMeshMath(i,"theta",0);
 	}
 	
 	ExecuteMeshMathTemplate();
@@ -64,25 +64,45 @@ std::cout<<"\n\nExecute Meshmath..."<<std::endl<<std::endl;
 		if(nummrml!=-1){SetFilesNameMRML(nummrml);}
 		WriteBMSMRMLScene(nummrml);		
 		nummrml++;
-	}	
+	}	*/
 
  /*	ExecuteBatchMake(GetBMSShapeAnalysisModuleMRMLFile()); 
 	SetBMSShapeAnalysisModuleFile(true);*/
-  std::cout<<"Modify output csv"<<std::endl;
+	/*std::cout<<"Modify output csv"<<std::endl;
 	ModifyCSV();
 
+	std::cout<<"Computing ShapeAnalysisModule: Done!"<<std::endl<<std::endl;*/
 
-	std::cout<<"Computing ShapeAnalysisModule: Done!"<<std::endl<<std::endl;
+	//Particles 
+	if(GetParticlesState())
+	{
+		/*RunParticlesModule();
+		std::cout<<"Modify output csv"<<std::endl;
+		ModifyCSV(1);
+		for(int i=0;i<GetDataNumber();i++)
+		{
+			ExecuteMeshMath(i,"phi",1);
+			ExecuteMeshMath(i,"theta",1);
+		}*/
+		std::cout<<"MRML"<<std::endl;
+		CreateMrmlParticle();
+		
+
+	}
+	else {ModifyCSV(0);}
   
   	return;
 }
 
 //Execute MeshMath to write a KWM scalar field (1D) into a PolyData Field Data Scalar to visualize in Slicer3
-void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, char * scalar)
+void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, char * scalar, bool particule)
 {
+	int end;
+	if(particule ==0) {end=3;}//execute MeshMath for each volume file: Original, Ellalign, Procalign
+	else {end=1;}
 
-//execute MeshMath for each volume file: Original, Ellalign, Procalign
-	for(int j=0;j<3;j++)
+
+	for(int j=0;j<end;j++)
 	{
 	
 		std::vector<const char*> args;  
@@ -94,17 +114,30 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, char * scalar)
 		
 		args.push_back("MeshMath");
 		
-		if (GetTemplateMState()==true) 
+		if(particule ==0)
 		{
-			if(j==0) fileType=GetAllSurfmeanSPHARMFiles(numData);
-			else if (j==1) fileType=GetAllSurfmeanSPHARMellalignFiles(numData);
-			else if (j==2) fileType=GetAllSurfmeanSPHARMprocalignFiles(numData);
+			if (GetTemplateMState()==true) 
+			{
+				if(j==0) fileType=GetAllSurfmeanSPHARMFiles(numData);
+				else if (j==1) fileType=GetAllSurfmeanSPHARMellalignFiles(numData);
+				else if (j==2) fileType=GetAllSurfmeanSPHARMprocalignFiles(numData);
+			}
+			else
+			{
+				if(j==0) fileType=GetAllSurfSPHARMFiles(numData);
+				else if (j==1) fileType=GetAllSurfSPHARMellalignFiles(numData);
+				else if (j==2) fileType=GetAllSurfSPHARMprocalignFiles(numData);
+			}
 		}
 		else
-		{
-			if(j==0) fileType=GetAllSurfSPHARMFiles(numData);
-			else if (j==1) fileType=GetAllSurfSPHARMellalignFiles(numData);
-			else if (j==2) fileType=GetAllSurfSPHARMprocalignFiles(numData);
+		{	std::string tmp;
+			if (GetTemplateMState()==true) 
+			{
+			}
+			else
+			{
+				fileType=GetPostCorrespondenceFiles(numData);
+			}
 		}
 	
 		args.push_back(fileType);
@@ -390,7 +423,7 @@ char * ShapeAnalysisModuleComputation::GetBMSShapeAnalysisModuleMRMLFile()
 void ShapeAnalysisModuleComputation::SetOuputFile()
 {
 	std::strcpy(m_OutputFile, GetOutputDirectory());
-	std::strcat(m_OutputFile, "/Output/");
+	std::strcat(m_OutputFile, "/OutputGroupFile/");
 	std::strcat(m_OutputFile, "ShapeAnalysisModule_OutputFileVersion1.csv");
 }
 
@@ -623,6 +656,7 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 
 			for(int i=0;i<DataNumber;i++)
 			{
+
 
 				if((count ==0) ||(count ==1)|| ((count ==2) && (nbcolormap==2))){  //add the template   NB no template for procalign
 
@@ -1073,14 +1107,14 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
 	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Mesh/PostProcess/)"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Mesh/SPHARM/)"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Template/)"<<std::endl; 
-	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/Output/)"<<std::endl; 
+	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/OutputGroupFile/)"<<std::endl; 
 	BMSShapeAnalysisModuleFile<<"MakeDirectory("<<GetOutputDirectory()<<"/EulerFiles/)"<<std::endl; 
 	BMSShapeAnalysisModuleFile<<"set(BMSdir '"<<GetOutputDirectory()<<"/BatchMake_Scripts')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"set(datadir '"<<GetOutputDirectory()<<"/')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"set(PPdir '"<<GetOutputDirectory()<<"/Mesh/PostProcess/')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"set(SPHARMdir '"<<GetOutputDirectory()<<"/Mesh/SPHARM/')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"set(tdir '"<<GetOutputDirectory()<<"/Template/')"<<std::endl;
-	BMSShapeAnalysisModuleFile<<"set(Outputdir '"<<GetOutputDirectory()<<"/Output/')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"set(Outputdir '"<<GetOutputDirectory()<<"/OutputGroupFile/')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"set(Eulerdir '"<<GetOutputDirectory()<<"/EulerFiles/')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"set(transformdir '"<<GetOutputDirectory()<<"/MRML/TransformFiles')"<<std::endl;
 
@@ -1096,7 +1130,7 @@ BMSShapeAnalysisModuleFile<<"EndIf(${fileCreated})"<<std::endl;*/
 	BMSShapeAnalysisModuleFile<<"echo()"<<std::endl;
 	
 	BMSShapeAnalysisModuleFile<<"#Create OutputFile"<<std::endl;
-	BMSShapeAnalysisModuleFile<<"Set(OutputFile "<<GetOutputDirectory()<<"/Output/ShapeAnalysisModule_OutputFileVersion1.csv)"<<std::endl;
+	BMSShapeAnalysisModuleFile<<"Set(OutputFile "<<GetOutputDirectory()<<"/OutputGroupFile/ShapeAnalysisModule_OutputFileVersion1.csv)"<<std::endl;
 	SetOuputFile();
 	BMSShapeAnalysisModuleFile<<"Set(OutputFile "<<GetOutputFile()<<")"<<std::endl;
 
@@ -1107,7 +1141,7 @@ BMSShapeAnalysisModuleFile<<"EndIf(${fileCreated})"<<std::endl;*/
 	}
 	
 	//Write headers of the output file
-	BMSShapeAnalysisModuleFile<<" appendFile(${OutputFile} ' Post Processed Segmentation, Parametrisation of Original Surface, SPHARM Surface in Original Space, SPHARM Coefficient in Original Space, SPHARM Surface in Ellipsoid Aligned Space, SPHARM Coefficient in Ellipsoid Aligned Space, SPHARM Surface in Procaligned Space\\n')"<<std::endl;
+	BMSShapeAnalysisModuleFile<<" appendFile(${OutputFile} ' Post Processed Segmentation, Parameterization of Original Surface, SPHARM Surface in Original Space, SPHARM Coefficient in Original Space, SPHARM Surface in Ellipsoid Aligned Space, SPHARM Coefficient in Ellipsoid Aligned Space, SPHARM Surface in Procaligned Space\\n')"<<std::endl;
 	BMSShapeAnalysisModuleFile<<"echo()"<<std::endl;
 	
 	
@@ -2090,5 +2124,466 @@ void ShapeAnalysisModuleComputation::GetRandomNum(int min, int max)
     else
       cout << " " << min + m_permutations[i];
  cout << endl;*/
+}
+
+
+void ShapeAnalysisModuleComputation::RunParticlesModule()
+{
+	std::cout<<" "<<std::endl;
+	std::cout<<"Run the Particle Correspondence"<<std::endl;
+	std::string particlesdirectory;
+	std::string outputdir; outputdir.append(GetOutputDirectory());
+	particlesdirectory.append(outputdir);
+	particlesdirectory.append("/ParticleCorrespondence");
+	itksys::SystemTools::MakeDirectory(particlesdirectory.c_str());
+
+	std::string csvdirectory;
+	csvdirectory.append(outputdir);
+	csvdirectory.append("/OutputGroupFile/ShapeAnalysisModule_OutputFileVersion1.csv");
+
+
+	//command line 
+	std::vector<const char*> args;
+	args.push_back("/biomed-resimg/home/lbompard/ParticleModule_linux64/ParticleModule" );
+	args.push_back("--columMeshFile" );
+	if(GetUseProcalign()){args.push_back("9");}
+	else{args.push_back("5");}//Original Space
+	args.push_back("--sx" );
+	args.push_back(Convert_Double_To_CharArray(GetEnforcedSpaceX()));
+	args.push_back("--sy" );
+	args.push_back(Convert_Double_To_CharArray(GetEnforcedSpaceY()));
+	args.push_back("--sz" );
+	args.push_back(Convert_Double_To_CharArray(GetEnforcedSpaceZ()));
+	args.push_back(csvdirectory.c_str() );
+	args.push_back(particlesdirectory.c_str());
+	args.push_back(0);
+
+	for( unsigned int k =0; k<args.size()-1;k++)
+	{std::cout<<args.at(k)<<" ";}
+	std::cout<<" "<<std::endl;std::cout<<" "<<std::endl;
+
+	
+	//itk sys parameters
+	int length;
+	time_t start,end;
+	time (&start);
+
+	double timeout = 0.05;
+	int result;
+	char* dataitk = NULL;
+
+	itksysProcess* gp = itksysProcess_New();
+	itksysProcess_SetCommand(gp, &*args.begin());
+	itksysProcess_SetOption(gp,itksysProcess_Option_HideWindow,1);
+	itksysProcess_Execute(gp);
+	while(int Value = itksysProcess_WaitForData(gp,&dataitk,&length,&timeout)) // wait for 1s
+	{
+		if ( ((Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR)) && dataitk[0]=='D' )
+		{
+			std::strstream st;
+			for(int i=0;i<length;i++) 	
+			{
+				st<<dataitk[i];
+			}
+			std::string dim=st.str();
+		}
+			time (&end);
+			cout<<"(processing since "<<difftime (end,start)<<" seconds) \r"<<flush;
+			timeout = 0.05;   	
+	}
+	itksysProcess_WaitForExit(gp, 0);
+	result = 1;
+	switch(itksysProcess_GetState(gp))
+	{
+		case itksysProcess_State_Exited:
+		{
+			result = itksysProcess_GetExitValue(gp);
+		} break;
+		case itksysProcess_State_Error:
+		{
+			std::cerr<<"Error: Could not run " << args[0]<<":\n";
+			std::cerr<<itksysProcess_GetErrorString(gp)<<"\n";
+			std::cout<<"Error: Could not run " << args[0]<<":\n";
+			std::cout<<itksysProcess_GetErrorString(gp)<<"\n";
+		} break;
+		case itksysProcess_State_Exception:
+		{
+			std::cerr<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
+			std::cout<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
+		} break;
+		case itksysProcess_State_Starting:
+		case itksysProcess_State_Executing:
+		case itksysProcess_State_Expired:
+		case itksysProcess_State_Killed:
+		{
+		// Should not get here.
+		std::cerr<<"Unexpected ending state after running "<<args[0]<<std::endl;
+		std::cout<<"Unexpected ending state after running "<<args[0]<<std::endl;
+		} break;
+	}
+	itksysProcess_Delete(gp);  
+
+}
+
+
+
+void ShapeAnalysisModuleComputation::CreateMrmlParticle()
+{
+	int nbShapesPerMRML= GetHorizontalGridPara() * GetVerticalGridPara();
+	
+	for( int colormap=0;colormap<2;colormap++)
+	{
+
+		int DataNumber=GetDataNumber();
+		int nbVTKlastMRML,nbMRML;
+		if(DataNumber>nbShapesPerMRML){
+			nbVTKlastMRML= DataNumber %nbShapesPerMRML;
+			if(nbVTKlastMRML!=0){
+				nbMRML= (DataNumber-nbVTKlastMRML)/nbShapesPerMRML + 1;}
+			else{
+				nbMRML= (DataNumber-nbVTKlastMRML)/nbShapesPerMRML;
+			}
+		}
+		else{nbMRML=0;}
+	
+	
+		for(int i=0; i<(nbMRML+1);i++)//+1 since the 1st is with all the datas
+		{
+			std::string mrmlfile;
+			std::vector<std::string> transformfile ;
+			std::vector<std::string> NameTrans;
+			std::vector<std::string> Name;
+			std::vector<std::string> Namevtk;
+			std::vector<std::string> RelativePathToVTK;
+			std::vector<std::string> NbTrans;
+			std::vector<std::string> NbFidu;
+			std::vector<std::string> NameColormap;
+			int first, last, DataNumberPerMRML;
+			double dim0,dim1,dim2;
+			int count_line, count_col,nbdisplay;
+			count_line=1;count_col=0;nbdisplay=0;	
+			dim0=0;dim1=0;dim2=0;
+	
+			std::vector<const char*> argsMRML;
+			first=(i-1)*nbShapesPerMRML;
+			last=(i*nbShapesPerMRML)-1;
+	
+			//create the mrml name
+			mrmlfile.append(GetOutputDirectory());
+			mrmlfile.append("/ParticleCorrespondence/MRML/ParticleModuleMRMLscene_");
+			if(colormap==0){mrmlfile.append("Phi");}
+			else{mrmlfile.append("Theta");}
+	
+	
+	
+			if(i==0)
+			{
+				mrmlfile.append(".mrml");
+				DataNumberPerMRML=DataNumber;
+			}
+			else{
+				mrmlfile.append("_");
+				mrmlfile.append(Convert_Double_To_CharArray(first));
+				mrmlfile.append("_");
+				mrmlfile.append(Convert_Double_To_CharArray(last));
+				mrmlfile.append(".mrml");
+				DataNumberPerMRML=nbShapesPerMRML;
+			}
+			std::cout<<"mrml "<<mrmlfile<<std::endl;	
+			argsMRML.push_back("CreateMRML");   
+			argsMRML.push_back(mrmlfile.c_str());
+	
+			
+			for(int k=0;k<DataNumberPerMRML;k++)
+			{
+				size_t found,found2;
+				std::string relativeName,NameFile,TransName;
+				vector<double>Dims;
+
+				std::string file;
+				file.append ( (string) GetPostCorrespondenceFiles(k));
+	
+				found=file.find_last_of("/\\");
+				relativeName.append(file.substr(found+1));
+				
+				Namevtk.push_back(relativeName);
+				relativeName.insert(0,"../Corresponding_Meshes/");  
+
+				RelativePathToVTK.push_back(relativeName);
+				found2=(Namevtk.back()).find_last_of(".\\");
+
+				TransName.append((Namevtk.back()).substr(0,found2));
+				Name.push_back(TransName);
+
+				TransName.append("Trans");
+				NameTrans.push_back(TransName);
+
+	
+				std::string file0;
+				file0.append ( (string) GetPostCorrespondenceFiles(0));
+				SetImageDimensions((char *)file0.c_str());
+				Dims=GetImageDimensions();
+		
+				//calculation of the transforms
+				if(GetDirectionToDisplay()=="XYZ")
+				{
+					dim0 = Dims[0] * count_col;
+					dim1 = Dims[1] * count_line;
+				}
+				if(GetDirectionToDisplay()=="XZY")
+				{
+					dim0 = Dims[0] * count_col;
+					dim2 = Dims[2] * count_line;
+				}
+				if(GetDirectionToDisplay()=="YXZ")
+				{
+					dim1 = Dims[1] * count_col;
+					dim0 = Dims[0] * count_line;
+				}
+				if(GetDirectionToDisplay()=="YZX")
+				{
+					dim1 = Dims[1] * count_col;
+					dim2 = Dims[2] * count_line;
+				}
+				if(GetDirectionToDisplay()=="ZXY")
+				{
+					dim2 = Dims[2] * count_col;
+					dim0 = Dims[0] * count_line;
+				}
+				if(GetDirectionToDisplay()=="ZYX")
+				{
+					dim2 = Dims[2] * count_col;
+					dim1 = Dims[1] * count_line;
+				}
+		
+				//create the transform file.
+				std::string tmp_transformfile ;  
+				tmp_transformfile.append("./TransformFiles/transformCM");  
+				if(i==0) {tmp_transformfile.append(Convert_Double_To_CharArray(k));}
+				else{tmp_transformfile.append(Convert_Double_To_CharArray(DataNumber+first+k));}
+				tmp_transformfile.append(".txt");
+				transformfile.push_back(tmp_transformfile);
+				argsMRML.push_back("-t" );
+				argsMRML.push_back("-f" );
+				argsMRML.push_back((transformfile.back()).c_str());   
+	
+				argsMRML.push_back("-n" );
+				argsMRML.push_back((NameTrans.back()).c_str());
+				argsMRML.push_back("-l" );
+				std::string tmp_NbTrans;  
+				if(GetDirectionToDisplay()=="XYZ")
+				{
+					tmp_NbTrans = "1,0,0,0,1,0,0,0,1,";
+					tmp_NbTrans += Convert_Double_To_CharArray(dim0) ;
+					tmp_NbTrans += "," ;
+					tmp_NbTrans += Convert_Double_To_CharArray(dim1) ;
+					tmp_NbTrans += ",0" ;
+				}
+				if(GetDirectionToDisplay()=="XZY")
+				{
+	
+					tmp_NbTrans = "1,0,0,0,1,0,0,0,1,";
+					tmp_NbTrans += Convert_Double_To_CharArray(dim0) ;
+					tmp_NbTrans += ",0," ;
+					tmp_NbTrans += Convert_Double_To_CharArray(dim2*-1) ;
+				}
+				if(GetDirectionToDisplay()=="YXZ")
+				{
+					tmp_NbTrans = "1,0,0,0,1,0,0,0,1,";
+					tmp_NbTrans += Convert_Double_To_CharArray(dim0) ;
+					tmp_NbTrans += "," ;
+					tmp_NbTrans += Convert_Double_To_CharArray(dim1) ;
+					tmp_NbTrans += ",0" ;
+				}
+				if(GetDirectionToDisplay()=="YZX")
+				{
+					tmp_NbTrans = "1,0,0,0,1,0,0,0,1,0," ;
+					tmp_NbTrans += Convert_Double_To_CharArray(dim1) ;
+					tmp_NbTrans += "," ;
+					tmp_NbTrans += Convert_Double_To_CharArray(dim2*-1) ;
+				}
+				if(GetDirectionToDisplay()=="ZXY")
+				{
+					tmp_NbTrans = "1,0,0,0,1,0,0,0,1,";
+					tmp_NbTrans += Convert_Double_To_CharArray(dim0) ;
+					tmp_NbTrans += ",0," ;
+					tmp_NbTrans += Convert_Double_To_CharArray(dim2*-1) ;
+				}
+				if(GetDirectionToDisplay()=="ZYX")
+				{
+					tmp_NbTrans = "1,0,0,0,1,0,0,0,1,0," ;
+					tmp_NbTrans += Convert_Double_To_CharArray(dim1) ;
+					tmp_NbTrans += "," ;
+					tmp_NbTrans += Convert_Double_To_CharArray(dim2*-1) ;
+				}
+				NbTrans.push_back(tmp_NbTrans);
+				argsMRML.push_back((NbTrans.back()).c_str());
+	
+			
+				//add shape
+				argsMRML.push_back("-m" ); argsMRML.push_back("-f" ); argsMRML.push_back((RelativePathToVTK.back()).c_str()); argsMRML.push_back("-n");  argsMRML.push_back(Namevtk.back().c_str()); 
+	
+	
+				//add color map
+				std::string tmp_NameColormap;
+				if(colormap==0){tmp_NameColormap.append("../../Mesh/SPHARM/customLUT_Color_Map_Phi.txt");}
+				else{tmp_NameColormap.append("../../Mesh/SPHARM/customLUT_Color_Map_Theta.txt");}
+				NameColormap.push_back(tmp_NameColormap);
+				argsMRML.push_back("-as" );
+				if(colormap==0){argsMRML.push_back("Color_Map_Phi" );}
+				else{argsMRML.push_back("Color_Map_Theta" );}
+				argsMRML.push_back("-cc" );
+				argsMRML.push_back((NameColormap.back()).c_str() );
+	
+	
+				//link shape and transform
+				argsMRML.push_back("-p" );
+				argsMRML.push_back((NameTrans.back()).c_str());
+	
+				//add fiducial
+				argsMRML.push_back("-q"); argsMRML.push_back("-id"); 
+				argsMRML.push_back((Name.back()).c_str()); 
+				argsMRML.push_back("-lbl"); 
+				argsMRML.push_back((Name.back()).c_str());
+				argsMRML.push_back("-sc");
+				argsMRML.push_back("0,0,0");
+				argsMRML.push_back("-pos"); 
+	
+				std::string tmp_NbFidu;
+				if(GetDirectionToDisplay()=="XYZ")
+				{
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[3]+dim0+Dims[0]/2));
+					tmp_NbFidu.append(",");
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[6]+dim1));
+					tmp_NbFidu.append(",");
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[7]));
+	
+				}
+				if(GetDirectionToDisplay()=="XZY")
+				{
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[3]+dim0+Dims[0]/2));
+					tmp_NbFidu.append(",");
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[5]));
+					tmp_NbFidu.append(",");
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[8]+dim2));
+				}
+				if(GetDirectionToDisplay()=="YXZ")
+				{
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[4]+dim0));
+					tmp_NbFidu.append(",");
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[5]+dim1+Dims[1]/2));
+					tmp_NbFidu.append(",");
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[7]));
+				}
+				if(GetDirectionToDisplay()=="YZX")
+				{
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[3]));
+					tmp_NbFidu.append(",");
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[5]+dim1+Dims[1]/2));
+					tmp_NbFidu.append(",");
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[8]+dim2));
+				}
+				if(GetDirectionToDisplay()=="ZXY")
+				{
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[4]+dim0));
+					tmp_NbFidu.append(",");
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[5]));
+					tmp_NbFidu.append(",");
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[7]+dim2+Dims[3]/2));
+				}
+				if(GetDirectionToDisplay()=="ZYX")
+				{
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[3]));
+					tmp_NbFidu.append(",");
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[6]+dim1));
+					tmp_NbFidu.append(",");
+					tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[7]+dim2+Dims[3]/2));
+				}
+				NbFidu.push_back(tmp_NbFidu);
+				argsMRML.push_back((NbFidu.back()).c_str());
+	
+				nbdisplay++;
+	
+				//how many .vtk per line
+				if(i==0){
+					if(nbdisplay!=10) {count_col++;}
+					else{
+					count_col=0;
+					count_line++;
+					nbdisplay=0;}
+				}
+				else{
+					if(nbdisplay!=GetHorizontalGridPara()) {count_col++;}
+					else{
+					count_col=0;
+					count_line++;
+					nbdisplay=0;}
+				}
+	
+	
+			}
+	
+			/*for (int l =0; l<argsMRML.size();l++)
+			{std::cout << argsMRML.at(l)<< " " ;}*/
+	
+			argsMRML.push_back(0);
+			//itk sys parameters
+			int length;
+			time_t start,end;
+			time (&start);
+		
+			double timeout = 0.05;
+			int result;
+			char* dataitk = NULL;
+		
+			itksysProcess* gp = itksysProcess_New();
+			itksysProcess_SetCommand(gp, &*argsMRML.begin());
+			itksysProcess_SetOption(gp,itksysProcess_Option_HideWindow,1);
+			itksysProcess_Execute(gp);
+			while(int Value = itksysProcess_WaitForData(gp,&dataitk,&length,&timeout)) // wait for 1s
+			{
+				if ( ((Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR)) && dataitk[0]=='D' )
+				{
+					std::strstream st;
+					for(int i=0;i<length;i++) 	
+					{
+						st<<dataitk[i];
+					}
+					std::string dim=st.str();
+				}
+			}
+			itksysProcess_WaitForExit(gp, 0);
+			result = 1;
+			switch(itksysProcess_GetState(gp))
+			{
+				case itksysProcess_State_Exited:
+				{
+					result = itksysProcess_GetExitValue(gp);
+				} break;
+				case itksysProcess_State_Error:
+				{
+					std::cerr<<"Error: Could not run " << argsMRML[0]<<":\n";
+					std::cerr<<itksysProcess_GetErrorString(gp)<<"\n";
+					std::cout<<"Error: Could not run " << argsMRML[0]<<":\n";
+					std::cout<<itksysProcess_GetErrorString(gp)<<"\n";
+				} break;
+				case itksysProcess_State_Exception:
+				{
+					std::cerr<<"Error: "<<argsMRML[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
+					std::cout<<"Error: "<<argsMRML[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
+				} break;
+				case itksysProcess_State_Starting:
+				case itksysProcess_State_Executing:
+				case itksysProcess_State_Expired:
+				case itksysProcess_State_Killed:
+				{
+				// Should not get here.
+				std::cerr<<"Unexpected ending state after running "<<argsMRML[0]<<std::endl;
+				std::cout<<"Unexpected ending state after running "<<argsMRML[0]<<std::endl;
+				} break;
+			}
+			itksysProcess_Delete(gp);  
+		}
+	}
 }
 

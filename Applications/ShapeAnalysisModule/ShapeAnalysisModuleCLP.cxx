@@ -46,8 +46,8 @@ int main(int argc, char * argv [])
 	m_computation.SetTemplateMState(MTemplate);
 	m_computation.SetParaOut1State(ParaOut1Template);
 
-m_computation.SetHorizontalGridPara(HorizontalGridPara);
-m_computation.SetVerticalGridPara(VerticalGridPara);
+	m_computation.SetHorizontalGridPara(HorizontalGridPara);
+	m_computation.SetVerticalGridPara(VerticalGridPara);
 
 
 	if(NoFLip) m_computation.SetFinalFlip(1,0,0,0,0,0,0,0);
@@ -58,6 +58,8 @@ m_computation.SetVerticalGridPara(VerticalGridPara);
 	else if (FlipALongAxisYandZ) m_computation.SetFinalFlip(0,0,0,0,0,1,0,0);
 	else if (FlipALongAxisXandZ) m_computation.SetFinalFlip(0,0,0,0,0,0,1,0);
 	else if (FlipALongAxisXandYandZ) m_computation.SetFinalFlip(0,0,0,0,0,0,0,1);
+
+	m_computation.SetParticlesState(DoParticlesCorrespondence);
 	
 	m_computation.Computation();
 

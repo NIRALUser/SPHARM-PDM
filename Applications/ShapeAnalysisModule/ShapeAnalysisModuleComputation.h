@@ -43,13 +43,14 @@ class ShapeAnalysisModuleComputation: public Parameters
   	void WriteBMSShapeAnalysisModuleFile();
 	void WriteBMSShapeAnalysisModuleFile2();
 	void ExecuteBatchMake(char *_Input);  
-		void ExecuteMeshMath(int,char*);
-void ExecuteMeshMathTemplate();
+	void ExecuteMeshMath(int,char*,bool);
+	void ExecuteMeshMathTemplate();
 	void Computation();
 	void OverWrite();
 	void ComputationMean();
 	void WriteMeanFile(int);
-
+	void RunParticlesModule();
+	void CreateMrmlParticle();
 
 	vector<double> transformStorage;
 	int countline;

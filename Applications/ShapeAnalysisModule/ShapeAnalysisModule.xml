@@ -394,4 +394,28 @@
 	</integer>
 	
 </parameters>	
+
+
+
+<parameters advanced="true">
+	<label>Advanced Parameters to run the Particles Correspondence</label>
+	<description>Particles Correspondence Parameters</description>
+	
+		<boolean>
+			<name>DoParticlesCorrespondence</name>
+			<label>DoParticlesCorrespondence</label>
+			<longflag>DoParticlesCorrespondence</longflag>
+			<default>false</default>
+		</boolean>
+		
+		<boolean>
+			<name>UseProcalign</name>
+			<label>UseProcalign</label>
+			<longflag>UseProcalign</longflag>
+			<default>true</default>
+		</boolean>
+	
+</parameters>	
+
+
 </executable>
