@@ -2144,7 +2144,7 @@ void ShapeAnalysisModuleComputation::RunParticlesModule()
 
 	//command line 
 	std::vector<const char*> args;
-	args.push_back("/biomed-resimg/home/lbompard/ParticleModule_linux64/ParticleModule" );
+	args.push_back("ParticleModule" );
 	args.push_back("--columMeshFile" );
 	if(GetUseProcalign()){args.push_back("9");}
 	else{args.push_back("5");}//Original Space
