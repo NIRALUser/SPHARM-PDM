@@ -35,6 +35,11 @@ IF(COMPILE_StatNonParamTestPDM)
   SUBDIRS(StatNonParamTestPDM)
 ENDIF(COMPILE_StatNonParamTestPDM)
 
+OPTION(COMPILE_ParticleModule "Compile ParticleModule." ON)
+IF(COMPILE_ParticleModule)
+  SUBDIRS(ParticleModule)
+ENDIF(COMPILE_ParticleModule)
+
 OPTION(COMPILE_shapeAnalysisMANCOVA_Wizard "Compile shapeAnalysisMANCOVA_Wizard." ON)
 IF(COMPILE_shapeAnalysisMANCOVA_Wizard)
   SUBDIRS(shapeAnalysisMANCOVA_Wizard)

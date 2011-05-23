@@ -1103,14 +1103,18 @@ char* Parameters::GetPostCorrespondenceFiles(int ind)
 		std::strcpy(Corres_Files[i],GetOutputDirectory());
 		std::strcat(Corres_Files[i],"/ParticleCorrespondence/Corresponding_Meshes/");
 		std::strcat(Corres_Files[i],GetAllFilesName(i));
-		if(GetUseProcalign()){std::strcat(Corres_Files[i],"_pp_surfSPHARM_procalign_corr.vtk");}
-		else{std::strcat(Corres_Files[i],"_pp_surfSPHARM_corr.vtk");}
+		if(GetTemplateMState()){
+			if(GetUseProcalign()){std::strcat(Corres_Files[i],"_pp_surf_tMeanSPHARM_procalign_corr.vtk");}
+			else{std::strcat(Corres_Files[i],"_pp_surf_tMeanSPHARM_corr.vtk");}
+		}
+		else{
+			if(GetUseProcalign()){std::strcat(Corres_Files[i],"_pp_surfSPHARM_procalign_corr.vtk");}
+			else{std::strcat(Corres_Files[i],"_pp_surfSPHARM_corr.vtk");}
+		}
 	}
 	
 	return Corres_Files[ind];
 }
-
-
 
 std::string Parameters::readMRML(std::string nameMRML, bool colorMap)
 {

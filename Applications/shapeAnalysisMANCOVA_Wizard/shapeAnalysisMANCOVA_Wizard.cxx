@@ -40,7 +40,7 @@ shapeAnalysisMANCOVA_Wizard::shapeAnalysisMANCOVA_Wizard(std::string infile, QWi
 	connect(this->checkBox_gp, SIGNAL(stateChanged(int)),this, SLOT(mutual_exclusion_gp(int)));
 	connect(this->checkBox_unselect, SIGNAL(stateChanged(int)),this, SLOT(mutual_exclusion_unseclect(int)));
 	connect(this->checkBox_selectscale, SIGNAL(stateChanged(int)),this, SLOT (mutual_exclusion_scale(int)));
-	connect(this->tableWidget, SIGNAL(cellClicked( int, int)),this, SLOT(selection_Group_IndeVariabl_DataDialog(int,int)));
+	connect(this->tableWidget, SIGNAL(cellDoubleClicked( int, int)),this, SLOT(selection_Group_IndeVariabl_DataDialog(int,int)));
 	connect(this->checkBox_scale, SIGNAL(stateChanged(int)),this, SLOT(ScaleInTheFile(int)));	
 	connect(this->pushButton_save, SIGNAL(clicked()),this, SLOT(saveInfile()));	
 
@@ -193,7 +193,8 @@ void shapeAnalysisMANCOVA_Wizard::infile_ok_display()
 						else
 						{	word=word+line.at(i);//add a caracter to the word 
 							if(line.at(i)=='/' && WhereInfileColumn()==-1 )//if the word contains "/"..the column is the infile column
-							{headerVector[col]=1;}
+							{//headerVector[col]=1;
+							}
 							if (i+1==line.length()-1) {word=word+line.at(i+1);}
 						}
 						

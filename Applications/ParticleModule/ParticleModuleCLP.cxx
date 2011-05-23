@@ -41,8 +41,8 @@ int main(int argc, char * argv [])
 	
 		m_computation.CreateCorrespondenceFiles();
 		m_computation.RunShapeWorksRun();
-	cout<<"------ PostProcess -----"<<endl;
-		m_computation.CreateVTKFiles();	cout<<"------MRML -----"<<endl;
+
+		m_computation.CreateVTKFiles();	
 		m_computation.CreateMrml();
 	}
 	

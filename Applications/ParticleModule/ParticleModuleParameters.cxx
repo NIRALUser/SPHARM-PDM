@@ -401,7 +401,7 @@ int ParticleModuleParameters::ReadFile(const char *_FileName)
 
 					if(nbLine!=0){
 						if(m_ColumnMesh==column) 
-						{std::cout << value << std::endl;
+						{
 							found=value.find_last_of(".");
 							found2=value.find_last_of("/");
 							//name of the vtk in the Data vector
@@ -767,7 +767,6 @@ void ParticleModuleParameters::CreateVTKFiles()
 			result= rename( PostLptsWptsFile[i].c_str() , newname.c_str() );
 			if(j==2){
 				LptsToVTK(newname);
-				std::cout<<VTKCorrespFile.back()<<std::endl;
 				ScaleMeta(VTKCorrespFile.back(),VTKCorrespFile.back(),GetEnforcedSpaceX(),GetEnforcedSpaceY(),GetEnforcedSpaceZ());
 				}
 		}
@@ -827,7 +826,7 @@ void ParticleModuleParameters::LptsToVTK(std::string lptsFile)
 					word.clear();
 					if(compt==2){gotoline++;compt=0;}
 					if(gotoline==3)
-					{	vtkfile<<" "<<std::endl;
+					{	
 						gotoline=0;
 					}
 				}
@@ -836,47 +835,35 @@ void ParticleModuleParameters::LptsToVTK(std::string lptsFile)
 		}
 	lptsfile.close();
 	
-
-	while(getline(templatevtk, line)) 
-	{	
-		if(nbline>338 && nbline<2342){
-			vtkfile << line << std::endl;
-		}nbline++;
-	}
 	
-	vtkfile.close();
-	templatevtk.close();
+	
 
 	vtkPolyDataReader *meshin = vtkPolyDataReader::New();  //TODO
-	/*meshin->SetFileName(Data.at(0).c_str());
-	meshin->Update();
-	vtkPoints * pointsTmp = vtkPoints::New();
-	double x[3];
-	for (int CellId = 0; CellId < (meshin->GetOutput()->GetNumberOfCells()); CellId )
-	{*/
-		
-		/*vtkCell *mycell= meshin->GetOutput()->GetCell(CellId)->GetPoints ();
-		mycell->GetPoints ()->pointsTmp->GetPoint (CellId, x);*/
-	/*meshin->GetOutput()->GetCell(CellId)->GetPoints ()->GetPoint (CellId, x);
-		for (unsigned int dim = 0; dim < 3; dim++) {
-				std::cout<<x[dim]<<std::endl;
-			}*/
-		
-	
-	
-}
-	/*vtkPolyDataReader *meshin = vtkPolyDataReader::New();
 	meshin->SetFileName(Data.at(0).c_str());
 	meshin->Update();
-	nbCell=meshin->GetOutput()->GetNumberOfCells();
-	for(int cell=0;cell<nbCell;cell++)
+
+	vtkIdList * pointsTmp ;
+	vtkfile<<"POLYGONS "<<meshin->GetOutput()->GetNumberOfCells()<<" "<<(meshin->GetOutput()->GetNumberOfCells())*4<<std::endl;
+	double x[3];
+	vtkIdType vtkid= meshin->GetOutput()->GetNumberOfCells(); 
+	 vtkCellArray *polys;
+ 	polys = meshin->GetOutput()->GetPolys();
+
+	int i, prim = 0, vert = 0;
+	vtkIdType npts, *pts;
+
+	
+	for (polys->InitTraversal(); polys->GetNextCell(npts, pts); prim++)
 	{
-
-	std::cout<<<<std::end;
+		vtkfile <<"3 "<< pts[0]<<" "<<pts[1]<<" "<<pts[2]<<std::endl;
 	}
-*/
+	vtkfile.close();
+	templatevtk.close();
+	
 
 
+
+}
 std::string ParticleModuleParameters::SetVTKName(std::string lptsName)
 {
 

@@ -25,6 +25,7 @@
 #include "vtkPointSet.h"
 #include "vtkDataSet.h"
 #include "vtkCell.h"
+#include "vtkCellArray.h"
 
 using namespace std;
 

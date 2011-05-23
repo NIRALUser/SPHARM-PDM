@@ -23,7 +23,7 @@ void ShapeAnalysisModuleComputation::Computation()
 	int nummrml=-1;//if -1 you will have one all the shapes 
 
 	SetAllFilesName();
-	/*OverWrite();
+	OverWrite();
 	WriteBMSShapeAnalysisModuleFile();	
 	ExecuteBatchMake(GetBMSShapeAnalysisModuleFile());std::cout<<GetBMSShapeAnalysisModuleFile()<<std::endl;
 
@@ -64,7 +64,7 @@ void ShapeAnalysisModuleComputation::Computation()
 		if(nummrml!=-1){SetFilesNameMRML(nummrml);}
 		WriteBMSMRMLScene(nummrml);		
 		nummrml++;
-	}	*/
+	}	
 
  /*	ExecuteBatchMake(GetBMSShapeAnalysisModuleMRMLFile()); 
 	SetBMSShapeAnalysisModuleFile(true);*/
@@ -76,14 +76,14 @@ void ShapeAnalysisModuleComputation::Computation()
 	//Particles 
 	if(GetParticlesState())
 	{
-		/*RunParticlesModule();
+		RunParticlesModule();
 		std::cout<<"Modify output csv"<<std::endl;
 		ModifyCSV(1);
 		for(int i=0;i<GetDataNumber();i++)
 		{
 			ExecuteMeshMath(i,"phi",1);
 			ExecuteMeshMath(i,"theta",1);
-		}*/
+		}
 		std::cout<<"MRML"<<std::endl;
 		CreateMrmlParticle();
 		

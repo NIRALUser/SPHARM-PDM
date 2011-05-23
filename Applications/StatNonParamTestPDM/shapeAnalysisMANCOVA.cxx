@@ -389,7 +389,7 @@ char fileCommanLine[512];
 
 	if(file)
 	{
-		file<< "shapeAnalysisMANCOVA " ;
+		/*file<< "shapeAnalysisMANCOVA " ;
 		file<<infile ;
 		file<<" --infileColumn "<< infileColumn ;
 		file<<" --numPerms "<< numPerms;
@@ -422,13 +422,14 @@ char fileCommanLine[512];
 		if(trendCorrelation) file<<" --trendCorrelation" ;
 
 
-		file.close();
+		file.close();*/
 	}
 
   // done cleaning up
 
   return 0;
 }
+
 
 
 
