@@ -475,6 +475,8 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_load()
 			//groupBox_csv->setEnabled(true);
 			//frame_del_add_3->setEnabled(true);
 			pushButton_load->setEnabled(true);
+			pushButton_para->setEnabled(false);
+			pushButton_folder->setEnabled(false);
 /*TODO
 std::string pathMANCOVA_WizardString;
 QString pathMANCOVA_Wizard;
@@ -501,10 +503,9 @@ label_7->setPixmap(QPixmap(pathMANCOVA_Wizard2));*/
 				if (answer == QMessageBox::Yes)
 				{
 					checkBox_NEWCSV->setCheckState(Qt::Unchecked);
-					//frame_del_add_3->setEnabled(true);
-					//groupBox_csv->setEnabled(true);
-					//groupBox_new->setEnabled(false);
+					pushButton_para->setEnabled(false);
 					pushButton_load->setEnabled(true);
+					pushButton_folder->setEnabled(false);
 				}
 				//else
 				if (answer == QMessageBox::No)
@@ -524,13 +525,12 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_new()
 				int answer = QMessageBox::question(this, "Warning", "Are you sure you want to create a csv file instead of using the one loaded?", QMessageBox::No | QMessageBox::Yes);
 				if (answer == QMessageBox::Yes)
     				{
-					//groupBox_new->setEnabled(true);
 					checkBox_load->setCheckState(Qt::Unchecked);
-					//groupBox_csv->setEnabled(false);
-					//frame_col2_3->setEnabled(true);
-					pushButton_folder->setEnabled(true);
+					pushButton_para->setEnabled(true);
 					lineEdit_namecsv->setEnabled(true);
+					pushButton_load->setEnabled(false);
 					lineEdit_path->clear();
+					tableWidget->clear ();
 				}
 				
 				if (answer == QMessageBox::No)
@@ -539,10 +539,10 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_new()
 					checkBox_load->setCheckState(Qt::Checked);}
 			}
 			else
-			{	//groupBox_new->setEnabled(true);
-				//frame_col2_3->setEnabled(true);
-				pushButton_folder->setEnabled(true);
+			{	//pushButton_folder->setEnabled(true);
 				lineEdit_namecsv->setEnabled(true);
+				pushButton_para->setEnabled(true);
+				pushButton_load->setEnabled(false);
 			}
 	}
 }
@@ -640,6 +640,7 @@ void shapeAnalysisMANCOVA_Wizard::saveParameter()
 	checkBox_unselect->setEnabled(true);
 	label_unselect->setEnabled(true);
 	checkBox_scale->setEnabled(true);
+	pushButton_folder->setEnabled(true);
 	InitialisationVectorHeader();
 
 }

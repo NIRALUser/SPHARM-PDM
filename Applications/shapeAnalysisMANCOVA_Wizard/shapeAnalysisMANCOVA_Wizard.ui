@@ -81,6 +81,9 @@
                  </item>
                  <item>
                   <widget class="QPushButton" name="pushButton_load">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(220, 220, 220);</string>
                    </property>
@@ -105,6 +108,9 @@
                  </item>
                  <item>
                   <widget class="QPushButton" name="pushButton_path">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(220, 220, 220);</string>
                    </property>
@@ -115,6 +121,9 @@
                  </item>
                  <item>
                   <widget class="QPushButton" name="pushButton_Drow">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(220, 220, 220);</string>
                    </property>
@@ -125,6 +134,9 @@
                  </item>
                  <item>
                   <widget class="QPushButton" name="pushButton_Arow">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(220, 220, 220);</string>
                    </property>
@@ -135,6 +147,9 @@
                  </item>
                  <item>
                   <widget class="QPushButton" name="pushButton_Dcol">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(220, 220, 220);</string>
                    </property>
@@ -282,6 +297,9 @@
                  </item>
                  <item>
                   <widget class="QPushButton" name="pushButton_para">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(220, 220, 220);</string>
                    </property>
@@ -308,6 +326,9 @@
                  </item>
                  <item>
                   <widget class="QPushButton" name="pushButton_folder">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(220, 220, 220);</string>
                    </property>
@@ -749,7 +770,7 @@
         <attribute name="title">
          <string>Test parameters</string>
         </attribute>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>11</x>
