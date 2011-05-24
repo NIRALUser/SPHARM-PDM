@@ -472,29 +472,9 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_load()
 	{	
 		if(checkBox_NEWCSV->isChecked()!=1)
 		{
-			//groupBox_csv->setEnabled(true);
-			//frame_del_add_3->setEnabled(true);
 			pushButton_load->setEnabled(true);
 			pushButton_para->setEnabled(false);
 			pushButton_folder->setEnabled(false);
-/*TODO
-std::string pathMANCOVA_WizardString;
-QString pathMANCOVA_Wizard;
-QString pathMANCOVA_Wizard2;
-pathMANCOVA_WizardString= itksys::SystemTools::FindProgram("shapeAnalysisMANCOVA_Wizard");
-pathMANCOVA_Wizard = pathMANCOVA_WizardString.c_str() ;
-pathMANCOVA_Wizard.remove(pathMANCOVA_Wizard.size()-27,27);
-QString MANOCAVApicture ="MANOCAVApicture.xpm";
-QString Slicerpicture ="Slicer.xpm";
-pathMANCOVA_Wizard =pathMANCOVA_Wizard2;
-pathMANCOVA_Wizard.append(MANOCAVApicture);
-pathMANCOVA_Wizard2.append(Slicerpicture);
-
-label_5->setPixmap(QPixmap(pathMANCOVA_Wizard));
-label_6->setPixmap(QPixmap(pathMANCOVA_Wizard));
-label_7->setPixmap(QPixmap(pathMANCOVA_Wizard2));*/
-
-
 		}
 		else
 		{
@@ -506,6 +486,17 @@ label_7->setPixmap(QPixmap(pathMANCOVA_Wizard2));*/
 					pushButton_para->setEnabled(false);
 					pushButton_load->setEnabled(true);
 					pushButton_folder->setEnabled(false);
+					headerVector.clear();
+lineEdit_infile->clear();
+lineEdit_inde_selectedgp->clear();
+lineEdit_inde_selected->clear();
+lineEdit_type_sacle->clear();
+groupColumn.clear();
+independentColumn.clear();
+label_inde_var->setStyleSheet(QString::fromUtf8("color: rgb(0,0,0);"));
+label_infile->setStyleSheet(QString::fromUtf8("color: rgb(0,0,0);"));
+label_group->setStyleSheet(QString::fromUtf8("color: rgb(0,0,0);"));
+label_scale_2->setStyleSheet(QString::fromUtf8("color: rgb(0,0,0);"));
 				}
 				//else
 				if (answer == QMessageBox::No)
@@ -531,6 +522,17 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_new()
 					pushButton_load->setEnabled(false);
 					lineEdit_path->clear();
 					tableWidget->clear ();
+					headerVector.clear();
+lineEdit_infile->clear();
+lineEdit_inde_selectedgp->clear();
+lineEdit_inde_selected->clear();
+lineEdit_type_sacle->clear();
+groupColumn.clear();
+independentColumn.clear();
+label_inde_var->setStyleSheet(QString::fromUtf8("color: rgb(0,0,0);"));
+label_infile->setStyleSheet(QString::fromUtf8("color: rgb(0,0,0);"));
+label_group->setStyleSheet(QString::fromUtf8("color: rgb(0,0,0);"));
+label_scale_2->setStyleSheet(QString::fromUtf8("color: rgb(0,0,0);"));
 				}
 				
 				if (answer == QMessageBox::No)
@@ -539,7 +541,7 @@ void shapeAnalysisMANCOVA_Wizard::mutual_exclusion_new()
 					checkBox_load->setCheckState(Qt::Checked);}
 			}
 			else
-			{	//pushButton_folder->setEnabled(true);
+			{	
 				lineEdit_namecsv->setEnabled(true);
 				pushButton_para->setEnabled(true);
 				pushButton_load->setEnabled(false);
