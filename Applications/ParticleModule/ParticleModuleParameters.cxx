@@ -229,8 +229,8 @@ void ParticleModuleParameters::WriteCommandLine()
 	if(file)
 	{
 		file<<"ParticleModule ";
-		file<<"--columVolumeFile "<<m_ColumnMesh;
-		file<<"--smoothing "<<GetSmoomting();
+		file<<"--columMeshFile "<<m_ColumnMesh;
+		file<<" --smoothing "<<GetSmoomting();
 		file<<" --startRegularization "<<GetStartRegularization();
 		file<<" --endRegularization "<<GetEndRegularization();
 		file<<" --optimizationIt "<<GetOptimizationIteration();
@@ -274,6 +274,15 @@ char * ParticleModuleParameters::Convert_Double_To_CharArray(double doubleVariab
 
 	return CharArrayOut;
 }
+
+double ParticleModuleParameters::string_to_double( const std::string& s )
+ {
+   std::istringstream i(s);
+   double x;
+   if (!(i >> x))
+     return 0;
+   return x;
+ } 
 
 void ParticleModuleParameters::Run(std::vector<const char*> args, bool TimeOn)
 {		
@@ -514,40 +523,20 @@ void ParticleModuleParameters::VTKToLpts(std::string VTKName, std::string LptsNa
 		nbPoints=meshin->GetOutput()->GetNumberOfPoints();
 	}
 
-	std::ifstream fileVTK( VTKName.c_str(), std::ios::in); 
-	std::string line,word;
-	int compt =0;
-	int nbline =0;
 	std::ofstream lptsfile(LptsName.c_str(), std::ios::out | std::ios::trunc);
-	while(getline(fileVTK, line)) 
-	{	
-		
-			if(nbline>4 && Pointwritten<nbPoints){
-				for(unsigned int i=0;i<line.length();i++)
-				{
-					if ((line.at(i)!=' ')&&(i!=line.length()-1))
-					{	word=word+line.at(i);
 
-					}
-					else
-					{
-
-						if(compt==2){
-							lptsfile<<word<<std::endl;;
-							word.clear();
-							compt=0;Pointwritten++;}
-						else{
-							lptsfile<<word<<" ";
-							compt++;
-							word.clear();
-							}
-					}
-	
-				}
-			}
-	nbline++;
-	}	
-	fileVTK.close();
+	vtkPolyDataReader *vtkreader = vtkPolyDataReader::New();
+	vtkreader->SetFileName(VTKName.c_str());
+	vtkreader->Update();
+	double x[3];
+	vtkPoints * PointVTK = vtkPoints::New();
+	PointVTK=vtkreader->GetOutput()->GetPoints();
+	vtkPoints * pointsTmp = vtkPoints::New();
+	for (int PointId = 0; PointId < (vtkreader->GetOutput()->GetNumberOfPoints()); PointId++)
+	{
+		PointVTK->GetPoint(PointId,x);
+		lptsfile<<x[0]<<" "<<x[1]<<" "<<x[2]<<std::endl;
+	}
 	lptsfile.close();
 }
 
@@ -614,7 +603,6 @@ void ParticleModuleParameters::RunParticleCorrespondencePreprocessing()
 	
 	
 	std::cout<<"....Run ParticleCorrespondencePreprocessing.... "<<std::endl;
-
 	Run(args,1);	
 
 }
@@ -746,11 +734,16 @@ void ParticleModuleParameters::RunShapeWorksRun()
 
 void ParticleModuleParameters::CreateVTKFiles()
 {
+	std::cout<<" "<<std::endl;
+	std::cout<<"....Post processing : creation of the meshes and of the mrml scene.... "<<std::endl;
+
 	for(int j=1;j<3;j++)
+
 	{
 		if(j==0){FindPostLptsFiles("/Corresponding_Particles/corresp*.mode",PostLptsWptsFile);}
 		if(j==2){FindPostLptsFiles("/Corresponding_Particles/corresp*.lpts",PostLptsWptsFile);}
 		if(j==1){FindPostLptsFiles("/Corresponding_Particles/corresp*.wpts",PostLptsWptsFile);}
+
 		for( unsigned int i =0; i<PostLptsWptsFile.size();i++)
 		{
 			int result;
@@ -766,7 +759,9 @@ void ParticleModuleParameters::CreateVTKFiles()
 				WPTSFile.push_back(newname);}
 			result= rename( PostLptsWptsFile[i].c_str() , newname.c_str() );
 			if(j==2){
+
 				LptsToVTK(newname);
+
 				ScaleMeta(VTKCorrespFile.back(),VTKCorrespFile.back(),GetEnforcedSpaceX(),GetEnforcedSpaceY(),GetEnforcedSpaceZ());
 				}
 		}
@@ -789,7 +784,7 @@ void ParticleModuleParameters::FindPostLptsFiles(std::string pathFiles,std::vect
 
 void ParticleModuleParameters::LptsToVTK(std::string lptsFile)
 {
-	
+
 	std::ifstream lptsfile(lptsFile.c_str(), std::ios::in); 
 
 	std::string line,word;
@@ -797,20 +792,21 @@ void ParticleModuleParameters::LptsToVTK(std::string lptsFile)
 	int nbline =0;
 	int gotoline=0;
 
-
 	std::string namevtk = SetVTKName(lptsFile);
-	std::ofstream vtkfile(namevtk.c_str(), std::ios::out | std::ios::trunc);
 
 	std::string stringtemplatevtk;
 	stringtemplatevtk.append(Data.at(0));
-	std::ifstream templatevtk(stringtemplatevtk.c_str(),std::ios::in);
-	
-	vtkfile<<"# vtk DataFile Version 3.0"<<std::endl;
-	vtkfile<<"vtk output"<<std::endl;
-	vtkfile<<"ASCII"<<std::endl;
-	vtkfile<<"DATASET POLYDATA"<<std::endl;
-	vtkfile<<"POINTS "; vtkfile<<Convert_Double_To_CharArray(nbPoints); vtkfile<<" float"<<std::endl;
 
+	vtkPoints * PointVTK = vtkPoints::New();
+	double pt[3];
+	vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+	int nbpt=0;
+
+	// Create a set of points
+
+
+	vtkSmartPointer<vtkPoints> pointsSource=vtkSmartPointer<vtkPoints>::New();
+	
 	while(getline(lptsfile, line)) 
 		{	
 
@@ -821,33 +817,34 @@ void ParticleModuleParameters::LptsToVTK(std::string lptsFile)
 	
 				else
 				{
-					vtkfile<<word<<" ";
+					double pt[3];
+					pt[compt]=string_to_double( word );
 					compt++;
 					word.clear();
-					if(compt==2){gotoline++;compt=0;}
-					if(gotoline==3)
-					{	
-						gotoline=0;
-					}
+					if(compt==3){
+						compt=0;
+						 pointsSource->InsertNextPoint( pt);
+						}
 				}
 
-			}
+			}nbpt++;
 		}
-	lptsfile.close();
-	
-	
-	
 
-	vtkPolyDataReader *meshin = vtkPolyDataReader::New();  //TODO
+	lptsfile.close();	
+	vtkPolyData *polyData = vtkPolyData::New();
+	polyData->SetPoints(pointsSource);
+	polyData->Update();
+
+	//cells
+	vtkPolyDataReader *meshin = vtkPolyDataReader::New(); 
 	meshin->SetFileName(Data.at(0).c_str());
 	meshin->Update();
 
 	vtkIdList * pointsTmp ;
-	vtkfile<<"POLYGONS "<<meshin->GetOutput()->GetNumberOfCells()<<" "<<(meshin->GetOutput()->GetNumberOfCells())*4<<std::endl;
 	double x[3];
-	vtkIdType vtkid= meshin->GetOutput()->GetNumberOfCells(); 
-	 vtkCellArray *polys;
+	vtkCellArray *polys;
  	polys = meshin->GetOutput()->GetPolys();
+	vtkSmartPointer<vtkCellArray >polysout = vtkSmartPointer<vtkCellArray>::New();
 
 	int i, prim = 0, vert = 0;
 	vtkIdType npts, *pts;
@@ -855,15 +852,16 @@ void ParticleModuleParameters::LptsToVTK(std::string lptsFile)
 	
 	for (polys->InitTraversal(); polys->GetNextCell(npts, pts); prim++)
 	{
-		vtkfile <<"3 "<< pts[0]<<" "<<pts[1]<<" "<<pts[2]<<std::endl;
+		polysout->InsertNextCell(npts,pts);
 	}
-	vtkfile.close();
-	templatevtk.close();
-	
-
-
-
+	polyData->SetPolys(polysout);
+	polyData->Update();
+	SurfaceWriter->SetInput(polyData);
+	SurfaceWriter->SetFileName(namevtk.c_str()); 
+	SurfaceWriter->Update();
 }
+
+
 std::string ParticleModuleParameters::SetVTKName(std::string lptsName)
 {
 
@@ -908,6 +906,9 @@ void ParticleModuleParameters::CreateMrml()
 	int nbShapesPerMRML= GetHorizontalGridPara() * GetVerticalGridPara();
 
 	int DataNumber=VTKCorrespFile.size();
+
+
+
 	int nbVTKlastMRML,nbMRML;
 	if(DataNumber>nbShapesPerMRML){
 		nbVTKlastMRML= DataNumber %nbShapesPerMRML;
@@ -919,10 +920,6 @@ void ParticleModuleParameters::CreateMrml()
 	}
 	else{nbMRML=0;}
 
-	std::cout<<nbMRML<<std::endl;
-	std::cout<<DataNumber<<std::endl;
-	std::cout<<GetHorizontalGridPara()<<std::endl;
-	std::cout<<GetVerticalGridPara()<<std::endl;
 
 	for(int i=0; i<(nbMRML+1);i++)//+1 since the 1st is with all the datas
 	{
@@ -960,10 +957,10 @@ void ParticleModuleParameters::CreateMrml()
 			mrmlfile.append(".mrml");
 			DataNumberPerMRML=nbShapesPerMRML;
 		}
-		std::cout<<"mrml "<<mrmlfile<<std::endl;	
+		std::cout<<" "<<std::endl;
+		std::cout<<"mrml scene : "<<mrmlfile<<std::endl;	
 		argsMRML.push_back("CreateMRML");   
 		argsMRML.push_back(mrmlfile.c_str());
-
 		
 		for(int k=0;k<DataNumberPerMRML;k++)
 		{
@@ -973,7 +970,6 @@ void ParticleModuleParameters::CreateMrml()
 
 			found=(VTKCorrespFile.at(k)).find_last_of("/\\");
 			relativeName.append((VTKCorrespFile.at(k)).substr(found+1));
-			std::cout << relativeName<< std::endl;
 			Namevtk.push_back(relativeName);
 			relativeName.insert(0,"../Corresponding_Meshes/");
 			RelativePathToVTK.push_back(relativeName);

@@ -26,6 +26,17 @@
 #include "vtkDataSet.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
+#include "vtkPolyDataWriter.h"
+#include <vtkSmartPointer.h>
+ 
+#include <vtkMath.h>
+#include <vtkMergePoints.h>
+#include <vtkPointSource.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
+#include <vtkDelaunay2D.h>
+
+
 
 using namespace std;
 
@@ -77,6 +88,8 @@ class ParticleModuleParameters
 	int GetHorizontalGridPara();
 	int GetVerticalGridPara();
 
+
+
 	void WriteCommandLine();
 	int ReadFile(const char *);
 
@@ -105,8 +118,6 @@ class ParticleModuleParameters
 	void LptsToVTK(std::string );
 	void FindPostLptsFiles(std::string ,std::vector<std::string> );
 	void CreateVTKFiles();
-
-	double string_to_double( const std::string&);
 
 	void MakePPDirectory();
 	
@@ -182,6 +193,7 @@ private:
 
 
 	char * Convert_Double_To_CharArray(double doubleVariable);
+	double string_to_double( const std::string& s );
 
 	std::string PPOutputDirectory;
 	int m_VerticalGridParaGrid;

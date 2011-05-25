@@ -41,9 +41,10 @@ int main(int argc, char * argv [])
 	
 		m_computation.CreateCorrespondenceFiles();
 		m_computation.RunShapeWorksRun();
-
+cout<<"------ CreateVTKFiles-----"<<endl;
 		m_computation.CreateVTKFiles();	
 		m_computation.CreateMrml();
+//m_computation.ParticleModuleParameters::LptsToVTK("/biomed-resimg/home/lbompard/hippocampi_Nitrc/Particles2/Corresponding_Particles/groupA_01_hippo_pp_surfSPHARM_procalign.lpts");
 	}
 	
 	return(0);
