@@ -423,12 +423,10 @@ int Parameters::GetFinalFlipXYZ()
 int Parameters::SetHorizontalGridPara(int _HorizontalGridPara)
 {
 	m_HorizontalGridParaGrid = _HorizontalGridPara;
-//std::cout<<"m_HorizontalGridParaGrid "<<m_HorizontalGridParaGrid<<std::endl;
 }
 int Parameters::SetVerticalGridPara(int _VerticalGridPara)
 {
 	 m_VerticalGridParaGrid = _VerticalGridPara;
-//std::cout<<"m_VerticalGridParaGrid "<<m_VerticalGridParaGrid<<std::endl;
 }
 
 int Parameters::GetHorizontalGridPara()
@@ -457,6 +455,49 @@ bool Parameters::GetUseProcalign()
 {
 	return m_UseProcalign;
 }
+void Parameters::SetRelativeWeighting(float RelativeWeighting)
+{	
+	 m_RelativeWeight=RelativeWeighting;
+}
+
+float Parameters::GetRelativeWeighting()
+{
+  	return m_RelativeWeight;
+}
+
+void Parameters::SetEndRegularization(double endRegularization)
+{	
+	 m_endRegularization=endRegularization;
+}
+
+double Parameters::GetEndRegularization()
+{
+	return m_endRegularization;
+}
+
+void Parameters::SetStartRegularization(double startRegularization)
+{	
+	 m_startRegularization=startRegularization;
+}
+
+double Parameters::GetStartRegularization()
+{
+	return m_startRegularization;
+}
+
+void Parameters::SetOptimizationIteration(int optimizationIteration)
+{	
+	 m_optimizationIteration=optimizationIteration;
+}
+
+int Parameters::GetOptimizationIteration()
+{
+	return m_optimizationIteration;
+}
+
+
+
+
 //Set Data list containing all the data from csv file
 void Parameters::SetDataList(vector < vector<string> > _List)
 {	
@@ -1076,7 +1117,6 @@ void Parameters::ModifyCSV(int Particles)
 					{					
 						line.append(",");
 						line.append(GetPostCorrespondenceFiles(nbline-1));
-std::cout<<line<<std::endl;
 
 						//in=1;
 					}

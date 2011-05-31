@@ -981,8 +981,9 @@ std::cout<<testCol<<"testCol"<<std::endl;
 		arguments.append( file_name);
 	}
 	else{
-		arguments.append( path);
-		arguments.append( name);
+		QString pathtonewfile;
+		pathtonewfile=path+"/"+name;
+		arguments.append(pathtonewfile);
 	}
 
 	if(checkBox_intertest->isChecked()){

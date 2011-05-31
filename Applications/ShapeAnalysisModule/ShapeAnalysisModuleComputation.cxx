@@ -39,11 +39,11 @@ void ShapeAnalysisModuleComputation::Computation()
 	//execute MeshMath external application
 	for(int i=0;i<GetDataNumber();i++)
 	{
-		ExecuteMeshMath(i,"phi",0);
-		ExecuteMeshMath(i,"theta",0);
+		//ExecuteMeshMath(i,"phi",0);
+		//ExecuteMeshMath(i,"theta",0);
 	}
 	
-	ExecuteMeshMathTemplate();
+	//ExecuteMeshMathTemplate();
 
 	// Delete the transform file;
 	for(int type=0; type<3;type++)
@@ -60,9 +60,11 @@ void ShapeAnalysisModuleComputation::Computation()
 		}
 	}
 	else{nbMRML=0;}
+
 	for(int i=0;i<nbMRML+1;i++){ //+1 since the 1st is with all the datas
+
 		if(nummrml!=-1){SetFilesNameMRML(nummrml);}
-		WriteBMSMRMLScene(nummrml);		
+		//WriteBMSMRMLScene(nummrml);		
 		nummrml++;
 	}	
 
@@ -76,7 +78,7 @@ void ShapeAnalysisModuleComputation::Computation()
 	//Particles 
 	if(GetParticlesState())
 	{
-		RunParticlesModule();
+		//RunParticlesModule();
 		std::cout<<"Modify output csv"<<std::endl;
 		ModifyCSV(1);
 		for(int i=0;i<GetDataNumber();i++)
@@ -480,10 +482,13 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 {
 
 
+
 	for(int count=0;count<3;count++) // None,ecalign,procallign
 	{
-
-		for(int nbcolormap=0;nbcolormap<3;nbcolormap++)
+		int endcount;
+		if(whichmrml ==-1){endcount=2;}
+		else{endcount=3;}
+		for(int nbcolormap=0;nbcolormap<endcount;nbcolormap++)
 		{
 			std::string mrmlfilePhi;
 			std::string mrmlfileTheta;
@@ -928,7 +933,7 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 
 		//write files with the commande line using to create the mrml
 		
-		char fileCommanLine[512];
+		/*char fileCommanLine[512];
 		std::strcpy (fileCommanLine,"/biomed-resimg/conte_projects/CONTE_NEO/Data/Vent_Shape/SPHARM/SPHARM_10_15_Slicer/LeftVentLong2/MRML/commandline");
 		std::strcat (fileCommanLine,Convert_Double_To_CharArray(whichmrml));
 		std::strcat (fileCommanLine,"_");
@@ -944,7 +949,7 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
 			for(int k=0; k<args.size();k++)
 				{file<<args.at(k)<<" ";}
 			file.close();
-		}
+		}*/
 
 
 		//itk sys parameters
@@ -2154,9 +2159,15 @@ void ShapeAnalysisModuleComputation::RunParticlesModule()
 	args.push_back(Convert_Double_To_CharArray(GetEnforcedSpaceY()));
 	args.push_back("--sz" );
 	args.push_back(Convert_Double_To_CharArray(GetEnforcedSpaceZ()));
+	args.push_back("--HorizontalGridPara" );
+	args.push_back(Convert_Double_To_CharArray(GetHorizontalGridPara()));
+	args.push_back("--VerticalGridPara" );
+	args.push_back(Convert_Double_To_CharArray(GetVerticalGridPara()));
 	args.push_back(csvdirectory.c_str() );
 	args.push_back(particlesdirectory.c_str());
 	args.push_back(0);
+
+
 
 	for( unsigned int k =0; k<args.size()-1;k++)
 	{std::cout<<args.at(k)<<" ";}
@@ -2419,10 +2430,10 @@ void ShapeAnalysisModuleComputation::CreateMrmlParticle()
 				NbTrans.push_back(tmp_NbTrans);
 				argsMRML.push_back((NbTrans.back()).c_str());
 	
-			
+	
 				//add shape
 				argsMRML.push_back("-m" ); argsMRML.push_back("-f" ); argsMRML.push_back((RelativePathToVTK.back()).c_str()); argsMRML.push_back("-n");  argsMRML.push_back(Namevtk.back().c_str()); 
-	
+
 	
 				//add color map
 				std::string tmp_NameColormap;

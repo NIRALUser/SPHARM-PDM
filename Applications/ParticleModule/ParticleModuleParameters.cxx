@@ -369,7 +369,7 @@ void ParticleModuleParameters::OrganizeOutputDirectory()
 	lptsafter.append("/Corresponding_Particles");
 	preprocess.append("/PreProcessing");
 	corresp.append("/Corresponding_Meshes");
-	meta.append("/VTKFiles_withScaleFactor");
+	meta.append("/InputMeshes_scale");
 	mrml.append("/MRML");
 	trans.append("/MRML/TransformFiles");
 
@@ -489,9 +489,9 @@ void ParticleModuleParameters::SetVTKFilesName(std::string VTKName)
 {
 	std::string vtkoutput;
 	vtkoutput.append(GetOutputDirectory());
-	vtkoutput.append("/VTKFiles_withScaleFactor/");
+	vtkoutput.append("/InputMeshes_scale/");
 	vtkoutput.append( VTKName);
-	vtkoutput.append(".vtk");
+	vtkoutput.append("_scale.vtk");
 	VTKPrePross.push_back(vtkoutput);
 }
 

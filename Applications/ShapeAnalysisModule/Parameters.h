@@ -136,6 +136,15 @@ class Parameters
 	double GetConstantOrientation();
 	string GetDirectionToDisplay();
 
+	void  SetEndRegularization(double );
+	double GetEndRegularization();
+	void SetStartRegularization(double);
+	double GetStartRegularization();
+	void SetOptimizationIteration(int );
+	int GetOptimizationIteration();
+	void SetRelativeWeighting(float );
+	float GetRelativeWeighting();
+
 	void SetOverwriteSegPostProcess(bool);
 	void SetOverwriteGenParaMesh(bool);
 	void SetOverwriteParaToSPHARMMesh(bool);
@@ -203,6 +212,11 @@ private:
 	string m_VolumeFileExtension;
 	int m_ColumnVolume;
 	bool m_ChooseColumnState;
+
+	float m_RelativeWeight;
+	double m_endRegularization;
+	double m_startRegularization;
+	int m_optimizationIteration;
 
 	int ListSize;
   
