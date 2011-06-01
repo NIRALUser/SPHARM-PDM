@@ -58,8 +58,8 @@ int main(int argc, char *argv[])
 // FDRdiscoveryLevel = level of FDR discovery (usually 0.05 or 0.1)
 // significanceSteps = number of significance steps
 
+
   PARSE_ARGS;
-  std::cout << std::endl;
   if (infile.empty()) {
     std::cout << " no input file specified " << std::endl;exit(1);
   }

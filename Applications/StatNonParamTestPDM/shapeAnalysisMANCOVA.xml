@@ -172,8 +172,7 @@
     <label>Compute scale factor from volumes.</label>
     <default>false</default>
     <longflag>--computeScaleFactorFromVolumes</longflag>
-    <description>Reinterprets the scaling column values as volumes and compute the scaling factor from them.
-	    This first computes an overall average across all scaling factors and then computes the cubic root of the ratio of the original scaler to the average scale factor. This is considered standard practive if we scale with ICV volumes. WARNING: This is different from the traditional file format where these scaling were already pre-computed.</description>
+    <description>Reinterprets the scaling column values as volumes and compute the scaling factor from them. This first computes an overall average across all scaling factors and then computes the cubic root of the ratio of the original scaler to the average scale factor. This is considered standard practive if we scale with ICV volumes. WARNING: This is different from the traditional file format where these scaling were already pre-computed.</description>
     </boolean>
 	
     <boolean>

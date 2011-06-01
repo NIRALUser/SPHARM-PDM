@@ -945,7 +945,7 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 	QString NumColumnGroupTypes;
 	QString NumColumnInde ;
 	QString aide;
-std::cout<<headerVector.size()<<std::endl;
+
 	for(unsigned int i=0; i<headerVector.size();i++)
 	{
 		if(headerVector[i]==3){
@@ -971,10 +971,6 @@ std::cout<<headerVector.size()<<std::endl;
 		if(headerVector[i]==1){infile=i;}
 		if(headerVector[i]==2){scalecol=i;}
 	}
-std::cout<<"fin"<<std::endl;
-
-std::cout<<numInde<<"numInde"<<std::endl;
-std::cout<<testCol<<"testCol"<<std::endl;
 
 	if(checkBox_load->isChecked())
 	{
@@ -1022,10 +1018,9 @@ std::cout<<testCol<<"testCol"<<std::endl;
 	qs = QString(intToString(testCol).c_str());
 	arguments.append("--testColumn "+qs);
 
-	arguments.append("--columnIndependent "+NumColumnInde);
-
-	qs = QString(intToString(numInde).c_str());
-	arguments.append("--numIndependent "+qs);
+	if( NumColumnInde.isEmpty()!=TRUE ){arguments.append("--columnIndependent "+NumColumnInde);
+		qs = QString(intToString(numInde).c_str());
+		arguments.append("--numIndependent "+qs);}
 
 	arguments.append("--columnGroupTypes "+NumColumnGroupTypes);
 

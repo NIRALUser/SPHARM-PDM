@@ -531,7 +531,6 @@ void ParticleModuleParameters::VTKToLpts(std::string VTKName, std::string LptsNa
 	double x[3];
 	vtkPoints * PointVTK = vtkPoints::New();
 	PointVTK=vtkreader->GetOutput()->GetPoints();
-	vtkPoints * pointsTmp = vtkPoints::New();
 	for (int PointId = 0; PointId < (vtkreader->GetOutput()->GetNumberOfPoints()); PointId++)
 	{
 		PointVTK->GetPoint(PointId,x);
@@ -789,16 +788,14 @@ void ParticleModuleParameters::LptsToVTK(std::string lptsFile)
 
 	std::string line,word;
 	int compt =0;
-	int nbline =0;
-	int gotoline=0;
 
 	std::string namevtk = SetVTKName(lptsFile);
 
 	std::string stringtemplatevtk;
 	stringtemplatevtk.append(Data.at(0));
 
-	vtkPoints * PointVTK = vtkPoints::New();
-	double pt[3];
+
+	//double pt[3];
 	vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
 	int nbpt=0;
 
@@ -840,13 +837,11 @@ void ParticleModuleParameters::LptsToVTK(std::string lptsFile)
 	meshin->SetFileName(Data.at(0).c_str());
 	meshin->Update();
 
-	vtkIdList * pointsTmp ;
-	double x[3];
 	vtkCellArray *polys;
  	polys = meshin->GetOutput()->GetPolys();
 	vtkSmartPointer<vtkCellArray >polysout = vtkSmartPointer<vtkCellArray>::New();
 
-	int i, prim = 0, vert = 0;
+	int prim = 0;
 	vtkIdType npts, *pts;
 
 	
@@ -1311,4 +1306,9 @@ std::string ParticleModuleParameters::GetDirectionToDisplay()
 
 
 
-		
+
+
+
+
+
+

@@ -1090,8 +1090,7 @@ void Parameters::ModifyCSV(int Particles)
 	ifstream read(csv_read);
 	ofstream write(csv_write, ios::out);
 
-	int nbline=0;
-	int in =0;
+	int nbline=-1;
 
 	if(read){
 		if(write)
@@ -1099,30 +1098,28 @@ void Parameters::ModifyCSV(int Particles)
 			std::string line;
 			while(getline(read, line))
 			{
-				if(nbline==0)
+				if(nbline==-1)
 				{
-					line.append( ", Euler Number, Spherical topology ,Correspondence ");
-					write<<line<<std::endl;
+					line.append( ", Euler Number, Spherical topology");
+					if(Particles ==1 ){line.append( ", Correspondence ");}
 				}
 				else{
 					if( nbline< m_EulerNumber.size())
 					{					
 						line.append(",");
-						line.append(m_EulerNumber.at(nbline-1));
+						line.append(m_EulerNumber.at(nbline));
 						line.append(",");
-						line.append(m_SphericalTopo.at(nbline-1));
-					//	in=1;
-					//}
+						line.append(m_SphericalTopo.at(nbline));
+					}
 					if(Particles ==1 )
 					{					
 						line.append(",");
-						line.append(GetPostCorrespondenceFiles(nbline-1));
+						line.append(GetPostCorrespondenceFiles(nbline));
 
-						//in=1;
 					}
-					/*if( in == 1) {*/write<<line<<std::endl; /*in =0;*/}
 				}
-			  nbline++;
+				write<<line<<std::endl; 
+			  	nbline++;
 			}
 			write.close();
 			read.close();

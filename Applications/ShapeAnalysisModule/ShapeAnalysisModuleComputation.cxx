@@ -39,11 +39,11 @@ void ShapeAnalysisModuleComputation::Computation()
 	//execute MeshMath external application
 	for(int i=0;i<GetDataNumber();i++)
 	{
-		//ExecuteMeshMath(i,"phi",0);
-		//ExecuteMeshMath(i,"theta",0);
+		ExecuteMeshMath(i,"phi",0);
+		ExecuteMeshMath(i,"theta",0);
 	}
 	
-	//ExecuteMeshMathTemplate();
+	ExecuteMeshMathTemplate();
 
 	// Delete the transform file;
 	for(int type=0; type<3;type++)
@@ -64,7 +64,7 @@ void ShapeAnalysisModuleComputation::Computation()
 	for(int i=0;i<nbMRML+1;i++){ //+1 since the 1st is with all the datas
 
 		if(nummrml!=-1){SetFilesNameMRML(nummrml);}
-		//WriteBMSMRMLScene(nummrml);		
+		WriteBMSMRMLScene(nummrml);		
 		nummrml++;
 	}	
 
@@ -78,7 +78,7 @@ void ShapeAnalysisModuleComputation::Computation()
 	//Particles 
 	if(GetParticlesState())
 	{
-		//RunParticlesModule();
+		RunParticlesModule();
 		std::cout<<"Modify output csv"<<std::endl;
 		ModifyCSV(1);
 		for(int i=0;i<GetDataNumber();i++)
@@ -2289,7 +2289,7 @@ void ShapeAnalysisModuleComputation::CreateMrmlParticle()
 	
 			if(i==0)
 			{
-				mrmlfile.append(".mrml");
+				mrmlfile.append("_allVTK.mrml");
 				DataNumberPerMRML=DataNumber;
 			}
 			else{
