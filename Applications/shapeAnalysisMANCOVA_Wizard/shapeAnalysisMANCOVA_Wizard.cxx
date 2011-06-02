@@ -394,7 +394,9 @@ void shapeAnalysisMANCOVA_Wizard::ajustCol()  //the Qtablewidget as the same num
 
 void shapeAnalysisMANCOVA_Wizard::saveFile(const char* char_file)  //to store the Qtablewidget in a file
 {
+	int col=0;
 	std::ofstream file(char_file, std::ios::out | std::ios::trunc);
+
         if(file) 
         {
 		for(int k=0;k<spinBox_col->value();k++)
@@ -405,7 +407,7 @@ void shapeAnalysisMANCOVA_Wizard::saveFile(const char* char_file)  //to store th
 				file<<header_read<<",";
 			}
 			else{
-				file<<header_read<<" \n";
+				file<<header_read<<"\n";
 			}
 		}
 		for(int i=0;i<spinBox_data->value();i++)
@@ -413,14 +415,27 @@ void shapeAnalysisMANCOVA_Wizard::saveFile(const char* char_file)  //to store th
 			{
 				tableWidget->setCurrentCell(i,j);
 				const char *item_read=QStringToChar(tableWidget->currentItem()->text());
+				std::string help2;
+
+					
+
 				if(j!=spinBox_col->value()-1)
 				{
-					file<<item_read<<",";
+					if(headerVector[col]==1){
+							help2=((std::string)item_read).substr(0, ((std::string)item_read).size()-1);
+							file<<help2<<",";}
+					else{file<<item_read<<",";}
 				}
 				else{
-					file<<item_read<<" \n";
+					if(headerVector[col]==1){
+							help2=((std::string)item_read).substr(0, ((std::string)item_read).size()-1);
+							file<<help2<<std::endl;}
+					else{file<<item_read<<std::endl;}
 				}
+					
+				col++;
 			}
+			col=0;
 		}
                file.close();  
         }
