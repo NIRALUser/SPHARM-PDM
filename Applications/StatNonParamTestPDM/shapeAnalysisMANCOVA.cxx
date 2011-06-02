@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
     std::cout << " input file specified: " << infile<< std::endl;
   }
   //if (outbase.empty()) {
+std::string outbase;
     outbase = infile;
 
   //if the input file is a csv file
@@ -225,7 +226,7 @@ if (KWMreadableInputFile==0)
 } //end if (KWMreadableInputFile==0)
 
   // compute simple interaction tests if desired
-    if ( interactionTest ) {simpleCorrs==1;}
+    if ( interactionTest ) {simpleCorrs=1;}
   if ( simpleCorrs )
     {
 

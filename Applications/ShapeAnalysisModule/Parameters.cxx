@@ -644,20 +644,12 @@ void Parameters::SetImageDimensions(char *filename)
 				m_const_orientation=m_Dims[2];}
 		}			
 	}
-/*m_Dims.push_back(minCoord[0]);
-m_Dims.push_back(minCoord[1]);
-m_Dims.push_back(maxCoord[2]);*/
-
-
-
-
-
-m_Dims.push_back(minCoord[0]);//3
-m_Dims.push_back(maxCoord[0]);
-m_Dims.push_back(minCoord[1]);//5
-m_Dims.push_back(maxCoord[1]);
-m_Dims.push_back(minCoord[2]);//7
-m_Dims.push_back(maxCoord[2]);
+	m_Dims.push_back(minCoord[0]);//3
+	m_Dims.push_back(maxCoord[0]);
+	m_Dims.push_back(minCoord[1]);//5
+	m_Dims.push_back(maxCoord[1]);
+	m_Dims.push_back(minCoord[2]);//7
+	m_Dims.push_back(maxCoord[2]);
 
 }
 

@@ -1413,7 +1413,7 @@ Meta2VTK(InputMetaFile,InputVTKFile);
     switch(i)
     {
       case 0:
-	std::cout<<i<<std::endl;
+	
       		strcpy(TextFile,outbase.c_str());
       		strcat(TextFile,"_mancovaRawP.txt");
       		args.push_back("MeshMath");
@@ -1428,7 +1428,7 @@ args.push_back(0);
       break;
 
     case 1:
-	std::cout<<i<<std::endl;
+	
 		strcpy(TextFile,outbase.c_str());
       		strcat(TextFile,"_mancovaFDRP.txt");
       		args.push_back("MeshMath");
@@ -1443,7 +1443,7 @@ args.push_back(0);
       break;
 
 	case 2:
-		if(interactionTest){std::cout<<i<<std::endl;
+		if(interactionTest){
 			strcpy(TextFile,outbase.c_str());
 			strcat(TextFile,"_normProjectionsPearsonPval.txt");
 			args.push_back("MeshMath");
@@ -1455,7 +1455,7 @@ args.push_back(0);
 			args.push_back(TextFile);
 			args.push_back("normProjectionsPearsonPval");}
 
-		else{std::cout<<i<<std::endl;
+		else{
 			strcpy(TextFile,outbase.c_str());
 			strcat(TextFile,"_DiffMagnitude.txt");
 			args.push_back("MeshMath");
@@ -1476,7 +1476,7 @@ args.push_back(0);
       args.push_back(OutputFile);
       args.push_back("-KWMtoPolyData");
       args.push_back(TextFile);
-      args.push_back("DiffMagnitudeSpearman");*/std::cout<<i<<std::endl;
+      args.push_back("DiffMagnitudeSpearman");*/
 strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normProjectionsSpearmanPvalFDR.txt");
       args.push_back("MeshMath");
@@ -1529,12 +1529,11 @@ case 4:
 	args.push_back(TextFile);
 	args.push_back("DiffMagnitudePearsonPval");
 	args.push_back("-significanceLevel");
-	args.push_back(PvalueColorMapString.c_str());*/std::cout<<i<<std::endl;
+	args.push_back(PvalueColorMapString.c_str());*/
 strcpy(TextFile,outbase.c_str());
 	strcat(TextFile,"_normProjectionsPearsonPvalFDR.txt");
 	args.push_back("MeshMath");
 	args.push_back(OutputFile);  
-std::cout<<OutputFile<<std::endl;
 	args.push_back(OutputFile);
 	args.push_back("-KWMtoPolyData");
 	args.push_back(TextFile);
@@ -1547,7 +1546,7 @@ args.push_back(0);
       break;
 
 	//case 7:
-case 5:std::cout<<i<<std::endl;
+case 5:
 	strcpy(TextFile,outbase.c_str());
       strcat(TextFile,"_normProjectionsPearson.txt");
       args.push_back("MeshMath");
@@ -1561,7 +1560,7 @@ args.push_back(0);
       break;
 
 	//case 8:
-case 6:std::cout<<i<<std::endl;
+case 6:
 		strcpy(TextFile,outbase.c_str());
       		strcat(TextFile,"_normProjectionsSpearman.txt");  //TODO fichier txt avec les info pour les overlay (activescalar)
      		args.push_back("MeshMath"); //PROG appele
@@ -1577,7 +1576,6 @@ break;
 	//case 9:
 case 7:
 
-std::cout<<i<<std::endl;
 		strcpy(TextFile,outbase.c_str());
       		strcat(TextFile,"_normProjectionsSpearmanPval.txt");
         	args.push_back("MeshMath");
@@ -1609,7 +1607,7 @@ if (i>1){
 for(int k=0;k<args.size();k++)
 {std::cout<<args.at(k)<<" ";}}
 
-std::cout<<"MeshMath"<<std::endl;
+
   while(int Value = itksysProcess_WaitForData(gp,&data,&length,&timeout)) // wait for 1s
   {
     if ( ((Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR)) && data[0]=='D' )
@@ -1694,151 +1692,151 @@ else{
 void write_MRMLScene(std::string outbase,bool interactionTest)
 {
 
-if(interactionTest)
+	if(interactionTest)
 	{
 
 
-std::vector<const char*> args;
-char* data = NULL;
-int length;
-double timeout = 0.05;
-int result;
+		std::vector<const char*> args;
+		char* data = NULL;
+		int length;
+		double timeout = 0.05;
+		int result;
+		
+		
+		char mrmlfile[512];
+		std::strcpy (mrmlfile,outbase.c_str());
+		std::strcat(mrmlfile,"_MRMLscene.mrml");
+		char nameVTK[512];
+		std::strcpy (nameVTK,outbase.c_str());
+		std::strcat(nameVTK,"_meanAll_uncorrected.vtk");
+		stringstream ss;
+		string s_nameVTK;
+		ss << nameVTK;
+		ss >> s_nameVTK;
+		size_t found;
+		found=s_nameVTK.find_last_of("/\\");
+		
+		//create a directory to save the transfoms files
+		std::string s_outputdirectory;
+		s_outputdirectory.append(s_nameVTK);
+		s_outputdirectory.erase (found,s_outputdirectory.size()-1);
+		s_outputdirectory.append("/transformFiles");
+		itksys::SystemTools::MakeDirectory(s_outputdirectory.c_str());
+		
+		//the name of the vtk 
+		s_nameVTK.erase (0,found+1);
+		std::strcpy (nameVTK,s_nameVTK.c_str());
+		
+		
+		args.push_back("CreateMRML");   
+		args.push_back(mrmlfile);
+
+		// shape and tranfoms
+		
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransRawP.tfm"); args.push_back("-n"); args.push_back("transRawP"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-165,27,-62");
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("RawP"); args.push_back("-p"); args.push_back("transRawP"); args.push_back("-as"); args.push_back("RawP"); args.push_back("-cc"); args.push_back("customLUT_RawP.txt");
+		
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransFDRP.tfm"); args.push_back("-n"); args.push_back("transFDRP"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-165,27,-1");
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("FDRP"); args.push_back("-p"); args.push_back("transFDRP"); args.push_back("-as"); args.push_back("FDRP"); args.push_back("-cc"); args.push_back("customLUT_FDRP.txt");
+		
+		args.push_back("-t"); args.push_back("-f"); args.push_back("transformFiles/TransnormProjectionsPearson.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearson"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-200");
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearson"); args.push_back("-p"); args.push_back("transnormProjectionsPearson"); args.push_back("-as"); args.push_back("normProjectionsPearson"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearson.txt");
+		
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsPearsonPval.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearsonPval"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-146");
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearsonPval"); args.push_back("-p"); args.push_back("transnormProjectionsPearsonPval"); args.push_back("-as"); args.push_back("normProjectionsPearsonPval"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearsonPval.txt");
+		
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsPearsonPvalFDR.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearsonPvalFDR"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-85");
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearsonPvalFDR"); args.push_back("-p"); args.push_back("transnormProjectionsPearsonPvalFDR"); args.push_back("-as"); args.push_back("normProjectionsPearsonPvalFDR"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearsonPvalFDR.txt");
+		
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearman.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearman"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-200");
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearman"); args.push_back("-p"); args.push_back("transnormProjectionsSpearman"); args.push_back("-as"); args.push_back("normProjectionsSpearman"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearman.txt");
+		
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearmanPval.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearmanPval"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-146");
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-p"); args.push_back("transnormProjectionsSpearmanPval"); args.push_back("-as"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearmanPval.txt");
+		
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearmanPvalFDR.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearmanPvalFDR"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-85");
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-p"); args.push_back("transnormProjectionsSpearmanPvalFDR"); args.push_back("-as"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearmanPvalFDR.txt");
+
+		//fiducial 
+		args.push_back("-q"); args.push_back("-id"); args.push_back("MANCOVA_FDRP"); args.push_back("-lbl"); args.push_back("MANCOVA_FDRP"); args.push_back("-pos"); args.push_back("-156,38,35");
+		
+		args.push_back("-q"); args.push_back("-id"); args.push_back("MANCOVA_RawP"); args.push_back("-lbl"); args.push_back("MANCOVA_RawP"); args.push_back("-pos"); args.push_back("-156,38,85");
+		
+		args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsSpearman"); args.push_back("-lbl"); args.push_back("normProjectionsSpearman"); args.push_back("-pos"); args.push_back("-197,38,235");
+		
+		args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-lbl"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-pos"); args.push_back("-197,38,177");
+		
+		args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-lbl"); args.push_back("normProjectionsSpearmanPvalFDRP"); args.push_back("-pos"); args.push_back("-197,38,123");
+		
+		args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsPearson"); args.push_back("-lbl"); args.push_back("normProjectionsPearson"); args.push_back("-pos"); args.push_back("-60,38,250");
+		
+		args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsPearsonPval"); args.push_back("-lbl"); args.push_back("normProjectionsPearsonPval"); args.push_back("-pos"); args.push_back("-60,38,187");
+		
+		args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsPearsonPvalFDR"); args.push_back("-lbl"); args.push_back("normProjectionsPearsonPvalFDRP"); args.push_back("-pos"); args.push_back("-60,38,121");
 
 
-char mrmlfile[512];
-std::strcpy (mrmlfile,outbase.c_str());
-std::strcat(mrmlfile,"_MRMLscene.mrml");
-char nameVTK[512];
-std::strcpy (nameVTK,outbase.c_str());
-std::strcat(nameVTK,"_meanAll_uncorrected.vtk");
-stringstream ss;
-string s_nameVTK;
-ss << nameVTK;
-ss >> s_nameVTK;
-size_t found;
-found=s_nameVTK.find_last_of("/\\");
-
-//create a directory to save the transfoms files
-std::string s_outputdirectory;
-s_outputdirectory.append(s_nameVTK);
-s_outputdirectory.erase (found,s_outputdirectory.size()-1);
-s_outputdirectory.append("/transformFiles");
- itksys::SystemTools::MakeDirectory(s_outputdirectory.c_str());
-
-//the name of the vtk 
-s_nameVTK.erase (0,found+1);
-std::strcpy (nameVTK,s_nameVTK.c_str());
-
-
-args.push_back("CreateMRML");   
-args.push_back(mrmlfile);
-
-// shape and tranfoms
-
-args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransRawP.tfm"); args.push_back("-n"); args.push_back("transRawP"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-165,27,-62");
-args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("RawP"); args.push_back("-p"); args.push_back("transRawP"); args.push_back("-as"); args.push_back("RawP"); args.push_back("-cc"); args.push_back("customLUT_RawP.txt");
-
-args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransFDRP.tfm"); args.push_back("-n"); args.push_back("transFDRP"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-165,27,-1");
-args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("FDRP"); args.push_back("-p"); args.push_back("transFDRP"); args.push_back("-as"); args.push_back("FDRP"); args.push_back("-cc"); args.push_back("customLUT_FDRP.txt");
-
-args.push_back("-t"); args.push_back("-f"); args.push_back("transformFiles/TransnormProjectionsPearson.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearson"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-200");
-args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearson"); args.push_back("-p"); args.push_back("transnormProjectionsPearson"); args.push_back("-as"); args.push_back("normProjectionsPearson"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearson.txt");
-
-args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsPearsonPval.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearsonPval"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-146");
-args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearsonPval"); args.push_back("-p"); args.push_back("transnormProjectionsPearsonPval"); args.push_back("-as"); args.push_back("normProjectionsPearsonPval"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearsonPval.txt");
-
-args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsPearsonPvalFDR.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearsonPvalFDR"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-85");
-args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearsonPvalFDR"); args.push_back("-p"); args.push_back("transnormProjectionsPearsonPvalFDR"); args.push_back("-as"); args.push_back("normProjectionsPearsonPvalFDR"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearsonPvalFDR.txt");
-
-args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearman.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearman"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-200");
-args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearman"); args.push_back("-p"); args.push_back("transnormProjectionsSpearman"); args.push_back("-as"); args.push_back("normProjectionsSpearman"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearman.txt");
-
-args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearmanPval.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearmanPval"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-146");
-args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-p"); args.push_back("transnormProjectionsSpearmanPval"); args.push_back("-as"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearmanPval.txt");
-
-args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearmanPvalFDR.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearmanPvalFDR"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-85");
-args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-p"); args.push_back("transnormProjectionsSpearmanPvalFDR"); args.push_back("-as"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearmanPvalFDR.txt");
-
-//fiducial 
-args.push_back("-q"); args.push_back("-id"); args.push_back("MANCOVA_FDRP"); args.push_back("-lbl"); args.push_back("MANCOVA_FDRP"); args.push_back("-pos"); args.push_back("-156,38,35");
-
-args.push_back("-q"); args.push_back("-id"); args.push_back("MANCOVA_RawP"); args.push_back("-lbl"); args.push_back("MANCOVA_RawP"); args.push_back("-pos"); args.push_back("-156,38,85");
-
-args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsSpearman"); args.push_back("-lbl"); args.push_back("normProjectionsSpearman"); args.push_back("-pos"); args.push_back("-197,38,235");
-
-args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-lbl"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-pos"); args.push_back("-197,38,177");
-
-args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-lbl"); args.push_back("normProjectionsSpearmanPvalFDRP"); args.push_back("-pos"); args.push_back("-197,38,123");
-
-args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsPearson"); args.push_back("-lbl"); args.push_back("normProjectionsPearson"); args.push_back("-pos"); args.push_back("-60,38,250");
-
-args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsPearsonPval"); args.push_back("-lbl"); args.push_back("normProjectionsPearsonPval"); args.push_back("-pos"); args.push_back("-60,38,187");
-
-args.push_back("-q"); args.push_back("-id"); args.push_back("normProjectionsPearsonPvalFDR"); args.push_back("-lbl"); args.push_back("normProjectionsPearsonPvalFDRP"); args.push_back("-pos"); args.push_back("-60,38,121");
-
-
-//end
-args.push_back(0);
-/*
-for(unsigned int i=0; i<args.size();i++)
-{
-std::cout<<args.at(i)<<std::endl;
-}*/
-
-std::cout<<"Mrml"<<std::endl;
-// Run the application
-
-  itksysProcess* gp = itksysProcess_New();
-  itksysProcess_SetCommand(gp, &*args.begin());
-  itksysProcess_SetOption(gp,itksysProcess_Option_HideWindow,1);
-  itksysProcess_Execute(gp);
-
-while(int Value = itksysProcess_WaitForData(gp,&data,&length,&timeout)) // wait for 1s
-  {
-    if ( ((Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR)) && data[0]=='D' )
-    {
-	strstream st;
-      	for(int i=0;i<length;i++) 	
-	{
-		st<<data[i];
-	}
-	string dim=st.str();
-    }
-    	timeout = 0.05;   	
-  }
-
-  itksysProcess_WaitForExit(gp, 0);
-  
-  result = 1;
-  switch(itksysProcess_GetState(gp))
-  {
-  case itksysProcess_State_Exited:
-  {
-    result = itksysProcess_GetExitValue(gp);
-  } break;
-  case itksysProcess_State_Error:
-  {
-    std::cerr<<"Error: Could not run " << args[0]<<":\n";
-    std::cerr<<itksysProcess_GetErrorString(gp)<<"\n";
-    std::cout<<"Error: Could not run " << args[0]<<":\n";
-    std::cout<<itksysProcess_GetErrorString(gp)<<"\n";
-  } break;
-  case itksysProcess_State_Exception:
-  {
-    std::cerr<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
-    std::cout<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
-  } break;
-  case itksysProcess_State_Starting:
-  case itksysProcess_State_Executing:
-  case itksysProcess_State_Expired:
-  case itksysProcess_State_Killed:
-  {
-    // Should not get here.
-    std::cerr<<"Unexpected ending state after running "<<args[0]<<std::endl;
-    std::cout<<"Unexpected ending state after running "<<args[0]<<std::endl;
-  } break;
-  }
-  itksysProcess_Delete(gp);  /*
+		//end
+		args.push_back(0);
+		/*
+		for(unsigned int i=0; i<args.size();i++)
+		{
+		std::cout<<args.at(i)<<std::endl;
+		}*/
+		
+		
+		// Run the application
+		
+		itksysProcess* gp = itksysProcess_New();
+		itksysProcess_SetCommand(gp, &*args.begin());
+		itksysProcess_SetOption(gp,itksysProcess_Option_HideWindow,1);
+		itksysProcess_Execute(gp);
+		
+		while(int Value = itksysProcess_WaitForData(gp,&data,&length,&timeout)) // wait for 1s
+		{
+		if ( ((Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR)) && data[0]=='D' )
+		{
+			strstream st;
+			for(int i=0;i<length;i++) 	
+			{
+				st<<data[i];
+			}
+			string dim=st.str();
+		}
+			timeout = 0.05;   	
+		}
+		
+		itksysProcess_WaitForExit(gp, 0);
+		
+		result = 1;
+		switch(itksysProcess_GetState(gp))
+		{
+		case itksysProcess_State_Exited:
+		{
+		result = itksysProcess_GetExitValue(gp);
+		} break;
+		case itksysProcess_State_Error:
+		{
+		std::cerr<<"Error: Could not run " << args[0]<<":\n";
+		std::cerr<<itksysProcess_GetErrorString(gp)<<"\n";
+		std::cout<<"Error: Could not run " << args[0]<<":\n";
+		std::cout<<itksysProcess_GetErrorString(gp)<<"\n";
+		} break;
+		case itksysProcess_State_Exception:
+		{
+		std::cerr<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
+		std::cout<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
+		} break;
+		case itksysProcess_State_Starting:
+		case itksysProcess_State_Executing:
+		case itksysProcess_State_Expired:
+		case itksysProcess_State_Killed:
+		{
+		// Should not get here.
+		std::cerr<<"Unexpected ending state after running "<<args[0]<<std::endl;
+		std::cout<<"Unexpected ending state after running "<<args[0]<<std::endl;
+		} break;
+		}
+		itksysProcess_Delete(gp);  /*
 
 
 char file[512];
@@ -2268,11 +2266,130 @@ MRMLFile<<"</MRML>"<<std::endl;*/
 
 }
 
-void write_commandline_txt(std::string outbase)
+/ Set the dimension of the first object to display it in a MRML scene
+void SetImageDimensions(char *filename)
 {
+	//read vtk file
+	vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+	meshin->SetFileName(filename);
+	
+	try{
+		meshin->Update();		
+	}
+	catch(...)
+	{
+		std::cout << "Cannot open file: " << filename << " to set dimensions" << std::endl;
+		return ;
+	}
 
+	vtkPolyData *poly= vtkPolyData::New();
+	poly=meshin->GetOutput();
+	vtkIdType idNumPointsInFile=poly->GetNumberOfPoints();
+
+	vtkPoints * pts;
+	double minCoord[3];
+	double maxCoord[3];
+
+	double *firstCoord;
 	
 
+	//find the max and min coordinates
+	pts=poly->GetPoints();
+	firstCoord=pts->GetPoint(0);
+
+	minCoord[0]=firstCoord[0];
+	minCoord[1]=firstCoord[1];
+	minCoord[2]=firstCoord[2];
+
+	maxCoord[0]=firstCoord[0];
+	maxCoord[1]=firstCoord[1];
+	maxCoord[2]=firstCoord[2];
+
+  	for(unsigned int i = 1; i < idNumPointsInFile; i++)
+   	{	
+		double *p;
+		p=pts->GetPoint(i);
+	
+		if(p[0]<=minCoord[0])
+		{
+			minCoord[0]=p[0];
+		}
+		
+		if(p[1]<=minCoord[1])
+		{
+			minCoord[1]=p[1];
+		}
+	
+		if(p[2]<=minCoord[2])
+		{
+			minCoord[2]=p[2];
+		}
+	
+		if(p[0]>=maxCoord[0])
+		{
+			maxCoord[0]=p[0];
+		}
+	
+		if(p[1]>=maxCoord[1])
+		{
+			maxCoord[1]=p[1];
+		}
+	
+		if(p[2]>=maxCoord[2])
+		{
+			maxCoord[2]=p[2];
+		}
+    	}
+	
+	m_Dims.clear();
+
+	//find the biggest dimension
+	m_Dims.push_back(maxCoord[0]-minCoord[0]);
+	m_Dims.push_back(maxCoord[1]-minCoord[1]);
+	m_Dims.push_back(maxCoord[2]-minCoord[2]);
+
+	if(m_Dims[0]<m_Dims[1])
+	{
+		if(m_Dims[1]<m_Dims[2])
+			{m_directionToDisplay="ZYX";
+			m_const_orientation=m_Dims[0];}
+		else
+		{
+			if(m_Dims[0]<m_Dims[2])
+				{m_directionToDisplay="YZX";
+
+				m_const_orientation=m_Dims[0];}
+			else 	{m_directionToDisplay="YXZ";
+				m_const_orientation=m_Dims[2];}
+		}
+	}
+
+	else
+	{
+		if(m_Dims[0]<m_Dims[2])
+			{m_directionToDisplay="ZXY";
+			m_const_orientation=m_Dims[1];}
+		else
+		{
+			if(m_Dims[1]<m_Dims[2])
+				{m_directionToDisplay="XZY";
+				m_const_orientation=m_Dims[1];}
+			else	 {m_directionToDisplay="XYZ";
+				m_const_orientation=m_Dims[2];}
+		}			
+	}
+	m_Dims.push_back(minCoord[0]);//3
+	m_Dims.push_back(maxCoord[0]);
+	m_Dims.push_back(minCoord[1]);//5
+	m_Dims.push_back(maxCoord[1]);
+	m_Dims.push_back(minCoord[2]);//7
+	m_Dims.push_back(maxCoord[2]);
+
+}
+
+string GetDirectionToDisplay()
+{
+	return m_directionToDisplay;
 }
 
 	

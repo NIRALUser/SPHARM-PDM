@@ -598,7 +598,7 @@ covarianceSampleFilterType->SetMean(meanSampleFilter->GetOutputs()) ;
 
   }
 
-  return;
+  return ;
 }
 
 void

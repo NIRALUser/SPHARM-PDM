@@ -52,7 +52,7 @@ ENDIF(NOT WIN32 OR CYGWIN)
 
 
 
-   SET (shapeAnalysisMANCOVA_SRCS shapeAnalysisMANCOVA.cxx MANCOVA.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx  miscMANCOVA.cxx nonMANCOVA.cxx)
+   SET (shapeAnalysisMANCOVA_SRCS shapeAnalysisMANCOVA.cxx MANCOVA.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx  miscMANCOVA.cxx nonMANCOVA.cxx )
   GENERATECLP(shapeAnalysisMANCOVA_SRCS shapeAnalysisMANCOVA.xml)
 
   ADD_EXECUTABLE(shapeAnalysisMANCOVA ${shapeAnalysisMANCOVA_SRCS})
