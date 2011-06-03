@@ -357,7 +357,7 @@ void ParticleModuleParameters::Run(std::vector<const char*> args, bool TimeOn)
 //create the sub directories
 void ParticleModuleParameters::OrganizeOutputDirectory()
 {
-	std::string lptsbefore,lptsafter,preprocess,corresp,meta,mrml,trans;
+	std::string lptsbefore,lptsafter,preprocess,corresp,meta,mrml,trans,meshscale;
 	lptsbefore.append(GetOutputDirectory());
 	lptsafter.append(GetOutputDirectory());
 	preprocess.append(GetOutputDirectory());
@@ -365,6 +365,7 @@ void ParticleModuleParameters::OrganizeOutputDirectory()
 	meta.append(GetOutputDirectory());
 	mrml.append(GetOutputDirectory());
 	trans.append(GetOutputDirectory());
+	meshscale.append(GetOutputDirectory());
 	lptsbefore.append("/Initialization_Particles");
 	lptsafter.append("/Corresponding_Particles");
 	preprocess.append("/PreProcessing");
@@ -372,6 +373,7 @@ void ParticleModuleParameters::OrganizeOutputDirectory()
 	meta.append("/InputMeshes_scale");
 	mrml.append("/MRML");
 	trans.append("/MRML/TransformFiles");
+	meshscale.append("/Corresponding_Meshes_scale");
 
 	itksys::SystemTools::MakeDirectory(lptsbefore.c_str());
 	itksys::SystemTools::MakeDirectory(lptsafter.c_str());
@@ -380,6 +382,7 @@ void ParticleModuleParameters::OrganizeOutputDirectory()
 	itksys::SystemTools::MakeDirectory(meta.c_str());
 	itksys::SystemTools::MakeDirectory(mrml.c_str());
 	itksys::SystemTools::MakeDirectory(trans.c_str());
+	itksys::SystemTools::MakeDirectory(meshscale.c_str());
 }
 
 //read the input file to know the .vtk usefull for this running
@@ -759,8 +762,8 @@ void ParticleModuleParameters::CreateVTKFiles()
 			result= rename( PostLptsWptsFile[i].c_str() , newname.c_str() );
 			if(j==2){
 
-				LptsToVTK(newname);
-
+				LptsToVTK(newname,0); //create in Corresponding_Meshes
+				LptsToVTK(newname,1); // create in Corresponding_Meshes_scale
 				ScaleMeta(VTKCorrespFile.back(),VTKCorrespFile.back(),GetEnforcedSpaceX(),GetEnforcedSpaceY(),GetEnforcedSpaceZ());
 				}
 		}
@@ -781,7 +784,7 @@ void ParticleModuleParameters::FindPostLptsFiles(std::string pathFiles,std::vect
 
 }
 
-void ParticleModuleParameters::LptsToVTK(std::string lptsFile)
+void ParticleModuleParameters::LptsToVTK(std::string lptsFile, bool scale)
 {
 
 	std::ifstream lptsfile(lptsFile.c_str(), std::ios::in); 
@@ -789,7 +792,7 @@ void ParticleModuleParameters::LptsToVTK(std::string lptsFile)
 	std::string line,word;
 	int compt =0;
 
-	std::string namevtk = SetVTKName(lptsFile);
+	std::string namevtk = SetVTKName(lptsFile,scale);
 
 	std::string stringtemplatevtk;
 	stringtemplatevtk.append(Data.at(0));
@@ -857,18 +860,20 @@ void ParticleModuleParameters::LptsToVTK(std::string lptsFile)
 }
 
 
-std::string ParticleModuleParameters::SetVTKName(std::string lptsName)
+std::string ParticleModuleParameters::SetVTKName(std::string lptsName, bool scale)
 {
 
 	size_t found;
 	std::string vtkName;
 	found=lptsName.find_last_of("/");
 	vtkName=lptsName.substr(found);
-	vtkName.insert(0,"/Corresponding_Meshes");
+	if(scale==0){ vtkName.insert(0,"/Corresponding_Meshes");}
+	if(scale==1){ vtkName.insert(0,"/Corresponding_Meshes_scale");}
 	vtkName.insert(0,GetOutputDirectory());
 	vtkName.erase(vtkName.end()-5,vtkName.end());
-	vtkName.append("_corr.vtk");
-	VTKCorrespFile.push_back(vtkName);
+	if(scale==0){vtkName.append("_corr.vtk");
+			VTKCorrespFile.push_back(vtkName);}
+	if(scale==1){vtkName.append("_corr_scale.vtk");}
 	return(vtkName);
 }
 

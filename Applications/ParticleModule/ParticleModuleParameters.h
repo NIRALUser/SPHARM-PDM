@@ -115,7 +115,7 @@ class ParticleModuleParameters
 
 	std::string SetVTKFilesName(std::string, std::string );
 	
-	void LptsToVTK(std::string );
+	void LptsToVTK(std::string,bool );
 	void FindPostLptsFiles(std::string ,std::vector<std::string> );
 	void CreateVTKFiles();
 
@@ -131,7 +131,7 @@ class ParticleModuleParameters
 
 	void Run(std::vector<const char*> , bool );
 
-	std::string SetVTKName(std::string );
+	std::string SetVTKName(std::string,bool );
 
 	void ColorMap();
 	void CreateMrml( );
