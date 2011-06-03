@@ -149,7 +149,7 @@
 	    <name>FDRdiscoveryLevel</name>
 	    <label>Cutoff of p-values considering significant.</label>
 	    <longflag>--FDRdiscoveryLevel</longflag>
-	    <flag>p</flag>
+	    <flag>f</flag>
 	    <description>What cutoff of p-values is considered significant. Only affects the FDR corrected results.</description>
 	    <default>0.05</default>
 	    <constraints>

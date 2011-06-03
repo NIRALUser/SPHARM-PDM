@@ -421,16 +421,16 @@ void shapeAnalysisMANCOVA_Wizard::saveFile(const char* char_file)  //to store th
 
 				if(j!=spinBox_col->value()-1)
 				{
-					if(headerVector[col]==1){
+					/*if(headerVector[col]==1){
 							help2=((std::string)item_read).substr(0, ((std::string)item_read).size()-1);
 							file<<help2<<",";}
-					else{file<<item_read<<",";}
+					else{file<<item_read<<",";}*/file<<item_read<<",";
 				}
 				else{
-					if(headerVector[col]==1){
+					/*if(headerVector[col]==1){
 							help2=((std::string)item_read).substr(0, ((std::string)item_read).size()-1);
 							file<<help2<<std::endl;}
-					else{file<<item_read<<std::endl;}
+					else{file<<item_read<<std::endl;}*/file<<item_read<<std::endl;
 				}
 					
 				col++;
@@ -1025,7 +1025,7 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 	//if(checkBox_zscore->isChecked()){ arguments.append( "-writeZScores" );}
 
 
-	arguments.append( "--significanceLevel "+lineEdit_pvalue->text());
+	arguments.append( "--significanceLevelRawP "+lineEdit_pvalue->text());
 	arguments.append( "--FDRdiscoveryLevel "+lineEdit_fdrp->text());
 	
 	if(checkBox_KWMinput->isChecked()){arguments.append( "--KWMinput" );}
