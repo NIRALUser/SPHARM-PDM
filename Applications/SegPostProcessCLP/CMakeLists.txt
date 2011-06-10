@@ -7,7 +7,6 @@ FIND_PACKAGE(Slicer3 QUIET NO_DEFAULT_PATH)
 IF (Slicer3_FOUND)
   INCLUDE(${Slicer3_USE_FILE})
   slicer3_set_default_install_prefix_for_external_projects()
-
 ELSE (Slicer3_FOUND)
 
 FIND_PACKAGE(ITK REQUIRED)
@@ -31,12 +30,10 @@ ADD_EXECUTABLE (SegPostProcessCLP ${SegPostProcessCLP_SOURCE})
 
 TARGET_LINK_LIBRARIES(SegPostProcessCLP ITKIO ITKBasicFilters ITKCommon)
 
-
-
-#IF (Slicer3_FOUND)
- # slicer3_set_plugins_output_path(SegPostProcessCLP)
-  #slicer3_install_plugins(SegPostProcessCLP)
-#ENDIF (Slicer3_FOUND)
+IF (Slicer3_FOUND)
+  slicer3_set_plugins_output_path(SegPostProcessCLP)
+  slicer3_install_plugins(SegPostProcessCLP)
+ENDIF (Slicer3_FOUND)
 
 INSTALL(TARGETS
   SegPostProcessCLP

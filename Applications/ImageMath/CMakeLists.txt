@@ -26,4 +26,18 @@ TARGET_LINK_LIBRARIES( ImageMath ${ITK_LIBRARIES} )
 
 TARGET_LINK_LIBRARIES( CropImage ${ITK_LIBRARIES} )
 
+IF (Slicer3_FOUND)
+ slicer3_set_plugins_output_path(ImageMath)
+ slicer3_install_plugins(ImageMath)
+ slicer3_set_plugins_output_path(CropImage)
+ slicer3_install_plugins(CropImage)
+ENDIF (Slicer3_FOUND)
+
+INSTALL(TARGETS
+  ImageMath
+  CropImage
+  BUNDLE DESTINATION  bin
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib/static  )
 

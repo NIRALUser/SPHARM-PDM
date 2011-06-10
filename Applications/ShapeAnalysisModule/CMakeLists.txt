@@ -8,8 +8,8 @@ IF (Slicer3_FOUND)
   INCLUDE(${Slicer3_USE_FILE})
   slicer3_set_default_install_prefix_for_external_projects()
 
- FIND_PACKAGE(BatchMake REQUIRED)
- INCLUDE(${BatchMake_USE_FILE})
+  FIND_PACKAGE(BatchMake REQUIRED)
+  INCLUDE(${BatchMake_USE_FILE})
 
 ELSE (Slicer3_FOUND)
   FIND_PACKAGE(ITK REQUIRED)
@@ -34,16 +34,16 @@ ELSE (Slicer3_FOUND)
   ENDIF(GenerateCLP_FOUND)
 
   FIND_PACKAGE(BatchMake REQUIRED)
-   IF (BatchMake_FOUND)
-	INCLUDE(${BatchMake_USE_FILE})
-   ENDIF (BatchMake_FOUND)
+  IF (BatchMake_FOUND)
+    INCLUDE(${BatchMake_USE_FILE})
+  ENDIF (BatchMake_FOUND)
 
 
 ENDIF (Slicer3_FOUND)
 
-SET (ShapeAnalysisModule_SOURCE 
+SET (ShapeAnalysisModule_SOURCE
 	ShapeAnalysisModuleCLP.cxx
-	Parameters.cxx 
+	Parameters.cxx
 	Parameters.h
 	ShapeAnalysisModuleComputation.cxx
 	ShapeAnalysisModuleComputation.h   ) 
@@ -58,10 +58,10 @@ TARGET_LINK_LIBRARIES(ShapeAnalysisModule
   ${BatchMake_LIBRARIES} )
 
 
-#IF (Slicer3_FOUND)
-#  slicer3_set_plugins_output_path(ShapeAnalysisModule)
- # slicer3_install_plugins(ShapeAnalysisModule)
-#ENDIF (Slicer3_FOUND)
+IF (Slicer3_FOUND)
+  slicer3_set_plugins_output_path(ShapeAnalysisModule)
+  slicer3_install_plugins(ShapeAnalysisModule)
+ENDIF (Slicer3_FOUND)
 
 INSTALL(TARGETS
   ShapeAnalysisModule

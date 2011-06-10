@@ -1,4 +1,3 @@
-
 PROJECT(GenParaMeshCLP)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
@@ -24,7 +23,7 @@ ELSE (Slicer3_FOUND)
     MESSAGE(FATAL_ERROR, "VTK not found. Please set VTK_DIR.")
   ENDIF (VTK_FOUND)
 
-FIND_PACKAGE(GenerateCLP REQUIRED)
+  FIND_PACKAGE(GenerateCLP REQUIRED)
   IF(GenerateCLP_FOUND)
     INCLUDE(${GenerateCLP_USE_FILE})
   ELSE(GenerateCLP_FOUND)
@@ -39,14 +38,14 @@ SET (GenParaMeshCLP_SOURCE GenParaMeshCLP.cxx itkMeshTovtkPolyData.cxx)
 GENERATECLP(GenParaMeshCLP_SOURCE GenParaMeshCLP.xml)
 ADD_EXECUTABLE (GenParaMeshCLP ${GenParaMeshCLP_SOURCE})
 TARGET_LINK_LIBRARIES ( GenParaMeshCLP
-		   ${ITK_LIBRARIES}
-		   vtkIO ShapeAlgorithms SparseMatrixLib)
+  ${ITK_LIBRARIES}
+  vtkIO ShapeAlgorithms SparseMatrixLib)
 
 
-#IF (Slicer3_FOUND)
- # slicer3_set_plugins_output_path(GenParaMeshCLP)
- # slicer3_install_plugins(GenParaMeshCLP)
-#ENDIF (Slicer3_FOUND)
+IF (Slicer3_FOUND)
+ slicer3_set_plugins_output_path(GenParaMeshCLP)
+ slicer3_install_plugins(GenParaMeshCLP)
+ENDIF (Slicer3_FOUND)
 
 INSTALL(TARGETS
   GenParaMeshCLP

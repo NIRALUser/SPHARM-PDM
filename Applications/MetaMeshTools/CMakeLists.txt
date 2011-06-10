@@ -68,47 +68,26 @@ TARGET_LINK_LIBRARIES(Meta2VTK ${ITK_LIBRARIES})
 ADD_EXECUTABLE(VTK2Meta VTK2Meta.cxx vtkPolyDataToitkMesh.cxx)
 TARGET_LINK_LIBRARIES(VTK2Meta ${ITK_LIBRARIES} )
 
-#IF (Slicer3_FOUND)
-#  slicer3_set_plugins_output_path(STL2Meta)
- # slicer3_install_plugins(STL2Meta)
-# slicer3_set_plugins_output_path(Meta2STL)
- # slicer3_install_plugins(Meta2STL)
-# slicer3_set_plugins_output_path(MeshMath)
- # slicer3_install_plugins(MeshMath)
- #slicer3_set_plugins_output_path(Meta2VTK)
- # slicer3_install_plugins(Meta2VTK)
- #slicer3_set_plugins_output_path(VTK2Meta)
-#  slicer3_install_plugins(VTK2Meta)
-#ENDIF (Slicer3_FOUND)
+IF (Slicer3_FOUND)
+  slicer3_set_plugins_output_path(STL2Meta)
+  slicer3_install_plugins(STL2Meta)
+  slicer3_set_plugins_output_path(Meta2STL)
+  slicer3_install_plugins(Meta2STL)
+  slicer3_set_plugins_output_path(MeshMath)
+  slicer3_install_plugins(MeshMath)
+  slicer3_set_plugins_output_path(Meta2VTK)
+  slicer3_install_plugins(Meta2VTK)
+  slicer3_set_plugins_output_path(VTK2Meta)
+  slicer3_install_plugins(VTK2Meta)
+ENDIF (Slicer3_FOUND)
 
 INSTALL(TARGETS
   STL2Meta
-  BUNDLE DESTINATION  bin
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib/static  )
-INSTALL(TARGETS
   Meta2STL
-  BUNDLE DESTINATION  bin
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib/static  )
-INSTALL(TARGETS
   MeshMath
-  BUNDLE DESTINATION  bin
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib/static  )
-INSTALL(TARGETS
- Meta2VTK
-  BUNDLE DESTINATION  bin
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib/static  )
-INSTALL(TARGETS
+  Meta2VTK
   VTK2Meta
   BUNDLE DESTINATION  bin
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib/static  )
-

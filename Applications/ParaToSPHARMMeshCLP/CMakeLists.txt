@@ -13,10 +13,10 @@ TARGET_LINK_LIBRARIES ( ParaToSPHARMMeshCLP
        vtkIO vtkHybrid vtkCommon vtkFiltering 
 	ShapeIO SpatialObject ShapeAlgorithms SpatialObject)
 
-#IF (Slicer3_FOUND)
- # slicer3_set_plugins_output_path(ParaToSPHARMMeshCLP)
-  #slicer3_install_plugins(ParaToSPHARMMeshCLP)
-#ENDIF (Slicer3_FOUND)
+IF (Slicer3_FOUND)
+ slicer3_set_plugins_output_path(ParaToSPHARMMeshCLP)
+ slicer3_install_plugins(ParaToSPHARMMeshCLP)
+ENDIF (Slicer3_FOUND)
 
 INSTALL(TARGETS
   ParaToSPHARMMeshCLP
