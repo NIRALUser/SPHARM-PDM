@@ -368,12 +368,11 @@ if (KWMreadableInputFile==0)
   SOMesh->Delete();
   }
 
-//  write_ColorMap(outbase,interactionTest,significanceLevel,FDRdiscoveryLevel);
+  write_ColorMap(outbase,interactionTest,significanceLevel,FDRdiscoveryLevel);
 
  write_MRMLScene(outbase,interactionTest);
 
-//rite_commandline_txt(outbase);
-
+ 
   if ( groupLabel!=NULL ) delete groupLabel;
   if ( featureValue!=NULL ) delete featureValue;
   if ( scaleFactor!=NULL ) delete scaleFactor;
@@ -390,7 +389,7 @@ char fileCommanLine[512];
 
 	if(file)
 	{
-		/*file<< "shapeAnalysisMANCOVA " ;
+		file<< "shapeAnalysisMANCOVA " ;
 		file<<infile ;
 		file<<" --infileColumn "<< infileColumn ;
 		file<<" --numPerms "<< numPerms;
@@ -423,7 +422,7 @@ char fileCommanLine[512];
 		if(trendCorrelation) file<<" --trendCorrelation" ;
 
 
-		file.close();*/
+		file.close();
 	}
 
   // done cleaning up
