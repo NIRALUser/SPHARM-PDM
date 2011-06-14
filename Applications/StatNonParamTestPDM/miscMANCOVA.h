@@ -22,6 +22,7 @@
 #include <vtkPolyDataReader.h>
 #include "vtkPolyDataWriter.h"
 #include <vtkPolyData.h>
+ #include <vector>
 
 #include <itkImageRandomNonRepeatingConstIteratorWithIndex.h>
 
@@ -94,5 +95,10 @@ void write_MRMLScene(std::string outbase,bool interactionTest);
 void write_ColorMap(std::string outbase,bool interactionTest,double significanceLevel, double FDRdiscoveryLevel);
 void Meta2VTK(char* infile,char * outfile);
 void write_commandline_txt(std::string outbase);
+
+//std::vector<double> GetImageDimensions();
+//std::vector<double>Dim;
+std::vector<double> SetImageDimensions(char *filename );
+char * Convert_Double_To_CharArray(double doubleVariable);
 
 #endif

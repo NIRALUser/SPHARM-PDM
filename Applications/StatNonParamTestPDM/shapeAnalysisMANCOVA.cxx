@@ -368,9 +368,9 @@ if (KWMreadableInputFile==0)
   SOMesh->Delete();
   }
 
-  write_ColorMap(outbase,interactionTest,significanceLevel,FDRdiscoveryLevel);
+//  write_ColorMap(outbase,interactionTest,significanceLevel,FDRdiscoveryLevel);
 
-  write_MRMLScene(outbase,interactionTest);
+ write_MRMLScene(outbase,interactionTest);
 
 //rite_commandline_txt(outbase);
 

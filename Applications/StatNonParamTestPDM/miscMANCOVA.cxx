@@ -183,7 +183,7 @@
 	{
 	// Create and write out difference vector file:
 	std::string outFile=outbase+toAppend;
-	std::cout << "outputFile: " << outFile << std::endl	;
+	//std::cout << "outputFile: " << outFile << std::endl	;
 	std::ofstream outputFile;
 	outputFile.open(outFile.c_str(), std::ios::out); 
 	
@@ -1691,6 +1691,8 @@ else{
 
 void write_MRMLScene(std::string outbase,bool interactionTest)
 {
+	
+	string m_directionToDisplay;
 
 	if(interactionTest)
 	{
@@ -1730,33 +1732,175 @@ void write_MRMLScene(std::string outbase,bool interactionTest)
 		
 		args.push_back("CreateMRML");   
 		args.push_back(mrmlfile);
+vector<double>Dim;
+		char nameVTK2[512];
+		std::strcpy (nameVTK2,outbase.c_str());
+		std::strcat(nameVTK2,"_meanAll_uncorrected.vtk");
+Dim=SetImageDimensions((char *)(nameVTK2));
+
+//Dim=GetImageDimensions();
+std::cout<<Dim[0]<<std::endl;
+std::cout<<Dim[1]<<std::endl;
+std::cout<<Dim[2]<<std::endl;
+
+std::string pos;
+std::vector<std::string> pos_all;
+
+double x,y,z,y2;
+x= -165;
+y=27;
+z=-62;
+
 
 		// shape and tranfoms
-		
-		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransRawP.tfm"); args.push_back("-n"); args.push_back("transRawP"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-165,27,-62");
+
+//H	
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransRawP.tfm"); args.push_back("-n"); args.push_back("transRawP"); args.push_back("-l");
+
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+
+pos_all.push_back(pos);
+pos.clear();
+
+
+		//args.push_back("1,0,0,0,1,0,0,0,1,-165,27,-62");
+		args.push_back((pos_all.back()).c_str());
 		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("RawP"); args.push_back("-p"); args.push_back("transRawP"); args.push_back("-as"); args.push_back("RawP"); args.push_back("-cc"); args.push_back("customLUT_RawP.txt");
-		
-		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransFDRP.tfm"); args.push_back("-n"); args.push_back("transFDRP"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-165,27,-1");
+
+
+//G		
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransFDRP.tfm"); args.push_back("-n"); args.push_back("transFDRP"); args.push_back("-l");
+
+		z=z+Dim[2]+5;
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+
+pos_all.push_back(pos);
+pos.clear();
+		args.push_back((pos_all.back()).c_str());
+		// args.push_back("1,0,0,0,1,0,0,0,1,-165,27,-1");
 		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("FDRP"); args.push_back("-p"); args.push_back("transFDRP"); args.push_back("-as"); args.push_back("FDRP"); args.push_back("-cc"); args.push_back("customLUT_FDRP.txt");
-		
-		args.push_back("-t"); args.push_back("-f"); args.push_back("transformFiles/TransnormProjectionsPearson.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearson"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-200");
-		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearson"); args.push_back("-p"); args.push_back("transnormProjectionsPearson"); args.push_back("-as"); args.push_back("normProjectionsPearson"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearson.txt");
-		
-		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsPearsonPval.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearsonPval"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-146");
-		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearsonPval"); args.push_back("-p"); args.push_back("transnormProjectionsPearsonPval"); args.push_back("-as"); args.push_back("normProjectionsPearsonPval"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearsonPval.txt");
-		
-		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsPearsonPvalFDR.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearsonPvalFDR"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-85");
+
+
+
+//E	
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsPearsonPvalFDR.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearsonPvalFDR"); args.push_back("-l");
+
+		z=z+Dim[2]+5;
+		y2=y+Dim[1];
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y2));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+pos_all.push_back(pos);
+pos.clear();
+		args.push_back((pos_all.back()).c_str());
+		//args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-85");
 		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearsonPvalFDR"); args.push_back("-p"); args.push_back("transnormProjectionsPearsonPvalFDR"); args.push_back("-as"); args.push_back("normProjectionsPearsonPvalFDR"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearsonPvalFDR.txt");
+
+//F
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearmanPvalFDR.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearmanPvalFDR"); args.push_back("-l"); 
+
+		z=z+Dim[2]+5;
+		y=y-Dim[1];
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+pos_all.push_back(pos);
+pos.clear();
+		args.push_back((pos_all.back()).c_str());
+		//args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-85");
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-p"); args.push_back("transnormProjectionsSpearmanPvalFDR"); args.push_back("-as"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearmanPvalFDR.txt");
+	
+//B	
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsPearsonPval.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearsonPval"); args.push_back("-l");
+
+		z=z+Dim[2]+5;
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y2));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+pos_all.push_back(pos);
+pos.clear();
+		args.push_back((pos_all.back()).c_str());
+ 		//args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-146");
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearsonPval"); args.push_back("-p"); args.push_back("transnormProjectionsPearsonPval"); args.push_back("-as"); args.push_back("normProjectionsPearsonPval"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearsonPval.txt");
+	
+//D
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearmanPval.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearmanPval"); args.push_back("-l"); 
+
+		z=z+Dim[2]+5;
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+pos_all.push_back(pos);
+pos.clear();
+		args.push_back((pos_all.back()).c_str());
+		//args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-146");
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-p"); args.push_back("transnormProjectionsSpearmanPval"); args.push_back("-as"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearmanPval.txt");
+
+
 		
-		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearman.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearman"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-200");
+//A
+		args.push_back("-t"); args.push_back("-f"); args.push_back("transformFiles/TransnormProjectionsPearson.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsPearson"); args.push_back("-l");
+
+		z=z+Dim[2]+5;
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y2));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+pos_all.push_back(pos);
+pos.clear();
+		args.push_back((pos_all.back()).c_str());
+
+
+		//args.push_back("1,0,0,0,1,0,0,0,1,-93,27,-200");
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsPearson"); args.push_back("-p"); args.push_back("transnormProjectionsPearson"); args.push_back("-as"); args.push_back("normProjectionsPearson"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsPearson.txt");
+	
+	
+
+		
+//C
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearman.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearman"); args.push_back("-l"); 
+
+		z=z+Dim[2]+5;
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+pos_all.push_back(pos);
+pos.clear();
+		args.push_back((pos_all.back()).c_str());
+		//args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-200");
 		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearman"); args.push_back("-p"); args.push_back("transnormProjectionsSpearman"); args.push_back("-as"); args.push_back("normProjectionsSpearman"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearman.txt");
 		
-		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearmanPval.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearmanPval"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-146");
-		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-p"); args.push_back("transnormProjectionsSpearmanPval"); args.push_back("-as"); args.push_back("normProjectionsSpearmanPval"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearmanPval.txt");
-		
-		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransnormProjectionsSpearmanPvalFDR.tfm"); args.push_back("-n"); args.push_back("transnormProjectionsSpearmanPvalFDR"); args.push_back("-l"); args.push_back("1,0,0,0,1,0,0,0,1,-200,27,-85");
-		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-p"); args.push_back("transnormProjectionsSpearmanPvalFDR"); args.push_back("-as"); args.push_back("normProjectionsSpearmanPvalFDR"); args.push_back("-cc"); args.push_back("customLUT_normProjectionsSpearmanPvalFDR.txt");
 
+		
+
+	
 		//fiducial 
 		args.push_back("-q"); args.push_back("-id"); args.push_back("MANCOVA_FDRP"); args.push_back("-lbl"); args.push_back("MANCOVA_FDRP"); args.push_back("-pos"); args.push_back("-156,38,35");
 		
@@ -1777,12 +1921,12 @@ void write_MRMLScene(std::string outbase,bool interactionTest)
 
 		//end
 		args.push_back(0);
-		/*
-		for(unsigned int i=0; i<args.size();i++)
+
+		/*for(unsigned int i=0; i<args.size()-1;i++)
 		{
-		std::cout<<args.at(i)<<std::endl;
+		std::cout<<args.at(i)<<" ";
 		}*/
-		
+
 		
 		// Run the application
 		
@@ -2266,8 +2410,109 @@ MRMLFile<<"</MRML>"<<std::endl;*/
 
 }
 
+std::vector<double> SetImageDimensions(char *filename)
+{
 
+vector<double>vectDims;
+	//read vtk file
+	vtkPolyDataReader *meshin = vtkPolyDataReader::New();	
+	meshin->SetFileName(filename);
+
+
+	meshin->Update();		
+	
+		std::cout<<"c"<<std::endl;
+
+	vtkPolyData *poly= vtkPolyData::New();	
+	poly=meshin->GetOutput();	
+	vtkIdType idNumPointsInFile=poly->GetNumberOfPoints();	
+
+	vtkPoints * pts;
+	double minCoord[3];
+	double maxCoord[3];
+
+	double *firstCoord;
 	
 
+	//find the max and min coordinates
+	pts=poly->GetPoints();	
+	firstCoord=pts->GetPoint(0);	
 
+	minCoord[0]=firstCoord[0];
+	minCoord[1]=firstCoord[1];
+	minCoord[2]=firstCoord[2];
+
+	maxCoord[0]=firstCoord[0];
+	maxCoord[1]=firstCoord[1];
+	maxCoord[2]=firstCoord[2];
+
+  	for(unsigned int i = 1; i < idNumPointsInFile; i++)
+   	{	
+		double *p;
+		p=pts->GetPoint(i);
+	
+		if(p[0]<=minCoord[0])
+		{
+			minCoord[0]=p[0];
+		}
+		
+		if(p[1]<=minCoord[1])
+		{
+			minCoord[1]=p[1];
+		}
+	
+		if(p[2]<=minCoord[2])
+		{
+			minCoord[2]=p[2];
+		}
+	
+		if(p[0]>=maxCoord[0])
+		{
+			maxCoord[0]=p[0];
+		}
+	
+		if(p[1]>=maxCoord[1])
+		{
+			maxCoord[1]=p[1];
+		}
+	
+		if(p[2]>=maxCoord[2])
+		{
+			maxCoord[2]=p[2];
+		}
+    	}
+	
+
+	//vectDims.clear();
+	//find the biggest dimension
+	vectDims.push_back(maxCoord[0]-minCoord[0]);
+	vectDims.push_back(maxCoord[1]-minCoord[1]);
+	vectDims.push_back(maxCoord[2]-minCoord[2]);
+	/*vectDims.push_back(minCoord[0]);
+	vectDims.push_back(maxCoord[0]);
+	vectDimss.push_back(minCoord[1]);
+	vectDims.push_back(maxCoord[1]);
+	vectDims.push_back(minCoord[2]);
+	vectDims.push_back(maxCoord[2]);*/
+
+return vectDims;
+
+}
+/*
+vector <double> GetImageDimensions()
+{
+	return vectDims;
+}*/
+
+char * Convert_Double_To_CharArray(double doubleVariable) {
+	char *CharArrayOut;
+	CharArrayOut = new char [512];
+	std::string stringVariable;
+	std::stringstream strStream;
+	strStream << doubleVariable;
+	stringVariable = strStream.str();
+	strcpy(CharArrayOut,stringVariable.c_str());
+
+	return CharArrayOut;
+}
 	
