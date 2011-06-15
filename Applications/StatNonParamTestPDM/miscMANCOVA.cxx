@@ -1707,7 +1707,7 @@ void write_MRMLScene(std::string outbase,bool interactionTest)
 		
 		char mrmlfile[512];
 		std::strcpy (mrmlfile,outbase.c_str());
-		std::strcat(mrmlfile,"_MRMLscene.mrml");
+		std::strcat(mrmlfile,"_InteractionTest_MRMLscene.mrml");
 		char nameVTK[512];
 		std::strcpy (nameVTK,outbase.c_str());
 		std::strcat(nameVTK,"_meanAll_uncorrected.vtk");
@@ -2049,8 +2049,353 @@ void write_MRMLScene(std::string outbase,bool interactionTest)
 
 	}
 	else
-	{	
-	cout<<"outbase: "<<outbase<<endl;
+	{	std::cout<<"mrml"<<std::endl;
+
+		std::vector<const char*> args;
+		char* data = NULL;
+		int length;
+		double timeout = 0.05;
+		int result;
+		
+		
+		char mrmlfile[512];
+		std::strcpy (mrmlfile,outbase.c_str());
+		std::strcat(mrmlfile,"_GroupTest_MRMLscene.mrml");
+
+		char nameVTK[512];
+		std::strcpy (nameVTK,outbase.c_str());
+		std::strcat(nameVTK,"_meanAll_uncorrected.vtk");
+		stringstream ss;
+		string s_nameVTK;
+		ss << nameVTK;
+		ss >> s_nameVTK;
+		size_t found;
+		found=s_nameVTK.find_last_of("/\\");
+
+		char nameMeanA[512];
+		std::strcpy (nameMeanA,outbase.c_str());
+		std::strcat(nameMeanA,"_meanA.meta");
+		stringstream ssa;
+		string s_nameMeanA;
+		ssa << nameMeanA;
+		ssa >> s_nameMeanA;
+		size_t found1;
+		found1=s_nameMeanA.find_last_of("/\\");
+
+		char nameMeanB[512];
+		std::strcpy (nameMeanB,outbase.c_str());
+		std::strcat(nameMeanB,"_meanB.meta");
+		stringstream ssb;
+		string s_nameMeanB;
+		ssb << nameMeanB;
+		ssb >> s_nameMeanB;
+		size_t found2;
+		found2=s_nameVTK.find_last_of("/\\");
+		
+		//create a directory to save the transfoms files
+		std::string s_outputdirectory;
+		s_outputdirectory.append(s_nameVTK);
+		s_outputdirectory.erase (found,s_outputdirectory.size()-1);
+		s_outputdirectory.append("/transformFiles");
+		itksys::SystemTools::MakeDirectory(s_outputdirectory.c_str());
+		
+		//the name of the vtk 
+		s_nameVTK.erase (0,found+1);
+		std::strcpy (nameVTK,s_nameVTK.c_str());
+		s_nameMeanA.erase (0,found1+1);
+		std::strcpy (nameMeanA,s_nameMeanA.c_str());
+		s_nameMeanB.erase (0,found2+1);
+		std::strcpy (nameMeanB,s_nameMeanB.c_str());
+
+		vector<double>DimMeanAll;
+		char nameVTK2[512];
+		std::strcpy (nameVTK2,outbase.c_str());
+		std::strcat(nameVTK2,"_meanAll_uncorrected.vtk");
+		DimMeanAll=SetImageDimensions((char *)(nameVTK2));
+
+
+		std::string pos;
+		std::vector<std::string> pos_all;
+
+		std::string fidupos;
+		std::vector<std::string> fidupos_all;
+
+		double x,y,z,x1,x2,fidux,fiduy, fiduz, fidux2;
+		x= 10;
+		y=0;
+		z=-60;
+		//fidux= x +Dim[0]/2+5;
+		//fiduy= y+Dim[1]/2;
+		//fiduz=90;
+		fidux= x +DimMeanAll[4]-10;
+		fiduy= y+DimMeanAll[5];
+		fiduz=(DimMeanAll[7] +DimMeanAll[8])/2-z;
+std::cout<<fidux<<std::endl;
+std::cout<<fiduy<<std::endl;
+std::cout<<fiduz<<std::endl;
+		
+		
+		args.push_back("CreateMRML");   
+		args.push_back(mrmlfile);
+
+		//shapes and transforms
+//RawP
+
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransRawP.tfm"); args.push_back("-n"); args.push_back("transRawP");args.push_back("-l");
+
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+		pos_all.push_back(pos);
+		args.push_back((pos_all.back()).c_str());
+
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("RawP"); args.push_back("-p"); args.push_back("transRawP"); args.push_back("-as"); args.push_back("RawP"); args.push_back("-cc"); args.push_back("customLUT_RawP.txt");
+
+		fidupos.append(Convert_Double_To_CharArray(fidux));
+		fidupos.append(",");
+		fidupos.append(Convert_Double_To_CharArray(fiduy));
+		fidupos.append(",");
+		fidupos.append(Convert_Double_To_CharArray(fiduz));
+		fidupos_all.push_back(fidupos);
+
+		args.push_back("-q"); args.push_back("-id"); args.push_back("RawP"); args.push_back("-lbl"); args.push_back("RawP"); args.push_back("-pos");args.push_back(fidupos_all.back().c_str());
+
+
+//FDRP
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransFDRP.tfm"); args.push_back("-n"); args.push_back("transFDRP");args.push_back("-l");
+
+		z=z+DimMeanAll[2]+5;x1=x;
+		pos.clear();
+		fidupos.clear();
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+		pos_all.push_back(pos);
+		args.push_back((pos_all.back()).c_str());
+		
+
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("FDRP"); args.push_back("-p"); args.push_back("transFDRP"); args.push_back("-as"); args.push_back("FDRP"); args.push_back("-cc"); args.push_back("customLUT_FDRP.txt");
+
+		fiduz=fiduz-DimMeanAll[2]-5;
+		fidupos.append(Convert_Double_To_CharArray(fidux));
+		fidupos.append(",");
+		fidupos.append(Convert_Double_To_CharArray(fiduy));
+		fidupos.append(",");
+		fidupos.append(Convert_Double_To_CharArray(fiduz));
+		fidupos_all.push_back(fidupos);
+
+		args.push_back("-q"); args.push_back("-id"); args.push_back("FDRP"); args.push_back("-lbl"); args.push_back("FDRP"); args.push_back("-pos");args.push_back(fidupos_all.back().c_str());
+
+// overlays Right
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransMeanOverlayRight.tfm"); args.push_back("-n"); args.push_back("transMeanOverlayRight");args.push_back("-l");
+	
+		z=z+DimMeanAll[2]+5;
+		x2=x+2*DimMeanAll[0]+10;
+
+		pos.clear();
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x2));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+		pos_all.push_back(pos);
+		args.push_back((pos_all.back()).c_str());
+
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameMeanA); args.push_back("-n"); args.push_back("MeanAOverlayRight"); args.push_back("-p"); args.push_back("transMeanOverlayRight"); args.push_back("-as"); args.push_back("MeanAOverlayRight"); args.push_back("-dc"); args.push_back("1,0,0"); args.push_back("-op"); args.push_back("0.6");
+	args.push_back("-m"); args.push_back("-f"); args.push_back(nameMeanB); args.push_back("-n"); args.push_back("MeanBOverlayRight"); args.push_back("-p"); args.push_back("transMeanOverlayRight"); args.push_back("-as"); args.push_back("MeanBOverlayRight"); args.push_back("-dc"); args.push_back("0,0,1"); args.push_back("-op"); args.push_back("0.4");
+
+// overlays Left
+		args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransMeanOverlayLeft.tfm"); args.push_back("-n"); args.push_back("transMeanOverlayLeft");args.push_back("-l");
+	
+		x=x-2*DimMeanAll[0]-10;
+
+		pos.clear();
+		fidupos.clear();
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+		pos_all.push_back(pos);
+		args.push_back((pos_all.back()).c_str());
+
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameMeanA); args.push_back("-n"); args.push_back("MeanAOverlayLeft"); args.push_back("-p"); args.push_back("transMeanOverlayLeft"); args.push_back("-as"); args.push_back("MeanAOverlayLeft"); args.push_back("-dc"); args.push_back("1,0,0"); args.push_back("-op"); args.push_back("0.4");
+	args.push_back("-m"); args.push_back("-f"); args.push_back(nameMeanB); args.push_back("-n"); args.push_back("MeanBOverlayLeft"); args.push_back("-p"); args.push_back("transMeanOverlayLeft"); args.push_back("-as"); args.push_back("MeanBOverlayLeft"); args.push_back("-dc"); args.push_back("0,0,1"); args.push_back("-op"); args.push_back("0.6");
+
+		fiduz=fiduz-1.5*DimMeanAll[2]-5;
+		fidux=fidux+DimMeanAll[4]/2;
+		fidupos.append(Convert_Double_To_CharArray(fidux));
+		fidupos.append(",");
+		fidupos.append(Convert_Double_To_CharArray(fiduy));
+		fidupos.append(",");
+		fidupos.append(Convert_Double_To_CharArray(fiduz));
+		fidupos_all.push_back(fidupos);
+
+		args.push_back("-q"); args.push_back("-id"); args.push_back("Overlays"); args.push_back("-lbl"); args.push_back("Overlays"); args.push_back("-pos");args.push_back(fidupos_all.back().c_str());
+
+//meanA
+	args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransMeanRight.tfm"); args.push_back("-n"); args.push_back("transMeanRight");args.push_back("-l");
+	
+		z=z+DimMeanAll[2]+5;
+		
+		fidupos.clear();
+		pos.clear();
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x2));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+		pos_all.push_back(pos);
+		args.push_back((pos_all.back()).c_str());
+
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameMeanA); args.push_back("-n"); args.push_back("MeanRight"); args.push_back("-p"); args.push_back("transMeanRight"); args.push_back("-as"); args.push_back("MeanRight"); args.push_back("-dc"); args.push_back("1,0,0");
+
+
+		fiduz=fiduz-DimMeanAll[2]-5;
+		fidupos.append(Convert_Double_To_CharArray(fidux));
+		fidupos.append(",");
+		fidupos.append(Convert_Double_To_CharArray(fiduy));
+		fidupos.append(",");
+		fidupos.append(Convert_Double_To_CharArray(fiduz));
+		fidupos_all.push_back(fidupos);
+
+		args.push_back("-q"); args.push_back("-id"); args.push_back("Means"); args.push_back("-lbl"); args.push_back("Means"); args.push_back("-pos");args.push_back(fidupos_all.back().c_str());
+
+//meanB
+
+	args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransMeanLeft.tfm"); args.push_back("-n"); args.push_back("transMeanLeft");args.push_back("-l");
+	
+		pos.clear();
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+		pos_all.push_back(pos);
+		args.push_back((pos_all.back()).c_str());
+
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameMeanB); args.push_back("-n"); args.push_back("MeanLeft"); args.push_back("-p"); args.push_back("transMeanLeft"); args.push_back("-as"); args.push_back("MeanLeft"); args.push_back("-dc"); args.push_back("0,0,1");
+
+//Diff
+
+	args.push_back("-t"); args.push_back("-f"); args.push_back("./transformFiles/TransDiffMagnitude.tfm"); args.push_back("-n"); args.push_back("transDiffMagnitude");args.push_back("-l");
+
+		z=z+DimMeanAll[2]+5;
+		pos.clear();
+		fidupos.clear();
+		pos.append("1,0,0,0,1,0,0,0,1,");
+		pos.append(Convert_Double_To_CharArray(x1));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(y));
+		pos.append(",");
+		pos.append(Convert_Double_To_CharArray(z));
+		pos_all.push_back(pos);
+		args.push_back((pos_all.back()).c_str());
+		
+
+		args.push_back("-m"); args.push_back("-f"); args.push_back(nameVTK); args.push_back("-n"); args.push_back("DiffMagnitude"); args.push_back("-p"); args.push_back("transDiffMagnitude"); args.push_back("-as"); args.push_back("DiffMagnitude"); args.push_back("-cc"); args.push_back("customLUT_DiffMagnitude.txt");
+
+		fiduz=fiduz-1.5*DimMeanAll[2]-5;
+		fidux=fidux+DimMeanAll[4]/2;
+		fidupos.append(Convert_Double_To_CharArray(fidux));
+		fidupos.append(",");
+		fidupos.append(Convert_Double_To_CharArray(fiduy));
+		fidupos.append(",");
+		fidupos.append(Convert_Double_To_CharArray(fiduz));
+		fidupos_all.push_back(fidupos);
+
+	char minmaxf[512];
+	std::strcpy (minmaxf,outbase.c_str());
+	std::strcat(minmaxf,"_DiffMagnitude.txt");
+	double min, max;
+	minmax(minmaxf,&min,&max);
+
+		std::string meandiff;
+		meandiff.append("Mean Difference ( Min: ");
+		meandiff.append(Convert_Double_To_CharArray(min));
+		meandiff.append(" Max: ");
+		meandiff.append(Convert_Double_To_CharArray(max));
+		meandiff.append(" ) ");
+
+		args.push_back("-q"); args.push_back("-id"); args.push_back("MeanDiff"); args.push_back("-lbl"); args.push_back(meandiff.c_str());		
+ args.push_back("-pos");args.push_back(fidupos_all.back().c_str());
+
+//MRMLFile<<"id Mean labeltext Mean Difference ( Min: "<<min<<" Max: "<<max<<") xyz 45.56 23.31 6.65557 orientationwxyz 0 0 0 1 selected 1 visibility 1"<<std::endl;
+
+		//end
+		args.push_back(0);
+for(unsigned int i=0; i<args.size()-1;i++)
+		{
+		std::cout<<args.at(i)<<" ";
+		}
+
+		// Run the application
+		
+		itksysProcess* gp = itksysProcess_New();
+		itksysProcess_SetCommand(gp, &*args.begin());
+		itksysProcess_SetOption(gp,itksysProcess_Option_HideWindow,1);
+		itksysProcess_Execute(gp);
+		
+		while(int Value = itksysProcess_WaitForData(gp,&data,&length,&timeout)) // wait for 1s
+		{
+		if ( ((Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR)) && data[0]=='D' )
+		{
+			strstream st;
+			for(int i=0;i<length;i++) 	
+			{
+				st<<data[i];
+			}
+			string dim=st.str();
+		}
+			timeout = 0.05;   	
+		}
+		
+		itksysProcess_WaitForExit(gp, 0);
+		
+		result = 1;
+		switch(itksysProcess_GetState(gp))
+		{
+		case itksysProcess_State_Exited:
+		{
+		result = itksysProcess_GetExitValue(gp);
+		} break;
+		case itksysProcess_State_Error:
+		{
+		std::cerr<<"Error: Could not run " << args[0]<<":\n";
+		std::cerr<<itksysProcess_GetErrorString(gp)<<"\n";
+		std::cout<<"Error: Could not run " << args[0]<<":\n";
+		std::cout<<itksysProcess_GetErrorString(gp)<<"\n";
+		} break;
+		case itksysProcess_State_Exception:
+		{
+		std::cerr<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
+		std::cout<<"Error: "<<args[0]<<" terminated with an exception: "<<itksysProcess_GetExceptionString(gp)<<"\n";
+		} break;
+		case itksysProcess_State_Starting:
+		case itksysProcess_State_Executing:
+		case itksysProcess_State_Expired:
+		case itksysProcess_State_Killed:
+		{
+		// Should not get here.
+		std::cerr<<"Unexpected ending state after running "<<args[0]<<std::endl;
+		std::cout<<"Unexpected ending state after running "<<args[0]<<std::endl;
+		} break;
+		}
+		itksysProcess_Delete(gp); 
+
+
+
+	/*cout<<"outbase: "<<outbase<<endl;
 
 	char minmaxf[512];
 	std::strcpy (minmaxf,outbase.c_str());
@@ -2236,7 +2581,7 @@ void write_MRMLScene(std::string outbase,bool interactionTest)
 
 
 
-	MRMLFile<<"</MRML>"<<std::endl;
+	MRMLFile<<"</MRML>"<<std::endl;*/
 	}
 
 
@@ -2320,12 +2665,12 @@ vector<double>vectDims;
 	vectDims.push_back(maxCoord[0]-minCoord[0]);
 	vectDims.push_back(maxCoord[1]-minCoord[1]);
 	vectDims.push_back(maxCoord[2]-minCoord[2]);
-	/*vectDims.push_back(minCoord[0]);
-	vectDims.push_back(maxCoord[0]);
-	vectDimss.push_back(minCoord[1]);
+	vectDims.push_back(minCoord[0]);
+	vectDims.push_back(maxCoord[0]);//4
+	vectDims.push_back(minCoord[1]);
 	vectDims.push_back(maxCoord[1]);
 	vectDims.push_back(minCoord[2]);
-	vectDims.push_back(maxCoord[2]);*/
+	vectDims.push_back(maxCoord[2]);
 
 return vectDims;
 
