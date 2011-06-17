@@ -46,6 +46,11 @@ TARGET_LINK_LIBRARIES(ParticleModule
   ${ITK_LIBRARIES}
   ${BatchMake_LIBRARIES} )
 
+IF (Slicer3_FOUND)
+  slicer3_set_plugins_output_path(ParticleModule)
+  slicer3_install_plugins(ParticleModule)
+ENDIF (Slicer3_FOUND)
+
 INSTALL(TARGETS
   ParticleModule
   BUNDLE DESTINATION  bin

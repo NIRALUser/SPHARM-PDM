@@ -23,9 +23,10 @@
 #include "vtkPolyDataWriter.h"
 #include <vtkPolyData.h>
  #include <vector>
-
+#include <itksys/Glob.hxx>
+#include <stdlib.h>
 #include <itkImageRandomNonRepeatingConstIteratorWithIndex.h>
-
+#include <dirent.h> 
 #include "boost/filesystem.hpp"
 
 #include <itksys/Process.h>
@@ -100,5 +101,14 @@ void write_commandline_txt(std::string outbase);
 //std::vector<double>Dim;
 std::vector<double> SetImageDimensions(char *filename );
 char * Convert_Double_To_CharArray(double doubleVariable);
+
+
+//void add_Shape_MRMLScene(std::vector<const char*> &args,std::string name,std::string mesh,bool transform,std::string trans_value,bool colorMap,std::string colorMap_value,bool fidu,std::string fidu_value);
+
+//void add_Shape_MRMLScene(std::string name,std::string mesh,bool transform,std::string trans_value,bool colorMap,std::string colorMap_value,bool fidu,std::string fidu_value);
+
+void add_Shape_MRMLScene(std::vector<const char*>& args,std::string name,std::string mesh,bool transform,std::string nametransf,std::string pathtransf,std::string trans_value,bool colorMap,std::string colorMap_value,bool fidu,std::string fidu_value);
+
+bool DirectoryIsEmpty(const char * path);
 
 #endif
