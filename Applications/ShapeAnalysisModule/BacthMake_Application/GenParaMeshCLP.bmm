@@ -1,67 +1,113 @@
-<BatchMakeApplicationWrapper>
-	<BatchMakeApplicationWrapperVersion>1.0</BatchMakeApplicationWrapperVersion>
-	<Module>
+<?xml version="1.0" encoding="utf-8"?>
+	<executable>
 		<Name>GenParaMeshCLP</Name>
-		<Version>Not defined</Version>
+		<Version></Version>
 		<Path>GenParaMeshCLP</Path>
-		<Params>
-			<Param>
-				<Type>4</Type>
-				<Name>infile</Name>
-				<Value></Value>
-				<Parent>0</Parent>
-				<External>1</External>
-				<Optional>0</Optional>
-			</Param>
-			<Param>
-				<Type>4</Type>
-				<Name>outParaName</Name>
-				<Value></Value>
-				<Parent>0</Parent>
+		<Parameters>
+			<Parameter>
+				<Type>1</Type>
+				<Name>EulerFile</Name>
+				<Value>--EulerFile</Value>
 				<External>0</External>
-				<Optional>0</Optional>
-			</Param>
-			<Param>
-				<Type>4</Type>
-				<Name>outSurfName</Name>
-				<Value></Value>
-				<Parent>0</Parent>
+				<Optional>1</Optional>
+				<SubParameter>
+					<Type>23577296</Type>
+					<Name>NA</Name>
+					<Value></Value>
+					<External>0</External>
+					<Optional>192</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
+				<Type>1</Type>
+				<Name>outEulerName</Name>
+				<Value>--outEulerName</Value>
 				<External>0</External>
-				<Optional>0</Optional>
-			</Param>
-			<Param>
+				<Optional>1</Optional>
+				<SubParameter>
+					<Type>0</Type>
+					<Name>outEulerName</Name>
+					<Value>NULL</Value>
+					<External>0</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
 				<Type>1</Type>
 				<Name>numIterations</Name>
 				<Value>--iter</Value>
-				<Parent>0</Parent>
 				<External>0</External>
 				<Optional>1</Optional>
-			</Param>
-			<Param>
-				<Type>2</Type>
-				<Name>numIterations.numIterations</Name>
-				<Value></Value>
-				<Parent>1</Parent>
-				<External>0</External>
-				<Optional>0</Optional>
-			</Param>
-			<Param>
+				<SubParameter>
+					<Type>2</Type>
+					<Name>numIterations</Name>
+					<Value>500</Value>
+					<External>0</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
 				<Type>1</Type>
 				<Name>label</Name>
 				<Value>--label</Value>
-				<Parent>0</Parent>
 				<External>0</External>
 				<Optional>1</Optional>
-			</Param>
-			<Param>
-				<Type>2</Type>
-				<Name>label.label</Name>
-				<Value></Value>
-				<Parent>2</Parent>
+				<SubParameter>
+					<Type>2</Type>
+					<Name>label</Name>
+					<Value>1</Value>
+					<External>0</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
+				<Type>1</Type>
+				<Name>debug</Name>
+				<Value>--verb</Value>
 				<External>0</External>
+				<Optional>1</Optional>
+				<SubParameter>
+					<Type>2</Type>
+					<Name>NA</Name>
+					<Value></Value>
+					<External>0</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
+				<Type>1</Type>
+				<Name>initParaFileName</Name>
+				<Value>--initPara</Value>
+				<External>0</External>
+				<Optional>1</Optional>
+				<SubParameter>
+					<Type>0</Type>
+					<Name>initParaFileName</Name>
+					<Value>NULL</Value>
+					<External>1</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
+				<Type>0</Type>
+				<Name>infile</Name>
+				<Value></Value>
+				<External>1</External>
 				<Optional>0</Optional>
-			
-			</Param>
+			</Parameter>
+			<Parameter>
+				<Type>0</Type>
+				<Name>outParaName</Name>
+				<Value>_para</Value>
+				<External>2</External>
+				<Optional>0</Optional>
+			</Parameter>
+			<Parameter>
+				<Type>0</Type>
+				<Name>outSurfName</Name>
+				<Value>_surf</Value>
+				<External>2</External>
+				<Optional>0</Optional>
+			</Parameter>
 		</Parameters>
-	</Module>
-</BatchMakeApplicationWrapper>
+	</executable>

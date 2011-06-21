@@ -1,171 +1,148 @@
-<BatchMakeApplicationWrapper>
-	<BatchMakeApplicationWrapperVersion>1.0</BatchMakeApplicationWrapperVersion>
-	<Module>
+<?xml version="1.0" encoding="utf-8"?>
+	<executable>
 		<Name>ParaToSPHARMMeshCLP</Name>
 		<Version>Not defined</Version>
 		<Path>ParaToSPHARMMeshCLP</Path>
 		<Parameters>
-			<Param>
+			<Parameter>
 				<Type>0</Type>
 				<Name>inParaFile</Name>
 				<Value></Value>
-				<Parent>0</Parent>
 				<External>1</External>
 				<Optional>0</Optional>
-			</Param>
-			<Param>
+			</Parameter>
+			<Parameter>
 				<Type>0</Type>
 				<Name>inSurfFile</Name>
 				<Value></Value>
-				<Parent>0</Parent>
 				<External>1</External>
 				<Optional>0</Optional>
-			</Param>
-			<Param>
+			</Parameter>
+			<Parameter>
 				<Type>0</Type>
 				<Name>outbase</Name>
 				<Value></Value>
-				<Parent>0</Parent>
 				<External>1</External>
 				<Optional>0</Optional>
-			</Param>
-			<Param>
+			</Parameter>
+			<Parameter>
 				<Type>1</Type>
 				<Name>regTemplateFileOn</Name>
-				<Value></Value>
-				<Parent>0</Parent>
+				<Value>--regTemplateFileOn</Value>
 				<External>0</External>
 				<Optional>1</Optional>
-			</Param>
-			<Param>
+			</Parameter>
+			<Parameter>
 				<Type>1</Type>
 				<Name>regTemplateFile</Name>
 				<Value>--regTemplate</Value>
-				<Parent>0</Parent>
 				<External>0</External>
 				<Optional>1</Optional>
-			</Param>
-			<Param>
-				<Type>0</Type>
-				<Name>regTemplateFile.regTemplateFile</Name>
-				<Value></Value>
-				<Parent>1</Parent>
-				<External>1</External>
-				<Optional>0</Optional>
-			</Param>
-			<Param>
+				<SubParameter>
+					<Type>0</Type>
+					<Name>regTemplateFile</Name>
+					<Value></Value>
+					<External>1</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
 				<Type>1</Type>
 				<Name>flipTemplateFileOn</Name>
-				<Value></Value>
-				<Parent>0</Parent>
+				<Value>--flipTemplateOn</Value>
 				<External>0</External>
 				<Optional>1</Optional>
-			</Param>
-			<Param>
+			</Parameter>
+			<Parameter>
 				<Type>1</Type>
 				<Name>flipTemplateFile</Name>
 				<Value>--flipTemplate</Value>
-				<Parent>0</Parent>
 				<External>0</External>
 				<Optional>1</Optional>
-			</Param>
-			<Param>
-				<Type>0</Type>
-				<Name>flipTemplateFile.flipTemplateFile</Name>
-				<Value></Value>
-				<Parent>2</Parent>
-				<External>1</External>
-				<Optional>0</Optional>
-			</Param>
-			<Param>
+				<SubParameter>
+					<Type>0</Type>
+					<Name>flipTemplateFile</Name>
+					<Value></Value>
+					<External>1</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
 				<Type>1</Type>
 				<Name>subdivLevel</Name>
 				<Value>--subdivLevel</Value>
-				<Parent>0</Parent>
 				<External>0</External>
 				<Optional>1</Optional>
-			</Param>
-			<Param>
-				<Type>2</Type>
-				<Name>subdivLevel.subdivLevel</Name>
-				<Value>20</Value>
-				<Parent>3</Parent>
-				<External>1</External>
-				<Optional>0</Optional>
-			</Param>
-			<Param>
+				<SubParameter>
+					<Type>2</Type>
+					<Name>subdivLevel</Name>
+					<Value>20</Value>
+					<External>1</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
 				<Type>1</Type>
 				<Name>spharmDegree</Name>
 				<Value>--spharmDegree</Value>
-				<Parent>0</Parent>
 				<External>0</External>
 				<Optional>1</Optional>
-			</Param>
-			<Param>
-				<Type>2</Type>
-				<Name>spharmDegree.spharmDegree</Name>
-				<Value></Value>
-				<Parent>4</Parent>
-				<External>0</External>
-				<Optional>0</Optional>
-			
-			</Param>
-			<Param>
+				<SubParameter>
+					<Type>2</Type>
+					<Name>spharmDegree</Name>
+					<Value></Value>
+					<External>0</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
 				<Type>1</Type>
 				<Name>finalFlipIndex</Name>
 				<Value>--FinalFlip</Value>
-				<Parent>0</Parent>
 				<External>0</External>
 				<Optional>1</Optional>
-			</Param>
-			<Param>
-				<Type>2</Type>
-				<Name>finalFlipIndex.finalFlipIndex</Name>
-				<Value></Value>
-				<Parent>4</Parent>
-				<External>1</External>
-				<Optional>0</Optional>
-			</Param>
-			<Param>
+				<SubParameter>
+					<Type>2</Type>
+					<Name>finalFlipIndex</Name>
+					<Value></Value>
+					<External>1</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
 				<Type>1</Type>
 				<Name>writePara</Name>
 				<Value>--paraOut</Value>
-				<Parent>0</Parent>
 				<External>1</External>
 				<Optional>1</Optional>
-			</Param>
-			<Param>
+			</Parameter>
+			<Parameter>
 				<Type>1</Type>
 				<Name>Iter</Name>
-				<Value>--iter</Value>
-				<Parent>0</Parent>
+				<Value>-iter</Value>
 				<External>0</External>
 				<Optional>1</Optional>
-			</Param>
-			<Param>
-				<Type>2</Type>
-				<Name>Iter.iterValue</Name>
-				<Value></Value>
-				<Parent>5</Parent>
-				<External>0</External>
-				<Optional>0</Optional>
-			</Param>
-			<Param>
+				<SubParameter>
+					<Type>2</Type>
+					<Name>iterValue</Name>
+					<Value></Value>
+					<External>0</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
 				<Type>1</Type>
 				<Name>Label</Name>
-				<Value>--label</Value>
-				<Parent>0</Parent>
+				<Value>-label</Value>
 				<External>0</External>
 				<Optional>1</Optional>
-			</Param>
-			<Param>
-				<Type>2</Type>
-				<Name>Label.labelValue</Name>
-				<Value></Value>
-				<Parent>5</Parent>
-				<External>0</External>
-				<Optional>0</Optional>	
-			</Param>
+				<SubParameter>
+					<Type>2</Type>
+					<Name>labelValue</Name>
+					<Value></Value>
+					<External>0</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
 		</Parameters>
-	</Module>
-</BatchMakeApplicationWrapper>
+	</executable>
