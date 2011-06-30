@@ -45,6 +45,16 @@ int ParticleModuleParameters::GetColumnMeshFile()
 	return m_ColumnMesh;
 }
 
+void ParticleModuleParameters::SetTemplate(int temp)
+{	
+	 m_temp=temp;
+}
+
+int ParticleModuleParameters::GetTemplate()
+{
+	return m_temp;
+}
+
 
 void ParticleModuleParameters::SetSmooting(double smooting)
 {	
@@ -622,6 +632,7 @@ void ParticleModuleParameters::FindMhaFiles()
 	pathFile=GetOutputDirectory()+pathmha;
 	globMHAFile.FindFiles(pathFile);
 	mhaFile=globMHAFile.GetFiles();
+	//std::sort(mhaFile.begin(),mhaFile.end());
 }
 
 void ParticleModuleParameters::CreateCorrespondenceFiles()
@@ -650,6 +661,16 @@ void ParticleModuleParameters::CreateCorrespondenceFiles()
 				writemha<<"\""<<LPTS.at(i)<<"\""<<std::endl;
 			}
 			writemha<<")"<<std::endl;
+			
+			int which_template = GetTemplate();
+
+			writemha<<"(fixed_domains"<<std::endl;
+			for( unsigned int i=0; i<LPTS.size();i++)
+			{
+				if(i+1==which_template){ writemha<<"1"<<std::endl;}
+				else  writemha<<"0"<<std::endl;
+			}
+			writemha<<")"<<std::endl;		
 
 			writemha<<"(number_of_particles ";
 			writemha<<Convert_Double_To_CharArray(nbPoints);  

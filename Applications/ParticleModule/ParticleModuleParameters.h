@@ -20,6 +20,10 @@
 #include <itksys/SystemTools.hxx>
 #include <time.h>
 
+#include <algorithm>
+
+
+
 #include "vtkPolyDataReader.h"
 #include "vtkPolyData.h"
 #include "vtkPointSet.h"
@@ -87,6 +91,9 @@ class ParticleModuleParameters
 	void SetVerticalGridPara(int );
 	int GetHorizontalGridPara();
 	int GetVerticalGridPara();
+	void SetTemplate(int );
+	int GetTemplate();
+
 
 
 
@@ -159,6 +166,7 @@ private:
 	bool m_AdaptivityStrengthState;
 	bool m_ProcrustesIntervalState;
 	bool m_ProcrustesScalingState;
+	int m_temp;
 
 	vector < vector<string> > m_List;
 	int ListSize;

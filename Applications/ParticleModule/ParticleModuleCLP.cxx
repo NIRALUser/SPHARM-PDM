@@ -13,6 +13,7 @@ int main(int argc, char * argv [])
 
 	ParticleModuleComputation m_computation;
 	m_computation.SetColumnMeshFile(columMeshFile);
+	m_computation.SetTemplate(TemplateFile);
 	m_computation.SetParameterFile(GroupeProjectInputFile.c_str());
 	m_computation.SetOutputDirectory(GroupeProjectOutputDirectory.c_str());
 	m_computation.SetSmooting(SmoothingValue);
@@ -34,17 +35,13 @@ int main(int argc, char * argv [])
 	InfileProb =m_computation.ReadFile(m_computation.GetParameterFile());
 	if( !InfileProb){
 		m_computation.OrganizeOutputDirectory();
-	
 		m_computation.CreateLptsFiles();
 		m_computation.CreatePreprocessFiles();
 		m_computation.RunParticleCorrespondencePreprocessing(); 
-	
 		m_computation.CreateCorrespondenceFiles();
 		m_computation.RunShapeWorksRun();
-cout<<"------ CreateVTKFiles-----"<<endl;
-		m_computation.CreateVTKFiles();	
+		m_computation.CreateVTKFiles();
 		m_computation.CreateMrml();
-//m_computation.ParticleModuleParameters::LptsToVTK("/biomed-resimg/home/lbompard/hippocampi_Nitrc/Particles2/Corresponding_Particles/groupA_01_hippo_pp_surfSPHARM_procalign.lpts");
 	}
 	
 	return(0);

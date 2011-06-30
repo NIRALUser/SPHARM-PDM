@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <algorithm>
 
+
 #include "itkMeshTovtkPolyData.h"
 #include "vtkPolyDataToitkMesh.h"
 #include "itkMesh3DProcrustesAlignFilter.h"
@@ -570,6 +571,7 @@ std::cout<<PvalueColorMapNb<<std::endl;
 	VarFiles.push_back(files[i]);
       nbfile++;
     }  
+
 
   //bp2010 ParticleConsistency   
   bool particleOn = ipExistsArgument(argv, "-particleConsistency");

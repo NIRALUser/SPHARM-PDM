@@ -52,6 +52,13 @@
 			<description>zero indexed</description>
 		</integer>	
 
+		<integer>
+			<name>TemplateFile</name>
+			<label>TemplateFile</label>
+			<longflag>--TemplateFile</longflag>
+			<default>1</default>
+		</integer>
+
 		
 	</parameters>
 	<parameters>
