@@ -1056,6 +1056,7 @@ void shapeAnalysisMANCOVA_Wizard::generate()
 	std::string pathMANCOVAString;
 	QString pathMANCOVA ;
 	pathMANCOVAString= itksys::SystemTools::FindProgram("shapeAnalysisMANCOVA");
+	std::cout << pathMANCOVAString << std::endl;
 
 	if(pathMANCOVAString.empty()==true)
 		{ 
