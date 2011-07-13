@@ -405,7 +405,7 @@ char fileCommanLine[512];
 				file<<" --scaleColumn "<<scaleColumn  ;}
 		file<<" --testColumn "<< testColumn;
 		if(KWMreadableInputFile) file<<" --KWMinput" ;
-		file<<" --significanceLevel"<<significanceLevel;
+		file<<" --significanceLevelRawP "<<significanceLevel;
 		file<<" --FDRdiscoveryLevel "<<FDRdiscoveryLevel;
 		if(writeZScores)file<<" --writeZScores" ;
 		if(computeScaleFactorFromVolumes) file<<" --computeScaleFactorFromVolumes";
