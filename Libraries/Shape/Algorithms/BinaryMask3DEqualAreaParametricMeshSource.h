@@ -15,6 +15,9 @@
 #include <itkTriangleCell.h>
 #include <itkDefaultDynamicMeshTraits.h>
 #include <itkProcessObject.h>
+#include <math.h>
+
+#include <itkIndex.h>
 
 /** \class BinaryMask3DEqualAreaParametricMeshSource
  * 
