@@ -174,6 +174,10 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
     std::cout << "Euler Number ok = " << m_EulerNum << std::endl;
   }
 
+  OutputMeshPointer surfaceMesh = OutputMeshType::New();
+
+
+
   //std::cout<<"Extracting Surface net done " << std::endl;
 
   //std::cout<<"Computing Initial Parametrization" << std::endl;
@@ -280,7 +284,6 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
   //std::cout<<"Computing Parametrization done" << std::endl;
   
   // Get Results
-  OutputMeshPointer surfaceMesh = OutputMeshType::New();
   OutputMeshPointer paraMesh = OutputMeshType::New();
 
   // map xvec to ITK Mesh for paraMesh
@@ -289,6 +292,12 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
     for (int i = 0; i < net.nvert; i++) {
       double curVertex[3];
       curVertex[0] = xvec[3*i + 0];curVertex[1] = xvec[3*i + 1];curVertex[2] = xvec[3*i + 2];
+	// check whether curVertex has Nan's if so raise exceptiont
+  	if (isnan(curVertex[0]) || isnan(curVertex[1]) || isnan(curVertex[2]))
+    	{
+    		throw BinaryMask3DEqualAreaParametricMeshSourceException(__FILE__, __LINE__, "Numerical error in the parameterization, contains NaN");
+    	}
+
       points->InsertElement(i, PointType(curVertex));
     }
     paraMesh->SetPoints(points);
@@ -331,11 +340,23 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
     for (int i = 0; i < net.nvert; i++) {
       double curVertex[3];
       // scale from index space to mm space
-      curVertex[0] = (net.vert[i]).x * spacing[0];
-      curVertex[1] = (net.vert[i]).y * spacing[1];
-      curVertex[2] = (net.vert[i]).z * spacing[2];
+
+	// TODO: use image transform to get to coordinate
+	PointType phyPoint; 
+      itk::Index<3> index;
+      index[0]=-(net.vert[i]).x; index[1]=-(net.vert[i]).y; index[2]=(net.vert[i]).z;
+      image->TransformIndexToPhysicalPoint(index,phyPoint);
+      /*curVertex[0] = -(net.vert[i]).x * spacing[0];
+      curVertex[1] = -(net.vert[i]).y * spacing[1];
+      curVertex[2] = (net.vert[i]).z * spacing[2];*/
+	
+      curVertex[0] = phyPoint[0];
+      curVertex[1] = phyPoint[1];
+      curVertex[2] = phyPoint[2];
+
       points->InsertElement(i, PointType(curVertex));
     }
+
     surfaceMesh->SetPoints(points);
     
     surfaceMesh->SetCellsAllocationMethod( OutputMeshType::CellsAllocatedDynamicallyCellByCell );
