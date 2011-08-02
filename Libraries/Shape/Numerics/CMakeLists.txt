@@ -1,2 +1,2 @@
 
-INSTALL_FILES(/include/Shape/Numerics "(\\.h|\\.txx)$")
+install_files(/include/Shape/Numerics "(\\.h|\\.txx)$")

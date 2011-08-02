@@ -1,60 +1,60 @@
-#LINK_LIBRARIES(ShapeAlgorithms)
+#link_libraries(ShapeAlgorithms)
 
-OPTION(COMPILE_ImageMath "Compile ImageMath." ON)
-IF(COMPILE_ImageMath)
-  SUBDIRS(ImageMath)
-ENDIF(COMPILE_ImageMath)
+option(COMPILE_ImageMath "Compile ImageMath." ON)
+if(COMPILE_ImageMath)
+  subdirs(ImageMath)
+endif(COMPILE_ImageMath)
 
-OPTION(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
-IF(COMPILE_MetaMeshTools)
-  SUBDIRS(MetaMeshTools)
-ENDIF(COMPILE_MetaMeshTools)
+option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
+if(COMPILE_MetaMeshTools)
+  subdirs(MetaMeshTools)
+endif(COMPILE_MetaMeshTools)
 
-OPTION(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
-IF(COMPILE_SegPostProcessCLP)
-  SUBDIRS(SegPostProcessCLP)
-ENDIF(COMPILE_SegPostProcessCLP)
+option(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
+if(COMPILE_SegPostProcessCLP)
+  subdirs(SegPostProcessCLP)
+endif(COMPILE_SegPostProcessCLP)
 
-OPTION(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
-IF(COMPILE_GenParaMeshCLP)
-  SUBDIRS(GenParaMeshCLP)
-ENDIF(COMPILE_GenParaMeshCLP)
+option(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
+if(COMPILE_GenParaMeshCLP)
+  subdirs(GenParaMeshCLP)
+endif(COMPILE_GenParaMeshCLP)
 
-OPTION(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
-IF(COMPILE_ParaToSPHARMMeshCLP)
-  SUBDIRS(ParaToSPHARMMeshCLP)
-ENDIF(COMPILE_ParaToSPHARMMeshCLP)
+option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
+if(COMPILE_ParaToSPHARMMeshCLP)
+  subdirs(ParaToSPHARMMeshCLP)
+endif(COMPILE_ParaToSPHARMMeshCLP)
 
-OPTION(COMPILE_ShapeAnalysisModule "Compile ShapeAnalysisModule." ON)
-IF(COMPILE_ShapeAnalysisModule)
-  SUBDIRS(ShapeAnalysisModule)
-ENDIF(COMPILE_ShapeAnalysisModule)
+option(COMPILE_ShapeAnalysisModule "Compile ShapeAnalysisModule." ON)
+if(COMPILE_ShapeAnalysisModule)
+  subdirs(ShapeAnalysisModule)
+endif(COMPILE_ShapeAnalysisModule)
 
-OPTION(COMPILE_StatNonParamTestPDM "Compile StatNonParamTestPDM." ON)
-IF(COMPILE_StatNonParamTestPDM)
-  SUBDIRS(StatNonParamTestPDM)
-ENDIF(COMPILE_StatNonParamTestPDM)
+option(COMPILE_StatNonParamTestPDM "Compile StatNonParamTestPDM." ON)
+if(COMPILE_StatNonParamTestPDM)
+  subdirs(StatNonParamTestPDM)
+endif(COMPILE_StatNonParamTestPDM)
 
-OPTION(COMPILE_ParticleModule "Compile ParticleModule." ON)
-IF(COMPILE_ParticleModule)
-  SUBDIRS(ParticleModule)
-ENDIF(COMPILE_ParticleModule)
+option(COMPILE_ParticleModule "Compile ParticleModule." ON)
+if(COMPILE_ParticleModule)
+  subdirs(ParticleModule)
+endif(COMPILE_ParticleModule)
 
-OPTION(COMPILE_shapeAnalysisMANCOVA_Wizard "Compile shapeAnalysisMANCOVA_Wizard." ON)
-IF(COMPILE_shapeAnalysisMANCOVA_Wizard)
-  SUBDIRS(shapeAnalysisMANCOVA_Wizard)
-ENDIF(COMPILE_shapeAnalysisMANCOVA_Wizard)
-
-
-OPTION(COMPILE_CreateMRML "Compile CreateMRML." OFF)
-
-IF (Slicer3_FOUND)
-
-#OPTION(COMPILE_CreateMRML "Compile CreateMRML." ON)
+option(COMPILE_shapeAnalysisMANCOVA_Wizard "Compile shapeAnalysisMANCOVA_Wizard." ON)
+if(COMPILE_shapeAnalysisMANCOVA_Wizard)
+  subdirs(shapeAnalysisMANCOVA_Wizard)
+endif(COMPILE_shapeAnalysisMANCOVA_Wizard)
 
 
+option(COMPILE_CreateMRML "Compile CreateMRML." OFF)
 
-ENDIF (Slicer3_FOUND)
-IF(COMPILE_CreateMRML)
-  SUBDIRS(CreateMRML)
-ENDIF(COMPILE_CreateMRML)
+if(Slicer3_FOUND)
+
+#option(COMPILE_CreateMRML "Compile CreateMRML." ON)
+
+
+
+endif(Slicer3_FOUND)
+if(COMPILE_CreateMRML)
+  subdirs(CreateMRML)
+endif(COMPILE_CreateMRML)

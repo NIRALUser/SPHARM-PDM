@@ -1,9 +1,9 @@
 
-INCLUDE_DIRECTORIES(${SPHARMPDM_SOURCE_DIR}/Libraries/SparseLibMVIml)
-LINK_DIRECTORIES(${SPHARMP_BINARY_DIR}/bin)
+include_directories(${SPHARMPDM_SOURCE_DIR}/Libraries/SparseLibMVIml)
+link_directories(${SPHARMP_BINARY_DIR}/bin)
 
 # here prepared only for ISO C++ compatibles compilers
- 
+
 # IBM xlC  v. 1.1
 # CCCFLAGS        = -DCOMPLEX=complex
 # LDFLAGS         = -lm -lcomplex
@@ -17,11 +17,11 @@ LINK_DIRECTORIES(${SPHARMP_BINARY_DIR}/bin)
 # LDFLAGS                 =   -lm
 
 
-IF(WIN32)
-ADD_DEFINITIONS("-DCOMPLEX=std::complex<double>")
-ELSE(WIN32)
-ADD_DEFINITIONS('-DCOMPLEX=std::complex<double>')
-ENDIF(WIN32)
+if(WIN32)
+add_definitions("-DCOMPLEX=std::complex<double>")
+else(WIN32)
+add_definitions('-DCOMPLEX=std::complex<double>')
+endif(WIN32)
 
-LINK_LIBRARIES(SparseMatrixLib)
+link_libraries(SparseMatrixLib)
 

@@ -1,41 +1,41 @@
-PROJECT(SegPostProcessCLP)
+project(SegPostProcessCLP)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+cmake_minimum_required(VERSION 2.6)
 
-FIND_PACKAGE(Slicer3 QUIET NO_DEFAULT_PATH)
+find_package(Slicer3 QUIET NO_DEFAULT_PATH)
 
-IF (Slicer3_FOUND)
-  INCLUDE(${Slicer3_USE_FILE})
+if(Slicer3_FOUND)
+  include(${Slicer3_USE_FILE})
   slicer3_set_default_install_prefix_for_external_projects()
-ELSE (Slicer3_FOUND)
+else(Slicer3_FOUND)
 
-FIND_PACKAGE(ITK REQUIRED)
-  IF (ITK_FOUND)
-    INCLUDE(${USE_ITK_FILE})
-  ELSE(ITK_FOUND)
-    MESSAGE(FATAL_ERROR, "ITK not found. Please set ITK_DIR.")
-  ENDIF (ITK_FOUND)
+find_package(ITK REQUIRED)
+  if(ITK_FOUND)
+    include(${USE_ITK_FILE})
+  else(ITK_FOUND)
+    message(FATAL_ERROR, "ITK not found. Please set ITK_DIR.")
+  endif(ITK_FOUND)
 
-  FIND_PACKAGE(GenerateCLP QUIET)
-  IF(GenerateCLP_FOUND)
-    INCLUDE(${GenerateCLP_USE_FILE})
-  ELSE(GenerateCLP_FOUND)
-    MESSAGE(FATAL_ERROR, "GenerateCLP not found. Please set GenerateCLP_DIR.")
-  ENDIF(GenerateCLP_FOUND)
-ENDIF (Slicer3_FOUND)
+  find_package(GenerateCLP QUIET)
+  if(GenerateCLP_FOUND)
+    include(${GenerateCLP_USE_FILE})
+  else(GenerateCLP_FOUND)
+    message(FATAL_ERROR, "GenerateCLP not found. Please set GenerateCLP_DIR.")
+  endif(GenerateCLP_FOUND)
+endif(Slicer3_FOUND)
 
-SET (SegPostProcessCLP_SOURCE SegPostProcessCLP.cxx )
+set(SegPostProcessCLP_SOURCE SegPostProcessCLP.cxx )
 GENERATECLP(SegPostProcessCLP_SOURCE SegPostProcessCLP.xml)
-ADD_EXECUTABLE (SegPostProcessCLP ${SegPostProcessCLP_SOURCE})
+add_executable(SegPostProcessCLP ${SegPostProcessCLP_SOURCE})
 
-TARGET_LINK_LIBRARIES(SegPostProcessCLP ITKIO ITKBasicFilters ITKCommon)
+target_link_libraries(SegPostProcessCLP ITKIO ITKBasicFilters ITKCommon)
 
-IF (Slicer3_FOUND)
+if(Slicer3_FOUND)
   slicer3_set_plugins_output_path(SegPostProcessCLP)
   slicer3_install_plugins(SegPostProcessCLP)
-ENDIF (Slicer3_FOUND)
+endif(Slicer3_FOUND)
 
-INSTALL(TARGETS
+install(TARGETS
   SegPostProcessCLP
   BUNDLE DESTINATION  bin
   RUNTIME DESTINATION bin

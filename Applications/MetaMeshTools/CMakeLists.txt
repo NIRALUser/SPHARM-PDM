@@ -1,29 +1,29 @@
-PROJECT(MetaMeshTools)
+project(MetaMeshTools)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+cmake_minimum_required(VERSION 2.6)
 
-FIND_PACKAGE(Slicer3 QUIET NO_DEFAULT_PATH)
+find_package(Slicer3 QUIET NO_DEFAULT_PATH)
 
-IF (Slicer3_FOUND)
-  INCLUDE(${Slicer3_USE_FILE})
+if(Slicer3_FOUND)
+  include(${Slicer3_USE_FILE})
   slicer3_set_default_install_prefix_for_external_projects()
 
-ELSE (Slicer3_FOUND)
-  FIND_PACKAGE(ITK REQUIRED)
-  IF (ITK_FOUND)
-    INCLUDE(${USE_ITK_FILE})
-  ELSE(ITK_FOUND)
-    MESSAGE(FATAL_ERROR, "ITK not found. Please set ITK_DIR.")
-  ENDIF (ITK_FOUND)
+else(Slicer3_FOUND)
+  find_package(ITK REQUIRED)
+  if(ITK_FOUND)
+    include(${USE_ITK_FILE})
+  else(ITK_FOUND)
+    message(FATAL_ERROR, "ITK not found. Please set ITK_DIR.")
+  endif(ITK_FOUND)
 
-  FIND_PACKAGE(VTK REQUIRED)
-  IF (VTK_FOUND)
-    INCLUDE(${USE_VTK_FILE})
-  ELSE(VTK_FOUND)
-    MESSAGE(FATAL_ERROR, "VTK not found. Please set VTK_DIR.")
-  ENDIF (VTK_FOUND)
+  find_package(VTK REQUIRED)
+  if(VTK_FOUND)
+    include(${USE_VTK_FILE})
+  else(VTK_FOUND)
+    message(FATAL_ERROR, "VTK not found. Please set VTK_DIR.")
+  endif(VTK_FOUND)
 
-ENDIF (Slicer3_FOUND)
+endif(Slicer3_FOUND)
 
 
 
@@ -31,44 +31,44 @@ ENDIF (Slicer3_FOUND)
 
 
 # Shorthand to source and binary directories
-SET(MY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-SET(MY_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
+set(MY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(MY_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
 # Include directories
-INCLUDE_DIRECTORIES( ${MY_SOURCE_DIR} ${MY_BINARY_DIR})
+include_directories( ${MY_SOURCE_DIR} ${MY_BINARY_DIR})
 
-LINK_DIRECTORIES( ${CMAKE_BINARY_SOURCE_DIR})
-LINK_LIBRARIES( 
+link_directories( ${CMAKE_BINARY_SOURCE_DIR})
+link_libraries(
   vtkRendering
   vtkGraphics
   vtkImaging
   vtkIO
   vtkCommon
   vtkHybrid
-  vtkFiltering 
+  vtkFiltering
 )
 
-SET(SRC_STL2META_CXX STL2Meta.cxx vtkPolyDataToitkMesh.cxx)
-ADD_EXECUTABLE(STL2Meta ${SRC_STL2META_CXX})
-TARGET_LINK_LIBRARIES(STL2Meta ${ITK_LIBRARIES})
+set(SRC_STL2META_CXX STL2Meta.cxx vtkPolyDataToitkMesh.cxx)
+add_executable(STL2Meta ${SRC_STL2META_CXX})
+target_link_libraries(STL2Meta ${ITK_LIBRARIES})
 
 
-SET(SRC_META2STL_CXX Meta2STL.cxx itkMeshTovtkPolyData.cxx)
-ADD_EXECUTABLE(Meta2STL ${SRC_META2STL_CXX})
-TARGET_LINK_LIBRARIES(Meta2STL ${ITK_LIBRARIES})
+set(SRC_META2STL_CXX Meta2STL.cxx itkMeshTovtkPolyData.cxx)
+add_executable(Meta2STL ${SRC_META2STL_CXX})
+target_link_libraries(Meta2STL ${ITK_LIBRARIES})
 
-SET(SRC_MESHMATH_CXX MeshMath.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx)
-ADD_EXECUTABLE(MeshMath ${SRC_MESHMATH_CXX})
-TARGET_LINK_LIBRARIES(MeshMath ${ITK_LIBRARIES})
+set(SRC_MESHMATH_CXX MeshMath.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx)
+add_executable(MeshMath ${SRC_MESHMATH_CXX})
+target_link_libraries(MeshMath ${ITK_LIBRARIES})
 
 
-ADD_EXECUTABLE(Meta2VTK Meta2VTK.cxx itkMeshTovtkPolyData.cxx)
-TARGET_LINK_LIBRARIES(Meta2VTK ${ITK_LIBRARIES})
+add_executable(Meta2VTK Meta2VTK.cxx itkMeshTovtkPolyData.cxx)
+target_link_libraries(Meta2VTK ${ITK_LIBRARIES})
 
-ADD_EXECUTABLE(VTK2Meta VTK2Meta.cxx vtkPolyDataToitkMesh.cxx)
-TARGET_LINK_LIBRARIES(VTK2Meta ${ITK_LIBRARIES} )
+add_executable(VTK2Meta VTK2Meta.cxx vtkPolyDataToitkMesh.cxx)
+target_link_libraries(VTK2Meta ${ITK_LIBRARIES} )
 
-IF (Slicer3_FOUND)
+if(Slicer3_FOUND)
   slicer3_set_plugins_output_path(STL2Meta)
   slicer3_install_plugins(STL2Meta)
   slicer3_set_plugins_output_path(Meta2STL)
@@ -79,9 +79,9 @@ IF (Slicer3_FOUND)
   slicer3_install_plugins(Meta2VTK)
   slicer3_set_plugins_output_path(VTK2Meta)
   slicer3_install_plugins(VTK2Meta)
-ENDIF (Slicer3_FOUND)
+endif(Slicer3_FOUND)
 
-INSTALL(TARGETS
+install(TARGETS
   STL2Meta
   Meta2STL
   MeshMath

@@ -1,8 +1,8 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+cmake_minimum_required(VERSION 2.6)
 
-LINK_LIBRARIES( ${ITK_LIBRARIES})
+link_libraries( ${ITK_LIBRARIES})
 
-SUBDIRS(
+subdirs(
      	Algorithms
      	SpatialObject
      	IO

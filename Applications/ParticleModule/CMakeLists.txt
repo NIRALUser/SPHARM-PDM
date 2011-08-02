@@ -1,57 +1,57 @@
-PROJECT(ParticleModule)
+project(ParticleModule)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6) 
+cmake_minimum_required(VERSION 2.6)
 
-IF (Slicer3_FOUND)
-  INCLUDE(${Slicer3_USE_FILE})
+if(Slicer3_FOUND)
+  include(${Slicer3_USE_FILE})
   slicer3_set_default_install_prefix_for_external_projects()
-ELSE (Slicer3_FOUND)
- 
-  FIND_PACKAGE(ITK REQUIRED)
-  IF (ITK_FOUND)
-    INCLUDE(${USE_ITK_FILE})
-  ELSE(ITK_FOUND)
-    MESSAGE(FATAL_ERROR, "ITK not found. Please set ITK_DIR.")
-  ENDIF (ITK_FOUND)
+else(Slicer3_FOUND)
 
-  FIND_PACKAGE(VTK REQUIRED)
-  IF (VTK_FOUND)
-    INCLUDE(${USE_VTK_FILE})
-  ELSE(VTK_FOUND)
-    MESSAGE(FATAL_ERROR, "VTK not found. Please set VTK_DIR.")
-  ENDIF (VTK_FOUND)
+  find_package(ITK REQUIRED)
+  if(ITK_FOUND)
+    include(${USE_ITK_FILE})
+  else(ITK_FOUND)
+    message(FATAL_ERROR, "ITK not found. Please set ITK_DIR.")
+  endif(ITK_FOUND)
 
-  FIND_PACKAGE(GenerateCLP REQUIRED)
-  IF(GenerateCLP_FOUND)
-    INCLUDE(${GenerateCLP_USE_FILE})
-  ELSE(GenerateCLP_FOUND)
-    MESSAGE(FATAL_ERROR, "GenerateCLP not found. Please set GenerateCLP_DIR.")
-  ENDIF(GenerateCLP_FOUND)
+  find_package(VTK REQUIRED)
+  if(VTK_FOUND)
+    include(${USE_VTK_FILE})
+  else(VTK_FOUND)
+    message(FATAL_ERROR, "VTK not found. Please set VTK_DIR.")
+  endif(VTK_FOUND)
 
-ENDIF (Slicer3_FOUND)
+  find_package(GenerateCLP REQUIRED)
+  if(GenerateCLP_FOUND)
+    include(${GenerateCLP_USE_FILE})
+  else(GenerateCLP_FOUND)
+    message(FATAL_ERROR, "GenerateCLP not found. Please set GenerateCLP_DIR.")
+  endif(GenerateCLP_FOUND)
 
-SET (ParticleModule_SOURCE
+endif(Slicer3_FOUND)
+
+set(ParticleModule_SOURCE
 	ParticleModuleCLP.cxx
-	ParticleModuleParameters.cxx 
+	ParticleModuleParameters.cxx
 	ParticleModuleParameters.h
 	ParticleModuleComputation.cxx
-	ParticleModuleComputation.h   ) 
+	ParticleModuleComputation.h   )
 
 GENERATECLP(ParticleModule_SOURCE ParticleModule.xml)
-ADD_EXECUTABLE (ParticleModule ${ParticleModule_SOURCE})
+add_executable(ParticleModule ${ParticleModule_SOURCE})
 
-TARGET_LINK_LIBRARIES(ParticleModule
+target_link_libraries(ParticleModule
   itksys
   vtkIO
   ${ITK_LIBRARIES}
   ${BatchMake_LIBRARIES} )
 
-IF (Slicer3_FOUND)
+if(Slicer3_FOUND)
   slicer3_set_plugins_output_path(ParticleModule)
   slicer3_install_plugins(ParticleModule)
-ENDIF (Slicer3_FOUND)
+endif(Slicer3_FOUND)
 
-INSTALL(TARGETS
+install(TARGETS
   ParticleModule
   BUNDLE DESTINATION  bin
   RUNTIME DESTINATION bin

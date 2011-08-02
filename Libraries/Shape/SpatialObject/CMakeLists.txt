@@ -1,6 +1,6 @@
 
-SET(SpatialObject_SRCS
+set(SpatialObject_SRCS
 SphericalHarmonicSpatialObject.cxx
 )
 
-ADD_LIBRARY(SpatialObject ${SpatialObject_SRCS})
+add_library(SpatialObject ${SpatialObject_SRCS})

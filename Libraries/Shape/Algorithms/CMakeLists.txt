@@ -1,14 +1,14 @@
 
-IF(WIN32)
-  ADD_DEFINITIONS("-DCOMPLEX=std::complex<double>")
-ELSE(WIN32)
-  ADD_DEFINITIONS('-DCOMPLEX=std::complex<double>')
-ENDIF(WIN32)
+if(WIN32)
+  add_definitions("-DCOMPLEX=std::complex<double>")
+else(WIN32)
+  add_definitions('-DCOMPLEX=std::complex<double>')
+endif(WIN32)
 
-SET(ShapeAlgorithms_SRCS
+set(ShapeAlgorithms_SRCS
  SphericalHarmonicMeshSource.cxx TSurfaceNet.cxx TVoxelVolume.cxx
  EqualAreaParametricMeshNewtonIterator.cxx
- ParametricMeshToSPHARMSpatialObjectFilter.cxx       
+ ParametricMeshToSPHARMSpatialObjectFilter.cxx
 )
 
-ADD_LIBRARY(ShapeAlgorithms  STATIC ${ShapeAlgorithms_SRCS})
+add_library(ShapeAlgorithms  STATIC ${ShapeAlgorithms_SRCS})

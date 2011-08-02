@@ -1,3 +1,3 @@
 
 
-INSTALL_FILES(include/Shape/Statistics "(\\.h|\\.txx)$")
+install_files(include/Shape/Statistics "(\\.h|\\.txx)$")

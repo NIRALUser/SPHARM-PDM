@@ -1,6 +1,6 @@
 
-#SUBDIRS(Algorithms)
-SUBDIRS(SparseLibMVIml)
-SUBDIRS(Shape)
+#subdirs(Algorithms)
+subdirs(SparseLibMVIml)
+subdirs(Shape)
 
 

@@ -1,7 +1,7 @@
 
-SET(ShapeIO_SRCS
+set(ShapeIO_SRCS
 SphericalHarmonicCoefficientFileReader.cxx
 SphericalHarmonicCoefficientFileWriter.cxx
 )
 
-ADD_LIBRARY(ShapeIO ${ShapeIO_SRCS})
+add_library(ShapeIO ${ShapeIO_SRCS})

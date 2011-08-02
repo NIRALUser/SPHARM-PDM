@@ -1,69 +1,69 @@
-PROJECT(ShapeAnalysisModule)
+project(ShapeAnalysisModule)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+cmake_minimum_required(VERSION 2.6)
 
-FIND_PACKAGE(Slicer3 QUIET NO_DEFAULT_PATH)
+find_package(Slicer3 QUIET NO_DEFAULT_PATH)
 
-IF (Slicer3_FOUND)
-  INCLUDE(${Slicer3_USE_FILE})
+if(Slicer3_FOUND)
+  include(${Slicer3_USE_FILE})
   slicer3_set_default_install_prefix_for_external_projects()
 
-  FIND_PACKAGE(BatchMake REQUIRED)
-  INCLUDE(${BatchMake_USE_FILE})
+  find_package(BatchMake REQUIRED)
+  include(${BatchMake_USE_FILE})
 
-ELSE (Slicer3_FOUND)
-  FIND_PACKAGE(ITK REQUIRED)
-  IF (ITK_FOUND)
-    INCLUDE(${USE_ITK_FILE})
-  ELSE(ITK_FOUND)
-    MESSAGE(FATAL_ERROR, "ITK not found. Please set ITK_DIR.")
-  ENDIF (ITK_FOUND)
+else(Slicer3_FOUND)
+  find_package(ITK REQUIRED)
+  if(ITK_FOUND)
+    include(${USE_ITK_FILE})
+  else(ITK_FOUND)
+    message(FATAL_ERROR, "ITK not found. Please set ITK_DIR.")
+  endif(ITK_FOUND)
 
-  FIND_PACKAGE(VTK REQUIRED)
-  IF (VTK_FOUND)
-    INCLUDE(${USE_VTK_FILE})
-  ELSE(VTK_FOUND)
-    MESSAGE(FATAL_ERROR, "VTK not found. Please set VTK_DIR.")
-  ENDIF (VTK_FOUND)
+  find_package(VTK REQUIRED)
+  if(VTK_FOUND)
+    include(${USE_VTK_FILE})
+  else(VTK_FOUND)
+    message(FATAL_ERROR, "VTK not found. Please set VTK_DIR.")
+  endif(VTK_FOUND)
 
-  FIND_PACKAGE(GenerateCLP REQUIRED)
-  IF(GenerateCLP_FOUND)
-    INCLUDE(${GenerateCLP_USE_FILE})
-  ELSE(GenerateCLP_FOUND)
-    MESSAGE(FATAL_ERROR, "GenerateCLP not found. Please set GenerateCLP_DIR.")
-  ENDIF(GenerateCLP_FOUND)
+  find_package(GenerateCLP REQUIRED)
+  if(GenerateCLP_FOUND)
+    include(${GenerateCLP_USE_FILE})
+  else(GenerateCLP_FOUND)
+    message(FATAL_ERROR, "GenerateCLP not found. Please set GenerateCLP_DIR.")
+  endif(GenerateCLP_FOUND)
 
-  FIND_PACKAGE(BatchMake REQUIRED)
-  IF (BatchMake_FOUND)
-    INCLUDE(${BatchMake_USE_FILE})
-  ENDIF (BatchMake_FOUND)
+  find_package(BatchMake REQUIRED)
+  if(BatchMake_FOUND)
+    include(${BatchMake_USE_FILE})
+  endif(BatchMake_FOUND)
 
 
-ENDIF (Slicer3_FOUND)
+endif(Slicer3_FOUND)
 
-SET (ShapeAnalysisModule_SOURCE
+set(ShapeAnalysisModule_SOURCE
 	ShapeAnalysisModuleCLP.cxx
 	Parameters.cxx
 	Parameters.h
 	ShapeAnalysisModuleComputation.cxx
-	ShapeAnalysisModuleComputation.h   ) 
+	ShapeAnalysisModuleComputation.h   )
 
 GENERATECLP(ShapeAnalysisModule_SOURCE ShapeAnalysisModule.xml)
-ADD_EXECUTABLE (ShapeAnalysisModule ${ShapeAnalysisModule_SOURCE})
+add_executable(ShapeAnalysisModule ${ShapeAnalysisModule_SOURCE})
 
-TARGET_LINK_LIBRARIES(ShapeAnalysisModule
+target_link_libraries(ShapeAnalysisModule
   itksys
   vtkIO
   ${ITK_LIBRARIES}
   ${BatchMake_LIBRARIES} )
 
 
-IF (Slicer3_FOUND)
+if(Slicer3_FOUND)
   slicer3_set_plugins_output_path(ShapeAnalysisModule)
   slicer3_install_plugins(ShapeAnalysisModule)
-ENDIF (Slicer3_FOUND)
+endif(Slicer3_FOUND)
 
-INSTALL(TARGETS
+install(TARGETS
   ShapeAnalysisModule
   BUNDLE DESTINATION  bin
   RUNTIME DESTINATION bin

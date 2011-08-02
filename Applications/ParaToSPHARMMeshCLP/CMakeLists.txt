@@ -1,24 +1,24 @@
-PROJECT(ParaToSPHARMMeshCLP)
+project(ParaToSPHARMMeshCLP)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+cmake_minimum_required(VERSION 2.6)
 
-SET (ParaToSPHARMMeshCLP_SOURCE ParaToSPHARMMeshCLP.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx)
+set(ParaToSPHARMMeshCLP_SOURCE ParaToSPHARMMeshCLP.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx)
 
 GENERATECLP(ParaToSPHARMMeshCLP_SOURCE ParaToSPHARMMeshCLP.xml)
 
-ADD_EXECUTABLE (ParaToSPHARMMeshCLP ${ParaToSPHARMMeshCLP_SOURCE})
+add_executable(ParaToSPHARMMeshCLP ${ParaToSPHARMMeshCLP_SOURCE})
 
-TARGET_LINK_LIBRARIES ( ParaToSPHARMMeshCLP
+target_link_libraries( ParaToSPHARMMeshCLP
        ${ITK_LIBRARIES}
-       vtkIO vtkHybrid vtkCommon vtkFiltering 
+       vtkIO vtkHybrid vtkCommon vtkFiltering
 	ShapeIO SpatialObject ShapeAlgorithms SpatialObject)
 
-IF (Slicer3_FOUND)
+if(Slicer3_FOUND)
  slicer3_set_plugins_output_path(ParaToSPHARMMeshCLP)
  slicer3_install_plugins(ParaToSPHARMMeshCLP)
-ENDIF (Slicer3_FOUND)
+endif(Slicer3_FOUND)
 
-INSTALL(TARGETS
+install(TARGETS
   ParaToSPHARMMeshCLP
   BUNDLE DESTINATION  bin
   RUNTIME DESTINATION bin
