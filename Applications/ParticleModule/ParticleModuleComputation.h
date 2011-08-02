@@ -3,8 +3,7 @@
 
 #include "ParticleModuleParameters.h"
 
-
-#include <strstream> 
+#include <strstream>
 #include <iostream>
 #include <cstring>
 #include <fstream>
@@ -21,22 +20,17 @@
 #include <itksys/Glob.hxx>
 #include <dirent.h>
 
-class ParticleModuleComputation: public ParticleModuleParameters
+class ParticleModuleComputation : public ParticleModuleParameters
 {
- public:
-	
-	ParticleModuleComputation();
-	~ParticleModuleComputation();
+public:
 
-void Computation();
+  ParticleModuleComputation();
+  ~ParticleModuleComputation();
 
-
+  void Computation();
 
 private:
-
-
 
 };
 
 #endif
-

@@ -3,8 +3,7 @@
 
 #include "Parameters.h"
 
-
-#include <strstream> 
+#include <strstream>
 #include <iostream>
 #include <cstring>
 #include <fstream>
@@ -24,69 +23,85 @@
 #include "bmScriptParser.h"
 #include "BMString.h"
 
-class ShapeAnalysisModuleComputation: public Parameters
+class ShapeAnalysisModuleComputation : public Parameters
 {
- public:
-	
-	ShapeAnalysisModuleComputation();
-	~ShapeAnalysisModuleComputation();
+public:
 
-	void SetBMSShapeAnalysisModuleFile(bool);
-	char *GetBMSShapeAnalysisModuleFile();
-	void SetBMSShapeAnalysisModuleFile2(bool);
-	char *GetBMSShapeAnalysisModuleFile2();
-	void SetBMSShapeAnalysisModuleMRMLFile(bool);
-	char* GetBMSShapeAnalysisModuleMRMLFile();
-	void SetOuputFile();
-	char* GetOutputFile();
-	void WriteBMSMRMLScene(int);
-  	void WriteBMSShapeAnalysisModuleFile();
-	void WriteBMSShapeAnalysisModuleFile2();
-	void ExecuteBatchMake(char *_Input);  
-	void ExecuteMeshMath(int,char*,bool);
-	void ExecuteMeshMathTemplate();
-	void Computation();
-	void OverWrite();
-	void ComputationMean();
-	void WriteMeanFile(int);
-	void RunParticlesModule();
-	void CreateMrmlParticle();
+  ShapeAnalysisModuleComputation();
+  ~ShapeAnalysisModuleComputation();
 
-	vector<double> transformStorage;
-	int countline;
-	int countcol;
-	int countshape;
-	void GetRandomNum(int,int);
+  void SetBMSShapeAnalysisModuleFile(bool);
 
+  char * GetBMSShapeAnalysisModuleFile();
 
-	private:
-  
-	int m_StudyNumber;
-	int ComputeMean;
-    	char m_BMSShapeAnalysisModuleFile[512];
-	char m_BMSShapeAnalysisModuleMRLMFile[512];
-	char m_OutputFile[512];
-	char m_SegPostProcessDir[512];
-	char m_GenParaMeshDir[512];
-	char m_ParaToSPHARMMeshDir[512];
-	double const_orientation;
+  void SetBMSShapeAnalysisModuleFile2(bool);
 
-	vector<int> m_Dims;
-	vector<double>m_meanX;
-	vector<double>m_meanY;
-	vector<double>m_meanZ;	
+  char * GetBMSShapeAnalysisModuleFile2();
 
-	vector<double>m_fidu0;
-	vector<double>m_fidu1;
-	vector<double>m_fidu2;
+  void SetBMSShapeAnalysisModuleMRMLFile(bool);
 
+  char * GetBMSShapeAnalysisModuleMRMLFile();
 
+  void SetOuputFile();
+
+  char * GetOutputFile();
+
+  void WriteBMSMRMLScene(int);
+
+  void WriteBMSShapeAnalysisModuleFile();
+
+  void WriteBMSShapeAnalysisModuleFile2();
+
+  void ExecuteBatchMake(char *_Input);
+
+  void ExecuteMeshMath(int, char *, bool);
+
+  void ExecuteMeshMathTemplate();
+
+  void Computation();
+
+  void OverWrite();
+
+  void ComputationMean();
+
+  void WriteMeanFile(int);
+
+  void RunParticlesModule();
+
+  void CreateMrmlParticle();
+
+  vector<double> transformStorage;
+  int            countline;
+  int            countcol;
+  int            countshape;
+  void GetRandomNum(int, int);
+
+private:
+
+  int    m_StudyNumber;
+  int    ComputeMean;
+  char   m_BMSShapeAnalysisModuleFile[512];
+  char   m_BMSShapeAnalysisModuleMRLMFile[512];
+  char   m_OutputFile[512];
+  char   m_SegPostProcessDir[512];
+  char   m_GenParaMeshDir[512];
+  char   m_ParaToSPHARMMeshDir[512];
+  double const_orientation;
+
+  vector<int>    m_Dims;
+  vector<double> m_meanX;
+  vector<double> m_meanY;
+  vector<double> m_meanZ;
+
+  vector<double> m_fidu0;
+  vector<double> m_fidu1;
+  vector<double> m_fidu2;
 
   int m_nbHorizontal;
-int m_nbVertical;
-int nbShapesPerMRML;
+  int m_nbVertical;
+  int nbShapesPerMRML;
 
-	vector<int> m_permutations;
+  vector<int> m_permutations;
 
 };
 

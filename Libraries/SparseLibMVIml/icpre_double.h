@@ -36,23 +36,26 @@
 #include "comprow_double.h"
 #include "compcol_double.h"
 
-
-class ICPreconditioner_double {
+class ICPreconditioner_double
+{
 
 private:
   VECTOR_double val_;
   VECTOR_int    pntr_;
   VECTOR_int    indx_;
-  int nz_;
-  int dim_[2];
-
+  int           nz_;
+  int           dim_[2];
 public:
-  ICPreconditioner_double(const CompCol_Mat_double &A);
-  ICPreconditioner_double(const CompRow_Mat_double &A);
-  ~ICPreconditioner_double(void){};
+  ICPreconditioner_double(const CompCol_Mat_double & A);
+  ICPreconditioner_double(const CompRow_Mat_double & A);
+  ~ICPreconditioner_double(void)
+  {
+  };
 
-  VECTOR_double     solve(const VECTOR_double &x) const;
-  VECTOR_double     trans_solve(const VECTOR_double &x) const;
+  VECTOR_double     solve(const VECTOR_double & x) const;
+
+  VECTOR_double     trans_solve(const VECTOR_double & x) const;
+
 };
 
 #endif

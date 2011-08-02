@@ -42,305 +42,543 @@
 #include <iostream>
 #include "spblas.h"
 
-#define _SpMatVal(_a,_lda,_row,_col) ((_a)[(_lda)*(_col)+(_row)])
+#define _SpMatVal(_a, _lda, _row, _col) ( (_a)[(_lda) * (_col) + (_row)])
 
-static void CoordMatVec_float(int m, int n, int k, const float &alpha,
-        const float *val, const int *indx, const int *jndx,
-        const int &nnz,
-        const float *b, int ldb, float *c, int ldc)
+static void CoordMatVec_float(int m, int n, int k, const float & alpha,
+                              const float *val, const int *indx, const int *jndx,
+                              const int & nnz,
+                              const float *b, int ldb, float *c, int ldc)
 {
   int i, j;
 
   // To make the compiler happy
-  if (k && m)
-    j=0;
+  if( k && m )
+    {
+    j = 0;
+    }
 
   // Frob these so we can use one-based indexing externally
   b -= 1;
   c -= 1;
 
-  if (alpha == 1.0) {
-    if (n == 1)
-      for (j = 0; j < nnz; j++)
-    c[indx[j]] += b[jndx[j]] * val[j];
+  if( alpha == 1.0 )
+    {
+    if( n == 1 )
+      {
+      for( j = 0; j < nnz; j++ )
+        {
+        c[indx[j]] += b[jndx[j]] * val[j];
+        }
+      }
     else
-      for (i = 0; i < n; i++)
-    for (j = 0; j < nnz; j++)
-      _SpMatVal(c, ldc, indx[j], i) += _SpMatVal(b, ldb, indx[j], i) * val[j];
-  } else {
-    if (n == 1)
-      for (j = 0; j < nnz; j++)
-    c[indx[j]] += alpha * b[jndx[j]] * val[j];
+      {
+      for( i = 0; i < n; i++ )
+        {
+        for( j = 0; j < nnz; j++ )
+          {
+          _SpMatVal(c, ldc, indx[j], i) += _SpMatVal(b, ldb, indx[j], i) * val[j];
+          }
+        }
+      }
+    }
+  else
+    {
+    if( n == 1 )
+      {
+      for( j = 0; j < nnz; j++ )
+        {
+        c[indx[j]] += alpha * b[jndx[j]] * val[j];
+        }
+      }
     else
-      for (i = 0; i < n; i++)
-    for (j = 0; j < nnz; j++)
-      _SpMatVal(c, ldc, indx[j], i) +=
-        alpha * _SpMatVal(b, ldb, indx[j], i) * val[j];
-  }
+      {
+      for( i = 0; i < n; i++ )
+        {
+        for( j = 0; j < nnz; j++ )
+          {
+          _SpMatVal(c, ldc, indx[j], i) +=
+            alpha * _SpMatVal(b, ldb, indx[j], i) * val[j];
+          }
+        }
+      }
+    }
 }
 
-static void CoordMatVec_double(int m, int n, int k, const double &alpha,
-        const double *val, const int *indx, const int *jndx,
-        const int &nnz,
-        const double *b, int ldb, double *c, int ldc)
+static void CoordMatVec_double(int m, int n, int k, const double & alpha,
+                               const double *val, const int *indx, const int *jndx,
+                               const int & nnz,
+                               const double *b, int ldb, double *c, int ldc)
 {
   int i, j;
 
   // To make the compiler happy
-  if (k && m)
-    j=0;
+  if( k && m )
+    {
+    j = 0;
+    }
 
   // Frob these so we can use one-based indexing externally
   b -= 1;
   c -= 1;
 
-  if (alpha == 1.0) {
-    if (n == 1)
-      for (j = 0; j < nnz; j++)
-    c[indx[j]] += b[jndx[j]] * val[j];
+  if( alpha == 1.0 )
+    {
+    if( n == 1 )
+      {
+      for( j = 0; j < nnz; j++ )
+        {
+        c[indx[j]] += b[jndx[j]] * val[j];
+        }
+      }
     else
-      for (i = 0; i < n; i++)
-    for (j = 0; j < nnz; j++)
-      _SpMatVal(c, ldc, indx[j], i) += _SpMatVal(b, ldb, indx[j], i) * val[j];
-  } else {
-    if (n == 1)
-      for (j = 0; j < nnz; j++)
-    c[indx[j]] += alpha * b[jndx[j]] * val[j];
+      {
+      for( i = 0; i < n; i++ )
+        {
+        for( j = 0; j < nnz; j++ )
+          {
+          _SpMatVal(c, ldc, indx[j], i) += _SpMatVal(b, ldb, indx[j], i) * val[j];
+          }
+        }
+      }
+    }
+  else
+    {
+    if( n == 1 )
+      {
+      for( j = 0; j < nnz; j++ )
+        {
+        c[indx[j]] += alpha * b[jndx[j]] * val[j];
+        }
+      }
     else
-      for (i = 0; i < n; i++)
-    for (j = 0; j < nnz; j++)
-      _SpMatVal(c, ldc, indx[j], i) +=
-        alpha * _SpMatVal(b, ldb, indx[j], i) * val[j];
-  }
+      {
+      for( i = 0; i < n; i++ )
+        {
+        for( j = 0; j < nnz; j++ )
+          {
+          _SpMatVal(c, ldc, indx[j], i) +=
+            alpha * _SpMatVal(b, ldb, indx[j], i) * val[j];
+          }
+        }
+      }
+    }
 }
 
 static void
-CompColMatVec_double(int m, int n, int k, const double &alpha,
-            const double *val, const int *indx, const int *pntr,
-            const double *b, int ldb, double *c, int ldc)
+CompColMatVec_double(int m, int n, int k, const double & alpha,
+                     const double *val, const int *indx, const int *pntr,
+                     const double *b, int ldb, double *c, int ldc)
 {
   int i, j, l;
 
-  if (alpha == 0.0)
+  if( alpha == 0.0 )
+    {
     return;
+    }
 
   // To make the compiler happy
-  if (m)
-    j=0;
+  if( m )
+    {
+    j = 0;
+    }
 
   // Frob these so we can use one-based indexing externally
   c -= 1;
   val -= pntr[0];
   indx -= pntr[0];
 
-  if (alpha == 1.0) {
-    if (n == 1)
-      for (i = 0; i < k; i++)
-    for (j = pntr[i]; j < pntr[i+1]; j++)
-      c[indx[j]] += b[i] * val[j];
+  if( alpha == 1.0 )
+    {
+    if( n == 1 )
+      {
+      for( i = 0; i < k; i++ )
+        {
+        for( j = pntr[i]; j < pntr[i + 1]; j++ )
+          {
+          c[indx[j]] += b[i] * val[j];
+          }
+        }
+      }
     else
-      for (l = 0; l < n; l++)
-    for (i = 0; i < k; i++)
-      for (j = pntr[i]; j < pntr[i+1]; j++)
-        _SpMatVal(c, ldc, indx[j], l) += _SpMatVal(b, ldb, i, l) * val[j];
-  } else {
-    if (n == 1)
-      for (i = 0; i < k; i++)
-    for (j = pntr[i]; j < pntr[i+1]; j++)
-      c[indx[j]] += alpha * b[i] * val[j];
+      {
+      for( l = 0; l < n; l++ )
+        {
+        for( i = 0; i < k; i++ )
+          {
+          for( j = pntr[i]; j < pntr[i + 1]; j++ )
+            {
+            _SpMatVal(c, ldc, indx[j], l) += _SpMatVal(b, ldb, i, l) * val[j];
+            }
+          }
+        }
+      }
+    }
+  else
+    {
+    if( n == 1 )
+      {
+      for( i = 0; i < k; i++ )
+        {
+        for( j = pntr[i]; j < pntr[i + 1]; j++ )
+          {
+          c[indx[j]] += alpha * b[i] * val[j];
+          }
+        }
+      }
     else
-      for (l = 0; l < n; l++)
-    for (i = 0; i < k; i++)
-      for (j = pntr[i]; j < pntr[i+1]; j++)
-        _SpMatVal(c, ldc, indx[j], l) +=
-          alpha * _SpMatVal(b, ldb, i, l) * val[j];
-  }
+      {
+      for( l = 0; l < n; l++ )
+        {
+        for( i = 0; i < k; i++ )
+          {
+          for( j = pntr[i]; j < pntr[i + 1]; j++ )
+            {
+            _SpMatVal(c, ldc, indx[j], l) +=
+              alpha * _SpMatVal(b, ldb, i, l) * val[j];
+            }
+          }
+        }
+      }
+    }
 }
 
-static void CompColMatVec_float(int m, int n, int k, const float &alpha,
-            const float *val, const int *indx, const int *pntr,
-            const float *b, int ldb, float *c, int ldc)
+static void CompColMatVec_float(int m, int n, int k, const float & alpha,
+                                const float *val, const int *indx, const int *pntr,
+                                const float *b, int ldb, float *c, int ldc)
 {
   int i, j, l;
 
-  if (alpha == 0.0)
+  if( alpha == 0.0 )
+    {
     return;
+    }
 
   // To make the compiler happy
-  if (m)
-    j=0;
+  if( m )
+    {
+    j = 0;
+    }
 
   // Frob these so we can use one-based indexing externally
   c -= 1;
   val -= pntr[0];
   indx -= pntr[0];
 
-  if (alpha == 1.0) {
-    if (n == 1)
-      for (i = 0; i < k; i++)
-    for (j = pntr[i]; j < pntr[i+1]; j++)
-      c[indx[j]] += b[i] * val[j];
+  if( alpha == 1.0 )
+    {
+    if( n == 1 )
+      {
+      for( i = 0; i < k; i++ )
+        {
+        for( j = pntr[i]; j < pntr[i + 1]; j++ )
+          {
+          c[indx[j]] += b[i] * val[j];
+          }
+        }
+      }
     else
-      for (l = 0; l < n; l++)
-    for (i = 0; i < k; i++)
-      for (j = pntr[i]; j < pntr[i+1]; j++)
-        _SpMatVal(c, ldc, indx[j], l) += _SpMatVal(b, ldb, i, l) * val[j];
-  } else {
-    if (n == 1)
-      for (i = 0; i < k; i++)
-    for (j = pntr[i]; j < pntr[i+1]; j++)
-      c[indx[j]] += alpha * b[i] * val[j];
+      {
+      for( l = 0; l < n; l++ )
+        {
+        for( i = 0; i < k; i++ )
+          {
+          for( j = pntr[i]; j < pntr[i + 1]; j++ )
+            {
+            _SpMatVal(c, ldc, indx[j], l) += _SpMatVal(b, ldb, i, l) * val[j];
+            }
+          }
+        }
+      }
+    }
+  else
+    {
+    if( n == 1 )
+      {
+      for( i = 0; i < k; i++ )
+        {
+        for( j = pntr[i]; j < pntr[i + 1]; j++ )
+          {
+          c[indx[j]] += alpha * b[i] * val[j];
+          }
+        }
+      }
     else
-      for (l = 0; l < n; l++)
-    for (i = 0; i < k; i++)
-      for (j = pntr[i]; j < pntr[i+1]; j++)
-        _SpMatVal(c, ldc, indx[j], l) +=
-          alpha * _SpMatVal(b, ldb, i, l) * val[j];
-  }
+      {
+      for( l = 0; l < n; l++ )
+        {
+        for( i = 0; i < k; i++ )
+          {
+          for( j = pntr[i]; j < pntr[i + 1]; j++ )
+            {
+            _SpMatVal(c, ldc, indx[j], l) +=
+              alpha * _SpMatVal(b, ldb, i, l) * val[j];
+            }
+          }
+        }
+      }
+    }
 }
 
-
 static void
-CompRowMatVec_double(int m, int n, int k, const double &alpha,
-            const double *val, const int *indx, const int *pntr,
-            const double *b, int ldb, double *c, int ldc)
+CompRowMatVec_double(int m, int n, int k, const double & alpha,
+                     const double *val, const int *indx, const int *pntr,
+                     const double *b, int ldb, double *c, int ldc)
 {
   int i, j, l;
 
-  if (alpha == 0.0)
+  if( alpha == 0.0 )
+    {
     return;
+    }
 
   // To make the compiler happy
-  if (m || k)
-    j=0;
+  if( m || k )
+    {
+    j = 0;
+    }
 
   // Frob these so we can use one-based indexing externally
   b -= 1;
   val -= pntr[0];
   indx -= pntr[0];
 
-  if (alpha == 1.0) {
-    if (n == 1)
-      for (i = 0; i < m; i++)
-    for (j = pntr[i]; j < pntr[i+1]; j++)
-      c[i] += b[indx[j]] * val[j];
+  if( alpha == 1.0 )
+    {
+    if( n == 1 )
+      {
+      for( i = 0; i < m; i++ )
+        {
+        for( j = pntr[i]; j < pntr[i + 1]; j++ )
+          {
+          c[i] += b[indx[j]] * val[j];
+          }
+        }
+      }
     else
-      for (l = 0; l < n; l++)
-    for (i = 0; i < m; i++)
-      for (j = pntr[i]; j < pntr[i+1]; j++)
-        _SpMatVal(c, ldc, i, l) += _SpMatVal(b, ldb, indx[j], l) * val[j];
-  } else {
-    if (n == 1)
-      for (i = 0; i < m; i++)
-    for (j = pntr[i]; j < pntr[i+1]; j++)
-      c[i] += alpha * b[indx[j]] * val[j];
+      {
+      for( l = 0; l < n; l++ )
+        {
+        for( i = 0; i < m; i++ )
+          {
+          for( j = pntr[i]; j < pntr[i + 1]; j++ )
+            {
+            _SpMatVal(c, ldc, i, l) += _SpMatVal(b, ldb, indx[j], l) * val[j];
+            }
+          }
+        }
+      }
+    }
+  else
+    {
+    if( n == 1 )
+      {
+      for( i = 0; i < m; i++ )
+        {
+        for( j = pntr[i]; j < pntr[i + 1]; j++ )
+          {
+          c[i] += alpha * b[indx[j]] * val[j];
+          }
+        }
+      }
     else
-      for (l = 0; l < n; l++)
-    for (i = 0; i < m; i++)
-      for (j = pntr[i]; j < pntr[i+1]; j++)
-        _SpMatVal(c, ldc, i, l) +=
-          alpha * _SpMatVal(b, ldb, indx[j], l) * val[j];
-  }
+      {
+      for( l = 0; l < n; l++ )
+        {
+        for( i = 0; i < m; i++ )
+          {
+          for( j = pntr[i]; j < pntr[i + 1]; j++ )
+            {
+            _SpMatVal(c, ldc, i, l) +=
+              alpha * _SpMatVal(b, ldb, indx[j], l) * val[j];
+            }
+          }
+        }
+      }
+    }
 }
 
-
 static void
-CompRowMatVec_float(int m, int n, int k, const float &alpha,
-            const float *val, const int *indx, const int *pntr,
-            const float *b, int ldb, float *c, int ldc)
+CompRowMatVec_float(int m, int n, int k, const float & alpha,
+                    const float *val, const int *indx, const int *pntr,
+                    const float *b, int ldb, float *c, int ldc)
 {
   int i, j, l;
 
-  if (alpha == 0.0)
+  if( alpha == 0.0 )
+    {
     return;
+    }
 
   // To make the compiler happy
-  if (m || k)
-    j=0;
+  if( m || k )
+    {
+    j = 0;
+    }
 
   // Frob these so we can use one-based indexing externally
   b -= 1;
   val -= pntr[0];
   indx -= pntr[0];
 
-  if (alpha == 1.0) {
-    if (n == 1)
-      for (i = 0; i < m; i++)
-    for (j = pntr[i]; j < pntr[i+1]; j++)
-      c[i] += b[indx[j]] * val[j];
+  if( alpha == 1.0 )
+    {
+    if( n == 1 )
+      {
+      for( i = 0; i < m; i++ )
+        {
+        for( j = pntr[i]; j < pntr[i + 1]; j++ )
+          {
+          c[i] += b[indx[j]] * val[j];
+          }
+        }
+      }
     else
-      for (l = 0; l < n; l++)
-    for (i = 0; i < m; i++)
-      for (j = pntr[i]; j < pntr[i+1]; j++)
-        _SpMatVal(c, ldc, i, l) += _SpMatVal(b, ldb, indx[j], l) * val[j];
-  } else {
-    if (n == 1)
-      for (i = 0; i < m; i++)
-    for (j = pntr[i]; j < pntr[i+1]; j++)
-      c[i] += alpha * b[indx[j]] * val[j];
+      {
+      for( l = 0; l < n; l++ )
+        {
+        for( i = 0; i < m; i++ )
+          {
+          for( j = pntr[i]; j < pntr[i + 1]; j++ )
+            {
+            _SpMatVal(c, ldc, i, l) += _SpMatVal(b, ldb, indx[j], l) * val[j];
+            }
+          }
+        }
+      }
+    }
+  else
+    {
+    if( n == 1 )
+      {
+      for( i = 0; i < m; i++ )
+        {
+        for( j = pntr[i]; j < pntr[i + 1]; j++ )
+          {
+          c[i] += alpha * b[indx[j]] * val[j];
+          }
+        }
+      }
     else
-      for (l = 0; l < n; l++)
-    for (i = 0; i < m; i++)
-      for (j = pntr[i]; j < pntr[i+1]; j++)
-        _SpMatVal(c, ldc, i, l) +=
-          alpha * _SpMatVal(b, ldb, indx[j], l) * val[j];
-  }
+      {
+      for( l = 0; l < n; l++ )
+        {
+        for( i = 0; i < m; i++ )
+          {
+          for( j = pntr[i]; j < pntr[i + 1]; j++ )
+            {
+            _SpMatVal(c, ldc, i, l) +=
+              alpha * _SpMatVal(b, ldb, indx[j], l) * val[j];
+            }
+          }
+        }
+      }
+    }
 }
 
 static void
-ScaleRectangularArray_double(int m, int n, double *c, int ldc, 
-    const double &beta)
+ScaleRectangularArray_double(int m, int n, double *c, int ldc,
+                             const double & beta)
 {
   int i, j;
 
-  if (beta == 1.0)
+  if( beta == 1.0 )
+    {
     return;
+    }
 
-  if (beta == 0.0) {
-    if (n == 1)
-      for (j = 0; j < m; j++)
-    c[j] = 0.0;
+  if( beta == 0.0 )
+    {
+    if( n == 1 )
+      {
+      for( j = 0; j < m; j++ )
+        {
+        c[j] = 0.0;
+        }
+      }
     else
-      for (i = 0; i < n; i++)
-    for (j = 0; j < m; j++)
-      _SpMatVal(c, ldc, j, i) = 0.0;
-  } else {
-    if (n == 1)
-      for (j = 0; j < m; j++)
-    c[j] *= beta;
+      {
+      for( i = 0; i < n; i++ )
+        {
+        for( j = 0; j < m; j++ )
+          {
+          _SpMatVal(c, ldc, j, i) = 0.0;
+          }
+        }
+      }
+    }
+  else
+    {
+    if( n == 1 )
+      {
+      for( j = 0; j < m; j++ )
+        {
+        c[j] *= beta;
+        }
+      }
     else
-      for (i = 0; i < n; i++)
-    for (j = 0; j < m; j++)
-      _SpMatVal(c, ldc, j, i) *= beta;
-  }
+      {
+      for( i = 0; i < n; i++ )
+        {
+        for( j = 0; j < m; j++ )
+          {
+          _SpMatVal(c, ldc, j, i) *= beta;
+          }
+        }
+      }
+    }
 }
 
 static void
-ScaleRectangularArray_float(int m, int n, float *c, int ldc, 
-    const double &beta)
+ScaleRectangularArray_float(int m, int n, float *c, int ldc,
+                            const double & beta)
 {
   int i, j;
 
-  if (beta == 1.0)
+  if( beta == 1.0 )
+    {
     return;
+    }
 
-  if (beta == 0.0) {
-    if (n == 1)
-      for (j = 0; j < m; j++)
-    c[j] = 0.0;
+  if( beta == 0.0 )
+    {
+    if( n == 1 )
+      {
+      for( j = 0; j < m; j++ )
+        {
+        c[j] = 0.0;
+        }
+      }
     else
-      for (i = 0; i < n; i++)
-    for (j = 0; j < m; j++)
-      _SpMatVal(c, ldc, j, i) = 0.0;
-  } else {
-    if (n == 1)
-      for (j = 0; j < m; j++)
-    c[j] *= beta;
+      {
+      for( i = 0; i < n; i++ )
+        {
+        for( j = 0; j < m; j++ )
+          {
+          _SpMatVal(c, ldc, j, i) = 0.0;
+          }
+        }
+      }
+    }
+  else
+    {
+    if( n == 1 )
+      {
+      for( j = 0; j < m; j++ )
+        {
+        c[j] *= beta;
+        }
+      }
     else
-      for (i = 0; i < n; i++)
-    for (j = 0; j < m; j++)
-      _SpMatVal(c, ldc, j, i) *= beta;
-  }
+      {
+      for( i = 0; i < n; i++ )
+        {
+        for( j = 0; j < m; j++ )
+          {
+          _SpMatVal(c, ldc, j, i) *= beta;
+          }
+        }
+      }
+    }
 }
 
 /*
@@ -399,72 +637,80 @@ ScaleRectangularArray_float(int m, int n, float *c, int ldc,
  *
  */
 void F77NAME(scoomm)
-  (const int &transa, const int &m, const int &n, const int &k,
-   const float &alpha,
-   const int descra[], const float *val,
-   const int *indx, const int *jndx, const int &nnz,
-   const float *b, const int &ldb,
-   const float &beta, float *c, const int &ldc,
-   float *work, const int &lwork)
-{
-  if (descra[0] != 0) {
+  (const int & transa, const int & m, const int & n, const int & k,
+  const float & alpha,
+  const int descra[], const float * val,
+  const int * indx, const int * jndx, const int & nnz,
+  const float * b, const int & ldb,
+  const float & beta, float * c, const int & ldc,
+  float * work, const int & lwork)
+  {
+  if( descra[0] != 0 )
+    {
     std::cerr << "Must have general matrix" << "\n";
     exit(1);
-  }
+    }
 
   // To make the compiler happy
-  if (work && lwork)
+  if( work && lwork )
+    {
     ;
+    }
 
   ScaleRectangularArray_float(m, n, c, ldc, beta);
 
-  if (alpha == 0.0)
+  if( alpha == 0.0 )
+    {
     return;
+    }
 
   // Use this hack if transpose is desired
-  if (transa == 1 || transa == 2) {
+  if( transa == 1 || transa == 2 )
+    {
     const int *itmp = indx;
     indx = jndx;
     jndx = itmp;
-  }
+    }
   CoordMatVec_float(m, n, k, alpha, val, indx, jndx, nnz, b, ldb, c, ldc);
-}
-
+  }
 
 void F77NAME(dcoomm)
-  (const int &transa, const int &m, const int &n, const int &k,
-   const double &alpha,
-   const int descra[], const double *val,
-   const int *indx, const int *jndx, const int &nnz,
-   const double *b, const int &ldb,
-   const double &beta, double *c, const int &ldc,
-   double *work, const int &lwork)
-{
-  if (descra[0] != 0) {
+  (const int & transa, const int & m, const int & n, const int & k,
+  const double & alpha,
+  const int descra[], const double * val,
+  const int * indx, const int * jndx, const int & nnz,
+  const double * b, const int & ldb,
+  const double & beta, double * c, const int & ldc,
+  double * work, const int & lwork)
+  {
+  if( descra[0] != 0 )
+    {
     std::cerr << "Must have general matrix" << "\n";
     exit(1);
-  }
+    }
 
   // To make the compiler happy
-  if (work && lwork)
+  if( work && lwork )
+    {
     ;
+    }
 
   ScaleRectangularArray_double(m, n, c, ldc, beta);
 
-  if (alpha == 0.0)
+  if( alpha == 0.0 )
+    {
     return;
+    }
 
   // Use this hack if transpose is desired
-  if (transa == 1 || transa == 2) {
+  if( transa == 1 || transa == 2 )
+    {
     const int *itmp = indx;
     indx = jndx;
     jndx = itmp;
-  }
+    }
   CoordMatVec_double(m, n, k, alpha, val, indx, jndx, nnz, b, ldb, c, ldc);
-}
-
-
-
+  }
 
 /*
  * dcscm -- comp sparse column matrix-matrix multiply
@@ -517,58 +763,68 @@ void F77NAME(dcoomm)
  *
  */
 void F77NAME(scscmm)
-  (const int &transa, const int &m, const int &n, const int &k,
-   const float &alpha,
-   const int descra[], const float *val,
-   const int *indx, const int *pntr, const float *b, int &ldb,
-   const float &beta, float *c, const int &ldc,
-   float *work, const int &lwork)
-{
-  if (descra[0] != 0) {
+  (const int & transa, const int & m, const int & n, const int & k,
+  const float & alpha,
+  const int descra[], const float * val,
+  const int * indx, const int * pntr, const float * b, int & ldb,
+  const float & beta, float * c, const int & ldc,
+  float * work, const int & lwork)
+  {
+  if( descra[0] != 0 )
+    {
     std::cerr << "Must have general matrix" << "\n";
     exit(1);
-  }
+    }
 
   // To make the compiler happy
-  if (work && lwork)
+  if( work && lwork )
+    {
     ;
+    }
 
   ScaleRectangularArray_float(m, n, c, ldc, beta);
 
-  if (transa == 1 || transa == 2)
+  if( transa == 1 || transa == 2 )
+    {
     CompRowMatVec_float(m, n, k, alpha, val, indx, pntr, b, ldb, c, ldc);
+    }
   else
+    {
     CompColMatVec_float(m, n, k, alpha, val, indx, pntr, b, ldb, c, ldc);
-}
-
-
-void F77NAME(dcscmm)
-  (const int &transa, const int &m, const int &n, const int &k,
-   const double &alpha,
-   const int descra[], const double *val,
-   const int *indx, const int *pntr, const double *b, int &ldb,
-   const double &beta, double *c, const int &ldc,
-   double *work, const int &lwork)
-{
-  if (descra[0] != 0) {
-    std::cerr << "Must have general matrix" << "\n";
-    exit(1);
+    }
   }
 
+void F77NAME(dcscmm)
+  (const int & transa, const int & m, const int & n, const int & k,
+  const double & alpha,
+  const int descra[], const double * val,
+  const int * indx, const int * pntr, const double * b, int & ldb,
+  const double & beta, double * c, const int & ldc,
+  double * work, const int & lwork)
+  {
+  if( descra[0] != 0 )
+    {
+    std::cerr << "Must have general matrix" << "\n";
+    exit(1);
+    }
+
   // To make the compiler happy
-  if (work && lwork)
+  if( work && lwork )
+    {
     ;
+    }
 
   ScaleRectangularArray_double(m, n, c, ldc, beta);
 
-  if (transa == 1 || transa == 2)
+  if( transa == 1 || transa == 2 )
+    {
     CompRowMatVec_double(m, n, k, alpha, val, indx, pntr, b, ldb, c, ldc);
+    }
   else
+    {
     CompColMatVec_double(m, n, k, alpha, val, indx, pntr, b, ldb, c, ldc);
-}
-
-
-
+    }
+  }
 
 /*
  * dcsrm -- comp sparse row matrix-matrix multiply
@@ -621,57 +877,65 @@ void F77NAME(dcscmm)
  *
  */
 void F77NAME(scsrmm)
-  (const int &transa, const int &m, const int &n, const int &k,
-   const float &alpha,
-   const int descra[], const float *val,
-   const int *indx, const int *pntr, const float *b, int &ldb,
-   const float &beta, float *c, const int &ldc,
-   float *work, const int &lwork)
-{
-  if (descra[0] != 0) {
+  (const int & transa, const int & m, const int & n, const int & k,
+  const float & alpha,
+  const int descra[], const float * val,
+  const int * indx, const int * pntr, const float * b, int & ldb,
+  const float & beta, float * c, const int & ldc,
+  float * work, const int & lwork)
+  {
+  if( descra[0] != 0 )
+    {
     std::cerr << "Must have general matrix" << "\n";
     exit(1);
-  }
+    }
 
   // To make the compiler happy
-  if (work && lwork)
+  if( work && lwork )
+    {
     ;
+    }
 
   ScaleRectangularArray_float(m, n, c, ldc, beta);
 
-  if (transa == 1 || transa == 2)
+  if( transa == 1 || transa == 2 )
+    {
     CompColMatVec_float(m, n, k, alpha, val, indx, pntr, b, ldb, c, ldc);
+    }
   else
+    {
     CompRowMatVec_float(m, n, k, alpha, val, indx, pntr, b, ldb, c, ldc);
-}
-
-
-void F77NAME(dcsrmm)
-  (const int &transa, const int &m, const int &n, const int &k,
-   const double &alpha,
-   const int descra[], const double *val,
-   const int *indx, const int *pntr, const double *b, int &ldb,
-   const double &beta, double *c, const int &ldc,
-   double *work, const int &lwork)
-{
-  if (descra[0] != 0) {
-    std::cerr << "Must have general matrix" << "\n";
-    exit(1);
+    }
   }
 
+void F77NAME(dcsrmm)
+  (const int & transa, const int & m, const int & n, const int & k,
+  const double & alpha,
+  const int descra[], const double * val,
+  const int * indx, const int * pntr, const double * b, int & ldb,
+  const double & beta, double * c, const int & ldc,
+  double * work, const int & lwork)
+  {
+  if( descra[0] != 0 )
+    {
+    std::cerr << "Must have general matrix" << "\n";
+    exit(1);
+    }
+
   // To make the compiler happy
-  if (work && lwork)
+  if( work && lwork )
+    {
     ;
+    }
 
   ScaleRectangularArray_double(m, n, c, ldc, beta);
 
-  if (transa == 1 || transa == 2)
+  if( transa == 1 || transa == 2 )
+    {
     CompColMatVec_double(m, n, k, alpha, val, indx, pntr, b, ldb, c, ldc);
+    }
   else
+    {
     CompRowMatVec_double(m, n, k, alpha, val, indx, pntr, b, ldb, c, ldc);
-}
-
-
-
-
-
+    }
+  }

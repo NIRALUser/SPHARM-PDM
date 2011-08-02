@@ -37,20 +37,31 @@
 #include "comprow_double.h"
 #include "compcol_double.h"
 
-class DiagPreconditioner_double {
+class DiagPreconditioner_double
+{
 
- private:
+private:
   VECTOR_double diag_;
+public:
+  DiagPreconditioner_double(const CompCol_Mat_double &);
+  DiagPreconditioner_double(const CompRow_Mat_double &);
+  ~DiagPreconditioner_double(void)
+  {
+  };
+  VECTOR_double solve(const VECTOR_double & x) const;
 
- public:
-  DiagPreconditioner_double (const CompCol_Mat_double &);
-  DiagPreconditioner_double (const CompRow_Mat_double &);
-  ~DiagPreconditioner_double (void) { };
-  VECTOR_double solve (const VECTOR_double &x) const;
-  VECTOR_double trans_solve (const VECTOR_double &x) const;
-  
-  const double&         diag(int i) const { return diag_(i); }
-  double&           diag(int i) { return diag_(i); }
+  VECTOR_double trans_solve(const VECTOR_double & x) const;
+
+  const double &         diag(int i) const
+  {
+    return diag_(i);
+  }
+
+  double &           diag(int i)
+  {
+    return diag_(i);
+  }
+
 };
 
 #endif

@@ -26,7 +26,6 @@
 /*      Which dense vector/matrix classes to build SparseLib++ from      */
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-
 #ifndef vector_defs_H
 #define vector_defs_H
 

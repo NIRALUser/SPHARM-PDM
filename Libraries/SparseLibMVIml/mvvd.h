@@ -27,18 +27,15 @@
 //
 
 #ifndef _MV_VECTOR_double_H
-#define _MV_VECTOR_double_H    
-
-
+#define _MV_VECTOR_double_H
 
 #include <stdlib.h>
 
 // for formatted printing of matrices
-#include <sstream>       
-
+#include <sstream>
 
 #ifdef MV_VECTOR_BOUNDS_CHECK
-#   include <assert.h>
+#include <assert.h>
 #endif
 
 #include "mvvind.h"
@@ -52,103 +49,122 @@
 #include "mvvrf.h"
 
 class MV_Vector_double
-{                                                                      
-    protected:                                                           
-           double *p_;
-            int dim_;
-           int ref_;  // 0 or 1; does this own its own memory space?
-    public:                                                            
+{
+protected:
+  double *p_;
+  int     dim_;
+  int     ref_;       // 0 or 1; does this own its own memory space?
+public:
 
+  /*::::::::::::::::::::::::::*/
+  /* Constructors/Destructors */
+  /*::::::::::::::::::::::::::*/
 
-        /*::::::::::::::::::::::::::*/                                 
-        /* Constructors/Destructors */                                 
-        /*::::::::::::::::::::::::::*/                                 
-                                                                       
-    MV_Vector_double();                             
-    MV_Vector_double( int);                             
-    MV_Vector_double( int, const double&);   
-                                                     
-                                                    
-    MV_Vector_double(double*,  int);      
-    MV_Vector_double(const double*,  int);        
-    MV_Vector_double(const MV_Vector_double &); 
-    
-    // reference of an exisiting data structure
-    //
-    // note that ref() is initalized with i rather than 1.
-    // this is so compilers will not generate a warning that i was
-    // not used in the construction.  (MV_Vector::ref_type is an enum that
-    // can *only* have the value of 1.
-    //
-    MV_Vector_double(double* d,  int N, MV_Vector_::ref_type i) :
-                            p_(d), dim_(N), ref_(i) {}
+  MV_Vector_double();
+  MV_Vector_double( int);
+  MV_Vector_double( int, const double &);
 
-    MV_Vector_double(const MV_Vector_double &V, MV_Vector_::ref_type i)   :
-                            p_(V.p_), dim_(V.dim_), ref_(i) {}
+  MV_Vector_double(double *,  int);
+  MV_Vector_double(const double *,  int);
+  MV_Vector_double(const MV_Vector_double &);
 
-    ~MV_Vector_double();                              
-                                                                       
-        /*::::::::::::::::::::::::::::::::*/                           
-        /*  Indices and access operations */                           
-        /*::::::::::::::::::::::::::::::::*/                           
-                                                                       
+  // reference of an exisiting data structure
+  //
+  // note that ref() is initalized with i rather than 1.
+  // this is so compilers will not generate a warning that i was
+  // not used in the construction.  (MV_Vector::ref_type is an enum that
+  // can *only* have the value of 1.
+  //
+  MV_Vector_double(double* d,  int N, MV_Vector_::ref_type i) :
+    p_(d), dim_(N), ref_(i)
+  {
+  }
 
-    double&      operator()( int i)
-                  {
-#                   ifdef MV_VECTOR_BOUNDS_CHECK
-                    assert(i < dim_);
-#                   endif
-                    return p_[i];
-                  }
-    const  double&       operator()( int i) const 
-                  {
-#                   ifdef MV_VECTOR_BOUNDS_CHECK
-                    assert(i < dim_);
-#                   endif
-                    return p_[i];
-                  }
+  MV_Vector_double(const MV_Vector_double & V, MV_Vector_::ref_type i)   :
+    p_(V.p_), dim_(V.dim_), ref_(i)
+  {
+  }
 
-    double&      operator[]( int i)
-                  {
-#                   ifdef MV_VECTOR_BOUNDS_CHECK
-                    assert(i < dim_);
-#                   endif
-                    return p_[i];
-                  }
-    const  double&       operator[]( int i) const 
-                  {
-#                   ifdef MV_VECTOR_BOUNDS_CHECK
-                    assert(i < dim_);
-#                   endif
-                    return p_[i];
-                  }
+  ~MV_Vector_double();
 
+  /*::::::::::::::::::::::::::::::::*/
+  /*  Indices and access operations */
+  /*::::::::::::::::::::::::::::::::*/
 
-    MV_Vector_double operator()(const MV_VecIndex &I) ;
-    MV_Vector_double operator()(void);
-    const MV_Vector_double operator()(void) const;
-    const MV_Vector_double operator()(const MV_VecIndex &I) const;
+  double &      operator()( int i)
+  {
+#ifdef MV_VECTOR_BOUNDS_CHECK
+    assert(i < dim_);
+#endif
+    return p_[i];
+  }
 
-    inline  int             size() const { return dim_;}
-    inline  int             dim() const { return dim_;}
-    inline int                      ref() const { return  ref_;}
-    inline int                      null() const {return dim_== 0;}
-            //
-            // Create a new *uninitalized* vector of size N
-            MV_Vector_double & newsize( int );
-                                                                       
-        /*::::::::::::::*/                                             
-        /*  Assignment  */                                             
-        /*::::::::::::::*/                                             
-                                                                       
-    MV_Vector_double & operator=(const MV_Vector_double&);
-    MV_Vector_double & operator=(const double&);
+  const  double &       operator()( int i) const
+  {
+#ifdef MV_VECTOR_BOUNDS_CHECK
+    assert(i < dim_);
+#endif
+    return p_[i];
+  }
 
+  double &      operator[]( int i)
+  {
+#ifdef MV_VECTOR_BOUNDS_CHECK
+    assert(i < dim_);
+#endif
+    return p_[i];
+  }
 
-    friend std::ostream& operator<<(std::ostream &s, const MV_Vector_double &A);
+  const  double &       operator[]( int i) const
+  {
+#ifdef MV_VECTOR_BOUNDS_CHECK
+    assert(i < dim_);
+#endif
+    return p_[i];
+  }
 
-};                                                                     
+  MV_Vector_double operator()(const MV_VecIndex & I);
 
+  MV_Vector_double operator()(void);
 
+  const MV_Vector_double operator()(void) const;
 
-#endif  
+  const MV_Vector_double operator()(const MV_VecIndex & I) const;
+
+  inline  int             size() const
+  {
+    return dim_;
+  }
+
+  inline  int             dim() const
+  {
+    return dim_;
+  }
+
+  inline int                      ref() const
+  {
+    return ref_;
+  }
+
+  inline int                      null() const
+  {
+    return dim_ == 0;
+  }
+
+  //
+  // Create a new *uninitalized* vector of size N
+  MV_Vector_double & newsize( int );
+
+  /*::::::::::::::*/
+  /*  Assignment  */
+  /*::::::::::::::*/
+
+  MV_Vector_double & operator=(const MV_Vector_double &);
+
+  MV_Vector_double & operator=(const double &);
+
+  friend std::ostream & operator<<(std::ostream & s, const MV_Vector_double & A);
+
+};
+
+#endif

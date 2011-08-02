@@ -34,34 +34,46 @@
 
 class CreateMRMLSceneHelper
 {
-   public:
-      CreateMRMLSceneHelper() ;
-      ~CreateMRMLSceneHelper() ;
-      void SetOutputSceneName( std::string name ) ;
-      void SetInputSceneName( std::string name ) ;
-      int Write() ;
-      void SetInputs( std::vector< MRMLNodeHelper* > arg ) ;
+public:
+  CreateMRMLSceneHelper();
+  ~CreateMRMLSceneHelper();
+  void SetOutputSceneName( std::string name );
+
+  void SetInputSceneName( std::string name );
+
+  int Write();
+
+  void SetInputs( std::vector<MRMLNodeHelper *> arg );
+
 //      void AddInput( InputClass* arg ) ;
-   private:
-      std::string m_SceneName ;
-      std::string m_InputSceneName ;
-      std::vector< MRMLNodeHelper* > m_Arguments ;
-      vtkMRMLScene* m_Scene ;
-      std::string RemoveExtension( std::string input ) ;
-      int CheckDoublons( ) ;
-      int CheckDoublonsWithScene( ) ;
-      void PrintArguments() ;
-      void PrintSceneNodes() ;
-      int AddVolume( MRMLVolumeHelper *volume ) ;
-      int SetParentNode( vtkMRMLTransformableNode *child , const char* parentName ) ;
-      int AddTransform( MRMLTransformHelper *input ) ;
-      int AddColorable( MRMLColorableHelper* colorable ,
-                        vtkMRMLDisplayNode* dnode ,
-                        vtkMRMLStorageNode* snode ,
-                        vtkMRMLDisplayableNode* inode
-                      ) ;
-      int AddModel( MRMLModelHelper *model ) ;
-      int AddFiducial( MRMLFiducialHelper *fiducial ) ;
+private:
+  std::string                   m_SceneName;
+  std::string                   m_InputSceneName;
+  std::vector<MRMLNodeHelper *> m_Arguments;
+  vtkMRMLScene*                 m_Scene;
+  std::string RemoveExtension( std::string input );
+
+  int CheckDoublons();
+
+  int CheckDoublonsWithScene();
+
+  void PrintArguments();
+
+  void PrintSceneNodes();
+
+  int AddVolume( MRMLVolumeHelper *volume );
+
+  int SetParentNode( vtkMRMLTransformableNode *child, const char* parentName );
+
+  int AddTransform( MRMLTransformHelper *input );
+
+  int AddColorable( MRMLColorableHelper* colorable, vtkMRMLDisplayNode* dnode, vtkMRMLStorageNode* snode,
+                    vtkMRMLDisplayableNode* inode);
+
+  int AddModel( MRMLModelHelper *model );
+
+  int AddFiducial( MRMLFiducialHelper *fiducial );
+
 };
 
 #endif

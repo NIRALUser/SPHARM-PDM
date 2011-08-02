@@ -19,25 +19,25 @@ MN, 09/21/05, marc@bwh.harvard.edu
 
 namespace itk
 {
-  
+
 /** \class MeshToVTKPolyDataFilter
- * \brief Converts VTK ployData into ITK mesh data and plugs a 
- *  vtk data pipeline to an ITK datapipeline.   
+ * \brief Converts VTK ployData into ITK mesh data and plugs a
+ *  vtk data pipeline to an ITK datapipeline.
  *
- * \ingroup   ImageFilters     
+ * \ingroup   ImageFilters
  */
 class ITK_EXPORT MeshToVTKPolyDataFilter : public ProcessObject
 {
 public:
   /** Standard class typedefs. */
-  typedef MeshToVTKPolyDataFilter       Self;
-  typedef ProcessObject             Superclass;
-  typedef SmartPointer<Self>        Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef MeshToVTKPolyDataFilter  Self;
+  typedef ProcessObject            Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
-  
+
   /** Run-time type information (and related methods). */
   itkTypeMacro(MeshToVTKPolyDataFilter, ProcessObject);
 
@@ -46,9 +46,8 @@ public:
   const static int PointDimension = 3;
   const static int MaxCellDimension = 3;
 
-  typedef itk::DefaultDynamicMeshTraits< float, PointDimension, MaxCellDimension, double > MeshTraits;
-  typedef itk::Mesh< float, PointDimension, MeshTraits > MeshType;
-
+  typedef itk::DefaultDynamicMeshTraits<float, PointDimension, MaxCellDimension, double> MeshTraits;
+  typedef itk::Mesh<float, PointDimension, MeshTraits>                                   MeshType;
 
   /*!
   \brief implementation for VTK cell visitors
@@ -57,26 +56,27 @@ public:
   class VistVTKCellsClass
   {
     vtkCellArray* m_Cells;
-    int* m_LastCell;
-    int* m_TypeArray;
-  public:
+    int*          m_LastCell;
+    int*          m_TypeArray;
+public:
+    VistVTKCellsClass() : m_Cells(NULL), m_LastCell(NULL), m_TypeArray(NULL) {}
     // typedef the itk cells we are interested in
-    typedef  itk::CellInterface<  MeshType::PixelType, 
-                                          MeshType::CellTraits >  CellInterfaceType;
-    typedef itk::LineCell<CellInterfaceType>      floatLineCell;
-    typedef itk::PolygonCell<CellInterfaceType>      floatPolygonCell;
-    typedef itk::TriangleCell<CellInterfaceType>      floatTriangleCell;
-    typedef itk::QuadrilateralCell<CellInterfaceType> floatQuadrilateralCell;
-    typedef itk::TetrahedronCell<CellInterfaceType> floatTetrahedronCell;
+    typedef  itk::CellInterface<MeshType::PixelType,
+                                MeshType::CellTraits>  CellInterfaceType;
+    typedef itk::LineCell<CellInterfaceType>           floatLineCell;
+    typedef itk::PolygonCell<CellInterfaceType>        floatPolygonCell;
+    typedef itk::TriangleCell<CellInterfaceType>       floatTriangleCell;
+    typedef itk::QuadrilateralCell<CellInterfaceType>  floatQuadrilateralCell;
+    typedef itk::TetrahedronCell<CellInterfaceType>    floatTetrahedronCell;
 
     /*! Set the vtkCellArray that will be constructed
     */
-    void SetCellArray(vtkCellArray* a) 
+    void SetCellArray(vtkCellArray* a)
     {
       m_Cells = a;
     }
 
-    /*! 
+    /*!
     Set the cell counter pointer
     */
     void SetCellCounter(int* i)
@@ -93,9 +93,9 @@ public:
     }
 
     /*!
-    Visit a line and create the VTK_LINE cell   
+    Visit a line and create the VTK_LINE cell
     */
-    void Visit(unsigned long , floatLineCell* t)
+    void Visit(unsigned long, floatLineCell* t)
     {
 
       vtkIdType tmppts[2];
@@ -104,14 +104,14 @@ public:
       floatLinePointIdIterator pointIditer = t->PointIdsBegin();
       floatLinePointIdIterator pointIdend = t->PointIdsEnd();
 
-      int iI=0;
+      int iI = 0;
 
       while( pointIditer != pointIdend )
-	  {
-	    tmppts[iI] = *pointIditer;
-	    iI++;
-	    ++pointIditer;
-	  }
+        {
+        tmppts[iI] = *pointIditer;
+        iI++;
+        ++pointIditer;
+        }
 
       m_Cells->InsertNextCell(2,  tmppts );
       m_TypeArray[*m_LastCell] = VTK_LINE;
@@ -119,43 +119,44 @@ public:
     }
 
     /*!
-    Visit a line and create the VTK_POLYGON cell   
+    Visit a line and create the VTK_POLYGON cell
     */
-    void Visit(unsigned long , floatPolygonCell* t)
+    void Visit(unsigned long, floatPolygonCell* t)
     {
- 
+
       unsigned long num = t->GetNumberOfVertices();
-      if (num > 4) {
 
-	vtkIdType *tmppts = new vtkIdType[num];
+      if( num > 4 )
+        {
 
-	typedef floatPolygonCell::PointIdIterator floatPolygonPointIdIterator;
-	floatPolygonPointIdIterator pointIditer = t->PointIdsBegin();
-	floatPolygonPointIdIterator pointIdend = t->PointIdsEnd();
+        vtkIdType *tmppts = new vtkIdType[num];
 
-	int iI=0;
+        typedef floatPolygonCell::PointIdIterator floatPolygonPointIdIterator;
+        floatPolygonPointIdIterator pointIditer = t->PointIdsBegin();
+        floatPolygonPointIdIterator pointIdend = t->PointIdsEnd();
 
-	while( pointIditer != pointIdend )
-	  {
-	    tmppts[iI] = *pointIditer;
-	    iI++;
-	    ++pointIditer;
-	  }
-	
+        int iI = 0;
+
+        while( pointIditer != pointIdend )
+          {
+          tmppts[iI] = *pointIditer;
+          iI++;
+          ++pointIditer;
+          }
 
         m_Cells->InsertNextCell(num, tmppts );
         m_TypeArray[*m_LastCell] = VTK_POLYGON;
         (*m_LastCell)++;
 
-	delete [] tmppts;
+        delete [] tmppts;
 
-      }
+        }
     }
 
     /*!
-    Visit a triangle and create the VTK_TRIANGLE cell   
+    Visit a triangle and create the VTK_TRIANGLE cell
     */
-    void Visit(unsigned long , floatTriangleCell* t)
+    void Visit(unsigned long, floatTriangleCell* t)
     {
 
       vtkIdType tmppts[3];
@@ -164,15 +165,14 @@ public:
       floatTrianglePointIdIterator pointIditer = t->PointIdsBegin();
       floatTrianglePointIdIterator pointIdend = t->PointIdsEnd();
 
-      int iI=0;
+      int iI = 0;
 
       while( pointIditer != pointIdend )
-	{
-	  tmppts[iI] = *pointIditer;
-	  iI++;
-	  ++pointIditer;
-	}
-
+        {
+        tmppts[iI] = *pointIditer;
+        iI++;
+        ++pointIditer;
+        }
 
       m_Cells->InsertNextCell(3,  tmppts );
 
@@ -180,10 +180,10 @@ public:
       (*m_LastCell)++;
     }
 
-    /*! 
-    Visit a triangle and create the VTK_QUAD cell 
+    /*!
+    Visit a triangle and create the VTK_QUAD cell
     */
-    void Visit(unsigned long , floatQuadrilateralCell* t)
+    void Visit(unsigned long, floatQuadrilateralCell* t)
     {
 
       vtkIdType tmppts[4];
@@ -192,22 +192,21 @@ public:
       floatQuadPointIdIterator pointIditer = t->PointIdsBegin();
       floatQuadPointIdIterator pointIdend = t->PointIdsEnd();
 
-      int iI=0;
+      int iI = 0;
 
       while( pointIditer != pointIdend )
-	{
-	  tmppts[iI] = *pointIditer;
-	  iI++;
-	  ++pointIditer;
-	}
-
+        {
+        tmppts[iI] = *pointIditer;
+        iI++;
+        ++pointIditer;
+        }
 
       m_Cells->InsertNextCell(4,  tmppts );
       m_TypeArray[*m_LastCell] = VTK_QUAD;
       (*m_LastCell)++;
     }
-    
-    void Visit(unsigned long , floatTetrahedronCell* t)
+
+    void Visit(unsigned long, floatTetrahedronCell* t)
     {
 
       vtkIdType tmppts[4];
@@ -216,14 +215,14 @@ public:
       floatTetraPointIdIterator pointIditer = t->PointIdsBegin();
       floatTetraPointIdIterator pointIdend = t->PointIdsEnd();
 
-      int iI=0;
+      int iI = 0;
 
       while( pointIditer != pointIdend )
-	{
-	  tmppts[iI] = *pointIditer;
-	  iI++;
-	  ++pointIditer;
-	}
+        {
+        tmppts[iI] = *pointIditer;
+        iI++;
+        ++pointIditer;
+        }
 
       m_Cells->InsertNextCell(4,  tmppts );
       m_TypeArray[*m_LastCell] = VTK_TETRA;
@@ -233,40 +232,39 @@ public:
   };
 
   typedef itk::CellInterfaceVisitorImplementation<MeshType::PixelType, MeshType::CellTraits,
-    itk::QuadrilateralCell< itk::CellInterface<MeshType::PixelType, MeshType::CellTraits > >, 
-    VistVTKCellsClass> QuadrilateralVisitor;
+                                                  itk::QuadrilateralCell<itk::CellInterface<MeshType::PixelType,
+                                                                                            MeshType::CellTraits> >,
+                                                  VistVTKCellsClass> QuadrilateralVisitor;
 
   typedef itk::CellInterfaceVisitorImplementation<MeshType::PixelType,
-    MeshType::CellTraits,
-    itk::TriangleCell<itk::CellInterface<MeshType::PixelType, MeshType::CellTraits > >, 
-    VistVTKCellsClass> TriangleVisitor;
+                                                  MeshType::CellTraits,
+                                                  itk::TriangleCell<itk::CellInterface<MeshType::PixelType,
+                                                                                       MeshType::CellTraits> >,
+                                                  VistVTKCellsClass> TriangleVisitor;
 
   /** Get the output in the form of vtkPolyData **/
-  const vtkPolyData*  GetOutput() const;
+  const vtkPolyData *  GetOutput() const;
 
   /** Set the input in the form of an itk mesh */
   void SetInput( MeshType * );
 
   /** This call delegate the update to the importer */
   void Update();
+
   void GenerateData();
 
 protected:
-  MeshToVTKPolyDataFilter(); 
-  virtual ~MeshToVTKPolyDataFilter(); 
-
+  MeshToVTKPolyDataFilter();
+  virtual ~MeshToVTKPolyDataFilter();
 private:
-  MeshToVTKPolyDataFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  MeshToVTKPolyDataFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);          // purposely not implemented
 
   MeshType::Pointer m_mesh;
-  vtkPolyData* m_polyData;
+  vtkPolyData*      m_polyData;
 
 };
 
 } // end namespace itk
 
 #endif
-
-
-

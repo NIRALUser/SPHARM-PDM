@@ -25,19 +25,23 @@
 #ifndef _MV_BLAS1_double_H_
 #define _MV_BLAS1_double_H_
 
+MV_Vector_double & operator*=(MV_Vector_double & x, const double & a);
 
-MV_Vector_double& operator*=(MV_Vector_double &x, const double &a);
-MV_Vector_double operator*(const double &a, const MV_Vector_double &x);
-MV_Vector_double operator*(const MV_Vector_double &x, const double &a);
-MV_Vector_double operator+(const MV_Vector_double &x, 
-    const MV_Vector_double &y);
-MV_Vector_double operator-(const MV_Vector_double &x, 
-    const MV_Vector_double &y);
-MV_Vector_double& operator+=(MV_Vector_double &x, const MV_Vector_double &y);
-MV_Vector_double& operator-=(MV_Vector_double &x, const MV_Vector_double &y);
+MV_Vector_double operator*(const double & a, const MV_Vector_double & x);
 
-double dot(const MV_Vector_double &x, const MV_Vector_double &y);
-double norm(const MV_Vector_double &x);
+MV_Vector_double operator*(const MV_Vector_double & x, const double & a);
+
+MV_Vector_double operator+(const MV_Vector_double & x, const MV_Vector_double & y);
+
+MV_Vector_double operator-(const MV_Vector_double & x, const MV_Vector_double & y);
+
+MV_Vector_double & operator+=(MV_Vector_double & x, const MV_Vector_double & y);
+
+MV_Vector_double & operator-=(MV_Vector_double & x, const MV_Vector_double & y);
+
+double dot(const MV_Vector_double & x, const MV_Vector_double & y);
+
+double norm(const MV_Vector_double & x);
 
 #endif
 

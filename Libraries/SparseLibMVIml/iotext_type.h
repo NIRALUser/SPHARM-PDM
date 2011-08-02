@@ -36,9 +36,14 @@
 #include "comprow_TYPE.h"
 #include "coord_TYPE.h"
 
-void readtxtfile_mat(const char *filename, Coord_Mat_TYPE &A);
-void readtxtfile_mat(const char *filename, CompCol_Mat_TYPE &A);
-void readtxtfile_mat(const char *filename, CompRow_Mat_TYPE &A);
-void writetxtfile_mat(const char *filename, Coord_Mat_TYPE &A);
-void writetxtfile_mat(const char *filename, CompCol_Mat_TYPE &A);
-void writetxtfile_mat(const char *filename, CompRow_Mat_TYPE &A);
+void readtxtfile_mat(const char *filename, Coord_Mat_TYPE & A);
+
+void readtxtfile_mat(const char *filename, CompCol_Mat_TYPE & A);
+
+void readtxtfile_mat(const char *filename, CompRow_Mat_TYPE & A);
+
+void writetxtfile_mat(const char *filename, Coord_Mat_TYPE & A);
+
+void writetxtfile_mat(const char *filename, CompCol_Mat_TYPE & A);
+
+void writetxtfile_mat(const char *filename, CompRow_Mat_TYPE & A);

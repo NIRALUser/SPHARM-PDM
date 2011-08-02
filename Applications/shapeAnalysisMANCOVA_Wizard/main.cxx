@@ -2,20 +2,18 @@
 #include "shapeAnalysisMANCOVA_Wizard.h"
 #include "shapeAnalysisMANCOVA_WizardCLP.h"
 
-
 using namespace std;
 int main(int argc, char *argv[])
 {
-   
+
   PARSE_ARGS;
- QApplication app(argc, argv);
+  QApplication app(argc, argv);
 
-std::string file;
-file=infile;
-   shapeAnalysisMANCOVA_Wizard window(file);
+  std::string file;
+  file = infile;
+  shapeAnalysisMANCOVA_Wizard window(file);
 
+  window.show();
 
-   window.show();
-
-    return app.exec();
+  return app.exec();
 }

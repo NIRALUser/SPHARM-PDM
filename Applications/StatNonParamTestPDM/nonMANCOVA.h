@@ -25,7 +25,16 @@
 #include <vtkPointData.h>
 #include <vtkPolyDataNormals.h>
 
-void do_ScalarInteractionTest( unsigned int numSubjects, unsigned int numFeatures, unsigned int testColumn, vnl_matrix<double>  * &featureValue,  PointsContainerPointer &meanPoints, vtkPolyDataNormals *& MeshNormals, vnl_vector<double>& spearmanRhoDist, vnl_vector<double>& spearmanRhoPro, vnl_vector<double>& spearmanRhoProPval, vnl_vector<double>& spearmanRhoDistPval, vnl_vector<double>& pearsonRhoDist, vnl_vector<double>& pearsonRhoPro, vnl_vector<double>& pearsonRhoProPval, vnl_vector<double>& pearsonRhoDistPval, int correlationType, bool useParametricP, unsigned int numPerms, std::string outbase );
-
+void do_ScalarInteractionTest( unsigned int numSubjects, unsigned int numFeatures, unsigned int testColumn,
+                               vnl_matrix<double>  * & featureValue,  PointsContainerPointer & meanPoints,
+                               vtkPolyDataNormals *& MeshNormals,
+                               vnl_vector<double>& spearmanRhoDist, vnl_vector<double>& spearmanRhoPro,
+                               vnl_vector<double>& spearmanRhoProPval,
+                               vnl_vector<double>& spearmanRhoDistPval, vnl_vector<double>& pearsonRhoDist,
+                               vnl_vector<double>& pearsonRhoPro,
+                               vnl_vector<double>& pearsonRhoProPval, vnl_vector<double>& pearsonRhoDistPval,
+                               int correlationType, bool useParametricP,
+                               unsigned int numPerms,
+                               std::string outbase );
 
 #endif

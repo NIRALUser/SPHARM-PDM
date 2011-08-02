@@ -8,37 +8,37 @@
 #include "itkMesh.h"
 #include "itkTriangleCell.h"
 
-
-/** 
+/**
   \class vtkPolyDataToitkMesh
-  \brief 
+  \brief
     \warning
-  \sa 
+  \sa
   */
 
 class vtkPolyDataToitkMesh
 {
 
- public:
+public:
 
   vtkPolyDataToitkMesh( void );
   virtual ~vtkPolyDataToitkMesh( void );
 
-  typedef itk::DefaultDynamicMeshTraits<double, 3, 3,double,double> TriangleMeshTraits;
-  typedef itk::Mesh<double,3, TriangleMeshTraits> TriangleMeshType;
+  typedef itk::DefaultDynamicMeshTraits<double, 3, 3, double, double> TriangleMeshTraits;
+  typedef itk::Mesh<double, 3, TriangleMeshTraits>                    TriangleMeshType;
 
   /**
   The SetInput method provides pointer to the vtkPolyData
   */
   void SetInput( vtkPolyData * polydata);
+
   TriangleMeshType * GetOutput();
+
   void ConvertvtkToitk();
 
-  TriangleMeshType::Pointer  m_itkMesh;
+  TriangleMeshType::Pointer m_itkMesh;
 
-  vtkPolyData           * m_PolyData;
+  vtkPolyData * m_PolyData;
 
-  
 };
 
 #endif

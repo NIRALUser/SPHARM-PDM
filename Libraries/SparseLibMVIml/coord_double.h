@@ -35,7 +35,6 @@
 // Note A.(i,j) will return 0.0 if not in A, but A.set(i,j) will throw
 // an exception, because A's size cannot grow...
 
-
 #ifndef Coord_Mat_double_H
 #define Coord_Mat_double_H
 
@@ -45,68 +44,105 @@
 class CompCol_Mat_double;
 class CompRow_Mat_double;
 
-class Coord_Mat_double {
+class Coord_Mat_double
+{
 
 private:
-       VECTOR_double     val_;       // data values (nz_ elements)
-       VECTOR_int    rowind_;    // row_ind (nz_ elements)
-       VECTOR_int    colind_;    // col_ind (nz_ elements)
+  VECTOR_double val_;            // data values (nz_ elements)
+  VECTOR_int    rowind_;         // row_ind (nz_ elements)
+  VECTOR_int    colind_;         // col_ind (nz_ elements)
 
-       int base_;                 // index base:  not used....
-       int nz_;                   // number of nonzeros
-       int dim_[2];               // number of rows, cols
-
+  int base_;                      // index base:  not used....
+  int nz_;                        // number of nonzeros
+  int dim_[2];                    // number of rows, cols
 public:
-       Coord_Mat_double(void);
-       Coord_Mat_double(const Coord_Mat_double &S);
-       Coord_Mat_double(int M, int N, int nz, double *val, int *r, 
-                             int *c, int base=0);
-       Coord_Mat_double(const CompCol_Mat_double &C);
-       Coord_Mat_double(const CompRow_Mat_double &R);
-      ~Coord_Mat_double() {};
+  Coord_Mat_double(void);
+  Coord_Mat_double(const Coord_Mat_double & S);
+  Coord_Mat_double(int M, int N, int nz, double *val, int *r, int *c, int base = 0);
+  Coord_Mat_double(const CompCol_Mat_double & C);
+  Coord_Mat_double(const CompRow_Mat_double & R);
+  ~Coord_Mat_double()
+  {
+  };
 
 /*******************************/
 /*  Access and info functions  */
 /*******************************/
 
-       double&      val(int i) { return val_(i); }
-       int&         row_ind(int i) { return rowind_(i); }
-       int&         col_ind(int i) { return colind_(i);}
+  double &      val(int i)
+  {
+    return val_(i);
+  }
 
-       const double&      val(int i) const { return val_(i); }
-       const int&         row_ind(int i) const { return rowind_(i); }
-       const int&         col_ind(int i) const { return colind_(i);}
+  int &         row_ind(int i)
+  {
+    return rowind_(i);
+  }
 
-       int          dim(int i) const {return dim_[i];};
-       int          size(int i) const {return dim_[i];};
-       int          NumNonzeros() const {return nz_;};
-       int          base() const {return base_;}
+  int &         col_ind(int i)
+  {
+    return colind_(i);
+  }
+
+  const double &      val(int i) const
+  {
+    return val_(i);
+  }
+
+  const int &         row_ind(int i) const
+  {
+    return rowind_(i);
+  }
+
+  const int &         col_ind(int i) const
+  {
+    return colind_(i);
+  }
+
+  int          dim(int i) const
+  {
+    return dim_[i];
+  };
+  int          size(int i) const
+  {
+    return dim_[i];
+  };
+  int          NumNonzeros() const
+  {
+    return nz_;
+  };
+  int          base() const
+  {
+    return base_;
+  }
 
 /*******************************/
 /*  Assignment  operator       */
 /*******************************/
 
-       Coord_Mat_double& operator=(const Coord_Mat_double &C);
-       Coord_Mat_double& newsize(int M, int N, int nz);
+  Coord_Mat_double & operator=(const Coord_Mat_double & C);
+
+  Coord_Mat_double & newsize(int M, int N, int nz);
 
 /***********************************/
 /*  General access function (slow) */
 /***********************************/
 
-       double       operator() (int i, int j) const;        
-       double&      set(int i, int j);
+  double       operator()(int i, int j) const;
+
+  double &      set(int i, int j);
 
 /***********************************/
 /*  Matrix/Vector multiply         */
 /***********************************/
 
-       VECTOR_double operator*(const VECTOR_double &x) const;
-       VECTOR_double trans_mult(const VECTOR_double &x) const;
+  VECTOR_double operator*(const VECTOR_double & x) const;
 
-  
+  VECTOR_double trans_mult(const VECTOR_double & x) const;
+
 };
 
-#endif  
+#endif
 /* Coord_Mat_double_H */
 
-std::ostream& operator << (std::ostream & os, const Coord_Mat_double & mat);
+std::ostream & operator <<(std::ostream & os, const Coord_Mat_double & mat);

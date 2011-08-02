@@ -29,9 +29,11 @@
 #define _IOTEXT_H_
 
 int readtxtfile_vec(const char *filename, MV_Vector_double *Aptr);
-int writetxtfile_vec(const char *filename, const MV_Vector_double &A);
+
+int writetxtfile_vec(const char *filename, const MV_Vector_double & A);
+
 int readtxtfile_vec(const char *filename, MV_Vector_int *Aptr);
-int writetxtfile_vec(const char *filename, const MV_Vector_int &A);
+
+int writetxtfile_vec(const char *filename, const MV_Vector_int & A);
 
 #endif
-

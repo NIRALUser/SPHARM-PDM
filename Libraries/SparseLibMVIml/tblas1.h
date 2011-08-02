@@ -28,19 +28,23 @@
 #include <math.h>
 #include <stdlib.h>
 
+MV_Vector_TYPE & operator*=(MV_Vector_TYPE & x, const TYPE & a);
 
-MV_Vector_TYPE& operator*=(MV_Vector_TYPE &x, const TYPE &a);
-MV_Vector_TYPE operator*(const TYPE &a, const MV_Vector_TYPE &x);
-MV_Vector_TYPE operator*(const MV_Vector_TYPE &x, const TYPE &a);
-MV_Vector_TYPE operator+(const MV_Vector_TYPE &x, 
-    const MV_Vector_TYPE &y);
-MV_Vector_TYPE operator-(const MV_Vector_TYPE &x, 
-    const MV_Vector_TYPE &y);
-MV_Vector_TYPE& operator+=(MV_Vector_TYPE &x, const MV_Vector_TYPE &y);
-MV_Vector_TYPE& operator-=(MV_Vector_TYPE &x, const MV_Vector_TYPE &y);
+MV_Vector_TYPE operator*(const TYPE & a, const MV_Vector_TYPE & x);
 
-TYPE dot(const MV_Vector_TYPE &x, const MV_Vector_TYPE &y);
-TYPE norm(const MV_Vector_TYPE &x);
+MV_Vector_TYPE operator*(const MV_Vector_TYPE & x, const TYPE & a);
+
+MV_Vector_TYPE operator+(const MV_Vector_TYPE & x, const MV_Vector_TYPE & y);
+
+MV_Vector_TYPE operator-(const MV_Vector_TYPE & x, const MV_Vector_TYPE & y);
+
+MV_Vector_TYPE & operator+=(MV_Vector_TYPE & x, const MV_Vector_TYPE & y);
+
+MV_Vector_TYPE & operator-=(MV_Vector_TYPE & x, const MV_Vector_TYPE & y);
+
+TYPE dot(const MV_Vector_TYPE & x, const MV_Vector_TYPE & y);
+
+TYPE norm(const MV_Vector_TYPE & x);
 
 #endif
 // _MV_BLAS1_TYPE_H_

@@ -5,11 +5,12 @@
 
 class MRMLModelHelper : public MRMLColorableHelper
 {
-   public:
-      std::string GetType()
-      {
-         return "Model" ;
-      }
+public:
+  std::string GetType()
+  {
+    return "Model";
+  }
+
 };
 
 #endif

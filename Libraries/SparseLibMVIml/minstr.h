@@ -32,16 +32,19 @@
 /*               small string routines for readhb()                      */
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-
 /***********************************************************/
 /*  This file contains some minimal string functions to    */
 /*  support parsing the data formats in readhb.h.          */
 /***********************************************************/
 
+char * substr(char * S, int pos, int len);
 
-char* substr(char * S, int pos, int len);
-char* substr_after(char * S, char M);
-char* substr_before(char * S, char M);
-char* substr_through(char * S, char M);
+char * substr_after(char * S, char M);
+
+char * substr_before(char * S, char M);
+
+char * substr_through(char * S, char M);
+
 void upcase(char * S);
+
 int index(char * S, char M);

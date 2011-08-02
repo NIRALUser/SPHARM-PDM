@@ -27,17 +27,14 @@
 //
 
 #ifndef _MV_VECTOR_COMPLEX_H
-#define _MV_VECTOR_COMPLEX_H    
-
-
+#define _MV_VECTOR_COMPLEX_H
 
 #include <stdlib.h>
 // for formatted printing of matrices
 #include <sstream>
 
-
 #ifdef MV_VECTOR_BOUNDS_CHECK
-#   include <assert.h>
+#include <assert.h>
 #endif
 
 #include "mvvind.h"
@@ -51,104 +48,122 @@
 #include "mvvrf.h"
 
 class MV_Vector_COMPLEX
-{                                                                      
-    protected:                                                           
-           COMPLEX *p_;
-            int dim_;
-           int ref_;  // 0 or 1; does this own its own memory space?
-    public:                                                            
+{
+protected:
+  COMPLEX *p_;
+  int      dim_;
+  int      ref_;      // 0 or 1; does this own its own memory space?
+public:
 
+  /*::::::::::::::::::::::::::*/
+  /* Constructors/Destructors */
+  /*::::::::::::::::::::::::::*/
 
-        /*::::::::::::::::::::::::::*/                                 
-        /* Constructors/Destructors */                                 
-        /*::::::::::::::::::::::::::*/                                 
-                                                                       
-    MV_Vector_COMPLEX();                             
-    MV_Vector_COMPLEX( int);                             
-    MV_Vector_COMPLEX( int, const COMPLEX&);   
-                                                     
-                                                    
-    MV_Vector_COMPLEX(COMPLEX*,  int);      
-    MV_Vector_COMPLEX(const COMPLEX*,  int);        
-    MV_Vector_COMPLEX(const MV_Vector_COMPLEX &); 
-    
-    // reference of an exisiting data structure
-    //
-    // note that ref() is initalized with i rather than 1.
-    // this is so compilers will not generate a warning that i was
-    // not used in the construction.  (MV_Vector::ref_type is an enum that
-    // can *only* have the value of 1.
-    //
-    MV_Vector_COMPLEX(COMPLEX* d,  int N, MV_Vector_::ref_type i) :
-                            p_(d), dim_(N), ref_(i) {}
+  MV_Vector_COMPLEX();
+  MV_Vector_COMPLEX( int);
+  MV_Vector_COMPLEX( int, const COMPLEX &);
 
-    MV_Vector_COMPLEX(const MV_Vector_COMPLEX &V, MV_Vector_::ref_type i)   :
-                            p_(V.p_), dim_(V.dim_), ref_(i) {}
+  MV_Vector_COMPLEX(COMPLEX *,  int);
+  MV_Vector_COMPLEX(const COMPLEX *,  int);
+  MV_Vector_COMPLEX(const MV_Vector_COMPLEX &);
 
-    ~MV_Vector_COMPLEX();                              
-                                                                       
-        /*::::::::::::::::::::::::::::::::*/                           
-        /*  Indices and access operations */                           
-        /*::::::::::::::::::::::::::::::::*/                           
-                                                                       
+  // reference of an exisiting data structure
+  //
+  // note that ref() is initalized with i rather than 1.
+  // this is so compilers will not generate a warning that i was
+  // not used in the construction.  (MV_Vector::ref_type is an enum that
+  // can *only* have the value of 1.
+  //
+  MV_Vector_COMPLEX(COMPLEX* d,  int N, MV_Vector_::ref_type i) :
+    p_(d), dim_(N), ref_(i)
+  {
+  }
 
-    COMPLEX&      operator()( int i)
-                  {
-#                   ifdef MV_VECTOR_BOUNDS_CHECK
-                    assert(i < dim_);
-#                   endif
-                    return p_[i];
-                  }
-    const  COMPLEX&       operator()( int i) const 
-                  {
-#                   ifdef MV_VECTOR_BOUNDS_CHECK
-                    assert(i < dim_);
-#                   endif
-                    return p_[i];
-                  }
+  MV_Vector_COMPLEX(const MV_Vector_COMPLEX & V, MV_Vector_::ref_type i)   :
+    p_(V.p_), dim_(V.dim_), ref_(i)
+  {
+  }
 
-    COMPLEX&      operator[]( int i)
-                  {
-#                   ifdef MV_VECTOR_BOUNDS_CHECK
-                    assert(i < dim_);
-#                   endif
-                    return p_[i];
-                  }
-    const  COMPLEX&       operator[]( int i) const 
-                  {
-#                   ifdef MV_VECTOR_BOUNDS_CHECK
-                    assert(i < dim_);
-#                   endif
-                    return p_[i];
-                  }
+  ~MV_Vector_COMPLEX();
 
+  /*::::::::::::::::::::::::::::::::*/
+  /*  Indices and access operations */
+  /*::::::::::::::::::::::::::::::::*/
 
-    MV_Vector_COMPLEX operator()(const MV_VecIndex &I) ;
-    MV_Vector_COMPLEX operator()(void);
-    const MV_Vector_COMPLEX operator()(void) const;
-    const MV_Vector_COMPLEX operator()(const MV_VecIndex &I) const;
+  COMPLEX & operator()( int i)
+  {
+#ifdef MV_VECTOR_BOUNDS_CHECK
+    assert(i < dim_);
+#endif
+    return p_[i];
+  }
 
-    inline  int             size() const { return dim_;}
-    inline  int             dim() const { return dim_;}
-    inline int                      ref() const { return  ref_;}
-    inline int                      null() const {return dim_== 0;}
-            //
-            // Create a new *uninitalized* vector of size N
-            MV_Vector_COMPLEX & newsize( int );
-                                                                       
-        /*::::::::::::::*/                                             
-        /*  Assignment  */                                             
-        /*::::::::::::::*/                                             
-                                                                       
-    MV_Vector_COMPLEX & operator=(const MV_Vector_COMPLEX&);
-    MV_Vector_COMPLEX & operator=(const COMPLEX&);
+  const  COMPLEX & operator()( int i) const
+  {
+#ifdef MV_VECTOR_BOUNDS_CHECK
+    assert(i < dim_);
+#endif
+    return p_[i];
+  }
 
+  COMPLEX &      operator[]( int i)
+  {
+#ifdef MV_VECTOR_BOUNDS_CHECK
+    assert(i < dim_);
+#endif
+    return p_[i];
+  }
 
-    friend std::ostream& operator<<(std::ostream &s, 
-        const MV_Vector_COMPLEX &A);
+  const  COMPLEX & operator[]( int i) const
+  {
+#ifdef MV_VECTOR_BOUNDS_CHECK
+    assert(i < dim_);
+#endif
+    return p_[i];
+  }
 
-};                                                                     
+  MV_Vector_COMPLEX operator()(const MV_VecIndex & I);
 
+  MV_Vector_COMPLEX operator()(void);
 
+  const MV_Vector_COMPLEX operator()(void) const;
 
-#endif  
+  const MV_Vector_COMPLEX operator()(const MV_VecIndex & I) const;
+
+  inline  int             size() const
+  {
+    return dim_;
+  }
+
+  inline  int             dim() const
+  {
+    return dim_;
+  }
+
+  inline int                      ref() const
+  {
+    return ref_;
+  }
+
+  inline int                      null() const
+  {
+    return dim_ == 0;
+  }
+
+  //
+  // Create a new *uninitalized* vector of size N
+  MV_Vector_COMPLEX & newsize( int );
+
+  /*::::::::::::::*/
+  /*  Assignment  */
+  /*::::::::::::::*/
+
+  MV_Vector_COMPLEX & operator=(const MV_Vector_COMPLEX &);
+
+  MV_Vector_COMPLEX & operator=(const COMPLEX &);
+
+  friend std::ostream & operator<<(std::ostream & s, const MV_Vector_COMPLEX & A);
+
+};
+
+#endif

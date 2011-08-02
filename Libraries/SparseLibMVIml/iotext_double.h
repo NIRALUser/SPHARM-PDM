@@ -37,8 +37,13 @@
 #include "coord_double.h"
 
 void readtxtfile_mat(const char *filename, Coord_Mat_double *A);
+
 void readtxtfile_mat(const char *filename, CompCol_Mat_double *A);
+
 void readtxtfile_mat(const char *filename, CompRow_Mat_double *A);
-void writetxtfile_mat(const char *filename, const Coord_Mat_double &A);
-void writetxtfile_mat(const char *filename, const CompCol_Mat_double &A);
-void writetxtfile_mat(const char *filename, const CompRow_Mat_double &A);
+
+void writetxtfile_mat(const char *filename, const Coord_Mat_double & A);
+
+void writetxtfile_mat(const char *filename, const CompCol_Mat_double & A);
+
+void writetxtfile_mat(const char *filename, const CompRow_Mat_double & A);

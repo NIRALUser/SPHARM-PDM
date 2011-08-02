@@ -6,31 +6,35 @@
 
 class MRMLTransformHelper : public MRMLNodeHelper
 {
-   public:
-      std::string GetType()
+public:
+  std::string GetType()
+  {
+    return "Transform";
+  }
+
+  std::vector<double> GetTransform()
+  {
+    return m_Transform;
+  }
+
+  int SetTransform( std::vector<double> transform )
+  {
+    if( transform.size() != 12 )
       {
-         return "Transform" ;
+      return 1;
       }
-      std::vector< double > GetTransform()
-      {
-         return m_Transform ;
-      }
-      int SetTransform( std::vector< double > transform )
-      {
-        if( transform.size() != 12 )
-        {
-          return 1 ;
-        }
-        m_Transform.clear() ;
-        m_Transform = transform ;
-        return 0 ;
-      }
-      void ClearTransform()
-      {
-        m_Transform.clear() ;
-      }
-   private:
-      std::vector< double > m_Transform ;
+    m_Transform.clear();
+    m_Transform = transform;
+    return 0;
+  }
+
+  void ClearTransform()
+  {
+    m_Transform.clear();
+  }
+
+private:
+  std::vector<double> m_Transform;
 };
 
 #endif

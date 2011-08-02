@@ -22,132 +22,147 @@
 /*                                                                           */
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-
-#include <iostream>                                 
+#include <iostream>
 #include <math.h>
 #include <stdlib.h>
 
 #include "mvvf.h"
 
-MV_Vector_float& operator*=(MV_Vector_float &x, const float &a)
+MV_Vector_float & operator*=(MV_Vector_float & x, const float & a)
 {
-      int N = x.size();
-      for (int i=0;i<N;i++)
-         x(i) *= a;
-      return x;
+  int N = x.size();
+
+  for( int i = 0; i < N; i++ )
+    {
+    x(i) *= a;
+    }
+  return x;
 }
 
-MV_Vector_float operator*(const float &a, const MV_Vector_float &x)
+MV_Vector_float operator*(const float & a, const MV_Vector_float & x)
 {
-      int N = x.size();
-      MV_Vector_float result(N);
-      for (int i=0;i<N;i++)
-         result(i) = x(i)*a;
-      return result;
+  int             N = x.size();
+  MV_Vector_float result(N);
+
+  for( int i = 0; i < N; i++ )
+    {
+    result(i) = x(i) * a;
+    }
+  return result;
 }
 
-MV_Vector_float operator*(const MV_Vector_float &x, const float &a)
+MV_Vector_float operator*(const MV_Vector_float & x, const float & a)
 {
-    // This is the other commutative case of vector*scalar.
-    // It should be just defined to be
-    // "return operator*(a,x);"
-    // but some compilers (e.g. Turbo C++ v.3.0) have trouble
-    // determining the proper template match.  For the moment,
-    // we'll just duplicate the code in the scalar * vector 
-    // case above.
+  // This is the other commutative case of vector*scalar.
+  // It should be just defined to be
+  // "return operator*(a,x);"
+  // but some compilers (e.g. Turbo C++ v.3.0) have trouble
+  // determining the proper template match.  For the moment,
+  // we'll just duplicate the code in the scalar * vector
+  // case above.
 
-      int N = x.size();
-      MV_Vector_float result(N);
-      for (int i=0;i<N;i++)
-         result(i) = x(i)*a;
-      return result;
+  int             N = x.size();
+  MV_Vector_float result(N);
+
+  for( int i = 0; i < N; i++ )
+    {
+    result(i) = x(i) * a;
+    }
+  return result;
 
 }
 
-MV_Vector_float operator+(const MV_Vector_float &x, const MV_Vector_float &y)
+MV_Vector_float operator+(const MV_Vector_float & x, const MV_Vector_float & y)
 {
-      int N = x.size();
-      if (N != y.size())
-      {
-         std::cout << "Incompatible vector lengths in +." << "\n";
-         exit(1);
-      }
-      
-      MV_Vector_float result(N);
-      for (int i=0;i<N; i++)
-         result(i) = x(i) + y(i);
-      return result;
-}
-          
-MV_Vector_float operator-(const MV_Vector_float &x, const MV_Vector_float &y)
-{
-      int N = x.size();
-      if (N != y.size())
-      {
-         std::cout << "Incompatible vector lengths in -." << "\n";
-         exit(1);
-      }
-      
-      MV_Vector_float result(N);
-      for (int i=0;i<N; i++)
-         result(i) = x(i) - y(i);
-      return result;
-}
-          
+  int N = x.size();
 
-MV_Vector_float& operator+=(MV_Vector_float &x, const MV_Vector_float &y)
-{
-      int N = x.size();
-      if (N != y.size())
-      {
-         std::cout << "Incompatible vector lengths in -." << "\n";
-         exit(1);
-      }
-      
-      for (int i=0;i<N; i++)
-         x(i) += y(i);
-      return x;
+  if( N != y.size() )
+    {
+    std::cout << "Incompatible vector lengths in +." << "\n";
+    exit(1);
+    }
+
+  MV_Vector_float result(N);
+  for( int i = 0; i < N; i++ )
+    {
+    result(i) = x(i) + y(i);
+    }
+  return result;
 }
-          
-      
-MV_Vector_float& operator-=(MV_Vector_float &x, const MV_Vector_float &y)
+
+MV_Vector_float operator-(const MV_Vector_float & x, const MV_Vector_float & y)
 {
-      int N = x.size();
-      if (N != y.size())
-      {
-         std::cout << "Incompatible vector lengths in -." << "\n";
-         exit(1);
-      }
-      
-      for (int i=0;i<N; i++)
-         x(i) -= y(i);
-      return x;
+  int N = x.size();
+
+  if( N != y.size() )
+    {
+    std::cout << "Incompatible vector lengths in -." << "\n";
+    exit(1);
+    }
+
+  MV_Vector_float result(N);
+  for( int i = 0; i < N; i++ )
+    {
+    result(i) = x(i) - y(i);
+    }
+  return result;
 }
-          
-      
+
+MV_Vector_float & operator+=(MV_Vector_float & x, const MV_Vector_float & y)
+{
+  int N = x.size();
+
+  if( N != y.size() )
+    {
+    std::cout << "Incompatible vector lengths in -." << "\n";
+    exit(1);
+    }
+  for( int i = 0; i < N; i++ )
+    {
+    x(i) += y(i);
+    }
+  return x;
+}
+
+MV_Vector_float & operator-=(MV_Vector_float & x, const MV_Vector_float & y)
+{
+  int N = x.size();
+
+  if( N != y.size() )
+    {
+    std::cout << "Incompatible vector lengths in -." << "\n";
+    exit(1);
+    }
+  for( int i = 0; i < N; i++ )
+    {
+    x(i) -= y(i);
+    }
+  return x;
+}
 
 //  norm and dot product functions for the MV_Vector<> class
 
-
-float dot(const MV_Vector_float &x, const MV_Vector_float &y)
+float dot(const MV_Vector_float & x, const MV_Vector_float & y)
 {
-        
+
   //  Check for compatible dimensions:
-  if (x.size() != y.size())
-      {
-         std::cout << "Incompatible dimensions in dot(). " << "\n";
-         exit(1);
-      }
+  if( x.size() != y.size() )
+    {
+    std::cout << "Incompatible dimensions in dot(). " << "\n";
+    exit(1);
+    }
 
-      float temp =  0;
-      for (int i=0; i<x.size();i++)
-           temp += x(i)*y(i);
-      return temp;
+  float temp =  0;
+  for( int i = 0; i < x.size(); i++ )
+    {
+    temp += x(i) * y(i);
+    }
+  return temp;
 }
 
-float norm(const MV_Vector_float &x)
+float norm(const MV_Vector_float & x)
 {
-      float temp = dot(x,x);
-      return sqrt(temp);
-}
+  float temp = dot(x, x);
 
+  return sqrt(temp);
+}
