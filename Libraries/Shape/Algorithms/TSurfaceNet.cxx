@@ -1051,18 +1051,15 @@ int TNetExtractor::diag_translate(int dir1, int dir2, int ne)
   return trne;
 }
 
-void TNetExtractor::encode(int nx, int ny, int nz, int& number,
+void TNetExtractor::encode(int nx, int ny, int /*UNUSED nz*/, int& number,
                            unsigned char* nbc, numentry* num, int z)
 {
-  int           y, x, i, j;
-  unsigned char code;
-
-  for( y = 0; y < ny; y++ )
+  for( int y = 0; y < ny; y++ )
     {
-    for( x = 0; x < nx; x++ )
+    for( int x = 0; x < nx; x++ )
       {
-      code = 0;
-      for( i = 0; i < 8; i++ )
+      unsigned char code = 0;
+      for( int i = 0; i < 8; i++ )
         {
         code |= (*vol_)(x + i % 2, y + i / 2 % 2, z + i / 4) & 1 << i;
         }
@@ -1103,12 +1100,12 @@ void TNetExtractor::encode(int nx, int ny, int nz, int& number,
 
       else
         {
-        for( i = 0; i < pt1[code].count; i++ )
+        for( int i = 0; i < pt1[code].count; i++ )
           {
           unsigned char nc_act = pt1[code].nbcs[i];
           if( nc_act )
             {
-            for( j = 0; j < 8; j++ )
+            for( int j = 0; j < 8; j++ )
               {
               if( nc_act & (1 << j) )
                 {
@@ -1173,8 +1170,8 @@ TVertexList * TNetExtractor::extractnet()
         {
 
         // nc is the nbc as encounterd in the input data volume
-        unsigned char nc;
-        if( nc = nbc_this[xy = x + nx * y] )
+        const unsigned char nc=nbc_this[xy = x + nx * y];
+        if( nc )
           {
           for( i = 0; i < pt1[nc].count; i++ )
             {

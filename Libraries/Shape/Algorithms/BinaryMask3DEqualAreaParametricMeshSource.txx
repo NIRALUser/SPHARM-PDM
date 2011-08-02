@@ -14,6 +14,7 @@
 #include <itkRegularSphereMeshSource.h>
 #include <itkCastImageFilter.h>
 #include <itkMinimumMaximumImageCalculator.h>
+#include <math.h>
 
 namespace itk
 {
@@ -312,9 +313,11 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
     for( int i = 0; i < net.nvert; i++ )
       {
       double curVertex[3];
-      curVertex[0] = xvec[3 * i + 0]; curVertex[1] = xvec[3 * i + 1]; curVertex[2] = xvec[3 * i + 2];
+      curVertex[0] = xvec[3 * i + 0];
+      curVertex[1] = xvec[3 * i + 1];
+      curVertex[2] = xvec[3 * i + 2];
       // check whether curVertex has Nan's if so raise exceptiont
-      if( isnan(curVertex[0]) || isnan(curVertex[1]) || isnan(curVertex[2]) )
+      if( vnl_math_isnan(curVertex[0]) || vnl_math_isnan(curVertex[1]) || vnl_math_isnan(curVertex[2]) )
         {
         throw BinaryMask3DEqualAreaParametricMeshSourceException(
                 __FILE__, __LINE__, "Numerical error in the parameterization, contains NaN");

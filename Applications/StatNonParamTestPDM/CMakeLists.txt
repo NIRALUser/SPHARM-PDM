@@ -9,15 +9,15 @@ find_package(Boost ${boost_version} REQUIRED COMPONENTS date_time filesystem sys
 set(Boost_INCLUDE_DIR ${Boost_INCLUDE_DIR} PARENT_SCOPE)
 set(BOOST_LIBRARYDIR "${Boost_LIBRARY_DIRS}" PARENT_SCOPE)
 set(BOOST_LIBRARYDIR ${BOOST_LIBRARY_DIR})
-set(BOOST_INCLUDEDIR ${BOOST_INCLUDE_DIR})
+set(BOOST_INCLUDEDIR ${Boost_INCLUDE_DIR})
 
 if(NOT BOOST_FOUND)
-  find_path(BOOST_INCLUDE_DIR boost/config.hpp
+  find_path(Boost_INCLUDE_DIR boost/config.hpp
   /opt/local/Boost/boost_1_39_0
   /usr/include
   /usr/local/include
   )
-  include_directories(${BOOST_INCLUDE_DIR})
+  include_directories(${Boost_INCLUDE_DIR})
 
 #  find_path(BOOST_LIBRARY_DIR boost_date_time-vc71-mt.lib)
   find_path(BOOST_LIBRARY_DIR libboost_filesystem.a

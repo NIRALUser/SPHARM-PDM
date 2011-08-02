@@ -40,10 +40,12 @@ if(COMPILE_ParticleModule)
   add_subdirectory(ParticleModule)
 endif(COMPILE_ParticleModule)
 
+if(Qt_FOUND)
 option(COMPILE_shapeAnalysisMANCOVA_Wizard "Compile shapeAnalysisMANCOVA_Wizard." ON)
 if(COMPILE_shapeAnalysisMANCOVA_Wizard)
   add_subdirectory(shapeAnalysisMANCOVA_Wizard)
 endif(COMPILE_shapeAnalysisMANCOVA_Wizard)
+endif()
 
 
 option(COMPILE_CreateMRML "Compile CreateMRML." OFF)
