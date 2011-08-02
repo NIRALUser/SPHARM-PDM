@@ -90,11 +90,11 @@ public:
 
   TVertexArray & operator=(const TVertexArray &);
 
-  int size()
+  int size() const
   {
     return size_;
   }
-  int length()
+  int length() const
   {
     return size_;
   }

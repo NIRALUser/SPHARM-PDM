@@ -23,7 +23,7 @@ public:
     m_LabelMap = label;
   }
 
-  bool IsLabelMap()
+  bool IsLabelMap() const
   {
     return m_LabelMap;
   }
@@ -47,12 +47,12 @@ public:
     return 0;
   }
 
-  std::string GetVolumeType()
+  std::string GetVolumeType() const
   {
     return m_VolumeType;
   }
 
-  void PrintVolumeTypes()
+  void PrintVolumeTypes() const
   {
     std::cout << "scalar" << std::endl;
     std::cout << "DTI" << std::endl;

@@ -12,7 +12,7 @@ public:
     return "Transform";
   }
 
-  std::vector<double> GetTransform()
+  std::vector<double> GetTransform() const
   {
     return m_Transform;
   }

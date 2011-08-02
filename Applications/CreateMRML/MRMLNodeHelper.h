@@ -16,7 +16,7 @@
 class MRMLNodeHelper
 {
 public:
-  std::string GetFileName()
+  std::string GetFileName() const
   {
     return m_FileName;
   }
@@ -26,7 +26,7 @@ public:
     m_FileName = fileName;
   }
 
-  std::string GetParentName()
+  std::string GetParentName() const
   {
     return m_ParentName;
   }
@@ -41,7 +41,7 @@ public:
     m_NodeName = nodeName;
   }
 
-  std::string GetNodeName()
+  std::string GetNodeName() const
   {
     return m_NodeName;
   }
