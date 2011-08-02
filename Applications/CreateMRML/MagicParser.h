@@ -4,6 +4,10 @@
 class MagicParser
 {
 public:
+  MagicParser() : m_argc(0), m_argv(NULL)
+  {
+  }
+
   void SetArgs( int argc, char* argv );
 
 private:

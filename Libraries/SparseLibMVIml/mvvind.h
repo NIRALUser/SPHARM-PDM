@@ -88,22 +88,30 @@ public:
   {
     return all_;
   }
+
   MV_VecIndex & operator=(const MV_VecIndex& I)
   {
-    start_ = I.start_; end_ = I.end_; return *this;
+    start_ = I.start_;
+    end_ = I.end_;
+    all_ = I.all_;
+    return *this;
   }
+
   MV_VecIndex operator+(int i)
   {
     return MV_VecIndex(start_ + i, end_ + i);
   }
+
   MV_VecIndex & operator+=(int i)
   {
     start_ += i; end_ += i; return *this;
   }
+
   MV_VecIndex operator-(int i)
   {
     return MV_VecIndex(start_ - i, end_ - i);
   }
+
   MV_VecIndex & operator-=(int i)
   {
     start_ -= i; end_ -= i; return *this;
