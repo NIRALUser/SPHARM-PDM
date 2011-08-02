@@ -24,6 +24,7 @@
 
 extern "C" {
 #include "f2c.h"
+#include "clapack.h"
 int sgels_(char *trans, integer *m, integer *n, integer *
            nrhs, real *a, integer *lda, real *b, integer *ldb, real *work, integer *lwork, integer *info);
 

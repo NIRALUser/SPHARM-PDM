@@ -28,7 +28,7 @@ set(SegPostProcessCLP_SOURCE SegPostProcessCLP.cxx )
 GENERATECLP(SegPostProcessCLP_SOURCE SegPostProcessCLP.xml)
 add_executable(SegPostProcessCLP ${SegPostProcessCLP_SOURCE})
 
-target_link_libraries(SegPostProcessCLP ITKIO ITKBasicFilters ITKCommon)
+target_link_libraries(SegPostProcessCLP ${ITK_LIBRARIES})
 
 if(Slicer3_FOUND)
   slicer3_set_plugins_output_path(SegPostProcessCLP)

@@ -1,4 +1,9 @@
 
+#Link to CLAPACK
+find_package(CLAPACK NO_MODULE REQUIRED)
+include_directories(${CLAPACK_DIR}/../CLAPACK/INCLUDE)
+
+
 if(WIN32)
   add_definitions("-DCOMPLEX=std::complex<double>")
 else(WIN32)

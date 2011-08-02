@@ -11,7 +11,9 @@ add_executable(ParaToSPHARMMeshCLP ${ParaToSPHARMMeshCLP_SOURCE})
 target_link_libraries( ParaToSPHARMMeshCLP
        ${ITK_LIBRARIES}
        vtkIO vtkHybrid vtkCommon vtkFiltering
-	ShapeIO SpatialObject ShapeAlgorithms SpatialObject)
+       ShapeIO SpatialObject ShapeAlgorithms SpatialObject
+       lapack
+       )
 
 if(Slicer3_FOUND)
  slicer3_set_plugins_output_path(ParaToSPHARMMeshCLP)
