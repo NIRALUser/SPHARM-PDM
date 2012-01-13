@@ -4,10 +4,10 @@
 #-----------------------------------------------------------------------------
 # Make sure this file is included only once
 get_filename_component(CMAKE_CURRENT_LIST_FILENAME ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
-IF(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED)
-  RETURN()
-ENDIF()
-SET(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED 1)
+if(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED)
+  return()
+endif()
+set(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED 1)
 
 set(ITK_PYTHON_ARGS
       -DPYTHON_EXECUTABLE:PATH=${${CMAKE_PROJECT_NAME}_PYTHON_EXECUTABLE}
@@ -76,7 +76,7 @@ if(NOT DEFINED ITK_DIR)
       #    ${CableSwig_FLAGS}
     BUILD_COMMAND ${BUILD_COMMAND_STRING}
     INSTALL_COMMAND ""
-    DEPENDS 
+    DEPENDS
       ${ITKv4_DEPENDENCIES}
     )
   set(ITK_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
