@@ -29,8 +29,13 @@ else(GenerateCLP_FOUND)
   message(FATAL_ERROR, "GenerateCLP not found. Please set GenerateCLP_DIR.")
 endif(GenerateCLP_FOUND)
 
-#include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/lapackSetup.cmake)
-#include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/boostSetup.cmake)
+set(CLAPACK_LIBRARY_DIRECTORIES
+  ${CLAPACK_DIR}/SRC
+  ${CLAPACK_DIR}/BLAS/SRC
+  ${CLAPACK_DIR}/F2CLIBS/libf2c)
+set(CLAPACK_LIBRARIES lapack blas f2c)
+
+link_directories(${CLAPACK_LIBRARY_DIRECTORIES})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/IO)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/SpatialObject)
@@ -39,5 +44,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/Numerics)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/Statistics)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/SparseLibMVIml)
 
+message("Boost_DIR=${Boost_DIR}")
+include_directories(${Boost_DIR}/include)
+link_directories(${Boost_DIR}/lib)
 add_subdirectory(Libraries)
 add_subdirectory(Applications)

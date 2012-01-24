@@ -3,6 +3,8 @@ if(DEFINED SlicerExecutionModel_DIR AND NOT EXISTS ${SlicerExecutionModel_DIR})
 endif()
 
 if(NOT DEFINED SlicerExecutionModel_DIR)
+  string(REPLACE "-fopenmp" "" SEM_CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+  string(REPLACE "-fopenmp" "" SEM_CMAKE_CXX_FLAGS "${CMAKE_CX_FLAGS}")
 
 set(proj SlicerExecutionModel)
     ##HACK: Need to replace with Slicer github repository.
@@ -20,8 +22,8 @@ set(proj SlicerExecutionModel)
         -DCMAKE_CXX_COMPILER_ARG1:STRING=${CMAKE_CXX_COMPILER_ARG1}
         -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
         -DCMAKE_C_COMPILER_ARG1:STRING=${CMAKE_C_COMPILER_ARG1}
-        -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
-        -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
+        -DCMAKE_CXX_FLAGS:STRING=${SEM_CMAKE_CXX_FLAGS}
+        -DCMAKE_C_FLAGS:STRING=${SEM_CMAKE_C_FLAGS}
         -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
         -DBUILD_EXAMPLES:BOOL=OFF
         -DBUILD_TESTING:BOOL=OFF

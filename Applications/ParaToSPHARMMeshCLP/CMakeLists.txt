@@ -12,7 +12,7 @@ target_link_libraries( ParaToSPHARMMeshCLP
        ${ITK_LIBRARIES}
        vtkIO vtkHybrid vtkCommon vtkFiltering
        ShapeIO SpatialObject ShapeAlgorithms SpatialObject
-       lapack
+       lapack blas f2c
        )
 
 if(Slicer3_FOUND)

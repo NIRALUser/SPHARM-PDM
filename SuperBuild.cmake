@@ -75,6 +75,7 @@ set(CMAKE_MODULE_PATH
 # in one common tree
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Where all the prerequisite libraries go" FORCE)
 set(${CMAKE_PROJECT_NAME}_BUILD_TESTING ON CACHE BOOL "Turn on Testing for BRAINS")
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Statically Link Everything")
 
 # Compute -G arg for configuring external projects with the same CMake generator:
 if(CMAKE_EXTRA_GENERATOR)
@@ -144,12 +145,17 @@ set(ep_common_args
 )
 
 # Boost
-set(boost_version 1.41.0)
-set(boost_file
-  "http://www.vtk.org/files/support/boost-${boost_version}.cmake-kitware.tar.gz")
-set(boost_md5 "f09997a2dad36627579b3e2215c25a48")
+option(USE_SYSTEM_BOOST "Use pre-installed version of the boost libraries" OFF)
 
 set(git_protocol "git")
+
+if(NOT USE_SYSTEM_BOOST)
+  set(boost_version 1.41.0)
+  set(boost_file
+    "http://www.vtk.org/files/support/boost-${boost_version}.cmake-kitware.tar.gz")
+  set(boost_md5 "f09997a2dad36627579b3e2215c25a48")
+endif(NOT USE_SYSTEM_BOOST)
+
 include(External_Boost)
 include(External_CLAPACK)
 include(External_ITKv4)
@@ -183,10 +189,8 @@ ExternalProject_Add(${proj}
     # GenerateCLP_DIR
     -DGenerateCLP_DIR:PATH=${GenerateCLP_DIR}
     # Boost
-    -DBOOST_ROOT:PATH=${boost_binary}
-    -DBOOST_INCLUDEDIR:PATH=${Boost_INCLUDE_DIR}
-    -DBOOST_LIBRARYDIR:PATH=${BOOST_LIBRARYDIR}
-    -DBOOST_LIBRARY_DIR:PATH=${BOOST_LIBRARYDIR}
+    -DUSE_SYSTEM_BOOST:BOOL=OFF
+    -DBoost_DIR:PATH=${Boost_DIR}
     # CLAPACK
     -DCLAPACK_DIR:PATH=${CLAPACK_DIR}
     ${trilinos_blas_args}

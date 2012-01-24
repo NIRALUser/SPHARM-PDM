@@ -33,7 +33,7 @@ ExternalProject_Add(${proj}
     ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DBUILD_TESTING:BOOL=OFF
-    -DBUILD_SHARED_LIBS:BOOL=ON
+    -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
     -DUSE_FLTK:BOOL=OFF
     -DDASHBOARD_SUPPORT:BOOL=OFF
     -DGRID_SUPPORT:BOOL=ON
@@ -43,13 +43,13 @@ ExternalProject_Add(${proj}
   DEPENDS
     ${BatchMake_DEPENDENCIES}
   )
-ExternalProject_Add_Step(${proj} fix_itk_libs
-  COMMENT "Get Rid of individual ITK Libs in favor of ITK_LIBRARIES"
-  DEPENDEES download
-  DEPENDERS configure
-  DEPENDS ${CMAKE_CURRENT_LIST_DIR}/BatchMake.patch
-  WORKING_DIRECTORY <SOURCE_DIR>
-  COMMAND patch -p1 "--input=${CMAKE_CURRENT_LIST_DIR}/BatchMake.patch"
-)
+# ExternalProject_Add_Step(${proj} fix_itk_libs
+#   COMMENT "Get Rid of individual ITK Libs in favor of ITK_LIBRARIES"
+#   DEPENDEES download
+#   DEPENDERS configure
+#   DEPENDS ${CMAKE_CURRENT_LIST_DIR}/BatchMake.patch
+#   WORKING_DIRECTORY <SOURCE_DIR>
+#   COMMAND patch -p1 "--input=${CMAKE_CURRENT_LIST_DIR}/BatchMake.patch"
+# )
 set(BatchMake_DIR ${CMAKE_BINARY_DIR}/BatchMake-build)
 
