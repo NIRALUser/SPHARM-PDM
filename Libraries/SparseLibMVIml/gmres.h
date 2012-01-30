@@ -24,7 +24,6 @@ void
 Update(Vector & x, int k, Matrix & h, Vector & s, Vector v[])
 {
   Vector y(s);
-
   // Backsolve:
   for( int i = k; i >= 0; i-- )
     {

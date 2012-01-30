@@ -56,8 +56,7 @@ int main(int argc, const char * *argv)
   string outputFilename = argv[2];
 
   // load the stl file
-  vtkSTLReader *reader;
-  reader = vtkSTLReader::New();
+  vtkSTLReader *reader = vtkSTLReader::New();
   reader->SetFileName(inputFilename.c_str() );
   std::cout << "Reading input" << endl;
   reader->Update();
@@ -177,16 +176,15 @@ int main(int argc, const char * *argv)
   typedef itk::MetaMeshConverter<3, double, MeshTraits> MeshConverterType;
 
   std::cout << "Writing output" << endl;
-  MeshConverterType *    itkConverter = new MeshConverterType();
   itkMeshSOType::Pointer meshSO = itkMeshSOType::New();
   meshSO->SetMesh(mesh);
+  MeshConverterType::Pointer itkConverter = MeshConverterType::New();
   itkConverter->WriteMeta(meshSO, outputFilename.c_str() );
 
   std::cout << "Conversion Completed" << endl;
 
   // clean up memory
   reader->Delete();
-  delete (itkConverter);
 
   return 0;
 }

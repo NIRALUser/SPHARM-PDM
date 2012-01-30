@@ -49,14 +49,6 @@ endif()
 
 
 option(COMPILE_CreateMRML "Compile CreateMRML." OFF)
-
-if(Slicer3_FOUND)
-
-#option(COMPILE_CreateMRML "Compile CreateMRML." ON)
-
-
-
-endif(Slicer3_FOUND)
 if(COMPILE_CreateMRML)
   add_subdirectory(CreateMRML)
 endif(COMPILE_CreateMRML)

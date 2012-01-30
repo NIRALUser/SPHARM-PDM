@@ -772,20 +772,22 @@ int main(int argc, const char * *argv)
   if( subtractOn )
     {
     // read in the input files
-    MeshConverterType * converter = new MeshConverterType();
+    MeshConverterType::Pointer converter = MeshConverterType::New();
 
     if( debug )
       {
       std::cout << "Reading input mesh " << inputFilename << std::endl;
       }
-    MeshSOType::Pointer inputMeshSO = converter->ReadMeta(inputFilename);
+    MeshSOType::Pointer inputMeshSO =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer() );
     MeshType::Pointer   inputMesh = inputMeshSO->GetMesh();
 
     if( debug )
       {
       std::cout << "subtracting Mesh " << std::endl;
       }
-    MeshSOType::Pointer sutractMeshSO = converter->ReadMeta(subtractFile);
+    MeshSOType::Pointer sutractMeshSO =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(subtractFile).GetPointer());
     MeshType::Pointer   subtractMesh = sutractMeshSO->GetMesh();
 
     // make sure the two meshes have the same number of verts
@@ -873,12 +875,13 @@ int main(int argc, const char * *argv)
 
     if( bemeta == 1 )
       {
-      MeshConverterType * converter = new MeshConverterType();
+      MeshConverterType::Pointer converter = MeshConverterType::New();
       if( debug )
         {
         std::cout << "Reading input mesh " << inputFilename << std::endl;
         }
-      MeshSOType::Pointer              inputMeshSO = converter->ReadMeta(inputFilename);
+      MeshSOType::Pointer              inputMeshSO =
+        dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer());
       MeshType::Pointer                inputMesh = inputMeshSO->GetMesh();
       MeshType::PointsContainerPointer points = inputMesh->GetPoints();
 
@@ -993,8 +996,9 @@ int main(int argc, const char * *argv)
 
     int num = 0;
     // read input mesh
-    MeshConverterType *              converter = new MeshConverterType();
-    MeshSOType::Pointer              SOMesh = converter->ReadMeta(inputFilename);
+    MeshConverterType::Pointer converter = MeshConverterType::New();
+    MeshSOType::Pointer              SOMesh =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer());
     MeshType::Pointer                mesh = SOMesh->GetMesh();
     MeshType::PointsContainerPointer Points = mesh->GetPoints();
     int                              numberOfPoints = Points->Size();
@@ -1045,8 +1049,9 @@ int main(int argc, const char * *argv)
     PointType pixel;
 
     // read input
-    MeshConverterType *              converter = new MeshConverterType();
-    MeshSOType::Pointer              SOMesh = converter->ReadMeta(inputFilename);
+    MeshConverterType::Pointer converter = MeshConverterType::New();
+    MeshSOType::Pointer SOMesh =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer());
     MeshType::Pointer                mesh = SOMesh->GetMesh();
     MeshType::PointsContainerPointer points = mesh->GetPoints();
     int                              numPoints = points->Size();
@@ -1060,12 +1065,7 @@ int main(int argc, const char * *argv)
         pointIndex[c][d] = 0.0;
         }
       }
-
-    double extractValue[numPoints];
-    for( int i = 0; i < numPoints; i++ )
-      {
-      extractValue[i] = 0.0;
-      }
+    std::vector<double> extractValue(numPoints,0.0);
 
     // load attribute image
     ImageReaderType::Pointer reader = ImageReaderType::New();
@@ -1091,8 +1091,8 @@ int main(int argc, const char * *argv)
       }
 
     // Origin & Spacing
-    ImageType::SpacingType spacing = image->GetSpacing();
-    ImageType::PointType   origin = image->GetOrigin();
+    const ImageType::SpacingType spacing = image->GetSpacing();
+    const ImageType::PointType   origin = image->GetOrigin();
 
     int Element[3] = {-1, -1, 1};
 
@@ -1199,14 +1199,15 @@ int main(int argc, const char * *argv)
   else if( avgMeshOn )
     {
 
-    MeshConverterType * converter = new MeshConverterType();
+    MeshConverterType::Pointer converter = MeshConverterType::New();
 
     // read input
     if( debug )
       {
       std::cout << "Reading  mesh " << inputFilename << std::endl;
       }
-    MeshSOType::Pointer              SOMesh = converter->ReadMeta(inputFilename);
+    MeshSOType::Pointer SOMesh =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer());
     MeshType::Pointer                surfaceMesh = SOMesh->GetMesh();
     MeshType::PointsContainerPointer avgPoints = surfaceMesh->GetPoints();
 
@@ -1220,7 +1221,8 @@ int main(int argc, const char * *argv)
           {
           std::cout << "Reading  mesh " << AvgMeshFiles[index] << std::endl;
           }
-        MeshSOType::Pointer              inputMeshSO = converter->ReadMeta(AvgMeshFiles[index].c_str() );
+        MeshSOType::Pointer inputMeshSO =
+          dynamic_cast<MeshSOType *>(converter->ReadMeta(AvgMeshFiles[index].c_str() ).GetPointer() );
         MeshType::Pointer                inputMesh = inputMeshSO->GetMesh();
         MeshType::PointsContainerPointer points = inputMesh->GetPoints();
         MeshType::PointsContainerPointer pointsTmp = MeshType::PointsContainer::New();
@@ -1270,10 +1272,11 @@ int main(int argc, const char * *argv)
   else if( alignMeshOn )
     {
 
-    MeshConverterType * converter = new MeshConverterType();
+    MeshConverterType::Pointer converter = MeshConverterType::New();
 
     // read input
-    MeshSOType::Pointer              SOMesh = converter->ReadMeta(inputFilename);
+    MeshSOType::Pointer SOMesh =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer() );
     MeshType::Pointer                surfaceMesh = SOMesh->GetMesh();
     MeshType::PointsContainerPointer Points = surfaceMesh->GetPoints();
     MeshType::Pointer                newPoints = MeshType::New();
@@ -1293,7 +1296,8 @@ int main(int argc, const char * *argv)
     // read meshes and use Mesh3DProcrustesAlignFilter to align
     for( int index = 0; index < numMeshes; index++ )
       {
-      MeshSOType::Pointer inputMeshSO = converter->ReadMeta(AlignMeshFiles[index].c_str() );
+      MeshSOType::Pointer inputMeshSO =
+        dynamic_cast<MeshSOType *>(converter->ReadMeta(AlignMeshFiles[index].c_str() ).GetPointer() );
       MeshType::Pointer   inputMesh = inputMeshSO->GetMesh();
       procrustesFilter->SetInput(index + 1, inputMesh);
       }
@@ -1311,7 +1315,8 @@ int main(int argc, const char * *argv)
     for( int index = 0; index < numMeshes; index++ )
       {
       MeshType::Pointer   RegisteredMesh = procrustesFilter->GetOutput(index + 1);
-      MeshSOType::Pointer inputMeshSO = converter->ReadMeta(AlignMeshFiles[index].c_str() );
+      MeshSOType::Pointer inputMeshSO =
+        dynamic_cast<MeshSOType *>(converter->ReadMeta(AlignMeshFiles[index].c_str() ).GetPointer() );
       inputMeshSO->SetMesh(RegisteredMesh);
       writer->SetInput(inputMeshSO);
       writer->SetFileName(AlignMeshOutputFiles[index + 1].c_str() );
@@ -1322,8 +1327,9 @@ int main(int argc, const char * *argv)
     {
 
     // read input Mesh
-    MeshConverterType *              converter = new MeshConverterType();
-    MeshSOType::Pointer              SOMesh = converter->ReadMeta(inputFilename);
+    MeshConverterType::Pointer converter = MeshConverterType::New();
+    MeshSOType::Pointer              SOMesh =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer());
     MeshType::Pointer                mesh = SOMesh->GetMesh();
     MeshType::PointsContainerPointer points = mesh->GetPoints();
     int                              numPoints = points->Size();
@@ -1357,8 +1363,9 @@ int main(int argc, const char * *argv)
       // z!=0 load file (correctFilename) wich is already correct to improve the correction
       if( z != 0 )
         {
-        MeshConverterType *              converter = new MeshConverterType();
-        MeshSOType::Pointer              SOMesh = converter->ReadMeta(correctFilename);
+        MeshConverterType::Pointer       converter = MeshConverterType::New();
+        MeshSOType::Pointer              SOMesh =
+          dynamic_cast<MeshSOType *>(converter->ReadMeta(correctFilename).GetPointer());
         MeshType::Pointer                mesh = SOMesh->GetMesh();
         MeshType::PointsContainerPointer points = mesh->GetPoints();
         }
@@ -1776,8 +1783,8 @@ int main(int argc, const char * *argv)
     std::ifstream labelFile1;
     labelFile1.open( labelFilename );
     labelFile1.seekg(0, std::ios::beg);
-    float label[nPts];
-    float thick[nPts];
+    std::vector<float> label(nPts);
+    std::vector<float> thick(nPts);
     int   i = 0;
 
     found = false;
@@ -2096,11 +2103,9 @@ int main(int argc, const char * *argv)
       }
 
     // numFiles corresponds to number of files -1 (without the inputfile)
-    int numFiles = MaxFiles.size();
-    int index = 0;
-    int val = 0;
+    const int numFiles = MaxFiles.size();
 
-    std::ifstream attrFile[numFiles];
+    std::vector<std::ifstream *> attrFile(numFiles);
 
     double * *value = NULL;
     value = new double *[numberOfLines];
@@ -2113,17 +2118,21 @@ int main(int argc, const char * *argv)
         }
       }
 
-    std::ofstream output, output2;
+    int val = 0;
+    std::ofstream output;
+    std::ofstream output2;
     for( int num = 0; num < numFiles; num++ )
       {
-      attrFile[num].open(MaxFiles[num].c_str() );
-      attrFile[num].seekg(0, std::ios::beg);
+      attrFile[num]= new std::ifstream();
+      attrFile[num]->open(MaxFiles[num].c_str());
+      attrFile[num]->seekg(0, std::ios::beg);
       for( val = 0; val < 2; val++ )
         {
-        attrFile[num].getline(line2, 1000);
+        attrFile[num]->getline(line2, 1000);
         }
       }
 
+    int index = 0;
     while( (input.getline(line, 1000) ) != NULL )
       {
       float point;
@@ -2132,7 +2141,7 @@ int main(int argc, const char * *argv)
       for( int num = 0; num < numFiles; num++ )
         {
         float point2;
-        attrFile[num].getline(line2, 1000);
+        attrFile[num]->getline(line2, 1000);
         sscanf(line2, " %f ", &point2);
         value[index][num + 1] = point2;
         }
@@ -2140,7 +2149,8 @@ int main(int argc, const char * *argv)
       }
     for( int num = 0; num < numFiles; num++ )
       {
-      attrFile[num].close();
+      attrFile[num]->close();
+      delete attrFile[num];
       }
     input.close();
     for( int a = 0; a < numberOfLines; a++ )
@@ -2230,7 +2240,7 @@ int main(int argc, const char * *argv)
 
     int       index = 0;
     int       val = 0;
-    int       numFiles = distFiles.size();
+    const int       numFiles = distFiles.size();
     double * *value = NULL;
     value = new double *[numberOfLines];
     for( int c = 0; c < numberOfLines; c++ )
@@ -2251,14 +2261,15 @@ int main(int argc, const char * *argv)
         value_new[u][k] = 0.0;
         }
       }
-    std::ifstream attrFile[numFiles];
+    std::vector<std::ifstream *> attrFile(numFiles);
     for( int num = 0; num < numFiles; num++ )
       {
-      attrFile[num].open(distFiles[num].c_str() );
-      attrFile[num].seekg(0, std::ios::beg);
+      attrFile[num] = new std::ifstream();
+      attrFile[num]->open(distFiles[num].c_str() );
+      attrFile[num]->seekg(0, std::ios::beg);
       for( val = 0; val < 2; val++ )
         {
-        attrFile[num].getline(line2, 1000);
+        attrFile[num]->getline(line2, 1000);
         }
       }
 
@@ -2270,7 +2281,7 @@ int main(int argc, const char * *argv)
       for( int num = 0; num < numFiles; num++ )
         {
         float point2;
-        attrFile[num].getline(line2, 1000);
+        attrFile[num]->getline(line2, 1000);
         sscanf(line2, " %f ", &point2);
         value[index][num + 1] = point2;
         }
@@ -2278,7 +2289,8 @@ int main(int argc, const char * *argv)
       }
     for( int num = 0; num < numFiles; num++ )
       {
-      attrFile[num].close();
+      attrFile[num]->close();
+      delete attrFile[num];
       }
     input.close();
     for( int a = 0; a < numberOfLines; a++ )
@@ -2370,14 +2382,15 @@ int main(int argc, const char * *argv)
         value_new[u][k] = 0.0;
         }
       }
-    std::ifstream attrFile[numFiles];
+    std::vector<std::ifstream *> attrFile(numFiles);
     for( int num = 0; num < numFiles; num++ )
       {
-      attrFile[num].open(distReFiles[num].c_str() );
-      attrFile[num].seekg(0, std::ios::beg);
+      attrFile[num] = new std::ifstream();
+      attrFile[num]->open(distReFiles[num].c_str() );
+      attrFile[num]->seekg(0, std::ios::beg);
       for( val = 0; val < 2; val++ )
         {
-        attrFile[num].getline(line2, 1000);
+        attrFile[num]->getline(line2, 1000);
         }
       }
 
@@ -2389,7 +2402,7 @@ int main(int argc, const char * *argv)
       for( int num = 0; num < numFiles; num++ )
         {
         float point2;
-        attrFile[num].getline(line2, 1000);
+        attrFile[num]->getline(line2, 1000);
         sscanf(line2, " %f ", &point2);
         value[index][num + 1] = point2;
         }
@@ -2397,7 +2410,8 @@ int main(int argc, const char * *argv)
       }
     for( int num = 0; num < numFiles; num++ )
       {
-      attrFile[num].close();
+      attrFile[num]->close();
+      delete attrFile[num];
       }
     input.close();
     for( int a = 0; a < numberOfLines; a++ )
@@ -2917,12 +2931,13 @@ int main(int argc, const char * *argv)
     float sum = 0;
     float gauss = 0;
 
-    MeshConverterType * converter = new MeshConverterType();
+    MeshConverterType::Pointer converter = MeshConverterType::New();
     // read input
-    MeshSOType::Pointer              SOMesh = converter->ReadMeta(inputFilename);
-    MeshType::Pointer                surfaceMesh = SOMesh->GetMesh();
+    MeshSOType::Pointer        SOMesh =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer());
+    MeshType::Pointer          surfaceMesh = SOMesh->GetMesh();
     MeshType::PointsContainerPointer avgPoints = surfaceMesh->GetPoints();
-    int                              numberOfPoints = avgPoints->Size();
+    int                        numberOfPoints = avgPoints->Size();
       {
       MeshType::PointsContainerPointer pointsTmp = MeshType::PointsContainer::New();
       // calculate the gauss coefficient with mean,std,age...
@@ -2954,7 +2969,8 @@ int main(int argc, const char * *argv)
       {
       try
         {
-        MeshSOType::Pointer              inputMeshSO = converter->ReadMeta(AvgGaussMeshFiles[index].c_str() );
+        MeshSOType::Pointer              inputMeshSO =
+          dynamic_cast<MeshSOType *>(converter->ReadMeta(AvgGaussMeshFiles[index].c_str() ).GetPointer() );
         MeshType::Pointer                inputMesh = inputMeshSO->GetMesh();
         MeshType::PointsContainerPointer points = inputMesh->GetPoints();
         MeshType::PointsContainerPointer pointsTmp = MeshType::PointsContainer::New();
@@ -3029,12 +3045,13 @@ int main(int argc, const char * *argv)
     int NbAveFile = AveFiles.size();
 
     // read input
-    MeshConverterType * converter = new MeshConverterType();
+    MeshConverterType::Pointer converter = MeshConverterType::New();
     if( debug )
       {
       std::cout << "Reading input mesh " << inputFilename << std::endl;
       }
-    MeshSOType::Pointer inputMeshSO = converter->ReadMeta(inputFilename);
+    MeshSOType::Pointer inputMeshSO =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer());
     MeshType::Pointer   inputMesh = inputMeshSO->GetMesh();
     int                 NbOfPoint = inputMesh->GetNumberOfPoints();
 
@@ -3043,8 +3060,9 @@ int main(int argc, const char * *argv)
       {
       std::cout << "Computing normals" << std::endl;
       }
-    TriangleMeshConverterType * Triangleconverter = new TriangleMeshConverterType();
-    TriangleMeshSOType::Pointer inputTriangleMeshSO = Triangleconverter->ReadMeta(inputFilename);
+    TriangleMeshConverterType::Pointer Triangleconverter = TriangleMeshConverterType::New();
+    TriangleMeshSOType::Pointer inputTriangleMeshSO =
+     dynamic_cast<TriangleMeshSOType *>(Triangleconverter->ReadMeta(inputFilename).GetPointer());
     TriangleMeshType::Pointer   inputTriangleMesh = inputTriangleMeshSO->GetMesh();
 
     itkMeshTovtkPolyData *convertMeshToVTK = new itkMeshTovtkPolyData();
@@ -3216,12 +3234,13 @@ int main(int argc, const char * *argv)
     {
 
     // Read the meta file
-    MeshConverterType * converter = new MeshConverterType();
+    MeshConverterType::Pointer converter = MeshConverterType::New();
     if( debug )
       {
       std::cout << "Reading input mesh " << inputFilename << std::endl;
       }
-    MeshSOType::Pointer inputMeshSO = converter->ReadMeta(inputFilename);
+    MeshSOType::Pointer inputMeshSO =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer() );
     MeshType::Pointer   inputMesh = inputMeshSO->GetMesh();
     int                 NbOfPoint = inputMesh->GetNumberOfPoints();
 
@@ -3230,8 +3249,9 @@ int main(int argc, const char * *argv)
       {
       std::cout << "Computing normals" << std::endl;
       }
-    TriangleMeshConverterType * Triangleconverter = new TriangleMeshConverterType();
-    TriangleMeshSOType::Pointer inputTriangleMeshSO = Triangleconverter->ReadMeta(inputFilename);
+    TriangleMeshConverterType::Pointer Triangleconverter = TriangleMeshConverterType::New();
+    TriangleMeshSOType::Pointer inputTriangleMeshSO =
+     dynamic_cast<TriangleMeshSOType *>(Triangleconverter->ReadMeta(inputFilename).GetPointer());
     TriangleMeshType::Pointer   inputTriangleMesh = inputTriangleMeshSO->GetMesh();
 
     itkMeshTovtkPolyData *convertMeshToVTK = new itkMeshTovtkPolyData();
@@ -3320,12 +3340,13 @@ int main(int argc, const char * *argv)
     {
 
     // Read the meta file
-    MeshConverterType * converter = new MeshConverterType();
+    MeshConverterType::Pointer converter = MeshConverterType::New();
     if( debug )
       {
       std::cout << "Reading input mesh " << inputFilename << std::endl;
       }
-    MeshSOType::Pointer inputMeshSO = converter->ReadMeta(inputFilename);
+    MeshSOType::Pointer inputMeshSO =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer());
     MeshType::Pointer   inputMesh = inputMeshSO->GetMesh();
     int                 NbOfPoint = inputMesh->GetNumberOfPoints();
 
@@ -3334,8 +3355,9 @@ int main(int argc, const char * *argv)
       {
       std::cout << "Computing normals" << std::endl;
       }
-    TriangleMeshConverterType * Triangleconverter = new TriangleMeshConverterType();
-    TriangleMeshSOType::Pointer inputTriangleMeshSO = Triangleconverter->ReadMeta(inputFilename);
+    TriangleMeshConverterType::Pointer Triangleconverter = TriangleMeshConverterType::New();
+    TriangleMeshSOType::Pointer inputTriangleMeshSO =
+      dynamic_cast<TriangleMeshSOType *>(Triangleconverter->ReadMeta(inputFilename).GetPointer());
     TriangleMeshType::Pointer   inputTriangleMesh = inputTriangleMeshSO->GetMesh();
 
     itkMeshTovtkPolyData *convertMeshToVTK = new itkMeshTovtkPolyData();
@@ -3458,15 +3480,17 @@ int main(int argc, const char * *argv)
   else if( applyvecOn )
     {
 
-    MeshConverterType * converter = new MeshConverterType();
+    MeshConverterType::Pointer converter = MeshConverterType::New();
     if( debug )
       {
       std::cout << "Reading input mesh " << inputFilename << std::endl;
       }
-    MeshSOType::Pointer         inputMeshSO = converter->ReadMeta(inputFilename);
+    MeshSOType::Pointer         inputMeshSO =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer() );
     MeshType::Pointer           inputMesh = inputMeshSO->GetMesh();
-    TriangleMeshConverterType * Triangleconverter = new TriangleMeshConverterType();
-    TriangleMeshSOType::Pointer outputTriangleMeshSO = Triangleconverter->ReadMeta(inputFilename);
+    TriangleMeshConverterType::Pointer Triangleconverter = TriangleMeshConverterType::New();
+    TriangleMeshSOType::Pointer outputTriangleMeshSO =
+      dynamic_cast<TriangleMeshSOType *>(Triangleconverter->ReadMeta(inputFilename).GetPointer());
     TriangleMeshType::Pointer   outputTriangleMesh = outputTriangleMeshSO->GetMesh();
 
     char          output[64];
@@ -3552,8 +3576,9 @@ int main(int argc, const char * *argv)
     }
   else if( MC2OriginOn ) // cchou
     {
-    MeshConverterType *              converter = new MeshConverterType();
-    MeshSOType::Pointer              SOMesh = converter->ReadMeta(inputFilename);
+    MeshConverterType::Pointer converter = MeshConverterType::New();
+    MeshSOType::Pointer        SOMesh =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer());
     MeshType::Pointer                surfaceMesh = SOMesh->GetMesh();
     MeshType::PointsContainerPointer points = surfaceMesh->GetPoints();
 
@@ -3920,7 +3945,7 @@ int main(int argc, const char * *argv)
     input.getline(line, 70, '\n');
     input.getline(line, 70, '\n');
 
-    float vector_qsort[NPoints];
+    std::vector<float> vector_qsort(NPoints);
     int   cont = 0;
     while( !input.getline(line, 70, '\n').eof() )
       {
@@ -3933,7 +3958,7 @@ int main(int argc, const char * *argv)
     // End reading the Input
 
     /* sort array using qsort functions */
-    qsort(vector_qsort, NPoints, sizeof(float), oldStyleCompare);
+    qsort(&(vector_qsort[0]), NPoints, sizeof(float), oldStyleCompare);
 
     int meanIndex = NPoints / 2;
 
@@ -3964,7 +3989,7 @@ int main(int argc, const char * *argv)
     input.getline(line, 70, '\n');
     input.getline(line, 70, '\n');
 
-    float vector_qsort[NPoints];
+    std::vector<float> vector_qsort(NPoints);
     int   cont = 0;
     while( !input.getline(line, 70, '\n').eof() )
       {
@@ -3977,7 +4002,7 @@ int main(int argc, const char * *argv)
     // End reading the Input
 
     /* sort array using qsort functions */
-    qsort(vector_qsort, NPoints, sizeof(float), oldStyleCompare);
+    qsort(&(vector_qsort[0]), NPoints, sizeof(float), oldStyleCompare);
 
     int per1Index = (1 * NPoints) / 100;
 
@@ -4009,7 +4034,7 @@ int main(int argc, const char * *argv)
     input.getline(line, 70, '\n');
     input.getline(line, 70, '\n');
 
-    float vector_qsort[NPoints];
+    std::vector<float> vector_qsort(NPoints);
     int   cont = 0;
     while( !input.getline(line, 70, '\n').eof() )
       {
@@ -4022,7 +4047,7 @@ int main(int argc, const char * *argv)
     // End reading the Input
 
     /* sort array using qsort functions */
-    qsort(vector_qsort, NPoints, sizeof(float), oldStyleCompare);
+    qsort(&(vector_qsort[0]), NPoints, sizeof(float), oldStyleCompare);
 
     int per99Index = (99 * NPoints) / 100;
 
@@ -4117,7 +4142,7 @@ int main(int argc, const char * *argv)
     inputFile.getline(line2, 70, '\n');
     output << line2 << std::endl;
 
-    float        vectorOut[NPoints];
+    std::vector<float>  vectorOut(NPoints);
     unsigned int pointNumber = 0;
     int          zeroes = 0;
     while( !inputROI.getline(line, 70, '\n').eof() )
@@ -4521,12 +4546,13 @@ int main(int argc, const char * *argv)
   else if( surfaceAreaOn )
     {
     // Reading the input mesh
-    MeshConverterType * converter = new MeshConverterType();
+    MeshConverterType::Pointer converter = MeshConverterType::New();
     if( debug )
       {
       std::cout << "Reading input mesh " << inputFilename << std::endl;
       }
-    MeshSOType::Pointer              inputMeshSO = converter->ReadMeta(inputFilename);
+    MeshSOType::Pointer inputMeshSO =
+      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer());
     MeshType::Pointer                inputMesh = inputMeshSO->GetMesh();
     MeshType::PointsContainerPointer points = inputMesh->GetPoints();
 

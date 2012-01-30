@@ -53,14 +53,13 @@ int main(int argc, const char * *argv)
   vtkItkConverter->SetInput( polydata );
 
   // write out the itk meta mesh file
-  MeshConverterType *    itkConverter = new MeshConverterType();
   itkMeshSOType::Pointer meshSO = itkMeshSOType::New();
   meshSO->SetMesh( vtkItkConverter->GetOutput() );
+  MeshConverterType::Pointer itkConverter = MeshConverterType::New();
   itkConverter->WriteMeta( meshSO, outfile );
 
   // cleanup memory
   reader->Delete();
-  delete ( itkConverter );
 
   return 0;
 }

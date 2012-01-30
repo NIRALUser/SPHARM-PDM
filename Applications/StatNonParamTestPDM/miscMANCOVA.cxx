@@ -685,13 +685,12 @@ void load_Meshes( bool scaleOn,  unsigned int numSubjects,
       vtkItkConverter->SetInput( polyData );
 
       // write out the itk meta mesh file
-      MeshConverterType *    itkConverter = new MeshConverterType();
+      MeshConverterType::Pointer itkConverter = MeshConverterType::New();
       itkMeshSOType::Pointer meshSO = itkMeshSOType::New();
       meshSO->SetMesh( vtkItkConverter->GetOutput() );
       itkConverter->WriteMeta( meshSO, meshFile );
 
       mesh->Delete();
-      delete ( itkConverter );
 
       // read mesh file
       try
@@ -1393,8 +1392,9 @@ void Meta2VTK(char * infile, char* outfile)
   typedef itk::MetaMeshConverter<3, double, MeshTraitsType>           MeshConverterType;
 
   // read the data in meta format
-  MeshConverterType *    itkConverter = new MeshConverterType();
-  itkMeshSOType::Pointer meshSO = itkConverter->ReadMeta(infile);
+  MeshConverterType::Pointer itkConverter = MeshConverterType::New();
+  itkMeshSOType::Pointer meshSO =
+    dynamic_cast<itkMeshSOType *>(itkConverter->ReadMeta(infile).GetPointer() );
   itkMeshType::Pointer   mesh = meshSO->GetMesh();
   // delete (itkConverter);
 

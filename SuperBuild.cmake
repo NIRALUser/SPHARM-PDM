@@ -1,27 +1,28 @@
-find_package(Git REQUIRED)
-include(ExternalProject)
+#-----------------------------------------------------------------------------
+set(verbose FALSE)
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
 enable_language(C)
 enable_language(CXX)
 
-if(NOT SETIFEMPTY)
-macro(SETIFEMPTY)
-  set(KEY ${ARGV0})
-  set(VALUE ${ARGV1})
-  if(NOT ${KEY})
-    set(${ARGV})
-  endif(NOT ${KEY})
-endmacro(SETIFEMPTY KEY VALUE)
-endif(NOT SETIFEMPTY)
-SETIFEMPTY(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
-SETIFEMPTY(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
-SETIFEMPTY(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-SETIFEMPTY(CMAKE_BUNDLE_OUTPUT_DIRECTORY  ${CMAKE_CURRENT_BINARY_DIR}/bin)
-link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
+#-----------------------------------------------------------------------------
+enable_testing()
+include(CTest)
 
 #-----------------------------------------------------------------------------
-# Update CMake module path
-#------------------------------------------------------------------------------
+include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
 
+#-----------------------------------------------------------------------------
+# Git protocole option
+#-----------------------------------------------------------------------------
+option(${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
+set(git_protocol "git")
+if(NOT ${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL)
+  set(git_protocol "http")
+endif()
+
+find_package(Git REQUIRED)
 set(CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/CMake
   ${CMAKE_SOURCE_DIR}/SuperBuild
@@ -32,48 +33,36 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   )
 
+#-----------------------------------------------------------------------------
+# Enable and setup External project global properties
+#-----------------------------------------------------------------------------
+include(ExternalProject)
 include(SlicerMacroEmptyExternalProject)
+include(SlicerMacroCheckExternalProjectDependency)
 
-#-----------------------------------------------------------------------------
-# Platform check
-#-----------------------------------------------------------------------------
-
-set(PLATFORM_CHECK true)
-
-if(PLATFORM_CHECK)
-  # See CMake/Modules/Platform/Darwin.cmake)
-  #   6.x == Mac OSX 10.2 (Jaguar)
-  #   7.x == Mac OSX 10.3 (Panther)
-  #   8.x == Mac OSX 10.4 (Tiger)
-  #   9.x == Mac OSX 10.5 (Leopard)
-  #  10.x == Mac OSX 10.6 (Snow Leopard)
-  if (DARWIN_MAJOR_VERSION LESS "9")
-    message(FATAL_ERROR "Only Mac OSX >= 10.5 are supported !")
-  endif()
+# Compute -G arg for configuring external projects with the same CMake generator:
+if(CMAKE_EXTRA_GENERATOR)
+  set(gen "${CMAKE_EXTRA_GENERATOR} - ${CMAKE_GENERATOR}")
+else()
+  set(gen "${CMAKE_GENERATOR}")
 endif()
 
 #-----------------------------------------------------------------------------
-# Update CMake module path
-#------------------------------------------------------------------------------
+# Superbuild option(s)
+#-----------------------------------------------------------------------------
 
-set(CMAKE_MODULE_PATH
-  ${CMAKE_SOURCE_DIR}/CMake
-  ${CMAKE_SOURCE_DIR}/SuperBuild
-  ${CMAKE_BINARY_DIR}/CMake
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/CMake #  CMake directory
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/CMake # CMake directory
-  ${CMAKE_MODULE_PATH}
-  )
+option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
+option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
+option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
+option(USE_SYSTEM_BatchMake "Build using an externally defined version of BatchMake" OFF)
+option(USE_SYSTEM_CLAPACK "Build using an externally defined version of CLAPACK" OFF)
+option(USE_SYSTEM_LAPACK "Build using an externally defined version of LAPACK" OFF)
+
 
 #-----------------------------------------------------------------------------
 # Prerequisites
 #------------------------------------------------------------------------------
 #
-# BRAINS4 Addition: install to the common library
-# directory, so that all libs/include etc ends up
-# in one common tree
-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Where all the prerequisite libraries go" FORCE)
 set(${CMAKE_PROJECT_NAME}_BUILD_TESTING ON CACHE BOOL "Turn on Testing for BRAINS")
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Statically Link Everything")
 
@@ -83,6 +72,87 @@ if(CMAKE_EXTRA_GENERATOR)
 else()
   set(gen "${CMAKE_GENERATOR}")
 endif()
+
+#------------------------------------------------------------------------------
+# spharm-pdm dependency list
+#------------------------------------------------------------------------------
+
+set(ITK_VERSION_MAJOR 4)
+set(ITK_EXTERNAL_NAME ITKv${ITK_VERSION_MAJOR})
+set(${LOCAL_PROJECT_NAME}_DEPENDENCIES
+  CLAPACK Boost
+  ${ITK_EXTERNAL_NAME} VTK SlicerExecutionModel
+  BatchMake
+)
+
+#-----------------------------------------------------------------------------
+# Define Superbuild global variables
+#-----------------------------------------------------------------------------
+
+# This variable will contain the list of CMake variable specific to each external project
+# that should passed to ${CMAKE_PROJECT_NAME}.
+# The item of this list should have the following form: <EP_VAR>:<TYPE>
+# where '<EP_VAR>' is an external project variable and TYPE is either BOOL, STRING, PATH or FILEPATH.
+# TODO Variable appended to this list will be automatically exported in ${LOCAL_PROJECT_NAME}Config.cmake,
+# prefix '${LOCAL_PROJECT_NAME}_' will be prepended if it applies.
+set(${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS)
+
+# The macro '_expand_external_project_vars' can be used to expand the list of <EP_VAR>.
+set(${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS) # List of CMake args to configure BRAINS
+set(${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARNAMES) # List of CMake variable names
+
+# Convenient macro allowing to expand the list of EP_VAR listed in ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
+# The expanded arguments will be appended to the list ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS
+# Similarly the name of the EP_VARs will be appended to the list ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARNAMES.
+macro(_expand_external_project_vars)
+  set(${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS "")
+  set(${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARNAMES "")
+  foreach(arg ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS})
+    string(REPLACE ":" ";" varname_and_vartype ${arg})
+    set(target_info_list ${target_info_list})
+    list(GET varname_and_vartype 0 _varname)
+    list(GET varname_and_vartype 1 _vartype)
+    list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS -D${_varname}:${_vartype}=${${_varname}})
+    list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARNAMES ${_varname})
+  endforeach()
+endmacro()
+
+#-----------------------------------------------------------------------------
+# Common external projects CMake variables
+#-----------------------------------------------------------------------------
+list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
+  CMAKE_BUILD_TYPE:PATH
+  MAKECOMMAND:STRING
+  CMAKE_SKIP_RPATH:BOOL
+  CMAKE_BUILD_TYPE:STRING
+  BUILD_SHARED_LIBS:BOOL
+  CMAKE_CXX_COMPILER:PATH
+  CMAKE_CXX_FLAGS_RELEASE:STRING
+  CMAKE_CXX_FLAGS_DEBUG:STRING
+  CMAKE_CXX_FLAGS:STRING
+  CMAKE_C_COMPILER:PATH
+  CMAKE_C_FLAGS_RELEASE:STRING
+  CMAKE_C_FLAGS_DEBUG:STRING
+  CMAKE_C_FLAGS:STRING
+  CMAKE_SHARED_LINKER_FLAGS:STRING
+  CMAKE_EXE_LINKER_FLAGS:STRING
+  CMAKE_MODULE_LINKER_FLAGS:STRING
+  CMAKE_GENERATOR:STRING
+  CMAKE_EXTRA_GENERATOR:STRING
+  CMAKE_INSTALL_PREFIX:PATH
+  CMAKE_LIBRARY_OUTPUT_DIRECTORY:PATH
+  CMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH
+  CMAKE_RUNTIME_OUTPUT_DIRECTORY:PATH
+  CMAKE_BUNDLE_OUTPUT_DIRECTORY:PATH
+  CTEST_NEW_FORMAT:BOOL
+  MEMORYCHECK_COMMAND_OPTIONS:STRING
+  MEMORYCHECK_COMMAND:PATH
+  CMAKE_SHARED_LINKER_FLAGS:STRING
+  CMAKE_EXE_LINKER_FLAGS:STRING
+  CMAKE_MODULE_LINKER_FLAGS:STRING
+  SITE:STRING
+  BUILDNAME:STRING
+  )
 
 
 #-------------------------------------------------------------------------
@@ -97,103 +167,72 @@ else() # Release, or anything else
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_RELEASE_DESIRED_FLAGS}" )
 endif()
 
+#-----------------------------------------------------------------------------
+# Build external projects
+#-----------------------------------------------------------------------------
+_expand_external_project_vars()
+set(COMMON_EXTERNAL_PROJECT_ARGS ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS})
+SlicerMacroCheckExternalProjectDependency(${LOCAL_PROJECT_NAME})
 
-option(USE_NO_SLICER "Build Slicer and the projects it depends on via SuperBuild.cmake." OFF)
-#mark_as_advanced(USE_NO_SLICER))
+#-----------------------------------------------------------------------------
+# Set CMake OSX variable to pass down the external project
+#-----------------------------------------------------------------------------
+set(CMAKE_OSX_EXTERNAL_PROJECT_ARGS)
+if(APPLE)
+  list(APPEND CMAKE_OSX_EXTERNAL_PROJECT_ARGS
+    -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+    -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
+endif()
 
-if(NOT USE_NO_SLICER)
-  find_package(Slicer3 REQUIRED NO_DEFAULT_PATH)
-  include(${Slicer3_USE_FILE})
-  get_filename_component(Slicer3_BUILD_DIR ${Slicer3_USE_FILE} PATH CACHE)
-  include(${Slicer3_BUILD_DIR}/Slicer3Config.cmake)
-  slicer3_set_default_install_prefix_for_external_projects()
-  set(SLICER_ARGS -DSlicer3_DIR:PATH=${Slicer3_DIR})
+#-----------------------------------------------------------------------------
+# Add external project CMake args
+#-----------------------------------------------------------------------------
+list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
+  BUILD_EXAMPLES:BOOL
+  BUILD_TESTING:BOOL
+  ITK_VERSION_MAJOR:STRING
+  ITK_DIR:PATH
+  VTK_DIR:PATH
+  Boost_DIR:PATH
+  CLAPACK_DIR:PATH
+)
+_expand_external_project_vars()
+set(COMMON_EXTERNAL_PROJECT_ARGS ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS})
+
+if(verbose)
+  message("Inner external project args:")
+  foreach(arg ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS})
+    message("  ${arg}")
+  endforeach()
+endif()
+
+string(REPLACE ";" "^" ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARNAMES "${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARNAMES}")
+
+if(verbose)
+  message("Inner external project argnames:")
+  foreach(argname ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARNAMES})
+    message("  ${argname}")
+  endforeach()
 endif()
 
 #------------------------------------------------------------------------------
-# Conditionnaly include ExternalProject Target
+# Configure and build
 #------------------------------------------------------------------------------
-
-set(ep_common_args
-  --no-warn-unused-cli
-  -DMAKECOMMAND:STRING=${MAKECOMMAND}
-  -DCMAKE_SKIP_RPATH:BOOL=ON
-  -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-  -DCMAKE_CXX_FLAGS_RELEASE:STRING=${CMAKE_CXX_FLAGS_RELEASE}
-  -DCMAKE_CXX_FLAGS_DEBUG:STRING=${CMAKE_CXX_FLAGS_DEBUG}
-  -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
-  -DCMAKE_C_FLAGS_RELEASE:STRING=${CMAKE_C_FLAGS_RELEASE}
-  -DCMAKE_C_FLAGS_DEBUG:STRING=${CMAKE_C_FLAGS_DEBUG}
-  -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
-  -DBUILD_EXAMPLES:BOOL=OFF
-  -DBUILD_TESTING:BOOL=${BUILD_TESTING}
-  -DCMAKE_GENERATOR:STRING=${CMAKE_GENERATOR}
-  -DCMAKE_EXTRA_GENERATOR:STRING=${CMAKE_EXTRA_GENERATOR}
-  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
-  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY:PATH=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
-  -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH=${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
-  -DCMAKE_RUNTIME_OUTPUT_DIRECTORY:PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-  -DCMAKE_BUNDLE_OUTPUT_DIRECTORY:PATH=${CMAKE_BUNDLE_OUTPUT_DIRECTORY}
-  -DCTEST_NEW_FORMAT:BOOL=ON
-  -DMEMORYCHECK_COMMAND_OPTIONS:STRING=${MEMORYCHECK_COMMAND_OPTIONS}
-  -DMEMORYCHECK_COMMAND:PATH=${MEMORYCHECK_COMMAND}
-  -DCMAKE_SHARED_LINKER_FLAGS:STRING=${CMAKE_SHARED_LINKER_FLAGS}
-  -DCMAKE_EXE_LINKER_FLAGS:STRING=${CMAKE_EXE_LINKER_FLAGS}
-  -DCMAKE_MODULE_LINKER_FLAGS:STRING=${CMAKE_MODULE_LINKER_FLAGS}
-  -DSITE:STRING=${SITE}
-  -DBUILDNAME:STRING=${BUILDNAME}
-)
-
-# Boost
-option(USE_SYSTEM_BOOST "Use pre-installed version of the boost libraries" OFF)
-
-set(git_protocol "git")
-
-if(NOT USE_SYSTEM_BOOST)
-  set(boost_version 1.41.0)
-  set(boost_file
-    "http://www.vtk.org/files/support/boost-${boost_version}.cmake-kitware.tar.gz")
-  set(boost_md5 "f09997a2dad36627579b3e2215c25a48")
-endif(NOT USE_SYSTEM_BOOST)
-
-include(External_Boost)
-include(External_CLAPACK)
-include(External_ITKv4)
-include(External_VTK)
-include(External_BatchMake)
-
-set(SlicerExecutionModel_DEPENDENCIES ITKv4)
-include(External_SlicerExecutionModel)
-
-set(spharmpdm_DEPENDENCIES CLAPACK Boost ITKv4 VTK SlicerExecutionModel)
-#------------------------------------------------------------------------------
-# Configure and build Slicer
-#------------------------------------------------------------------------------
-set(proj spharmpdm)
-
+set(proj ${LOCAL_PROJECT_NAME})
 ExternalProject_Add(${proj}
-  DEPENDS ${spharmpdm_DEPENDENCIES}
+  DEPENDS ${${LOCAL_PROJECT_NAME}_DEPENDENCIES}
   DOWNLOAD_COMMAND ""
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-  BINARY_DIR spharmpdm-build
+  BINARY_DIR ${LOCAL_PROJECT_NAME}-build
   CMAKE_GENERATOR ${gen}
   CMAKE_ARGS
-    ${ep_common_args}
-    -Dspharmpdm_SUPERBUILD:BOOL=OFF
-    -DADDITIONAL_CXX_FLAGS:STRING=${ADDITIONAL_CXX_FLAGS}
-    -DGIT_EXECUTABLE:FILEPATH=${GIT_EXECUTABLE}
-    # ITK
-    -DITK_DIR:PATH=${ITK_DIR}
-    # VTK
-    -DVTK_DIR:PATH=${VTK_DIR}
-    # GenerateCLP_DIR
-    -DGenerateCLP_DIR:PATH=${GenerateCLP_DIR}
-    # Boost
-    -DUSE_SYSTEM_BOOST:BOOL=OFF
-    -DBoost_DIR:PATH=${Boost_DIR}
-    # CLAPACK
-    -DCLAPACK_DIR:PATH=${CLAPACK_DIR}
+    --no-warn-unused-cli # HACK Only expected variables should be passed down.
+    ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
+    ${COMMON_EXTERNAL_PROJECT_ARGS}
+    -D${LOCAL_PROJECT_NAME}_SUPERBUILD:BOOL=OFF
     ${trilinos_blas_args}
     ${SLICER_ARGS}
   INSTALL_COMMAND ""
   )
+

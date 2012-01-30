@@ -39,12 +39,12 @@ public:
     return TPointFloat3D(wh_);
   }
 
-  friend int operator<(const TVertex& /*v1*/, const TVertex& /*v2*/)
+  friend int operator<(const TVertex & /*v1*/, const TVertex & /*v2*/)
   {
     return 0;
   }
 
-  friend int operator>(const TVertex& /*v1*/, const TVertex& /*v2*/)
+  friend int operator>(const TVertex & /*v1*/, const TVertex & /*v2*/)
   {
     return 0;
   }
@@ -94,6 +94,7 @@ public:
   {
     return size_;
   }
+
   int length() const
   {
     return size_;

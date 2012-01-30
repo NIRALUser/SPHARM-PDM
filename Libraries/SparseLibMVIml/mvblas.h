@@ -29,7 +29,6 @@ template <class TYPE>
 MV_Vector<TYPE> & operator*=(MV_Vector<TYPE> & x, const TYPE & a)
 {
   int N = x.size();
-
   for( int i = 0; i < N; i++ )
     {
     x(i) *= a;

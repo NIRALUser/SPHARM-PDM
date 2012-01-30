@@ -42,8 +42,7 @@ set(common_flags_to_test
 -Wall
 -Wextra
 #-Wshadow
--Wlong-long
--fopenmp
+#-Wlong-long
 )
 
 set(cc_flags_to_test ${common_flags_to_test})

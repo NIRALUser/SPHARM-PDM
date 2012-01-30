@@ -290,7 +290,6 @@ MV_ColMat<TYPE>::MV_ColMat(const MV_ColMat<TYPE> & m) :
 
   MV_VecIndex I(0, M - 1);
   MV_VecIndex K(0, M - 1);
-
   for( int j = 0; j < N; j++ )
     {
     v_(I) = m.v_(K);
@@ -317,7 +316,6 @@ MV_ColMat<TYPE>::MV_ColMat(TYPE* d,  int m,  int n) :
   v_(m * n), dim0_(m), dim1_(n), lda_(m), ref_(0)
 {
   int mn = m * n;
-
   // d is contiguous, so just copy 1-d vector
   for( int i = 0; i < mn; i++ )
     {
@@ -397,7 +395,6 @@ ostream &   operator<<(ostream& s, const MV_ColMat<TYPE>& V)
 {
   int M = V.size(0);
   int N = V.size(1);
-
   for( int i = 0; i < M; i++ )
     {
     for( int j = 0; j < N; j++ )

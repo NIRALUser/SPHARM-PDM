@@ -1,7 +1,4 @@
 
-#-----------------------------------------------------------------------------
-# Get and build itk
-#-----------------------------------------------------------------------------
 # Make sure this file is included only once
 get_filename_component(CMAKE_CURRENT_LIST_FILENAME ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
 if(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED)
@@ -9,89 +6,103 @@ if(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED)
 endif()
 set(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED 1)
 
-set(ITK_PYTHON_ARGS
-      -DPYTHON_EXECUTABLE:PATH=${${CMAKE_PROJECT_NAME}_PYTHON_EXECUTABLE}
-      -DPYTHON_INCLUDE_DIR:PATH=${${CMAKE_PROJECT_NAME}_PYTHON_INCLUDE}
-      -DPYTHON_LIBRARY:FILEPATH=${${CMAKE_PROJECT_NAME}_PYTHON_LIBRARY}
-      )
+# Include dependent projects if any
+set(extProjName ITK) #The find_package known name
+set(proj ITKv4)      #This local name
+
+#if(${USE_SYSTEM_${extProjName}})
+#  unset(${extProjName}_DIR CACHE)
+#endif()
 
 # Sanity checks
-if(DEFINED ITK_DIR AND NOT EXISTS ${ITK_DIR})
-  message(FATAL_ERROR "ITK_DIR variable is defined but corresponds to non-existing directory")
+if(DEFINED ${extProjName}_DIR AND NOT EXISTS ${${extProjName}_DIR})
+  message(FATAL_ERROR "${extProjName}_DIR variable is defined but corresponds to non-existing directory")
 endif()
 
 # Set dependency list
-set(ITKv4_DEPENDENCIES "")
+set(${proj}_DEPENDENCIES "")
 
-# Include dependent projects if any
-set(proj ITKv4)
+SlicerMacroCheckExternalProjectDependency(${proj})
 
-if(NOT DEFINED ITK_DIR)
-  #
-  # this code fixes a loony problem with HDF5 -- it doesn't
-  # link properly if -fopenmp is used.
+if(NOT DEFINED ${extProjName}_DIR AND NOT ${USE_SYSTEM_${extProjName}})
+
+  # Set CMake OSX variable to pass down the external project
+  set(CMAKE_OSX_EXTERNAL_PROJECT_ARGS)
+  if(APPLE)
+    list(APPEND CMAKE_OSX_EXTERNAL_PROJECT_ARGS
+      -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+      -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
+      -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
+  endif()
+
+  ### --- Project specific additions here
+  set(ITKv4_WRAP_ARGS)
+  #if(foo)
+    #set(ITKv4_WRAP_ARGS
+    #  -DINSTALL_WRAP_ITK_COMPATIBILITY:BOOL=OFF
+    #  -DWRAP_float:BOOL=ON
+    #  -DWRAP_unsigned_char:BOOL=ON
+    #  -DWRAP_signed_short:BOOL=ON
+    #  -DWRAP_unsigned_short:BOOL=ON
+    #  -DWRAP_complex_float:BOOL=ON
+    #  -DWRAP_vector_float:BOOL=ON
+    #  -DWRAP_covariant_vector_float:BOOL=ON
+    #  -DWRAP_rgb_signed_short:BOOL=ON
+    #  -DWRAP_rgb_unsigned_char:BOOL=ON
+    #  -DWRAP_rgb_unsigned_short:BOOL=ON
+    #  -DWRAP_ITK_TCL:BOOL=OFF
+    #  -DWRAP_ITK_JAVA:BOOL=OFF
+    #  -DWRAP_ITK_PYTHON:BOOL=ON
+    #  -DPYTHON_EXECUTABLE:PATH=${${CMAKE_PROJECT_NAME}_PYTHON_EXECUTABLE}
+    #  -DPYTHON_INCLUDE_DIR:PATH=${${CMAKE_PROJECT_NAME}_PYTHON_INCLUDE}
+    #  -DPYTHON_LIBRARY:FILEPATH=${${CMAKE_PROJECT_NAME}_PYTHON_LIBRARY}
+    #  )
+  #endif()
+  # HACK This code fixes a loony problem with HDF5 -- it doesn't
+  #      link properly if -fopenmp is used.
   string(REPLACE "-fopenmp" "" ITK_CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
   string(REPLACE "-fopenmp" "" ITK_CMAKE_CXX_FLAGS "${CMAKE_CX_FLAGS}")
 
-  set(ITK_REPOSITORY git://itk.org/ITK.git)
-  set(ITK_DIR ${CMAKE_INSTALL_PREFIX}/lib/cmake/ITK-4.0)
-  set(ITK_TAG_COMMAND GIT_TAG v4.0a08)
-  set(ITK_EXTERNAL_NAME ${proj})
-  set(WrapITK_DIR ${CMAKE_INSTALL_PREFIX}/lib/cmake/ITK-4.0/WrapITK)
-  message(STATUS "ITK_WRAPPING=${ITK_WRAPPING}")
-  ExternalProject_Add(${proj}
-    GIT_REPOSITORY ${ITK_REPOSITORY}
-    ${ITK_TAG_COMMAND}
-    UPDATE_COMMAND ""
-    SOURCE_DIR ${proj}
-    BINARY_DIR ${proj}-build
-    CMAKE_GENERATOR ${gen}
-    CMAKE_ARGS
-      ${ep_common_flags}
-      -DBUILD_TESTING:BOOL=OFF
-      -DBUILD_EXAMPLES:BOOL=OFF
+  set(${proj}_CMAKE_OPTIONS
       -DITK_LEGACY_REMOVE:BOOL=ON
       -DITK_BUILD_ALL_MODULES:BOOL=ON
       -DITK_USE_REVIEW:BOOL=ON
-      -DUSE_WRAP_ITK:BOOL=OFF #${BUILD_SHARED_LIBS} ## HACK:  QUICK CHANGE
-      -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
-      -DINSTALL_WRAP_ITK_COMPATIBILITY:BOOL=OFF
-      -DWRAP_float:BOOL=ON
-      -DWRAP_unsigned_char:BOOL=ON
-      -DWRAP_signed_short:BOOL=ON
-      -DWRAP_unsigned_short:BOOL=ON
-      -DWRAP_complex_float:BOOL=ON
-      -DWRAP_vector_float:BOOL=ON
-      -DWRAP_covariant_vector_float:BOOL=ON
-      -DWRAP_rgb_signed_short:BOOL=ON
-      -DWRAP_rgb_unsigned_char:BOOL=ON
-      -DWRAP_rgb_unsigned_short:BOOL=ON
-      -DWRAP_ITK_TCL:BOOL=OFF
-      -DWRAP_ITK_JAVA:BOOL=OFF
-      -DWRAP_ITK_PYTHON:BOOL=ON
-      ##Slicer Added dependancy needed
-      -DKWSYS_USE_MD5:BOOL=ON
-      ${ITK_PYTHON_ARGS}
-      ${FFTW_FLAGS}
-      #    ${CableSwig_FLAGS}
-    BUILD_COMMAND ${BUILD_COMMAND_STRING}
-    INSTALL_COMMAND ""
-    DEPENDS
-      ${ITKv4_DEPENDENCIES}
+      -DITKV3_COMPATIBILITY:BOOL=ON
+      -DKWSYS_USE_MD5:BOOL=ON # Required by SlicerExecutionModel
+      -DUSE_WRAP_ITK:BOOL=OFF ## HACK:  QUICK CHANGE
     )
-  set(ITK_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
-
-else()
-  # The project is provided using ITK_DIR, nevertheless since other project may depend on ITK,
-  # let's add an 'empty' one
+  ### --- End Project specific additions
+  set(${proj}_REPOSITORY ${git_protocol}://itk.org/ITK.git CACHE STRING "" FORCE)
+  set(${proj}_GIT_TAG deb7d6bebb2dd2edf716961741b492817551058c CACHE STRING "" FORCE)
   ExternalProject_Add(${proj}
+    GIT_REPOSITORY ${${proj}_REPOSITORY}
+    GIT_TAG ${${proj}_GIT_TAG}
     SOURCE_DIR ${proj}
     BINARY_DIR ${proj}-build
-    DOWNLOAD_COMMAND ""
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
+    UPDATE_COMMAND ""
+    CMAKE_GENERATOR ${gen}
+    CMAKE_ARGS
+      ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
+      ${COMMON_EXTERNAL_PROJECT_ARGS}
+      -DBUILD_EXAMPLES:BOOL=OFF
+      -DBUILD_TESTING:BOOL=OFF
+      ${${proj}_CMAKE_OPTIONS}
     INSTALL_COMMAND ""
     DEPENDS
-    ${ITKv4_DEPENDENCIES}
+      ${${proj}_DEPENDENCIES}
     )
+  set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
+else()
+  if(${USE_SYSTEM_${extProjName}})
+    find_package(${extProjName} ${ITK_VERSION_MAJOR} REQUIRED)
+    if(NOT ${extProjName}_DIR)
+      message(FATAL_ERROR "To use the system ${extProjName}, set ${extProjName}_DIR")
+    endif()
+  endif()
+  # The project is provided using ${extProjName}_DIR, nevertheless since other
+  # project may depend on ${extProjName}v4, let's add an 'empty' one
+  SlicerMacroEmptyExternalProject(${proj} "${${proj}_DEPENDENCIES}")
 endif()
+
+list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS ${extProjName}_DIR:PATH)
+

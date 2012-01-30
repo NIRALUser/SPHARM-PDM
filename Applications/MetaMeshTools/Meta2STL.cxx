@@ -57,10 +57,10 @@ int main(int argc, const char * *argv)
   typedef itk::MetaMeshConverter<3, double, MeshTraitsType>           MeshConverterType;
 
   // read the data in meta format
-  MeshConverterType *    itkConverter = new MeshConverterType();
-  itkMeshSOType::Pointer meshSO = itkConverter->ReadMeta(inputFilename.c_str() );
+  MeshConverterType::Pointer itkConverter = MeshConverterType::New();
+  itkMeshSOType::Pointer meshSO =
+    dynamic_cast<itkMeshSOType *>(itkConverter->ReadMeta(inputFilename.c_str() ).GetPointer() );
   itkMeshType::Pointer   mesh = meshSO->GetMesh();
-  delete (itkConverter);
 
   // convert to vtk format
   itkMeshTovtkPolyData * ITKVTKConverter = new itkMeshTovtkPolyData;

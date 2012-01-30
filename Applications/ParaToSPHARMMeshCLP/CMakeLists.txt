@@ -1,6 +1,4 @@
-project(ParaToSPHARMMeshCLP)
-
-cmake_minimum_required(VERSION 2.6)
+#project(ParaToSPHARMMeshCLP)
 
 set(ParaToSPHARMMeshCLP_SOURCE ParaToSPHARMMeshCLP.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx)
 
@@ -10,15 +8,10 @@ add_executable(ParaToSPHARMMeshCLP ${ParaToSPHARMMeshCLP_SOURCE})
 
 target_link_libraries( ParaToSPHARMMeshCLP
        ${ITK_LIBRARIES}
-       vtkIO vtkHybrid vtkCommon vtkFiltering
+       ${VTK_LIBRARIES}
        ShapeIO SpatialObject ShapeAlgorithms SpatialObject
-       lapack blas f2c
+       ${CLAPACK_LIBRARIES}
        )
-
-if(Slicer3_FOUND)
- slicer3_set_plugins_output_path(ParaToSPHARMMeshCLP)
- slicer3_install_plugins(ParaToSPHARMMeshCLP)
-endif(Slicer3_FOUND)
 
 install(TARGETS
   ParaToSPHARMMeshCLP
