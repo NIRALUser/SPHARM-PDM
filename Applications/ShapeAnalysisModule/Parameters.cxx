@@ -4,6 +4,8 @@
 #include <limits>
 #include <sstream>
 #include <string>
+#include <itksys/SystemTools.hxx>
+
 using namespace std;
 
 Parameters::Parameters()
@@ -17,6 +19,13 @@ Parameters::~Parameters()
 // Set the slicer module path
 void Parameters::SetModulePath(char *path)
 {
+   std::string path_program = itksys::SystemTools::GetProgramPath(path);
+   if (path_program=="")
+   {
+     std::string full = itksys::SystemTools::FindProgram(path);
+     strcpy (path,full.c_str());
+   }
+
   strcpy(m_ModulePath, path);
   char* p = strrchr(m_ModulePath, '/');
   p[1] = '\0';
@@ -893,7 +902,7 @@ void Parameters::SetRandomizeInputs(bool random)
   m_RandomizeInputs = random;
 }
 
-bool Parameters::GetRandomizeInputs()
+int Parameters::GetRandomizeInputs()
 {
   return m_RandomizeInputs;
 }
