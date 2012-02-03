@@ -11,11 +11,14 @@ int main(int argc, char * argv [])
   ShapeAnalysisModuleComputation m_computation;
 
   m_computation.SetModulePath(argv[0]);
+
   m_computation.SetChooseInputColumnState(inputColumn);
   if( inputColumn )
     {
     m_computation.SetColumnVolumeFile(columVolumeFile);
     }
+
+
 
   m_computation.SetParameterFile(GroupeProjectInputFile.c_str() );
   m_computation.SetOutputDirectory(GroupeProjectOutputDirectory.c_str() );
@@ -30,6 +33,8 @@ int main(int argc, char * argv [])
   m_computation.SetNumberOfIterations(NumberofIterations);
   m_computation.SetSubdivLevel(SubdivLevelValue);
   m_computation.SetSPHARMDegree(SPHARMDegreeValue);
+  m_computation.SetRandomizeInputs(RandomizeInputs);
+
 
   m_computation.SetGaussianFilteringState(GaussianFiltering);
   if( GaussianFiltering )
