@@ -241,7 +241,7 @@ public:
 
   bool GetOverwriteParaToSPHARMMesh();
 
-  bool GetRandomizeInputs();
+  int GetRandomizeInputs();
 
   bool m_DoParticlesCorrespondence;
   bool m_UseProcalign;
