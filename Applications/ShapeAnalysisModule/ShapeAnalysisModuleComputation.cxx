@@ -27,7 +27,8 @@ void ShapeAnalysisModuleComputation::Computation()
   SetAllFilesName();
   OverWrite();
   WriteBMSShapeAnalysisModuleFile();
-  ExecuteBatchMake(GetBMSShapeAnalysisModuleFile() ); std::cout << GetBMSShapeAnalysisModuleFile() << std::endl;
+  ExecuteBatchMake(GetBMSShapeAnalysisModuleFile() ); 
+  //std::cout << GetBMSShapeAnalysisModuleFile() << std::endl;
 
   if( GetTemplateMState() == true )
     {
@@ -77,7 +78,14 @@ void ShapeAnalysisModuleComputation::Computation()
       {
       SetFilesNameMRML(nummrml);
       }
-    WriteBMSMRMLScene(nummrml);
+
+   //CHECK IF CREATEMRML EXISTS, ONLY IF IT DOES COMPUTE MRML
+   std::string pathString= itksys::SystemTools::FindProgram("CreateMRML");
+    if (pathString=="")
+	std::cout << "CreateMRML is not installed in your system " << nummrml << " will not be created." << std::endl; 
+    else  
+        WriteBMSMRMLScene(nummrml);
+
     nummrml++;
     }
 
@@ -100,7 +108,13 @@ void ShapeAnalysisModuleComputation::Computation()
       ExecuteMeshMath(i, "theta", 1);
       }
     std::cout << "MRML" << std::endl;
-    CreateMrmlParticle();
+
+    //CHECK IF CREATEMRML EXISTS, ONLY IF IT DOES COMPUTE MRML
+    std::string pathString= itksys::SystemTools::FindProgram("CreateMRML");
+    if (pathString=="")
+	std::cout << "CreateMRML is not installed in your system " << nummrml << " will not be created." << std::endl; 
+    else  
+        CreateMrmlParticle();
 
     }
   else
@@ -394,8 +408,6 @@ void ShapeAnalysisModuleComputation::SetBMSShapeAnalysisModuleFile(bool changeDi
     std::cout << GetBMSShapeAnalysisModuleFile() << std::endl;
     }
 
-  std::cout << GetRandomizeInputs() << std::endl;
-
   if( GetRandomizeInputs() )
     {
     int pID = getpid();
@@ -520,8 +532,18 @@ void ShapeAnalysisModuleComputation::ExecuteBatchMake(char *_Input)
       exit(0);
       }
     }
-
-  bool ComputationSuccess = m_Parser.Execute(_Input);
+  
+  bool ComputationSuccess;
+  if ( GetRandomizeInputs() )
+  {
+    std::string batchmake_file;
+    batchmake_file.append(GetOutputDirectory());
+    batchmake_file.append(_Input);
+    ComputationSuccess = m_Parser.Execute(batchmake_file);
+  }
+  else
+    ComputationSuccess = m_Parser.Execute(_Input);
+  
   if( !ComputationSuccess )
     {
     cerr << "\tExecuting BatchMake: Error!" << endl;
@@ -806,6 +828,7 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
         }
 
       std::cout << "mrml " << mrmlfile << std::endl;
+
       args.push_back("CreateMRML");
       args.push_back(mrmlfile.c_str() );
 
