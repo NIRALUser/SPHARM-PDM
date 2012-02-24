@@ -243,6 +243,9 @@ public:
 
   int GetRandomizeInputs();
 
+  void SetDebug(bool);
+  bool GetDebug();
+
   bool m_DoParticlesCorrespondence;
   bool m_UseProcalign;
 
@@ -318,6 +321,7 @@ private:
   char m_ParamFile[512];
   char m_OutputDirectory[512];
   bool m_RandomizeInputs;
+  bool m_debug;
 
   int m_DataNumber;
 

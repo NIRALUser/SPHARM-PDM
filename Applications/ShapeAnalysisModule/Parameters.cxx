@@ -907,6 +907,17 @@ int Parameters::GetRandomizeInputs()
   return m_RandomizeInputs;
 }
 
+
+void Parameters::SetDebug(bool debug_variable)
+{
+  m_debug=debug_variable;
+}
+
+bool Parameters::GetDebug()
+{
+  return m_debug;
+}
+
 void Parameters::SetOverwriteGenParaMesh(bool overwrite)
 {
   m_OverwriteGenParaMesh = overwrite;

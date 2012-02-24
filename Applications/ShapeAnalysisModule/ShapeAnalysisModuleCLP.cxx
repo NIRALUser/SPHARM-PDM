@@ -34,6 +34,7 @@ int main(int argc, char * argv [])
   m_computation.SetSubdivLevel(SubdivLevelValue);
   m_computation.SetSPHARMDegree(SPHARMDegreeValue);
   m_computation.SetRandomizeInputs(RandomizeInputs);
+  m_computation.SetDebug(debug);
 
 
   m_computation.SetGaussianFilteringState(GaussianFiltering);
@@ -96,5 +97,6 @@ int main(int argc, char * argv [])
 
   m_computation.Computation();
 
-  return EXIT_SUCCESS;
+  //return EXIT_SUCCESS;
+  return -1;
 }
