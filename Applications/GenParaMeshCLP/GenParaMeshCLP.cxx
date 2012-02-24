@@ -40,6 +40,8 @@ int main( int argc, const char * * argv )
   //   typedef itk::SpatialObjectWriter<3,float,OutputMeshType::MeshTraits> MeshWriterType;
   typedef itk::ImageFileReader<ImageType> VolumeReaderType;
 
+  MeshSourceType::Pointer meshsrc = MeshSourceType::New();
+
   ImageType::Pointer image;
   bool               initParaFile;
 
@@ -100,7 +102,7 @@ int main( int argc, const char * * argv )
       {
       std::cout << "Creating Para Surface Mesh: " << std::endl;
       }
-    MeshSourceType::Pointer meshsrc = MeshSourceType::New();
+    //MeshSourceType::Pointer meshsrc = MeshSourceType::New();
     meshsrc->SetInput(image);
     meshsrc->SetNumberOfIterations(numIterations);
     meshsrc->SetObjectValue(label);
@@ -109,10 +111,12 @@ int main( int argc, const char * * argv )
       meshsrc->SetInitParametricMesh(parmesh);
       }
     meshsrc->Update();
-
     // Output Mesh
     mesh = meshsrc->GetSurfaceMesh();
     // Create the mesh Spatial Object
+
+   if (meshsrc->GetEulerNum() == 2 )
+   {
 
     vtkPolyDataWriter *writer;
     writer = vtkPolyDataWriter::New();
@@ -158,10 +162,16 @@ int main( int argc, const char * * argv )
         log << "Computed " << infile << std::endl;
         }
       }
+   }
 
     }
   catch( itk::ExceptionObject e )
     {
+    if( EulerFile )
+      {
+      WriteEulerFile(outEulerName, meshsrc->GetEulerNum() );
+      }
+
     e.Print(std::cout);
     if( logFile )
       {
