@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
 	<category>Shape Analysis</category>
-	<title> Shape Analysis Module</title>
+	<title>Shape Analysis Module</title>
 	<description>
 		Shape Analysis Module is a tool which allows the user to compute multiple subjects. It is using the SPHARM-PDM pipeline (SegPostProcess, GenParaMesh and ParaToSPHARMMesh). The input is a csv file containing all the information and one or more volume file. A csv file is a file used for the digital storage of data structured in a table of lists form, where each associated item (member) in a group is in association with others also separated by the commas of its set. The first line needs to contain the name of the different columns. The output is also a csv file and can be use with the shapeAnalysisMANCO tool. </description>
 	<version>
 		1.0</version>
 	<documentation-url>http://www.nitrc.org/projects/spharm-pdm/</documentation-url>
 	<license></license>
-	<contributor>
-		Corentin Hamel, Lucile Bompard, Beatriz Paniagua </contributor>
+	<contributor> Corentin Hamel, Lucile Bompard, Beatriz Paniagua </contributor>
 	<acknowledgements>
 		This work is part of the National Alliance for Medical Image Computing (NAMIC), funded by the National Institutes of Health through the NIH Roadmap for Medical Research, Grant U54 EB005149. </acknowledgements>
+	
 	<parameters>
 		<label>Group Project IO</label>
 		<description>Input File and Output File</description>	
@@ -40,6 +40,14 @@
 			<default>None</default>
 			<description>Output Directory</description>
 		</directory>
+		
+		<boolean>
+			<name>debug</name>
+			<default>false</default>
+			<label>Verbose mode</label>
+			<longflag>verb</longflag>
+			<description>Verbose mode</description>
+    		</boolean>
 		
 	</parameters>
 	<parameters>
