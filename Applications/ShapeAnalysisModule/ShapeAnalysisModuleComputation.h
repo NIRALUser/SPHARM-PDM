@@ -70,6 +70,8 @@ public:
 
   void CreateMrmlParticle();
 
+  void WriteComputationLog();
+
   vector<double> transformStorage;
   int            countline;
   int            countcol;
