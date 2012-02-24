@@ -122,6 +122,8 @@ void ShapeAnalysisModuleComputation::Computation()
     ModifyCSV(0);
     }
 
+  WriteComputationLog();
+
   return;
 }
 
@@ -3126,4 +3128,326 @@ void ShapeAnalysisModuleComputation::CreateMrmlParticle()
       itksysProcess_Delete(gp);
       }
     }
+}
+
+void ShapeAnalysisModuleComputation::WriteComputationLog()
+{
+  std::cout << "------------------------------------------" << std::endl;
+  std::cout << "NUMBER OF DATA PROCESSED " << GetDataNumber() << std::endl;
+  std::cout << "------------------------------------------" << std::endl;
+
+  std::cout << std::endl; 
+  std::cout << ">>>>>>>>>>>>>>>>  " << "SEGPOSTPROCESS SUMMARY RESULTS" << std::endl;
+  std::cout << std::endl;
+
+  std::vector<int> data_flags(GetDataNumber(),0);
+  for( int DataNumber = 2; DataNumber <= GetDataNumber(); DataNumber++ )
+    {
+    	//FOR ALL FILES IN THE INPUT FILE, DO THE PERTINENT CHECKINGS 
+    	//std::cout << DataNumber << " - " << GetNthDataListValue(DataNumber,GetColumnVolumeFile() ) << std::endl;
+    	
+	char *aux2, *aux;
+	string input_file = GetNthDataListValue(DataNumber,GetColumnVolumeFile());
+        aux = new char [input_file.size()+1];
+	strcpy (aux, input_file.c_str());
+
+	aux2 = strtok(aux,".");
+        string PreProcess_file = aux2;
+    	PreProcess_file.append("_pp.gipl.gz");
+	
+	string PostProcess_path = GetOutputDirectory();
+	PostProcess_path.append("Mesh/PostProcess/");
+	string filename_found;
+
+        if ( itksys::SystemTools::LocateFileInDir(PreProcess_file.c_str(),PostProcess_path.c_str(),filename_found,0) )
+	{
+		if (GetDebug())
+			std::cout << "SegPostProcess file computed correctly : " << filename_found << std::endl;
+	}
+	else
+	{
+		std::cout << "SegPostProcess file missing : " << PreProcess_file << " CHECK INPUT DATA" << std::endl;
+		data_flags[DataNumber-1] = 1;
+	}
+    }
+
+  std::cout << std::endl; 
+  std::cout << ">>>>>>>>>>>>>>>>  " << "GENPARAMESH SUMMARY RESULTS" << std::endl;
+  std::cout << std::endl;
+
+  for( int DataNumber = 2; DataNumber <= GetDataNumber(); DataNumber++ )
+    {
+    	//FOR ALL FILES IN THE INPUT FILE, DO THE PERTINENT CHECKINGS 
+    	//std::cout << DataNumber << " - " << GetNthDataListValue(DataNumber,GetColumnVolumeFile() ) << std::endl;
+    	if ( data_flags[DataNumber-1]==0 )
+	{
+		char *aux2, *aux;
+		string input_file = GetNthDataListValue(DataNumber,GetColumnVolumeFile());
+		aux = new char [input_file.size()+1];
+		strcpy (aux, input_file.c_str());
+	
+		aux2 = strtok(aux,".");
+		string GenParaMesh_path = GetOutputDirectory();
+		GenParaMesh_path.append("Mesh/SPHARM/");
+		
+		// Find surf.vtk files
+		string Surf_file = aux2;
+		Surf_file.append("_pp_surf.vtk");
+		string aux3 = GenParaMesh_path;
+		aux3.append(itksys::SystemTools::GetFilenameName(Surf_file));
+		Surf_file = aux3;
+		string filename_found;
+	
+		if ( itksys::SystemTools::LocateFileInDir(Surf_file.c_str(),GenParaMesh_path.c_str(),filename_found,0) )
+		{
+			if (GetDebug())
+				std::cout << "GenParaMesh surface file computed correctly : " << filename_found << std::endl;
+		}
+		else
+		{
+			std::cout << "GenParaMesh surface file is missing : " << Surf_file << std::endl;
+			data_flags[DataNumber-1]=1;
+		}
+	
+		// Find para.vtk files
+		string Para_file = aux2;
+		Para_file.append("_pp_para.vtk");
+		aux3 = GenParaMesh_path;
+		aux3.append(itksys::SystemTools::GetFilenameName(Para_file));
+		Surf_file = aux3;
+	
+		if ( itksys::SystemTools::LocateFileInDir(Para_file.c_str(),GenParaMesh_path.c_str(),filename_found,0) )
+		{
+			if (GetDebug())
+				std::cout << "GenParaMesh parameterization file computed correctly : " << filename_found << std::endl;
+		}
+		else
+		{
+			std::cout << "GenParaMesh parameterization file is missing : " << Para_file << std::endl;
+			string Euler_path = GetOutputDirectory();
+			Euler_path.append("EulerFiles/");
+			data_flags[DataNumber-1]=1;
+		}
+	}
+    }
+
+    std::cout << std::endl; 
+    std::cout << ">>>>>>>>>>>>>>>>  " << "PARATOSPHARMMESH SUMMARY RESULTS" << std::endl;
+    std::cout << std::endl;
+
+    for( int DataNumber = 2; DataNumber <= GetDataNumber(); DataNumber++ )
+    {
+    	//FOR ALL FILES IN THE INPUT FILE, DO THE PERTINENT CHECKINGS 
+	char *aux2, *aux;
+	string input_file = GetNthDataListValue(DataNumber,GetColumnVolumeFile());
+	aux = new char [input_file.size()+1];
+	strcpy (aux, input_file.c_str());
+
+	aux2 = strtok(aux,".");
+	string GenParaMesh_path = GetOutputDirectory();
+	GenParaMesh_path.append("Mesh/SPHARM/");
+
+	// Find surfSPHARM files
+	string surfSPHARM_file = aux2;
+	surfSPHARM_file.append("_pp_surfSPHARM.vtk");
+	string aux3 = GenParaMesh_path;
+	aux3.append(itksys::SystemTools::GetFilenameName(surfSPHARM_file));
+	surfSPHARM_file = aux3;
+	string filename_found;
+
+	if ( itksys::SystemTools::LocateFileInDir(surfSPHARM_file.c_str(),GenParaMesh_path.c_str(),filename_found,0) )
+	{
+		if (GetDebug())
+		{
+			std::cout << "ParaToSPHARMMesh surfSPHARM file computed correctly : " << filename_found << std::endl;
+		}
+
+		vtkPolyDataReader *VTKreader = vtkPolyDataReader::New();
+		vtkPolyData *surfaceMesh = vtkPolyData::New();
+		VTKreader->SetFileName(filename_found.c_str() );
+		VTKreader->Update();
+		surfaceMesh = VTKreader->GetOutput();
+
+		if (surfaceMesh->GetNumberOfPoints() == 0 )
+		{
+			std::cout << filename_found << " has been computed, but has no points... deleting!" << std::endl;
+			std::vector<const char *> args;
+			args.push_back("rm");
+			args.push_back(filename_found.c_str());
+			args.push_back(0);
+
+			// Run the application
+			itksysProcess* gp = itksysProcess_New();
+			itksysProcess_SetCommand(gp, &*args.begin() );
+			itksysProcess_SetOption(gp, itksysProcess_Option_HideWindow, 1);
+			itksysProcess_Execute(gp);
+			data_flags[DataNumber-1]=1;
+		} 
+	}
+	else
+	{
+		std::cout << "One or more surfSPHARM file(s) missing : " << surfSPHARM_file << std::endl;
+		data_flags[DataNumber-1]=1;
+	}
+    }
+
+    for( int DataNumber = 2; DataNumber <= GetDataNumber(); DataNumber++ )
+    {
+    	//FOR ALL FILES IN THE INPUT FILE, DO THE PERTINENT CHECKINGS 
+	char *aux2, *aux;
+	string input_file = GetNthDataListValue(DataNumber,GetColumnVolumeFile());
+	aux = new char [input_file.size()+1];
+	strcpy (aux, input_file.c_str());
+
+	aux2 = strtok(aux,".");
+	string GenParaMesh_path = GetOutputDirectory();
+	GenParaMesh_path.append("Mesh/SPHARM/");
+
+	// Find surfSPHARM files
+	string surfSPHARM_file = aux2;
+	surfSPHARM_file.append("_pp_surfSPHARM_procalign.vtk");
+	string aux3 = GenParaMesh_path;
+	aux3.append(itksys::SystemTools::GetFilenameName(surfSPHARM_file));
+	surfSPHARM_file = aux3;
+	string filename_found;
+
+	if ( itksys::SystemTools::LocateFileInDir(surfSPHARM_file.c_str(),GenParaMesh_path.c_str(),filename_found,0) )
+	{
+		if (GetDebug())
+		{
+			std::cout << "ParaToSPHARMMesh surfSPHARM file computed correctly : " << filename_found << std::endl;
+		}
+
+		vtkPolyDataReader *VTKreader = vtkPolyDataReader::New();
+		vtkPolyData *surfaceMesh = vtkPolyData::New();
+		VTKreader->SetFileName(filename_found.c_str() );
+		VTKreader->Update();
+		surfaceMesh = VTKreader->GetOutput();
+
+		if (surfaceMesh->GetNumberOfPoints() == 0 )
+		{
+			std::cout << filename_found << " has been computed, but has no points... deleting!" << std::endl;
+			std::vector<const char *> args;
+			args.push_back("rm");
+			args.push_back(filename_found.c_str());
+			args.push_back(0);
+
+			// Run the application
+			itksysProcess* gp = itksysProcess_New();
+			itksysProcess_SetCommand(gp, &*args.begin() );
+			itksysProcess_SetOption(gp, itksysProcess_Option_HideWindow, 1);
+			itksysProcess_Execute(gp);
+			data_flags[DataNumber-1]=1;
+		} 
+	}
+	else
+	{
+		std::cout << "One or more surfSPHARM file(s) missing : " << surfSPHARM_file << std::endl;
+		data_flags[DataNumber-1]=1;
+	}
+    }
+
+    for( int DataNumber = 2; DataNumber <= GetDataNumber(); DataNumber++ )
+    {
+    	//FOR ALL FILES IN THE INPUT FILE, DO THE PERTINENT CHECKINGS 
+	char *aux2, *aux;
+	string input_file = GetNthDataListValue(DataNumber,GetColumnVolumeFile());
+	aux = new char [input_file.size()+1];
+	strcpy (aux, input_file.c_str());
+
+	aux2 = strtok(aux,".");
+	string GenParaMesh_path = GetOutputDirectory();
+	GenParaMesh_path.append("Mesh/SPHARM/");
+
+	// Find surfSPHARM files
+	string surfSPHARM_file = aux2;
+	surfSPHARM_file.append("_pp_surfSPHARM_ellalign.vtk");
+	string aux3 = GenParaMesh_path;
+	aux3.append(itksys::SystemTools::GetFilenameName(surfSPHARM_file));
+	surfSPHARM_file = aux3;
+	string filename_found;
+
+	if ( itksys::SystemTools::LocateFileInDir(surfSPHARM_file.c_str(),GenParaMesh_path.c_str(),filename_found,0) )
+	{
+		if (GetDebug())
+		{
+			std::cout << "ParaToSPHARMMesh surfSPHARM file computed correctly : " << filename_found << std::endl;
+		}
+
+		vtkPolyDataReader *VTKreader = vtkPolyDataReader::New();
+		vtkPolyData *surfaceMesh = vtkPolyData::New();
+		VTKreader->SetFileName(filename_found.c_str() );
+		VTKreader->Update();
+		surfaceMesh = VTKreader->GetOutput();
+
+		if (surfaceMesh->GetNumberOfPoints() == 0 )
+		{
+			std::cout << filename_found << " has been computed, but has no points... deleting!" << std::endl;
+			std::vector<const char *> args;
+			args.push_back("rm");
+			args.push_back(filename_found.c_str());
+			args.push_back(0);
+
+			// Run the application
+			itksysProcess* gp = itksysProcess_New();
+			itksysProcess_SetCommand(gp, &*args.begin() );
+			itksysProcess_SetOption(gp, itksysProcess_Option_HideWindow, 1);
+			itksysProcess_Execute(gp);
+			data_flags[DataNumber-1]=1;
+		} 
+	}
+	else
+	{
+		std::cout << "One or more surfSPHARM file(s) missing : " << surfSPHARM_file << std::endl;
+		data_flags[DataNumber-1]=1;
+	}
+    }
+
+    std::cout << std::endl; 
+    std::cout << "------------------------------------------" << std::endl;
+    std::cout << "CHECK INPUT DATA" << std::endl;
+    std::cout << "------------------------------------------" << std::endl;
+    std::cout << std::endl;
+
+
+    for ( int i = 0 ; i < data_flags.size() ; i ++ )
+    {
+	string input_file = GetNthDataListValue(i+1,GetColumnVolumeFile());
+	if ( data_flags[i]==1 )
+	{
+		char *aux2, *aux;
+		aux = new char [input_file.size()+1];
+		strcpy (aux, input_file.c_str());
+	
+		aux2 = strtok(aux,".");
+		string Euler_path = GetOutputDirectory();
+		Euler_path.append("EulerFiles/");
+	
+		// Find Euler files
+		string Euler_file = aux2;
+		Euler_file.append("_euler.txt");
+		string aux3 = Euler_path;
+		aux3.append(itksys::SystemTools::GetFilenameName(Euler_file));
+		Euler_file = aux3;
+
+		std::ifstream input;
+		char line[100];
+    		//open input
+		input.open ( Euler_file.c_str() ); 
+		input.seekg(0,std::ios::beg);
+		input.getline(line, 1000);
+		float EulerValue;
+		sscanf(line, "%f", &EulerValue);
+		//close input	
+		input.close () ;
+	
+		if (EulerValue == 0)
+			std::cout << input_file  << " does not have spherical parameterization" << std::endl;
+		else
+			std::cout << input_file  << std::endl;
+		
+	}
+    }
+
+    std::cout << std::endl;
 }
