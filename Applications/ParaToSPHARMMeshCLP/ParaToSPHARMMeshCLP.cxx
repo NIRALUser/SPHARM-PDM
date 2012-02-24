@@ -40,6 +40,7 @@
 #include "vtkPointLocator.h"
 #include <itkAffineTransform.h>
 #include <itkTransformFileWriter.h>
+#include <itksys/SystemTools.hxx>
 
 #include "argio.h"
 
@@ -93,6 +94,12 @@ int main( int argc, const char * * argv )
 //   ReaderType::Pointer readerSH = ReaderType::New();
   neurolib::SphericalHarmonicSpatialObject::Pointer flipTemplateSO = neurolib::SphericalHarmonicSpatialObject::New();
 
+  string filename_found="";
+  itksys::SystemTools::LocateFileInDir(inSurfFile.c_str(),itksys::SystemTools::GetFilenamePath(inSurfFile.c_str()).c_str(),filename_found,0);
+
+if (filename_found != "")
+{
+
   try
     {
     VTKreader->SetFileName(inSurfFile.c_str() );
@@ -102,14 +109,11 @@ int main( int argc, const char * * argv )
     vtkPolyDataToitkMesh* VTKITKConverter = new vtkPolyDataToitkMesh;
     VTKITKConverter->SetInput(VTKreader->GetOutput() );
     surfaceMesh = VTKITKConverter->GetOutput();
-//     cout<<"test3"<<endl;
-// delete (VTKITKConverter);
-//     cout<<"test9"<<endl;
     }
   catch( itk::ExceptionObject ex )
     {
     std::cout << ex.GetDescription() << std::endl;
-    return 1;
+    return -1;
     }
 
   try
@@ -125,7 +129,7 @@ int main( int argc, const char * * argv )
   catch( itk::ExceptionObject ex )
     {
     std::cout << ex.GetDescription() << std::endl;
-    return 1;
+    return -1;
     }
 
   if( flipTemplateFileOn )
@@ -153,10 +157,12 @@ int main( int argc, const char * * argv )
       return 1;
       }
     }
+
   if( debug )
     {
     std::cout << "Preprocessing done" << std::endl;
     }
+
   try
     {
     if( regParaTemplateFileOn )
@@ -507,13 +513,17 @@ int main( int argc, const char * * argv )
 
     vtkPolyDataWriter *vtkwriter;
     vtkwriter = vtkPolyDataWriter::New();
+
+if((filename_found != ""))
+{
     vtkwriter->SetInput(ITKVTKConverter->GetOutput() );
     outFileName.erase();
     outFileName.append(base_string);
     outFileName.append("SPHARM.vtk");
 
-    vtkwriter->SetFileName(outFileName.c_str() );
+    vtkwriter->SetFileName(outFileName.c_str());
     vtkwriter->Write();
+}
 
     if( debug )
       {
@@ -793,7 +803,12 @@ int main( int argc, const char * * argv )
     e.Print(std::cout);
     return EXIT_FAILURE;
     }
-
+}
+else
+{
+   std::cout << "Missing input files, NO OPERATION DONE...." << std::endl;
+   return EXIT_FAILURE;
+}
   return EXIT_SUCCESS;
 
 }
