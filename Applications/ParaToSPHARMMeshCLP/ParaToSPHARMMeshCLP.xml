@@ -49,6 +49,20 @@ Compute SPHARM coefs and associated Mesh : The output is a series of SPHARM coef
       <longflag>spharmDegree</longflag>
       <description>In our experience, the SPHARM maximal degree is should be chosen between 12 (hippocampus) to 15 (lateral ventricle, caudate) for brain structures. If the degree is chosen too high the reconstructed SPHARM surface will often show signs of voxelization.</description>
     </integer>
+	 <integer>
+		 <name>thetaIteration</name>
+		 <default>100</default>
+		 <label>Number of theta iterations</label>
+		 <longflag>thetaIteration</longflag>
+		 <description>Number of theta iterations that will be used to calculate the medial axis</description>
+	 </integer>
+	 <integer>
+		 <name>phiIteration</name>
+		 <default>100</default>
+		 <label>Number of phi iterations</label>
+		 <longflag>phiIteration</longflag>
+		 <description>Number of phi iterations that will be used to calculate the medial axis</description>
+	 </integer>
   </parameters>
 
   <parameters advanced="true">
@@ -101,6 +115,13 @@ Compute SPHARM coefs and associated Mesh : The output is a series of SPHARM coef
       <label>Do not do any aligment/correspondence</label>
       <longflag>NoParaAlign</longflag>
       <description>Do not do any aligment/correspondence of the parametrization using the first order ellipsoid</description>
+    </boolean>
+	 <boolean>
+		 <name>medialMesh</name>
+		 <default>false</default>
+		 <label>Build the medial mesh</label>
+		 <longflag>medialMesh</longflag>
+		 <description>Build the mesh that will be used to calculate the medial axis</description>
     </boolean>
     <boolean>
       <name>debug</name>

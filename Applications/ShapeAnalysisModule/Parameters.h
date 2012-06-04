@@ -66,6 +66,12 @@ public:
   void SetSubdivLevel(int _SubdivLevel);
 
   void SetSPHARMDegree(int _SPHARMDegree);
+  
+  void SetThetaIteration(int _ThetaIteration);
+  
+  void SetPhiIteration(int _PhiIteration);
+  
+  void SetMedialMesh(bool _MedialMesh);
 
   void SetGaussianFilteringState(bool _GaussianFilteringState);
 
@@ -133,6 +139,12 @@ public:
   double GetSubdivLevel();
 
   int GetSPHARMDegree();
+  
+  int GetThetaIteration();
+  
+  int GetPhiIteration();
+  
+  bool GetMedialMesh();
 
   bool GetGaussianFilteringState();
 
@@ -334,6 +346,9 @@ private:
   int    m_NumIter;
   int    m_SubdivLevel;
   int    m_SPHARMDegree;
+  int 	m_ThetaIteration;
+  int		m_PhiIteration;
+  bool 	m_MedialMesh;
 
   bool m_GaussianFilteringState;
 

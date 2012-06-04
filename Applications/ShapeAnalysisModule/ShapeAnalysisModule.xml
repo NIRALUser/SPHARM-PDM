@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.2" encoding="utf-8"?>
 <executable>
 	<category>Shape Analysis</category>
 	<title>Shape Analysis Module</title>
@@ -125,7 +125,6 @@
 	
 	
 	<parameters>
-			
 		<label>Generate Mesh Parameters</label>
 		<description>GenParaMesh Main Parameters</description>
 		<boolean>
@@ -149,7 +148,6 @@
 	</parameters>
 		
 	<parameters>
-		
 		<label>Parameters To SPHARM Mesh</label>
 		<description>ParaToSPHARMMesh Main Parameters</description>
 		<boolean>
@@ -185,8 +183,31 @@
 			<description>set the maximal degree for the SPHARM computation</description>
 		</integer>
 		
+		<integer>
+			<name>thetaIterationValue</name>
+			<label>Number of theta iterations</label>
+			<longflag>thetaIterationValue</longflag>
+			<default>100</default>
+			<description>Number of theta iterations that will be used to calculate the medial axis</description>
+		</integer>
 		
-	</parameters>	
+		<integer>
+			<name>phiIterationValue</name>
+			<label>Number of phi iterations</label>
+			<longflag>phiIterationValue</longflag>
+			<default>100</default>
+			<description>Number of phi iterations that will be used to calculate the medial axis</description>
+	 	</integer>
+		
+		<boolean>
+			<name>medialMesh</name>
+			<default>false</default>
+			<label>Build the medial mesh</label>
+			<longflag>medialMesh</longflag>
+			<description>Build the mesh that will be used to calculate the medial axis</description>
+    </boolean>
+	</parameters>
+	
 	<parameters advanced="true">
 		<label>Avanced Input File</label>
 		<description>Choose the colum of the volume file</description>
@@ -258,8 +279,6 @@
 			</constraints>
 			<description>description>Variance of Gauss filter (z)</description>
 		</float>
-					
-		
 	</parameters>	
 	
 	<parameters advanced="true">
@@ -289,8 +308,6 @@
 			<default>false</default>
 		</boolean>
 		
-		
-		
 		<file>
 			<name>flipTemplate</name>
 			<label>Flip Template (coef file)</label>
@@ -300,8 +317,6 @@
 			<default>None</default>
 		</file>
 			
-		
-		
 		<boolean>SetParameterFile
 			<name>MTemplate</name>
 			<label>Use Mean as the Template</label>
@@ -370,87 +385,81 @@
 			<label>Flip Along Axis of x and y and z</label>
 			<longflag>FlipALongAxisXandYandZ</longflag>
 			<default>false</default>
-		</boolean>-->
+		</boolean>
 		
 	</parameters>
 	
-
-
-<parameters >
-	<label>Parameters to customize the grid parameters (MRML Scene)</label>
-	<description>grid parameters (MRML Scene)</description>
-	
-	<integer>
-		<name>HorizontalGridPara</name>
-		<label>number of vtk on each line of the mrml</label>
-		<longflag>--HorizontalGridPara</longflag>
-		<default>5</default>
-		<constraints>
-			<minimum>1</minimum>
-			<step>1</step>
-		</constraints>
-	</integer>	
-	<integer>
-		<name>VerticalGridPara</name>
-		<label>number of vtk on each column of the mrml</label>
-		<longflag>--VerticalGridPara</longflag>
-		<default>5</default>
-		<constraints>
-			<minimum>1</minimum>
-			<step>1</step>
-		</constraints>
-	</integer>
-	
-</parameters>	
-
-
-
-<parameters >
-	<label>Parameters to run the Particles Correspondence</label>
-	<description>Particles Correspondence Parameters</description>
-	
-		<boolean>
-			<name>DoParticlesCorrespondence</name>
-			<label>DoParticlesCorrespondence</label>
-			<longflag>DoParticlesCorrespondence</longflag>
-			<default>false</default>
-		</boolean>
+	<parameters>
+		<label>Parameters to customize the grid parameters (MRML Scene)</label>
+		<description>grid parameters (MRML Scene)</description>
 		
-		<boolean>
-			<name>UseProcalign</name>
-			<label>UseProcalign</label>
-			<longflag>UseProcalign</longflag>
-			<default>true</default>
-		</boolean>
-		
-		<double>
-			<name>StartingRegularization</name>
-			<label>startRegularization</label>
-			<longflag>--startRegularization</longflag>
-			<default>10.0</default>
-		</double>	
-		<double>
-			<name>EndingRegularization</name>
-			<label>endRegularization</label>
-			<longflag>--endRegularization</longflag>
-			<default>0.01</default>
-		</double>
 		<integer>
-			<name>OptimizationIterations</name>
-			<label>optimizationIteration</label>
-			<longflag>--optimizationIt</longflag>
-			<default>200</default>
+			<name>HorizontalGridPara</name>
+			<label>number of vtk on each line of the mrml</label>
+			<longflag>--HorizontalGridPara</longflag>
+			<default>5</default>
+			<constraints>
+				<minimum>1</minimum>
+				<step>1</step>
+			</constraints>
+		</integer>	
+		<integer>
+			<name>VerticalGridPara</name>
+			<label>number of vtk on each column of the mrml</label>
+			<longflag>--VerticalGridPara</longflag>
+			<default>5</default>
+			<constraints>
+				<minimum>1</minimum>
+				<step>1</step>
+			</constraints>
 		</integer>
 		
-		<float>
-			<name>RelativeWeighting</name>
-			<label>RelativeWeighting</label>
-			<longflag>--RelativeWeight</longflag>
-			<default>1.0</default>
-			<description>value alpha</description>
-		</float>
-	
-</parameters>	
+	</parameters>
 
-
+	<parameters>
+		<label>Parameters to run the Particles Correspondence</label>
+		<description>Particles Correspondence Parameters</description>
+		
+			<boolean>
+				<name>DoParticlesCorrespondence</name>
+				<label>DoParticlesCorrespondence</label>
+				<longflag>DoParticlesCorrespondence</longflag>
+				<default>false</default>
+			</boolean>
+			
+			<boolean>
+				<name>UseProcalign</name>
+				<label>UseProcalign</label>
+				<longflag>UseProcalign</longflag>
+				<default>true</default>
+			</boolean>
+			
+			<double>
+				<name>StartingRegularization</name>
+				<label>startRegularization</label>
+				<longflag>--startRegularization</longflag>
+				<default>10.0</default>
+			</double>	
+			<double>
+				<name>EndingRegularization</name>
+				<label>endRegularization</label>
+				<longflag>--endRegularization</longflag>
+				<default>0.01</default>
+			</double>
+			<integer>
+				<name>OptimizationIterations</name>
+				<label>optimizationIteration</label>
+				<longflag>--optimizationIt</longflag>
+				<default>200</default>
+			</integer>
+			
+			<float>
+				<name>RelativeWeighting</name>
+				<label>RelativeWeighting</label>
+				<longflag>--RelativeWeight</longflag>
+				<default>1.0</default>
+				<description>value alpha</description>
+			</float>
+		
+	</parameters>
 </executable>

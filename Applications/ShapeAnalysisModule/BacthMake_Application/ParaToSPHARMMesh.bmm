@@ -90,6 +90,41 @@
 			</Parameter>
 			<Parameter>
 				<Type>1</Type>
+				<Name>thetaIteration</Name>
+				<Value>-thetaIteration</Value>
+				<External>0</External>
+				<Optional>1</Optional>
+				<SubParameter>
+					<Type>2</Type>
+					<Name>thetaIterationValue</Name>
+					<Value></Value>
+					<External>0</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
+				<Type>1</Type>
+				<Name>phiIteration</Name>
+				<Value>-phiIteration</Value>
+				<External>0</External>
+				<Optional>1</Optional>
+				<SubParameter>
+					<Type>2</Type>
+					<Name>phiIterationValue</Name>
+					<Value></Value>
+					<External>0</External>
+					<Optional>0</Optional>
+				</SubParameter>
+			</Parameter>
+			<Parameter>
+				<Type>1</Type>
+				<Name>medialMesh</Name>
+				<Value>--medialMesh</Value>
+				<External>1</External>
+				<Optional>1</Optional>
+			</Parameter>
+			<Parameter>
+				<Type>1</Type>
 				<Name>paraOut</Name>
 				<Value>-paraOut</Value>
 				<External>1</External>

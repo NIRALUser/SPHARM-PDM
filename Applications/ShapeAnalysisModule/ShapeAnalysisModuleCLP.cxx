@@ -33,6 +33,9 @@ int main(int argc, char * argv [])
   m_computation.SetNumberOfIterations(NumberofIterations);
   m_computation.SetSubdivLevel(SubdivLevelValue);
   m_computation.SetSPHARMDegree(SPHARMDegreeValue);
+  m_computation.SetPhiIteration(phiIterationValue);
+  m_computation.SetThetaIteration(thetaIterationValue);
+  m_computation.SetMedialMesh(medialMesh);
   m_computation.SetRandomizeInputs(RandomizeInputs);
   m_computation.SetDebug(debug);
 

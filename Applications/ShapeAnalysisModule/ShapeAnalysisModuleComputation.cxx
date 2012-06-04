@@ -1545,6 +1545,15 @@ BMSShapeAnalysisModuleFile<<"EndIf(${fileCreated})"<<std::endl;*/
   BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.spharmDegree 1)" << std::endl;
   BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.spharmDegree.spharmDegree " << GetSPHARMDegree() << ")"
                              << std::endl;
+  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.thetaIteration 1)" << std::endl;
+  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.thetaIteration.thetaIteration " << GetThetaIteration() << ")"
+		  << std::endl;
+  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.phiIteration 1)" << std::endl;
+  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.phiIteration.phiIteration " << GetPhiIteration() << ")"
+		  << std::endl;
+  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh 1)" << std::endl;
+  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh.medialMesh " << GetPhiIteration() << ")"
+		  << std::endl;
   BMSShapeAnalysisModuleFile << "      SetAppOption(ParaT.finalFlipIndex 1)" << std::endl;
   if( GetFinalFlipN() == 1 )
     {
@@ -1648,6 +1657,15 @@ BMSShapeAnalysisModuleFile<<"EndIf(${fileCreated})"<<std::endl;*/
         BMSShapeAnalysisModuleFile << "        SetAppOption(Para.spharmDegree 1)" << std::endl;
         BMSShapeAnalysisModuleFile << "        SetAppOption(Para.spharmDegree.spharmDegree "
                                    << /*m_Parameters.*/ GetSPHARMDegree() << ")" << std::endl;
+		  BMSShapeAnalysisModuleFile << "    	  SetAppOption(Para.thetaIteration 1)" << std::endl;
+		  BMSShapeAnalysisModuleFile << "    	  SetAppOption(Para.thetaIteration.thetaIteration " << GetThetaIteration() << ")"
+				  << std::endl;
+		  BMSShapeAnalysisModuleFile << "    	  SetAppOption(Para.phiIteration 1)" << std::endl;
+		  BMSShapeAnalysisModuleFile << "    	  SetAppOption(Para.phiIteration.phiIteration " << GetPhiIteration() << ")"
+				  << std::endl;
+		  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh 1)" << std::endl;
+		  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh.medialMesh " << GetPhiIteration() << ")"
+				  << std::endl;
         BMSShapeAnalysisModuleFile << "        SetAppOption(Para.regTemplateFileOn 1)" << std::endl;
         BMSShapeAnalysisModuleFile
         << "        SetAppOption(Para.regTemplateFile.regTemplateFile ${tdir}${regTemplate})" << std::endl;
@@ -1742,6 +1760,15 @@ BMSShapeAnalysisModuleFile<<"EndIf(${fileCreated})"<<std::endl;*/
         BMSShapeAnalysisModuleFile << "      SetAppOption(Para.spharmDegree 1)" << std::endl;
         BMSShapeAnalysisModuleFile << "      SetAppOption(Para.spharmDegree.spharmDegree "
                                    << /*m_Parameters.*/ GetSPHARMDegree() << ")" << std::endl;
+		  BMSShapeAnalysisModuleFile << "      SetAppOption(Para.thetaIteration 1)" << std::endl;
+		  BMSShapeAnalysisModuleFile << "      SetAppOption(Para.thetaIteration.thetaIteration " << GetThetaIteration() << ")"
+				  << std::endl;
+		  BMSShapeAnalysisModuleFile << "      SetAppOption(Para.phiIteration 1)" << std::endl;
+		  BMSShapeAnalysisModuleFile << "      SetAppOption(Para.phiIteration.phiIteration " << GetPhiIteration() << ")"
+				  << std::endl;
+		  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh 1)" << std::endl;
+		  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh.medialMesh " << GetPhiIteration() << ")"
+				  << std::endl;
         BMSShapeAnalysisModuleFile << "      SetAppOption(Para.regTemplateFileOn 1)" << std::endl;
         BMSShapeAnalysisModuleFile
         << "      SetAppOption(Para.regTemplateFile.regTemplateFile ${tdir}${regTemplate})" << std::endl;
@@ -1837,6 +1864,15 @@ BMSShapeAnalysisModuleFile<<"EndIf(${fileCreated})"<<std::endl;*/
       BMSShapeAnalysisModuleFile << "        SetAppOption(Para.spharmDegree 1)" << std::endl;
       BMSShapeAnalysisModuleFile << "        SetAppOption(Para.spharmDegree.spharmDegree " << GetSPHARMDegree()
                                  << ")" << std::endl;
+		BMSShapeAnalysisModuleFile << "        SetAppOption(Para.thetaIteration 1)" << std::endl;
+		BMSShapeAnalysisModuleFile << "        SetAppOption(Para.thetaIteration.thetaIteration " << GetThetaIteration() << ")"
+				<< std::endl;
+		BMSShapeAnalysisModuleFile << "        SetAppOption(Para.phiIteration 1)" << std::endl;
+		BMSShapeAnalysisModuleFile << "        SetAppOption(Para.phiIteration.phiIteration " << GetPhiIteration() << ")"
+				<< std::endl;
+		BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh 1)" << std::endl;
+		BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh.medialMesh " << GetPhiIteration() << ")"
+				<< std::endl;
       BMSShapeAnalysisModuleFile << "        SetAppOption(Para.regTemplateFileOn 1)" << std::endl;
       BMSShapeAnalysisModuleFile
       << "        SetAppOption(Para.regTemplateFile.regTemplateFile ${tdir}${regTemplate})" << std::endl;
@@ -1967,6 +2003,15 @@ BMSShapeAnalysisModuleFile<<"EndIf(${fileCreated})"<<std::endl;*/
     BMSShapeAnalysisModuleFile << "SetAppOption(Para.spharmDegree 1)" << std::endl;
     BMSShapeAnalysisModuleFile << "SetAppOption(Para.spharmDegree.spharmDegree " << GetSPHARMDegree() << ")"
                                << std::endl;
+	 BMSShapeAnalysisModuleFile << "SetAppOption(Para.thetaIteration 1)" << std::endl;
+	 BMSShapeAnalysisModuleFile << "SetAppOption(Para.thetaIteration.thetaIteration " << GetThetaIteration() << ")"
+			 << std::endl;
+	 BMSShapeAnalysisModuleFile << "SetAppOption(Para.phiIteration 1)" << std::endl;
+	 BMSShapeAnalysisModuleFile << "SetAppOption(Para.phiIteration.phiIteration " << GetPhiIteration() << ")"
+			 << std::endl;
+	 BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh 1)" << std::endl;
+	 BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh.medialMesh " << GetPhiIteration() << ")"
+			 << std::endl;
     if( GetFlipTemplateState() == true )
       {
       BMSShapeAnalysisModuleFile << "SetAppOption(Para.flipTemplateFileOn 1)" << std::endl;
@@ -2184,6 +2229,15 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile2()
   BMSShapeAnalysisModuleFile << "        SetAppOption(Para.spharmDegree 1)" << std::endl;
   BMSShapeAnalysisModuleFile << "        SetAppOption(Para.spharmDegree.spharmDegree " << GetSPHARMDegree() << ")"
                              << std::endl;
+  BMSShapeAnalysisModuleFile << "        SetAppOption(Para.thetaIteration 1)" << std::endl;
+  BMSShapeAnalysisModuleFile << "        SetAppOption(Para.thetaIteration.thetaIteration " << GetThetaIteration() << ")"
+		  << std::endl;
+  BMSShapeAnalysisModuleFile << "        SetAppOption(Para.phiIteration 1)" << std::endl;
+  BMSShapeAnalysisModuleFile << "        SetAppOption(Para.phiIteration.phiIteration " << GetPhiIteration() << ")"
+		  << std::endl;
+  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh 1)" << std::endl;
+  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh.medialMesh " << GetPhiIteration() << ")"
+		  << std::endl;
   BMSShapeAnalysisModuleFile << "        SetAppOption(Para.regTemplateFileOn 1)" << std::endl;
   BMSShapeAnalysisModuleFile << "        SetAppOption(Para.regTemplateFile.regTemplateFile ${tdir}${regTemplate})"
                              << std::endl;

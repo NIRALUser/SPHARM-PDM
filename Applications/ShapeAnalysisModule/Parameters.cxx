@@ -293,6 +293,36 @@ int Parameters::GetSPHARMDegree()
   return m_SPHARMDegree;
 }
 
+void Parameters::SetThetaIteration(int _ThetaIteration)
+{
+	m_ThetaIteration = _ThetaIteration;
+}
+
+int Parameters::GetThetaIteration()
+{
+	return m_ThetaIteration;
+}
+
+void Parameters::SetPhiIteration(int _PhiIteration)
+{
+	m_PhiIteration = _PhiIteration;
+}
+
+int Parameters::GetPhiIteration()
+{
+	return m_PhiIteration;
+}
+
+void Parameters::SetMedialMesh(bool _MedialMesh)
+{
+	m_MedialMesh = _MedialMesh;
+}
+
+bool Parameters::GetMedialMesh()
+{
+	return m_MedialMesh;
+}
+
 void Parameters::SetGaussianFilteringState(bool _GaussianFilteringState)
 {
   m_GaussianFilteringState = _GaussianFilteringState;

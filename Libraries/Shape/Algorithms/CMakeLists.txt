@@ -14,6 +14,7 @@ set(ShapeAlgorithms_SRCS
  SphericalHarmonicMeshSource.cxx TSurfaceNet.cxx TVoxelVolume.cxx
  EqualAreaParametricMeshNewtonIterator.cxx
  ParametricMeshToSPHARMSpatialObjectFilter.cxx
+ SphericalHarmonicMedialAxisMeshSource.cxx
 )
 
 add_library(ShapeAlgorithms  STATIC ${ShapeAlgorithms_SRCS})

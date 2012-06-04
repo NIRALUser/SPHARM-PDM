@@ -27,6 +27,7 @@
 #include "ParametricMeshToSPHARMSpatialObjectFilter.h"
 #include "SphericalHarmonicSpatialObject.h"
 #include "SphericalHarmonicMeshSource.h"
+#include "SphericalHarmonicMedialAxisMeshSource.h"
 #include "SphericalHarmonicCoefficientFileWriter.h"
 #include "SphericalHarmonicCoefficientFileReader.h"
 #include "itkMesh3DProcrustesAlignFilter.h"
@@ -40,7 +41,6 @@
 #include "vtkPointLocator.h"
 #include <itkAffineTransform.h>
 #include <itkTransformFileWriter.h>
-#include <itksys/SystemTools.hxx>
 
 #include "argio.h"
 
@@ -94,12 +94,6 @@ int main( int argc, const char * * argv )
 //   ReaderType::Pointer readerSH = ReaderType::New();
   neurolib::SphericalHarmonicSpatialObject::Pointer flipTemplateSO = neurolib::SphericalHarmonicSpatialObject::New();
 
-  string filename_found="";
-  itksys::SystemTools::LocateFileInDir(inSurfFile.c_str(),itksys::SystemTools::GetFilenamePath(inSurfFile.c_str()).c_str(),filename_found,0);
-
-if (filename_found != "")
-{
-
   try
     {
     VTKreader->SetFileName(inSurfFile.c_str() );
@@ -109,11 +103,14 @@ if (filename_found != "")
     vtkPolyDataToitkMesh* VTKITKConverter = new vtkPolyDataToitkMesh;
     VTKITKConverter->SetInput(VTKreader->GetOutput() );
     surfaceMesh = VTKITKConverter->GetOutput();
+//     cout<<"test3"<<endl;
+// delete (VTKITKConverter);
+//     cout<<"test9"<<endl;
     }
   catch( itk::ExceptionObject ex )
     {
     std::cout << ex.GetDescription() << std::endl;
-    return -1;
+    return 1;
     }
 
   try
@@ -129,7 +126,7 @@ if (filename_found != "")
   catch( itk::ExceptionObject ex )
     {
     std::cout << ex.GetDescription() << std::endl;
-    return -1;
+    return 1;
     }
 
   if( flipTemplateFileOn )
@@ -157,12 +154,10 @@ if (filename_found != "")
       return 1;
       }
     }
-
   if( debug )
     {
     std::cout << "Preprocessing done" << std::endl;
     }
-
   try
     {
     if( regParaTemplateFileOn )
@@ -513,18 +508,51 @@ if (filename_found != "")
 
     vtkPolyDataWriter *vtkwriter;
     vtkwriter = vtkPolyDataWriter::New();
-
-if((filename_found != ""))
-{
     vtkwriter->SetInput(ITKVTKConverter->GetOutput() );
     outFileName.erase();
     outFileName.append(base_string);
     outFileName.append("SPHARM.vtk");
 
-    vtkwriter->SetFileName(outFileName.c_str());
+    vtkwriter->SetFileName(outFileName.c_str() );
     vtkwriter->Write();
-}
+	 
+	 if(debug)
+		 std::cout<<"saving medial axis mesh source"<<std::endl;
 
+    // save associated surface
+	 neurolib::SphericalHarmonicMedialAxisMeshSource::Pointer medialmeshsrc = neurolib::SphericalHarmonicMedialAxisMeshSource::New();
+	 medialmeshsrc->SetCoefs(coeflist);
+	 medialmeshsrc->SetThetaPhiIteration(thetaIteration,phiIteration);
+	 medialmeshsrc->Update();
+
+	 if(medialMesh)
+	 {
+		MeshType* medialmeshSH;
+		medialmeshSH = medialmeshsrc->GetOutput();
+		
+		itkMeshTovtkPolyData * ITKVTKConverter5 = new itkMeshTovtkPolyData;
+		ITKVTKConverter5->SetInput( medialmeshSH );
+		
+		vtkwriter->SetInput(ITKVTKConverter5->GetOutput() );
+		outFileName.erase();
+		outFileName.append(base_string);
+		outFileName.append("SPHARMMedial.vtk");
+		
+		vtkwriter->SetFileName(outFileName.c_str() );
+		vtkwriter->Write();
+	 }
+	 
+	 vtkSmartPointer<vtkPolyData> medialAxis;
+	 medialAxis = medialmeshsrc->GetOutputMedialAxis();
+	 
+	 vtkwriter->SetInput(medialAxis );
+	 outFileName.erase();
+	 outFileName.append(base_string);
+	 outFileName.append("SPHARMMedialAxis.vtk");
+	 
+	 vtkwriter->SetFileName(outFileName.c_str() );
+	 vtkwriter->Write();
+	 
     if( debug )
       {
       std::cout << "saving par aligned coefs" << std::endl;
@@ -803,12 +831,7 @@ if((filename_found != ""))
     e.Print(std::cout);
     return EXIT_FAILURE;
     }
-}
-else
-{
-   std::cout << "Missing input files, NO OPERATION DONE...." << std::endl;
-   return EXIT_FAILURE;
-}
+
   return EXIT_SUCCESS;
 
 }
