@@ -68,6 +68,13 @@
 #include <itkImageFileWriter.h>
 #include <itkDanielssonDistanceMapImageFilter.h>
 #include "itkBinaryThresholdImageFilter.h"
+#include <vtkMath.h>
+#include <vtkTriangle.h>
+#include <vtkPlane.h>
+#include <vtkWindowedSincPolyDataFilter.h>
+#include <vtkDecimatePro.h>
+
+//#include "MeshMathImpl.cxx"
 
 // itk typedefs
 typedef itk::DefaultDynamicMeshTraits<float, 3, 3, float, float> MeshTraitsType;
@@ -312,8 +319,8 @@ int main(int argc, const char * *argv)
     std::cout << "                                                   Gets stats for a distances ROI map" << std::endl;
     // bp2009 ProcessROI
     std::cout << "     -surfaceArea <AttributeFile>   Computes surface area in a txt file" << std::endl;
-    std::cout << "     -variance <AttributeFile2> <AttributeFile3>...   Compute variance across population"
-              << std::endl;
+    std::cout <<"     -lobarSurfaceArea <ParcellationAttributeFile>   Computes lobar surface area (output: csv file)"<<std::endl;
+    std::cout << "     -variance <AttributeFile2> <AttributeFile3>...   Compute variance across population" << std::endl;
     // bp2010 GetCurvatures
     std::cout
     <<
@@ -340,10 +347,18 @@ int main(int argc, const char * *argv)
     <<
     "     -closestPoint <InputAttributeFile1> <InputMesh2>   Computes interpolated attribute file (output file) for second mesh using closest point interpolation between two input meshes"
     << std::endl;
-    std::cout
-    <<
-    "     -extractVertices <YLocationAttributeFile.txt> <ZLocationAttributeFile.txt>  Extract points and write 3 different files listing respectively X, Y and Z values"
+    std::cout << "     -extractVertices <YLocationAttributeFile.txt> <ZLocationAttributeFile.txt>  Extract points and write 3 different files listing respectively X, Y and Z values"
     << std::endl;
+    std::cout <<"     -mean <AttributeFile2> <AttributeFile3>... Compute mean scalar attribute file (assuming same number of vertices)" << std::endl;
+    //cx2011 cart2bary
+    std::cout <<"     -cart2bary <vtkPointFileIn> Project each point in <vtkPointFileIn> onto the <inputmesh> and then calculate the Barycentric coordinate of the projected point, output to <OutputFileName>" << std::endl;
+
+    //bp2011
+    std::cout <<"     -attSTD <attribute_file2> <attribute_file2> ...<attribute_fileN> ... Compute std for a collection of vector or scalar files" << std::endl;
+    std::cout <<"     -VTKtolpts  ... Create a particle file out of a triangulated VTK mesh" << std::endl;
+    //bp2012
+    std::cout <<"     -relaxPolygons iterations... Mesh relaxation based in vtkWindowedSincPolyDataFilter" << std::endl;
+    std::cout <<"     -decimateMesh <target reduction> ... Mesh decimation, reducing the number of points. Target reduction is a value from 0..1 that indicates in what % vertices should be reduced" << std::endl;
     std::cout << "     -verbose                   Verbose output" << std::endl;
     return 0;
     }
@@ -700,6 +715,9 @@ int main(int argc, const char * *argv)
   bool  surfaceAreaOn = ipExistsArgument(argv, "-surfaceArea");
   char *AttributeFileName = ipGetStringArgument(argv, "-surfaceArea", NULL);
 
+  bool lobarSurfaceAreaOn = ipExistsArgument(argv, "-lobarSurfaceArea");
+  AttributeFileName = ipGetStringArgument(argv, "-lobarSurfaceArea",NULL);
+
   std::vector<std::string> VarFiles;
   bool                     varianceOn = ipExistsArgument(argv, "-variance");
   if( varianceOn )
@@ -768,6 +786,44 @@ int main(int argc, const char * *argv)
       extractVerticesFiles.push_back(files[1]);
       }
     }
+
+  std::vector<std::string> meanFiles;
+  bool meanOn = ipExistsArgument(argv, "-mean");
+  if (meanOn)
+    {
+      meanFiles.push_back(inputFilename);
+      nbfile = ipGetStringMultipArgument(argv, "-mean", files, maxNumFiles);
+      for(int i = 0 ; i < nbfile ; i++)
+	meanFiles.push_back(files[i]);
+      nbfile++;
+    }
+
+  //cx2011 cart2bary
+  bool cart2baryOn = ipExistsArgument(argv, "-cart2bary");
+  std::string vtkPointFile;
+  if(cart2baryOn) 
+    vtkPointFile = ipGetStringArgument(argv, "-cart2bary", NULL);
+  //cx2011 cart2bary
+
+  bool attSTDOn = ipExistsArgument(argv, "-attSTD");
+  std::vector<std::string> VectorStdFiles;
+  if (attSTDOn)
+    {
+      nbfile = ipGetStringMultipArgument(argv, "-attSTD", files, maxNumFiles); 
+      for(int i = 0 ; i < nbfile ; i++) 
+	VectorStdFiles.push_back(files[i]);
+    }
+
+  bool lptsOn = ipExistsArgument(argv, "-VTKtolpts");
+  //bp2012 relaxPolygons
+  bool relaxPolygonsOn = ipExistsArgument(argv, "-relaxPolygons");
+  int relaxPolygonsNb = ipGetIntArgument(argv, "-relaxPolygons",1);
+  //bp2012 relaxPolygons
+
+ //bp2012 decimateMesh
+  bool decimateMeshOn = ipExistsArgument(argv, "-decimateMesh");
+  double decimateMeshTR = ipGetDoubleArgument(argv, "-decimateMesh",1.0);
+  //bp2012 decimateMesh
 
   if( subtractOn )
     {
@@ -5212,8 +5268,605 @@ int main(int argc, const char * *argv)
     outfile1.close();
     outfile2.close();
 
-    }
-  else
+    } else if (lobarSurfaceAreaOn)
+    {
+      // Reading the input mesh
+      MeshConverterType::Pointer converter = MeshConverterType::New();
+      if (debug) std::cout << "Reading input mesh " << inputFilename << std::endl;
+      MeshSOType::Pointer inputMeshSO = dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer() );
+      MeshType::Pointer   inputMesh = inputMeshSO->GetMesh();
+      MeshType::PointsContainerPointer points = inputMesh->GetPoints();
+
+      // Reading the input parcellation attribute file
+      if (debug) std::cout << "Reading attribute file " << inputFilename << std::endl;
+      std::ifstream Infile;
+      char Line[40];
+      int CurrentAttribute;
+      std::vector<int> v_VerticesAttributes; // vector with attribute values
+      std::vector<int> v_Attributes; //Attributes vector
+      Infile.open(AttributeFileName);
+      while ( strncmp (Line, "NUMBER_OF_POINTS =", 18) && strncmp (Line, "NUMBER_OF_POINTS=", 17))
+	Infile.getline (Line, 40);
+      unsigned int NbVertices = atoi(strrchr(Line,'=')+1);
+      if (inputMesh->GetNumberOfPoints() != NbVertices)
+	{
+	  std::cerr<<"Input mesh and attribute file must have the same number of vertices!"<<std::endl;
+	  exit(-1);
+	}
+      Infile.getline ( Line, 40);
+      Infile.getline ( Line, 40);
+
+      for (unsigned int i = 0; i < NbVertices; i++ )
+   	{
+	  Infile >> CurrentAttribute;
+	  v_VerticesAttributes.push_back(CurrentAttribute);
+	  bool NewAttribute = true;
+	  for (unsigned int j = 0; j < v_Attributes.size(); j++)
+	    {
+	      if (CurrentAttribute == v_Attributes[j])
+		NewAttribute = false;
+	    }
+	  if (NewAttribute)
+	    v_Attributes.push_back(CurrentAttribute);
+	}
+      Infile.close();      
+
+      // Sort attributes vector into ascending order
+      sort(v_Attributes.begin(), v_Attributes.end());
+     
+      // Computing surface area
+      typedef CellType::PointIdIterator PointIdIterator;
+      CellIterator cellIterator = inputMesh->GetCells()->Begin();
+      CellIterator cellEnd = inputMesh->GetCells()->End();
+      PointType curPoint;
+      std::vector<double> v_Area(*(std::max_element(v_Attributes.begin(),v_Attributes.end()))+1);
+
+      while( cellIterator != cellEnd )
+	{
+	  CellType * cell = cellIterator.Value();
+	  TriangleType * line = dynamic_cast<TriangleType *> (cell);
+	  LineType::PointIdIterator pit = line->PointIdsBegin();
+	  int pIndex1,pIndex2,pIndex3;
+	  PointType p1, p2, p3;
+	  itk::Vector<float, 3> v1, v2;
+
+	  pIndex1= *pit;
+	  p1 = points->GetElement(pIndex1);
+	  ++pit;
+	  pIndex2= *pit;
+	  p2 = points->GetElement(pIndex2);
+	  ++pit;
+	  pIndex3= *pit;
+	  p3 = points->GetElement(pIndex3);
+
+	  //Computing vectors of the current triangle
+	  v1 = p2-p1;
+	  v2 = p3-p1;
+	  
+	  // Computing triangle area
+	  double area = sqrt(pow(v1[1]*v2[2]-v2[1]*v1[2],2)+pow(v1[2]*v2[0]-v2[2]*v1[0],2)+pow(v1[0]*v2[1]-v2[0]*v1[1],2))/2.0;
+	  if ((v_VerticesAttributes[pIndex1] == v_VerticesAttributes[pIndex2]) && (v_VerticesAttributes[pIndex1] == v_VerticesAttributes[pIndex3]))
+	    v_Area[v_VerticesAttributes[pIndex1]] += area;
+	  else if((v_VerticesAttributes[pIndex1] == v_VerticesAttributes[pIndex2]) && (v_VerticesAttributes[pIndex1] != v_VerticesAttributes[pIndex3]))
+	    {
+	      v_Area[v_VerticesAttributes[pIndex1]] += 2.0*area/3.0;
+	      v_Area[v_VerticesAttributes[pIndex3]] += area/3.0;
+	    }
+	  else if((v_VerticesAttributes[pIndex1] != v_VerticesAttributes[pIndex2]) && (v_VerticesAttributes[pIndex1] == v_VerticesAttributes[pIndex3]))
+	    {
+	      v_Area[v_VerticesAttributes[pIndex1]] += 2.0*area/3.0;
+	      v_Area[v_VerticesAttributes[pIndex2]] += area/3.0;
+	    }
+	  else if((v_VerticesAttributes[pIndex1] != v_VerticesAttributes[pIndex2]) && (v_VerticesAttributes[pIndex2] == v_VerticesAttributes[pIndex3]))
+	    {
+	      v_Area[v_VerticesAttributes[pIndex1]] += area/3.0;
+	      v_Area[v_VerticesAttributes[pIndex2]] += 2.0*area/3.0;
+	    }
+	  else
+	    {
+	      v_Area[v_VerticesAttributes[pIndex1]] += area/3.0;
+	      v_Area[v_VerticesAttributes[pIndex2]] += area/3.0;
+	      v_Area[v_VerticesAttributes[pIndex3]] += area/3.0;
+	    }
+	  ++cellIterator;
+	}
+
+      if (debug) std::cout<<"Writing output file..."<<std::endl;
+      std::ofstream OutputFile(outputFilename, ios::out);  
+      if (!OutputFile) 
+	{
+	  std::cerr<<"Error: cannot open "<<outputFilename<<std::endl;
+	  exit(-1);
+	}
+      OutputFile<<"##########################################################################"<<std::endl;
+      OutputFile<<"# File format :"<<std::endl;
+      OutputFile<<"# LABEL \t AREA"<<std::endl;
+      OutputFile<<"# Fields :"<<std::endl;
+      OutputFile<<"#\t LABEL         Label number"<<std::endl;
+      OutputFile<<"#\t AREA          Surface area in square mm"<<std::endl;
+      OutputFile<<"##########################################################################"<<std::endl<<std::endl; 
+      for (unsigned int i = 0; i < v_Attributes.size(); i++)
+	OutputFile<<v_Attributes[i]<<"\t"<<v_Area[v_Attributes[i]]<<std::endl;
+      OutputFile.close();
+
+    } else if (meanOn)
+    {
+      std::ifstream inFile;
+      std::ofstream outFile;
+      float Attribute;
+      std::vector<float> v_Attribute;
+      char Line[40];
+      unsigned int NbVertices = 0;
+      
+      for (int FileNb = 0; FileNb < nbfile; FileNb++)
+	{
+	  // Reading file
+	  if (debug) std::cout<<"Reading file: "<<meanFiles[FileNb]<<std::endl;	  
+	  inFile.open(meanFiles[FileNb].c_str());
+	  if (!inFile)
+	    {
+	      std::cerr << "Unable to open file"<<std::endl;
+	      exit(1);
+	    }	  
+	  while ( std::strncmp (Line, "NUMBER_OF_POINTS =", 18) && strncmp (Line, "NUMBER_OF_POINTS=", 17))
+	    inFile.getline (Line, 40);	  
+	  if (FileNb == 0 )
+	    {
+	      NbVertices = atoi(strrchr(Line,'=')+1);
+	      inFile.getline(Line, 40);
+	      inFile.getline(Line, 40);      
+	      
+	      while(!inFile.eof())
+		{
+		  inFile >> Attribute;
+		  v_Attribute.push_back(Attribute);
+		}
+	    }
+	  else
+	    {
+	      unsigned int NbPoints = atoi(strrchr(Line,'=')+1);
+	      if (NbPoints != NbVertices)
+		{
+		  std::cerr << "Attribute Files don't have the same number of vertices!"<<std::endl;
+		  exit(1);
+		}
+	      inFile.getline(Line, 40);
+	      inFile.getline(Line, 40);      
+	  
+	      unsigned int Point = 0;
+	      while(!inFile.eof())
+		{
+		  inFile >> Attribute;
+		  v_Attribute[Point] += Attribute;
+		  Point++;
+		}
+	    }
+	  inFile.close();
+	}
+      
+      //Computing mean attribute
+      if (debug) std::cout<<"Computing mean attribute..."<<std::endl;
+      for (unsigned int i = 0; i < NbVertices; i++)
+	v_Attribute[i] /= nbfile;
+      
+      // Writing output file
+      if (debug) std::cout<<"Writing output file..."<<std::endl;
+      outFile.open(outputFilename);
+      if (!outFile)
+	{
+	  std::cerr << "Unable to open file";
+	  exit(1);
+	}
+      outFile<<"NUMBER_OF_POINTS="<<NbVertices<<std::endl;
+      outFile<<"DIMENSION="<<1<<std::endl;
+      outFile<<"TYPE=Scalar"<<std::endl;
+      for (unsigned int i = 0; i < NbVertices; i++)
+	outFile<<v_Attribute[i]<<std::endl;
+      outFile.close();
+      
+    } else if(cart2baryOn)
+    {
+      // std::cout<<inputFilename << "  " << outputFilename << "   " << vtkPointFile.c_str() << std::endl;
+
+      // Reading input mesh 1
+      vtkPolyDataReader *meshReader1 = vtkPolyDataReader::New();
+      meshReader1->SetFileName(inputFilename);
+      meshReader1->Update();
+      vtkPolyData *mesh1 = meshReader1->GetOutput();
+
+      // Reading input mesh 2 that contains the point list
+      vtkPolyDataReader *meshReader2 = vtkPolyDataReader::New();
+      meshReader2->SetFileName(vtkPointFile.c_str());
+      meshReader2->Update();
+      vtkPolyData *mesh2 = meshReader2->GetOutput();
+
+      vtkPointLocator* pointLocator = vtkPointLocator::New();
+      pointLocator->SetDataSet(mesh1);
+      pointLocator->BuildLocator();
+
+      vtkPoints* pointList = mesh2->GetPoints();
+      mesh1->BuildLinks(); // BuildLinks needs to be called before GetPointCells
+
+      double currLandmark[3], closestPoint[3];
+
+      std::ofstream outfile (outputFilename);
+      outfile << pointList->GetNumberOfPoints() << std::endl;
+
+      for (int i = 0; i < pointList->GetNumberOfPoints(); i++) {
+
+	pointList->GetPoint(i, currLandmark);
+	int id = pointLocator->FindClosestPoint(currLandmark);
+	mesh1->GetPoint(id, closestPoint);
+	//std::cout << "Closest vertex: " << closestPoint[0] << "  "  << closestPoint[1] << "  "  << closestPoint[2] << ", ";
+
+	vtkIdList* cellIds = vtkIdList::New();
+	mesh1->GetPointCells(id, cellIds);
+    
+	/**
+	 * projection a point onto cell surface
+	 * 1) find cell
+	 * 2) compute normal 
+	 * 3) construct implicit plane function
+	 * 4) projection onto the plane
+	 * 5) determine the projected point is inside the cell
+	 * 6) find the point with minimum distance
+	 */
+	double trueClosestPoint[3], projectedPoint[3], dist2 = vtkMath::Distance2BetweenPoints(currLandmark, closestPoint); //std::cout<<dist2<<std::endl;
+	memcpy(trueClosestPoint, closestPoint  , sizeof(closestPoint  ));
+
+	int minJ = cellIds->GetId(0);
+	for (int j = 0; j < cellIds->GetNumberOfIds(); j++) {
+
+	  vtkCell* cell = mesh1->GetCell(cellIds->GetId(j));
+
+	  double t1[3], t2[3], t3[3], normal[3];
+	  cell->GetPoints()->GetPoint(0, t1); //std::cout<< t1[0] << " " << t1[1] << " " << t1[2] << ", ";
+	  cell->GetPoints()->GetPoint(1, t2); //std::cout<< t2[0] << " " << t2[1] << " " << t2[2] << ", ";
+	  cell->GetPoints()->GetPoint(2, t3); //std::cout<< t3[0] << " " << t3[1] << " " << t3[2] << ", ";
+
+	  vtkTriangle::ComputeNormal(t1, t2, t3, normal);
+	  vtkPlane::GeneralizedProjectPoint(currLandmark, t1, normal, projectedPoint);
+
+	  int inside = vtkTriangle::PointInTriangle(projectedPoint, t1, t2, t3, 0); //std::cout<< inside << ", ";
+	  double ndist2 = vtkMath::Distance2BetweenPoints(currLandmark, projectedPoint); //std::cout<<ndist2<<std::endl;
+	  if (inside == 1) {
+	    if (dist2 > ndist2) {
+	      memcpy(trueClosestPoint,projectedPoint , sizeof(projectedPoint));
+	      cout << i << " vertex found closer projection onto a polygon (" << ndist2 << " < " << dist2 << ")" << std::endl;
+	      dist2 = ndist2;
+	      minJ = cellIds->GetId(j);
+	    }
+
+	  } else {
+	    if (dist2 > ndist2) {
+	    }
+	  }
+	}
+
+	mesh2->GetPoints()->SetPoint(i, trueClosestPoint);
+
+	std::cout <<"Closest point: " << trueClosestPoint[0] << "  "  << trueClosestPoint[1] << "  "  << trueClosestPoint[2] << "; Cell id: " << minJ << std::endl;
+	vtkCell* closestCell = mesh1->GetCell(minJ);
+	double t1[3], t2[3], t3[3], t1_2d[2], t2_2d[2], t3_2d[2], trueClosestPt_2d[2], bcoords[3];
+	closestCell->GetPoints()->GetPoint(0, t1);
+	closestCell->GetPoints()->GetPoint(1, t2);
+	closestCell->GetPoints()->GetPoint(2, t3);
+
+	vtkTriangle::ProjectTo2D(t1,t2,t3,t1_2d,t2_2d,t3_2d);
+	//std::cout<< "2d coordinates: " << t1_2d[0] << " " << t1_2d[1] << ",  " << t2_2d[0] << " " << t2_2d[1] << "; " << t3_2d[0] << " " << t3_2d[1] << std::endl;
+	vtkTriangle::ProjectTo2D(t1,t2,trueClosestPoint,t1_2d,t2_2d,trueClosestPt_2d);
+	//std::cout<< "2d coordinates: " << t1_2d[0] << " " << t1_2d[1] << ",  " << t2_2d[0] << " " << t2_2d[1] << "; " << trueClosestPt_2d[0] << " " << trueClosestPt_2d[1] << std::endl;
+
+	vtkTriangle::BarycentricCoords(trueClosestPt_2d, t1_2d, t2_2d, t3_2d, bcoords);
+	std::cout<< "Barycentric coordinates: " << bcoords[0] << " " << bcoords[1] << " " << bcoords[2] << std::endl;
+
+	vtkIdList * closestCellIds = closestCell->GetPointIds();
+	outfile << minJ << " " << closestCellIds->GetId(0) << " " << closestCellIds->GetId(1) << " " <<  closestCellIds->GetId(2) << " " << bcoords[0] << " "  << bcoords[1] << " " << bcoords[2] << std::endl;
+      }
+
+      outfile.close();
+
+      vtkPolyDataWriter *meshWriter = vtkPolyDataWriter::New();
+      meshWriter->SetInput(mesh2);
+      std::string projectedFilename = outputFilename;
+      size_t found = projectedFilename.rfind(".");
+      if(found == std::string::npos)
+	projectedFilename = projectedFilename + ".projected.vtk";
+      else
+	projectedFilename = projectedFilename.substr(0,found) + ".projected.vtk";
+     
+      meshWriter->SetFileName(projectedFilename.c_str());
+      meshWriter->Update();
+      if(debug) std::cout<< "Writing new projected landmark points: " << std::endl;
+
+
+    } else if (attSTDOn)
+   {
+	//std::cout << inputFilename << std::endl;
+	//for (int i = 0 ; i < nbfile ; i ++)
+	//{
+		//std::cout << VectorStdFiles[i] << std::endl;	
+	//}
+
+
+
+	std::ifstream input;
+	char line[70];
+	char *aux;
+	int NPoints, Dimension;
+	input.open(inputFilename, ios::in);
+    	input.getline(line,70,'\n');
+    	aux=strtok(line, " = ");
+    	aux=strtok(NULL, " = ");
+    	NPoints=atoi(aux);
+    	input.getline(line,70,'\n');
+    	aux=strtok(line, " = ");
+    	aux=strtok(NULL, " = ");
+    	Dimension=atoi(aux);
+    	input.getline(line,70,'\n');
+
+	if (Dimension == 3)
+	{
+		std::vector < std::vector <itk::Point<double,3> > > vectorData (nbfile+1);
+		std::vector <itk::Point<double,3> > vectorAvg (NPoints);
+		itk::Point<double,3> pt;
+		pt[0] = 0; pt[1] = 0; pt[2] = 0;
+		std::vector <itk::Point<double,3> > vectorStd (NPoints,pt);
+		
+	
+		std::cout << inputFilename << std::endl;
+		vectorData[0].resize(NPoints);
+		for (int i = 0 ; i < NPoints ; i ++)
+		{ 
+			input >> pt[0] >> pt[1] >> pt[2];
+			vectorData[0][i]=pt;
+			vectorAvg[i]=pt;
+			//std::cout << vectorData[0][i][0] << " " << vectorData[0][i][1] << " " << vectorData[0][i][2] << std::endl;
+		}
+		input.close();
+	
+		for (int i = 0 ; i < nbfile ; i ++)
+		{
+	
+			vectorData[i+1].resize(NPoints);
+			input.open(VectorStdFiles[i].c_str(), ios::in);
+			std::cout << VectorStdFiles[i] << std::endl;
+			input.getline(line,70,'\n');
+			input.getline(line,70,'\n');
+			input.getline(line,70,'\n');
+		
+			for (int j = 0 ; j < NPoints ; j ++)
+			{ 
+				input >> pt[0] >> pt[1] >> pt[2];
+				vectorData[i+1][j]=pt;
+				
+				for (int k=0 ; k <3 ; k ++)
+				{
+					double value = vectorAvg[j][k] + pt[k];
+					vectorAvg[j][k] = value;
+					//std::cout << value << std::endl;	 
+				}
+				
+				//std::cout << vectorData[i+1][j][0] << " " << vectorData[i+1][j][1] << " " << vectorData[i+1][j][2] << std::endl;
+			}
+			input.close();	
+		}
+	
+		std::ofstream output;
+		output.open ( "vectorSTD_average.txt" ) ;
+		output << "NUMBER_OF_POINTS = " << NPoints << std::endl;
+		output << "DIMENSION = 3" << std::endl;
+		output << "TYPE = Vector" << std::endl;
+		for (int j = 0 ; j < NPoints ; j ++)
+		{ 
+			for (int k=0 ; k <3 ; k ++)
+			{
+				double value = vectorAvg[j][k] / (nbfile+1);
+				vectorAvg[j][k] = value;
+			}
+			output << vectorAvg[j][0] << " " << vectorAvg[j][1] << " " << vectorAvg[j][2] << std::endl;
+		}
+		output.close();
+	
+		output.open ( "vectorSTD_std.txt" ) ;
+		output << "NUMBER_OF_POINTS = " << NPoints << std::endl;
+		output << "DIMENSION = 3" << std::endl;
+		output << "TYPE = Vector" << std::endl;
+		for (int j = 0 ; j < NPoints ; j ++)
+		{ 
+			for (int i = 0 ; i < nbfile+1 ; i ++)
+			{	
+				for (int k=0 ; k <3 ; k ++)
+				{
+					double value = (vectorData[i][j][k] - vectorAvg[j][k]) * (vectorData[i][j][k] - vectorAvg[j][k]);
+					double value2 = vectorStd[j][k] + value;
+					vectorStd[j][k] = value2;	 
+				}
+				
+			}	
+			
+			for (int k=0 ; k <3 ; k ++)
+			{
+				double value = vectorStd[j][k] / (nbfile+1);
+				double value2 = sqrt (value);
+				vectorStd[j][k] = value2;
+			}
+	
+			//std::cout << vectorStd[j][0] << " " << vectorStd[j][1] << " " << vectorStd[j][2] << std::endl;
+			output << vectorStd[j][0] << " " << vectorStd[j][1] << " " << vectorStd[j][2] << std::endl;
+		}
+		output.close();
+	}
+
+	if (Dimension == 1)
+	{
+		std::vector < std::vector <double > > vectorData (nbfile+1);
+		std::vector <double > vectorAvg (NPoints);
+		std::vector <double > vectorStd (NPoints,0);
+		double point;
+		
+	
+		std::cout << inputFilename << std::endl;
+		vectorData[0].resize(NPoints);
+		for (int i = 0 ; i < NPoints ; i ++)
+		{ 
+			input >> point;
+			vectorData[0][i]=point;
+			vectorAvg[i]=point;
+			std::cout << vectorData[0][i] << std::endl;
+		}
+		input.close();
+	
+		for (int i = 0 ; i < nbfile ; i ++)
+		{
+	
+			vectorData[i+1].resize(NPoints);
+			input.open(VectorStdFiles[i].c_str(), ios::in);
+			std::cout << VectorStdFiles[i] << std::endl;
+			input.getline(line,70,'\n');
+			input.getline(line,70,'\n');
+			input.getline(line,70,'\n');
+		
+			for (int j = 0 ; j < NPoints ; j ++)
+			{ 
+				input >> point;
+				vectorData[i+1][j]=point;
+				
+				double value = vectorAvg[j] + point;
+				vectorAvg[j] = value;
+				
+				std::cout << vectorData[i+1][j] << std::endl;
+			}
+			input.close();	
+		}
+	
+		std::ofstream output;
+		output.open ( "scalarSTD_average.txt" ) ;
+		output << "NUMBER_OF_POINTS = " << NPoints << std::endl;
+		output << "DIMENSION = 1" << std::endl;
+		output << "TYPE = Scalar" << std::endl;
+		for (int j = 0 ; j < NPoints ; j ++)
+		{ 
+			double value = vectorAvg[j] / (nbfile+1);
+			vectorAvg[j] = value;
+			output << vectorAvg[j] << std::endl;
+		}
+		output.close();
+	
+		output.open ( "scalarSTD_std.txt" ) ;
+		output << "NUMBER_OF_POINTS = " << NPoints << std::endl;
+		output << "DIMENSION = 1" << std::endl;
+		output << "TYPE = Scalar" << std::endl;
+		for (int j = 0 ; j < NPoints ; j ++)
+		{ 
+			for (int i = 0 ; i < nbfile+1 ; i ++)
+			{	
+				double value = (vectorData[i][j] - vectorAvg[j]) * (vectorData[i][j] - vectorAvg[j]);
+				double value2 = vectorStd[j] + value;
+				vectorStd[j] = value2;	 
+			}	
+			
+			double value = vectorStd[j] / (nbfile+1);
+			double value2 = sqrt (value);
+			vectorStd[j] = value2;
+	
+			output << vectorStd[j] << std::endl;
+		}
+		output.close();
+	}
+	
+   } else if (lptsOn)
+   {
+	//std::cout << inputFilename << " " << argv[2] << " " << outputFilename << std::endl;
+        int Pointwritten;
+	Pointwritten=0;
+	int nbPoints=0;
+
+	if(nbPoints ==0)
+	{
+		vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+		meshin->SetFileName(inputFilename);
+		meshin->Update();
+		nbPoints=meshin->GetOutput()->GetNumberOfPoints();
+	}
+
+	std::ofstream lptsfile(outputFilename, std::ios::out | std::ios::trunc);
+
+	vtkPolyDataReader *vtkreader = vtkPolyDataReader::New();
+	vtkreader->SetFileName(inputFilename);
+	vtkreader->Update();
+	double x[3];
+	vtkPoints * PointVTK = vtkPoints::New();
+	PointVTK=vtkreader->GetOutput()->GetPoints();
+	for (int PointId = 0; PointId < (vtkreader->GetOutput()->GetNumberOfPoints()); PointId++)
+	{
+		PointVTK->GetPoint(PointId,x);
+		lptsfile<<x[0]<<" "<<x[1]<<" "<<x[2]<<std::endl;
+	}
+	lptsfile.close();
+	
+   } else if(relaxPolygonsOn) //bp2012
+  {
+	vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+	meshin->SetFileName(inputFilename);
+	meshin->Update();
+
+	vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+	meshinC->SetInput(meshin->GetOutput());
+	meshinC->Update();
+
+	vtkWindowedSincPolyDataFilter *smoother = vtkWindowedSincPolyDataFilter::New();
+	smoother->SetInputConnection(meshinC->GetOutputPort());
+	smoother->SetNumberOfIterations(relaxPolygonsNb);
+	smoother->BoundarySmoothingOff();
+	smoother->FeatureEdgeSmoothingOff();
+	smoother->SetFeatureAngle(120.0);
+	smoother->SetPassBand(0.001);
+	smoother->NonManifoldSmoothingOn();
+	smoother->NormalizeCoordinatesOn();
+	smoother->Update();
+
+
+ 	//Writing the new mesh, with not degenerated triangles
+	vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+	SurfaceWriter->SetInput(smoother->GetOutput());  
+	SurfaceWriter->SetFileName(outputFilename);
+	SurfaceWriter->Update();
+
+	if (debug) std::cout << "Writing new mesh " << outputFilename << std::endl;
+  } else if(decimateMeshOn) //bp2012
+  {
+	vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+	meshin->SetFileName(inputFilename);
+	meshin->Update();
+
+	vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+	meshinC->SetInput(meshin->GetOutput());
+	meshinC->Update();
+
+  	vtkSmartPointer<vtkPolyData> input = vtkSmartPointer<vtkPolyData>::New();
+  	input->ShallowCopy(meshinC->GetOutput());
+
+	vtkSmartPointer<vtkDecimatePro> decimate = vtkSmartPointer<vtkDecimatePro>::New();
+	#if VTK_MAJOR_VERSION <= 5
+  		decimate->SetInputConnection(input->GetProducerPort());
+	#else
+  		decimate->SetInputData(input);
+	#endif
+  	decimate->SetTargetReduction(decimateMeshTR); //10% reduction (if there was 100 triangles, now there will be 90)
+  	decimate->Update();
+ 
+  	vtkSmartPointer<vtkPolyData> decimated = vtkSmartPointer<vtkPolyData>::New();
+  	decimated->ShallowCopy(decimate->GetOutput());
+
+ 	//Writing the new mesh, with not degenerated triangles
+	vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+	SurfaceWriter->SetInput(decimate->GetOutput());  
+	SurfaceWriter->SetFileName(outputFilename);
+	SurfaceWriter->Update();
+
+	if (debug) std::cout << "Writing new mesh " << outputFilename << std::endl;
+  } else
     {
 
     std::cout << "No operation to do -> exiting" << std::endl;
