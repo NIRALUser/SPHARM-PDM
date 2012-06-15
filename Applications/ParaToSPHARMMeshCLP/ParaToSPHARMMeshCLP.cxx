@@ -553,6 +553,21 @@ int main( int argc, const char * * argv )
 	 vtkwriter->SetFileName(outFileName.c_str() );
 	 vtkwriter->Write();
 	 
+	 double* Theta;
+	 double* Radius;
+	 Theta=medialmeshsrc->GetTheta();
+	 Radius=medialmeshsrc->GetRadius();
+	 
+	 outFileName.erase();
+	 outFileName.append(base_string);
+	 outFileName.append("MedialAxisScalars.csv");
+	 
+	 std::ofstream ScalarFile(outFileName.c_str());
+	 ScalarFile<<"Theta,Radius"<<std::endl;
+	 for(int i=0; i<thetaIteration; i++)
+		 ScalarFile<<Theta[i]<<","<<Radius[i]<<std::endl;
+	 ScalarFile.close();
+	 
     if( debug )
       {
       std::cout << "saving par aligned coefs" << std::endl;
