@@ -53,7 +53,35 @@ endif(COMPILE_shapeAnalysisMANCOVA_Wizard)
 endif()
 
 
-option(COMPILE_CreateMRML "Compile CreateMRML." OFF)
-if(COMPILE_CreateMRML)
-  add_subdirectory(CreateMRML)
-endif(COMPILE_CreateMRML)
+find_package(Slicer3 QUIET )
+if( Slicer3_FOUND )
+  option(COMPILE_CreateMRML "Compile CreateMRML." ON)
+  if(COMPILE_CreateMRML)
+    include(ExternalProject)
+    # Compute -G arg for configuring external projects with the same CMake generator:
+if(CMAKE_EXTRA_GENERATOR)
+  set(gen "${CMAKE_EXTRA_GENERATOR} - ${CMAKE_GENERATOR}")
+else()
+  set(gen "${CMAKE_GENERATOR}")
+endif()
+    set( GIT_PROTOCOL "git" )
+    if(DEFINED ${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL)
+      if( NOT ${${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL} )
+        set(GIT_PROTOCOL "http")
+      endif()
+    endif()
+    set(CreateMRML_REPOSITORY ${GIT_PROTOCOL}://github.com/booboo69500/CreateMRML.git CACHE STRING "" FORCE)
+    ExternalProject_Add(CreateMRML
+      GIT_REPOSITORY ${CreateMRML_REPOSITORY}
+      GIT_TAG "1e17d6dc66dca98b5622918408825d888ebd5a42"
+      UPDATE_COMMAND ""
+      SOURCE_DIR CreateMRML
+      BINARY_DIR CreateMRML-build
+      CMAKE_GENERATOR ${gen}
+      CMAKE_ARGS
+        -DSlicer3_DIR:PATH=${Slicer3_DIR}
+        INSTALL_COMMAND ""
+        #    INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}
+    )
+  endif()
+endif()

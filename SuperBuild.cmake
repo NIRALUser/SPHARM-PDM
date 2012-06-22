@@ -217,6 +217,11 @@ if(verbose)
 endif()
 
 #------------------------------------------------------------------------------
+# Try to find Slicer3 to compile CreateMRML
+#------------------------------------------------------------------------------
+find_package(Slicer3 QUIET )
+
+#------------------------------------------------------------------------------
 # Configure and build
 #------------------------------------------------------------------------------
 set(proj ${LOCAL_PROJECT_NAME})
@@ -231,6 +236,8 @@ ExternalProject_Add(${proj}
     ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
     ${COMMON_EXTERNAL_PROJECT_ARGS}
     -D${LOCAL_PROJECT_NAME}_SUPERBUILD:BOOL=OFF
+    -D${LOCAL_PROJECT_NAME}_USE_GIT_PROTOCOL:BOOL=${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL
+    -DSlicer3_DIR:PATH=${Slicer3_DIR}
     ${trilinos_blas_args}
     ${SLICER_ARGS}
   INSTALL_COMMAND ""
