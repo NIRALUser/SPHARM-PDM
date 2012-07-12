@@ -33,6 +33,8 @@ SphericalHarmonicMedialAxisMeshSource::SphericalHarmonicMedialAxisMeshSource()
 	m_Degree = 0;
 	m_FromL = 0;
 	m_ToL = 0;
+
+	//	GenerateData();
 }
 
 SphericalHarmonicMedialAxisMeshSource::~SphericalHarmonicMedialAxisMeshSource()
@@ -55,17 +57,23 @@ void SphericalHarmonicMedialAxisMeshSource::SetCoefs(SphericalHarmonicMedialAxis
 	m_Coefs = coeflist;
 	m_Degree =  (int) floor(sqrt( (double) coeflist.size() ) ) - 1;
 	m_ToL  = m_Degree;
-  // std::cout<<"m_Degree = "<<m_Degree <<std::endl;
+	// std::cout<<"m_Degree = "<<m_Degree <<std::endl;
 }
 
 void SphericalHarmonicMedialAxisMeshSource::SetThetaPhiIteration(int theta, int phi)
 {
 	m_theta=theta;
 	m_phi=phi;
+	//	std::cout << "here" << std::endl;
+
+	///////////
 }
 
 void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 {
+
+  // std::cout << "IN GENERATE DATA AAAAAAA " << std::endl;
+        
 	if( m_Coefs.empty() )
 	{
 		throw SphericalHarmonicPolynomialException(__FILE__, __LINE__, "Coefficients mustn't be empty.");
@@ -80,7 +88,7 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 		throw SphericalHarmonicPolynomialException(__FILE__, __LINE__,
 				"The evalueated degree mustn't exceed the size of the coefficients.");
 	}
-
+	//	std::cout << "plop" << std::endl;
 	int n_vert=m_phi * m_theta;
 // 	int n_triag;
 
@@ -91,10 +99,13 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 // 	Point3* mesh = new Point3[m_phi * m_theta];
 	m_PhiTable = new double[m_phi];
 	m_ThetaTable = new double[m_theta];
+
+	//	std::cout << m_theta << " " << m_phi << std::endl;
+
 	m_ThetaPhiTable = new double[m_phi*m_theta*2];
 	Point3* vertex = new Point3[n_vert];
 	Point3* medialVertex = new Point3[m_theta];
-	double* radius = new double[m_theta];
+	m_radius = new double[m_theta];
 	double* surface = new double[m_theta];
 	double volume=0;
 
@@ -133,7 +144,7 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 	
 	for(int i=0; i<m_theta; i++)
 	{
-		radius[i]=0;
+		m_radius[i]=0;
 		surface[i]=0;
 		for(int j=0; j<m_phi; j++)
 		{
@@ -151,7 +162,7 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 			y=p1[1]-medialVertex[i][1];
 			z=p1[2]-medialVertex[i][2];
 			distance=sqrt(x*x+y*y+z*z);
-			radius[i]+=distance;
+			m_radius[i]+=distance;
 			
 			temp=medialVertex[i][0]*p2[1]-medialVertex[i][0]*p1[1]+p1[0]*medialVertex[i][1]-p1[0]*p2[1]+p2[0]*p1[1]-p2[0]*medialVertex[i][1];
 			temp=temp*temp;
@@ -166,7 +177,7 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 			
 			surface[i]+=triangle;
 		}
-		radius[i]/=m_phi;
+		m_radius[i]/=m_phi;
 	}
 	
 	//Volume
@@ -217,7 +228,7 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 	double* ThetaBounds=new double[2];
 	GetBounds(m_ThetaTable,ThetaBounds,m_theta);
 	double* RadiusBounds=new double[2];
-	GetBounds(radius,RadiusBounds,m_theta);
+	GetBounds(m_radius,RadiusBounds,m_theta);
 	double* SurfaceBounds=new double[2];
 	GetBounds(surface,SurfaceBounds,m_theta);
 	Line->GetPointIds()->SetNumberOfIds(m_theta);
@@ -228,8 +239,8 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 		Line->GetPointIds()->SetId(i,i);
 		Theta->InsertComponent(0,i,m_ThetaTable[i]);
 		ThetaScaled->InsertComponent(0,i,100*(m_ThetaTable[i]-ThetaBounds[0])/(ThetaBounds[1]-ThetaBounds[0]));
-		Radius->InsertComponent(0,i,radius[i]);
-		RadiusScaled->InsertComponent(0,i,100*(radius[i]-RadiusBounds[0])/(RadiusBounds[1]-RadiusBounds[0]));
+		Radius->InsertComponent(0,i,m_radius[i]);
+		RadiusScaled->InsertComponent(0,i,100*(m_radius[i]-RadiusBounds[0])/(RadiusBounds[1]-RadiusBounds[0]));
 		Surface->InsertComponent(0,i,surface[i]);
 		SurfaceScaled->InsertComponent(0,i,100*(surface[i]-SurfaceBounds[0])/(SurfaceBounds[1]-SurfaceBounds[0]));
 	}
@@ -286,7 +297,9 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 	delete[] surface;
 	delete[] vertex;
 	delete[] medialVertex;
-	delete[] radius;
+
+	//	std::cout << "Number of elements in Radius " <<  (sizeof(m_radius) / sizeof(m_radius[0])) << std::endl;
+	//std::cout << "Number of elements in Theta " <<  (sizeof(m_ThetaTable) / sizeof(m_ThetaTable[0])) << std::endl;
 }
 
 void SphericalHarmonicMedialAxisMeshSource::setPhiThetaTable()
