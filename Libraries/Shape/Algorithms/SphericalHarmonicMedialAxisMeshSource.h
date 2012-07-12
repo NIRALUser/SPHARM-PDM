@@ -98,6 +98,9 @@ namespace neurolib
 
 			void SetThetaPhiIteration(int theta, int phi);
 			
+			double* GetTheta(){return m_ThetaTable;}
+			double* GetRadius(){return m_radius;}
+			
 			vtkSmartPointer<vtkPolyData> GetOutputMedialAxis()
 			{
 				return m_outputMedialAxis;
@@ -142,6 +145,7 @@ namespace neurolib
 			double *m_PhiTable;
 			double *m_ThetaTable;
 			double *m_ThetaPhiTable;
+			double *m_radius;
 
 // 			double *m_icos;   // icosahedron
 	};
