@@ -52,6 +52,10 @@ int main(int argc, const char * *argv)
   vtkPolyDataToitkMesh *vtkItkConverter = new vtkPolyDataToitkMesh();
   vtkItkConverter->SetInput( polydata );
 
+  if (debug) {
+    std::cout << "converting mesh " << infile <<std::endl
+  }
+
   // write out the itk meta mesh file
   itkMeshSOType::Pointer meshSO = itkMeshSOType::New();
   meshSO->SetMesh( vtkItkConverter->GetOutput() );

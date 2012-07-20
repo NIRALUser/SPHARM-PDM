@@ -34,15 +34,16 @@ template <class T>
 inline T ipGetArgument(const char **argv, const char *keystr, 
 		       T (*convert) (const char *str), const T defval) {
   for (int i=1; argv[i]; i++)
-    if (strstr(argv[i],keystr))
-      if (argv[i+1]) return convert(argv[i+1]);
-      else {
+    if (strstr(argv[i],keystr)) {
+      if (argv[i+1]) { 
+	return convert(argv[i+1]);
+      } else {
 	fprintf(stderr,"Error: ipGetArgument: argument value of option \"%s\" is missing!\n", 
 		argv[i]);
 
 	exit(-1);
       }
-
+    }
   return defval;
 }
 
@@ -51,15 +52,16 @@ inline charp ipGetStringArgument(const char **argv, const char *keystr, const ch
   char *_defval = (defval ? strdup(defval): NULL);
   //return ipGetArgument(argv, keystr, strdup, _defval);
   for (int i=1; argv[i]; i++)
-    if (strstr(argv[i],keystr))
-      if (argv[i+1]) return strdup(argv[i+1]);
-      else {
+    if (strstr(argv[i],keystr)) {
+      if (argv[i+1])  { 
+	return strdup(argv[i+1]);
+      } else {
 	fprintf(stderr,"Error: ipGetArgument: argument value of option \"%s\" is missing!\n", 
 		argv[i]);
 
 	exit(-1);
       }
-
+    }
   return _defval;
 }
 
@@ -90,45 +92,48 @@ inline int ipGetStringMultipArgument(const char **argv, const char *keystr, char
 inline int ipGetIntArgument(const char **argv, const char *keystr, const int defval) {
   //return ipGetArgument(argv, keystr, atoi, defval);{
   for (int i=1; argv[i]; i++)
-    if (strstr(argv[i],keystr))
-      if (argv[i+1]) return atoi(argv[i+1]);
-      else {
+    if (strstr(argv[i],keystr)) {
+      if (argv[i+1])  { 
+	return atoi(argv[i+1]);
+      } else {
 	fprintf(stderr,"Error: ipGetArgument: argument value of option \"%s\" is missing!\n", 
 		argv[i]);
 
 	exit(-1);
       }
-
+    }
   return defval;
 }
 
 inline float ipGetFloatArgument(const char **argv, const char *keystr, const float defval) {
   //return ipGetArgument(argv, keystr, fatof, defval);
   for (int i=1; argv[i]; i++)
-    if (strstr(argv[i],keystr))
-      if (argv[i+1]) return fatof(argv[i+1]);
-      else {
+    if (strstr(argv[i],keystr)) {
+      if (argv[i+1])  { 
+	return fatof(argv[i+1]);
+      }  else {
 	fprintf(stderr,"Error: ipGetArgument: argument value of option \"%s\" is missing!\n", 
 		argv[i]);
 
 	exit(-1);
       }
-
+    }
   return defval;
 }
 
 inline double ipGetDoubleArgument(const char **argv, const char *keystr, const double defval) {
   //return ipGetArgument(argv, keystr, atof, defval);
   for (int i=1; argv[i]; i++)
-    if (strstr(argv[i],keystr))
-      if (argv[i+1]) return atof(argv[i+1]);
-      else {
+    if (strstr(argv[i],keystr)) {
+      if (argv[i+1])  { 
+	return atof(argv[i+1]);
+      } else {
 	fprintf(stderr,"Error: ipGetArgument: argument value of option \"%s\" is missing!\n", 
 		argv[i]);
 
 	exit(-1);
       }
-
+    }
   return defval;
 }
 
