@@ -53,7 +53,7 @@ int main(int argc, const char * *argv)
   vtkItkConverter->SetInput( polydata );
 
   if (debug) {
-    std::cout << "converting mesh " << infile <<std::endl
+    std::cout << "converting mesh " << infile <<std::endl;
   }
 
   // write out the itk meta mesh file
