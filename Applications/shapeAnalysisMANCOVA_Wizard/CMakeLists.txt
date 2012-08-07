@@ -1,12 +1,5 @@
-#project(shapeAnalysisMANCOVA_Wizard)
+project(shapeAnalysisMANCOVA_Wizard)
 
-find_package(Qt4 REQUIRED)
-if(QT_USE_FILE)
-  include_directories(${QT_INCLUDE_DIR})
-  include(${QT_USE_FILE})
-else(QT_USE_FILE)
-   message(FATAL_ERROR, "QT not found. Please set QT_DIR.")
-endif(QT_USE_FILE)
 
 set(shapeAnalysisMANCOVA_Wizard_SRCS shapeAnalysisMANCOVA_Wizard.cxx main.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx )
 GENERATECLP(main.cxx shapeAnalysisMANCOVA_Wizard.xml)
