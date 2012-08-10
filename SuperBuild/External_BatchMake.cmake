@@ -48,9 +48,11 @@ if(NOT DEFINED ${extProjName}_DIR AND NOT ${USE_SYSTEM_${extProjName}})
   ## HACK set(${proj}_REPOSITORY "${git_protocol}://batchmake.org/BatchMake.git")
   ##      set(${proj}_GIT_TAG origin/master)
   ## Using this temporary repository copy until this version can be properly incorporated.
-  set(${proj}_REPOSITORY "${git_protocol}://github.com/hjmjohnson/TempBatchMake.git")
-  set(${proj}_GIT_TAG FixInstallBatchMake)
+#  set(${proj}_REPOSITORY "${git_protocol}://github.com/hjmjohnson/TempBatchMake.git")
+#  set(${proj}_GIT_TAG FixInstallBatchMake)
 
+  set(${proj}_REPOSITORY "${git_protocol}://batchmake.org/BatchMake.git")
+  set(${proj}_GIT_TAG "1f5bf4f92e8678c34dc6f7558be5e6613804d988")
   ExternalProject_Add(${proj}
     GIT_REPOSITORY ${${proj}_REPOSITORY}
     GIT_TAG ${${proj}_GIT_TAG}
