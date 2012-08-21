@@ -1,8 +1,62 @@
 #link_libraries(ShapeAlgorithms)
+include(ExternalProject)
+    # Compute -G arg for configuring external projects with the same CMake generator:
+if(CMAKE_EXTRA_GENERATOR)
+  set(gen "${CMAKE_EXTRA_GENERATOR} - ${CMAKE_GENERATOR}")
+else()
+  set(gen "${CMAKE_GENERATOR}")
+endif()
+set( GIT_PROTOCOL "git" )
+if(DEFINED ${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL)
+  if( NOT ${${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL} )
+    set(GIT_PROTOCOL "http")
+  endif()
+endif()
+
+
+set(external_projects_vars
+  -DMAKECOMMAND:STRING=${MAKECOMMAND}
+  -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+  -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+  -DCMAKE_CXX_COMPILER:PATH=${CMAKE_CXX_COMPILER}
+  -DCMAKE_CXX_FLAGS_RELEASE:STRING=${CMAKE_CXX_FLAGS_RELEASE}
+  -DCMAKE_CXX_FLAGS_DEBUG:STRING=${CMAKE_CXX_FLAGS_DEBUG}
+  -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
+  -DCMAKE_C_COMPILER:PATH=${CMAKE_C_COMPILER}
+  -DCMAKE_C_FLAGS_RELEASE:STRING=${CMAKE_C_FLAGS_RELEASE}
+  -DCMAKE_C_FLAGS_DEBUG:STRING=${CMAKE_C_FLAGS_DEBUG}
+  -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
+  -DCMAKE_SHARED_LINKER_FLAGS:STRING=${CMAKE_SHARED_LINKER_FLAGS}
+  -DCMAKE_EXE_LINKER_FLAGS:STRING=${CMAKE_EXE_LINKER_FLAGS}
+  -DCMAKE_MODULE_LINKER_FLAGS:STRING=${CMAKE_MODULE_LINKER_FLAGS}
+  -DCMAKE_GENERATOR:STRING=${CMAKE_GENERATOR}
+  -DCMAKE_EXTRA_GENERATOR:STRING=${CMAKE_EXTRA_GENERATOR}
+  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
+  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY:PATH=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+  -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH=${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
+  -DCMAKE_RUNTIME_OUTPUT_DIRECTORY:PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  -DCMAKE_BUNDLE_OUTPUT_DIRECTORY:PATH=${CMAKE_BUNDLE_OUTPUT_DIRECTORY}
+  -DCMAKE_SHARED_LINKER_FLAGS:STRING=${CMAKE_SHARED_LINKER_FLAGS}
+  -DCMAKE_EXE_LINKER_FLAGS:STRING=${CMAKE_EXE_LINKER_FLAGS}
+  -DCMAKE_MODULE_LINKER_FLAGS:STRING=${CMAKE_MODULE_LINKER_FLAGS}
+  )
+
 
 option(COMPILE_ImageMath "Compile ImageMath." ON)
 if(COMPILE_ImageMath)
-  add_subdirectory(ImageMath)
+  set(ImageMath_REPOSITORY https://www.nitrc.org/svn/niral_utilities/trunk/ImageMath CACHE STRING "" FORCE)
+  ExternalProject_Add(ImageMath
+    SVN_REPOSITORY ${ImageMath_REPOSITORY}
+    SVN_REVISION -r 13
+    UPDATE_COMMAND ""
+    SOURCE_DIR ImageMath
+    BINARY_DIR ImageMath-build
+    CMAKE_GENERATOR ${gen}
+    CMAKE_ARGS
+      -DITK_DIR:PATH=${ITK_DIR}
+      ${external_projects_vars}
+      INSTALL_COMMAND ""
+  )
 endif(COMPILE_ImageMath)
 
 option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
@@ -37,7 +91,23 @@ endif(COMPILE_ShapeAnalysisModule)
 
 option(COMPILE_StatNonParamTestPDM "Compile StatNonParamTestPDM." ON)
 if(COMPILE_StatNonParamTestPDM)
-  add_subdirectory(StatNonParamTestPDM)
+  ###add download Mancova and configure mancova project. Qt for wizard....
+  set(MANCOVA_REPOSITORY https://www.nitrc.org/svn/shape_mancova CACHE STRING "" FORCE)
+  ExternalProject_Add(MANCOVA
+    SVN_REPOSITORY ${MANCOVA_REPOSITORY}
+    SVN_REVISION -r 4
+    UPDATE_COMMAND ""
+    SOURCE_DIR MANCOVA
+    BINARY_DIR MANCOVA-build
+    CMAKE_GENERATOR ${gen}
+    CMAKE_ARGS
+      -DITK_DIR:PATH=${ITK_DIR}
+      -DVTK_DIR:PATH=${VTK_DIR}
+      -DGenerateCLP_DIR:PATH=${GenerateCLP_DIR}
+      -DBoost_DIR:PATH=${Boost_DIR}/share/boost-${boost_version}/cmake
+      ${external_projects_vars}
+      INSTALL_COMMAND ""
+  )
 endif(COMPILE_StatNonParamTestPDM)
 
 option(COMPILE_ParticleModule "Compile ParticleModule." ON)
@@ -45,31 +115,12 @@ if(COMPILE_ParticleModule)
   add_subdirectory(ParticleModule)
 endif(COMPILE_ParticleModule)
 
-if(Qt_FOUND)
-option(COMPILE_shapeAnalysisMANCOVA_Wizard "Compile shapeAnalysisMANCOVA_Wizard." ON)
-if(COMPILE_shapeAnalysisMANCOVA_Wizard)
-  add_subdirectory(shapeAnalysisMANCOVA_Wizard)
-endif(COMPILE_shapeAnalysisMANCOVA_Wizard)
-endif()
-
 
 find_package(Slicer3 QUIET )
 if( Slicer3_FOUND )
   option(COMPILE_CreateMRML "Compile CreateMRML." ON)
   if(COMPILE_CreateMRML)
-    include(ExternalProject)
-    # Compute -G arg for configuring external projects with the same CMake generator:
-if(CMAKE_EXTRA_GENERATOR)
-  set(gen "${CMAKE_EXTRA_GENERATOR} - ${CMAKE_GENERATOR}")
-else()
-  set(gen "${CMAKE_GENERATOR}")
-endif()
-    set( GIT_PROTOCOL "git" )
-    if(DEFINED ${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL)
-      if( NOT ${${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL} )
-        set(GIT_PROTOCOL "http")
-      endif()
-    endif()
+
     set(CreateMRML_REPOSITORY ${GIT_PROTOCOL}://github.com/booboo69500/CreateMRML.git CACHE STRING "" FORCE)
     ExternalProject_Add(CreateMRML
       GIT_REPOSITORY ${CreateMRML_REPOSITORY}
@@ -80,6 +131,7 @@ endif()
       CMAKE_GENERATOR ${gen}
       CMAKE_ARGS
         -DSlicer3_DIR:PATH=${Slicer3_DIR}
+        ${external_projects_vars}        INSTALL_COMMAND ""
         INSTALL_COMMAND ""
         #    INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}
     )
