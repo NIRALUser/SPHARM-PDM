@@ -47,7 +47,7 @@ if(COMPILE_ImageMath)
   set(ImageMath_REPOSITORY https://www.nitrc.org/svn/niral_utilities/trunk/ImageMath CACHE STRING "" FORCE)
   ExternalProject_Add(ImageMath
     SVN_REPOSITORY ${ImageMath_REPOSITORY}
-    SVN_REVISION -r 13
+    SVN_REVISION -r 36
     UPDATE_COMMAND ""
     SOURCE_DIR ImageMath
     BINARY_DIR ImageMath-build
@@ -109,6 +109,23 @@ if(COMPILE_StatNonParamTestPDM)
       INSTALL_COMMAND ""
   )
 endif(COMPILE_StatNonParamTestPDM)
+
+option(COMPILE_shapeworks "Compile shapeworks." ON)
+if(COMPILE_shapeworks)
+  set(shapeworks_REPOSITORY  https://www.nitrc.org/svn/shapeworks/code CACHE STRING "" FORCE)
+  ExternalProject_Add(shapeworks
+    SVN_REPOSITORY ${shapeworks_REPOSITORY}
+    SVN_REVISION -r 78
+    UPDATE_COMMAND ""
+    SOURCE_DIR shapeworks
+    BINARY_DIR shapeworks-build
+    CMAKE_GENERATOR ${gen}
+    CMAKE_ARGS
+      -DITK_DIR:PATH=${ITK_DIR}
+      ${external_projects_vars}
+      INSTALL_COMMAND ""
+  )
+endif(COMPILE_shapeworks)
 
 option(COMPILE_ParticleModule "Compile ParticleModule." ON)
 if(COMPILE_ParticleModule)
