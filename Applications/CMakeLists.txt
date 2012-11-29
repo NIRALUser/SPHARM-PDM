@@ -48,6 +48,8 @@ if(COMPILE_ImageMath)
   ExternalProject_Add(ImageMath
     SVN_REPOSITORY ${ImageMath_REPOSITORY}
     SVN_REVISION -r 36
+    SVN_USERNAME slicerbot
+    SVN_PASSWORD slicer
     UPDATE_COMMAND ""
     SOURCE_DIR ImageMath
     BINARY_DIR ImageMath-build
@@ -96,6 +98,8 @@ if(COMPILE_StatNonParamTestPDM)
   ExternalProject_Add(MANCOVA
     SVN_REPOSITORY ${MANCOVA_REPOSITORY}
     SVN_REVISION -r 4
+    SVN_USERNAME slicerbot
+    SVN_PASSWORD slicer
     UPDATE_COMMAND ""
     SOURCE_DIR MANCOVA
     BINARY_DIR MANCOVA-build
@@ -116,6 +120,8 @@ if(COMPILE_shapeworks)
   ExternalProject_Add(shapeworks
     SVN_REPOSITORY ${shapeworks_REPOSITORY}
     SVN_REVISION -r 78
+    SVN_USERNAME slicerbot
+    SVN_PASSWORD slicer
     UPDATE_COMMAND ""
     SOURCE_DIR shapeworks
     BINARY_DIR shapeworks-build
