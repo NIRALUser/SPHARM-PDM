@@ -100,6 +100,8 @@ namespace neurolib
 			
 			double* GetTheta(){return m_ThetaTable;}
 			double* GetRadius(){return m_radius;}
+			double* GetArea(){return m_area;}
+			double* GetPartialArea(){return m_partialArea;}
 			
 			vtkSmartPointer<vtkPolyData> GetOutputMedialAxis()
 			{
@@ -146,6 +148,8 @@ namespace neurolib
 			double *m_ThetaTable;
 			double *m_ThetaPhiTable;
 			double *m_radius;
+			double *m_area;
+			double *m_partialArea;
 
 // 			double *m_icos;   // icosahedron
 	};
