@@ -71,8 +71,6 @@ void SphericalHarmonicMedialAxisMeshSource::SetThetaPhiIteration(int theta, int 
 
 void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 {
-
-  // std::cout << "IN GENERATE DATA AAAAAAA " << std::endl;
         
 	if( m_Coefs.empty() )
 	{
@@ -107,6 +105,8 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 	Point3* medialVertex = new Point3[m_theta];
 	m_radius = new double[m_theta];
 	double* surface = new double[m_theta];
+	m_area = new double[m_theta];
+	m_partialArea = new double[m_theta*m_phi];
 	double volume=0;
 
 	setPhiThetaTable();
@@ -116,7 +116,7 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 	{
 		SPHARM.SetCoefs(m_Coefs);
 		SPHARM.SetDegree(m_Degree);
-    // Calculate mesh
+		// Calculate mesh
 		for(int i=0; i<m_theta; i++)
 		{
 			Point3 p1;
@@ -146,6 +146,7 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 	{
 		m_radius[i]=0;
 		surface[i]=0;
+		m_area[i]=0;
 		for(int j=0; j<m_phi; j++)
 		{
 			double distance=0,triangle=0,x,y,z,temp;
@@ -176,6 +177,8 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 			triangle=sqrt(triangle)/2;
 			
 			surface[i]+=triangle;
+			m_area[i]+=triangle;
+			m_partialArea[i+j*m_theta]=triangle;
 		}
 		m_radius[i]/=m_phi;
 	}
