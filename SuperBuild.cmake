@@ -238,9 +238,13 @@ ExternalProject_Add(${proj}
     --no-warn-unused-cli # HACK Only expected variables should be passed down.
     ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
     ${COMMON_EXTERNAL_PROJECT_ARGS}
-    -D${LOCAL_PROJECT_NAME}_SUPERBUILD:BOOL=OFF
+    -D${LOCAL_PROJECT_NAME}_USE_SUPERBUILD:BOOL=OFF
     -D${LOCAL_PROJECT_NAME}_USE_GIT_PROTOCOL:BOOL=${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL
     -DSlicer3_DIR:PATH=${Slicer3_DIR}
+    -DUSE_SYSTEM_BatchMake:BOOL=${USE_SYSTEM_BatchMake}
+    -DBatchMake_DIR:PATH=${BatchMake_DIR}
+    -DUSE_SYSTEM_VTK:BOOL=${USE_SYSTEM_VTK}
+    -DVTK_DIR:PATH=${VTK_DIR}
     ${trilinos_blas_args}
     ${SLICER_ARGS}
   INSTALL_COMMAND ""
