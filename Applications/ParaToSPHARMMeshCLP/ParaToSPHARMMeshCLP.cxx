@@ -533,11 +533,93 @@ int main( int argc, const char * * argv )
 		itkMeshTovtkPolyData * ITKVTKConverter5 = new itkMeshTovtkPolyData;
 		ITKVTKConverter5->SetInput( medialmeshSH );
 		
-		vtkwriter->SetInput(ITKVTKConverter5->GetOutput() );
+		vtkPolyData* polydataAtt = ITKVTKConverter5->GetOutput();
+		// START Add scalars for visualization
+		double* Radius;
+		Radius=medialmeshsrc->GetRadius();
+
+		vtkFloatArray *scalars_radius = vtkFloatArray::New();
+		scalars_radius->SetNumberOfComponents(1);
+		scalars_radius->SetName("radius");
+
+		int medialMesh_npoints = thetaIteration * phiIteration;
+		for(int i=0; i<thetaIteration; i++)
+		  for (int j=0; j<phiIteration; j++)
+		     scalars_radius->InsertNextValue(Radius[i]);
+
+		polydataAtt->GetPointData()->AddArray(scalars_radius);   
+
+		std::ofstream outfile_r;
 		outFileName.erase();
 		outFileName.append(base_string);
-		outFileName.append("SPHARMMedial.vtk");
-		
+		outFileName.append("_medialMeshRadius.txt");
+		outfile_r.open(outFileName.c_str(), ios::out);
+		// print the header
+		outfile_r << "NUMBER_OF_POINTS=" << medialMesh_npoints << std::endl;
+		outfile_r << "DIMENSION=" << 1 << std::endl;
+		outfile_r << "TYPE=Scalar" << std::endl;
+		for(int i=0; i<thetaIteration; i++)
+		  for (int j=0; j<phiIteration; j++)
+		    outfile_r<<Radius[i] << std::endl;
+		outfile_r.close();
+
+		double* Area;
+		Area=medialmeshsrc->GetArea();
+
+		vtkFloatArray *scalars_area = vtkFloatArray::New();
+		scalars_area->SetNumberOfComponents(1);
+		scalars_area->SetName("area");
+
+		for(int i=0; i<thetaIteration; i++)
+		  for (int j=0; j<phiIteration; j++)
+		     scalars_area->InsertNextValue(Area[i]);
+
+		polydataAtt->GetPointData()->AddArray(scalars_area);   
+
+		std::ofstream outfile_a;
+		outFileName.erase();
+		outFileName.append(base_string);
+		outFileName.append("_medialMeshArea.txt");
+		outfile_a.open(outFileName.c_str(), ios::out);
+		// print the header
+		outfile_a << "NUMBER_OF_POINTS=" << medialMesh_npoints << std::endl;
+		outfile_a << "DIMENSION=" << 1 << std::endl;
+		outfile_a << "TYPE=Scalar" << std::endl;
+		for(int i=0; i<thetaIteration; i++)
+		  for (int j=0; j<phiIteration; j++)
+		    outfile_a<<Area[i] << std::endl;
+		outfile_a.close();
+
+		double* partialArea;
+		partialArea=medialmeshsrc->GetPartialArea();
+
+		vtkFloatArray *scalars_partialArea = vtkFloatArray::New();
+		scalars_partialArea->SetNumberOfComponents(1);
+		scalars_partialArea->SetName("partial_area");
+
+		for(int i=0; i<medialMesh_npoints; i++)
+		     scalars_partialArea->InsertNextValue(partialArea[i]);
+
+		polydataAtt->GetPointData()->AddArray(scalars_partialArea);   
+
+		std::ofstream outfile_pa;
+		outFileName.erase();
+		outFileName.append(base_string);
+		outFileName.append("_medialMeshPartialArea.txt");
+		outfile_pa.open(outFileName.c_str(), ios::out);
+		// print the header
+		outfile_pa << "NUMBER_OF_POINTS=" << medialMesh_npoints << std::endl;
+		outfile_pa << "DIMENSION=" << 1 << std::endl;
+		outfile_pa << "TYPE=Scalar" << std::endl;
+		for(int i=0; i<medialMesh_npoints; i++)
+		    outfile_pa<<partialArea[i] << std::endl;
+		outfile_pa.close();
+		// END Add scalars for visualization
+		vtkwriter->SetInput(polydataAtt);
+		outFileName.erase();
+		outFileName.append(base_string);
+		outFileName.append("SPHARMMedialMesh.vtk");
+
 		vtkwriter->SetFileName(outFileName.c_str() );
 		vtkwriter->Write();
 	 }
@@ -555,17 +637,19 @@ int main( int argc, const char * * argv )
 	 
 	 double* Theta;
 	 double* Radius;
+	 double* Area;
 	 Theta=medialmeshsrc->GetTheta();
 	 Radius=medialmeshsrc->GetRadius();
+	 Area=medialmeshsrc->GetArea();
 	 
 	 outFileName.erase();
 	 outFileName.append(base_string);
 	 outFileName.append("MedialAxisScalars.csv");
 	 
 	 std::ofstream ScalarFile(outFileName.c_str());
-	 ScalarFile<<"Theta,Radius"<<std::endl;
+	 ScalarFile<<"Theta,Radius,Area"<<std::endl;
 	 for(int i=0; i<thetaIteration; i++)
-		 ScalarFile<<Theta[i]<<","<<Radius[i]<<std::endl;
+	   ScalarFile<<Theta[i]<<","<<Radius[i]<<","<<Area[i]<<std::endl;
 	 ScalarFile.close();
 	 
     if( debug )
