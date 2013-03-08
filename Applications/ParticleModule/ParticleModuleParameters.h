@@ -225,7 +225,7 @@ private:
   vector<string>            Data;
   vector<string>            Data2;
   int                       m_DataNumber;
-  std::vector<const char *> args;
+  std::vector<const char *> m_args;
 
   vector<double> m_Dims;
   string         m_directionToDisplay;

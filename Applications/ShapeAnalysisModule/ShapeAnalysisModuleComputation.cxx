@@ -21,7 +21,7 @@ void ShapeAnalysisModuleComputation::Computation()
 
   m_nbHorizontal = GetHorizontalGridPara();
   m_nbVertical = GetVerticalGridPara();
-  nbShapesPerMRML = m_nbHorizontal * m_nbVertical;
+  this->m_nbShapesPerMRML = m_nbHorizontal * m_nbVertical;
   int nummrml = -1; // if -1 you will have one all the shapes
 
   SetAllFilesName();
@@ -55,16 +55,16 @@ void ShapeAnalysisModuleComputation::Computation()
 
   int DataNumber = GetDataNumber();
   int nbVTKlastMRML, nbMRML;
-  if( DataNumber > nbShapesPerMRML )
+  if( DataNumber > this->m_nbShapesPerMRML )
     {
-    nbVTKlastMRML = DataNumber % nbShapesPerMRML;
+    nbVTKlastMRML = DataNumber % this->m_nbShapesPerMRML;
     if( nbVTKlastMRML != 0 )
       {
-      nbMRML = (DataNumber - nbVTKlastMRML) / nbShapesPerMRML + 1;
+      nbMRML = (DataNumber - nbVTKlastMRML) / this->m_nbShapesPerMRML + 1;
       }
     else
       {
-      nbMRML = (DataNumber - nbVTKlastMRML) / nbShapesPerMRML;
+      nbMRML = (DataNumber - nbVTKlastMRML) / this->m_nbShapesPerMRML;
       }
     }
   else
@@ -128,8 +128,9 @@ void ShapeAnalysisModuleComputation::Computation()
 }
 
 // Execute MeshMath to write a KWM scalar field (1D) into a PolyData Field Data Scalar to visualize in Slicer3
-void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, char * scalar, bool particule)
+void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, const char * scalar, bool particule)
 {
+  const std::string _scalar(scalar);
   int end;
 
   if( particule == 0 )
@@ -201,12 +202,12 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, char * scalar,
     args.push_back(fileType);
     args.push_back("-KWMtoPolyData");
 
-    if( scalar == "phi" )
+    if( _scalar == "phi" )
       {
       args.push_back(GetAllPhiFiles(0) );
       args.push_back("Color_Map_Phi");
       }
-    if( scalar == "theta" )
+    if( _scalar == "theta" )
       {
       args.push_back(GetAllThetaFiles(0) );
       args.push_back("Color_Map_Theta");
@@ -334,9 +335,9 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMathTemplate()
         if( ( (Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR) ) && data[0] == 'D' )
           {
           strstream st;
-          for( int i = 0; i < length; i++ )
+          for( int j = 0; j < length; ++j )
             {
-            st << data[i];
+            st << data[j];
             }
           string        dim = st.str();
           istringstream s(dim);
@@ -474,7 +475,7 @@ char * ShapeAnalysisModuleComputation::GetBMSShapeAnalysisModuleFile2()
 }
 
 // Create a BMS file to create a MRML scene
-void ShapeAnalysisModuleComputation::SetBMSShapeAnalysisModuleMRMLFile(bool changeDirectory)
+void ShapeAnalysisModuleComputation::SetBMSShapeAnalysisModuleMRMLFile(bool /* changeDirectory */)
 {
   std::strcpy(m_BMSShapeAnalysisModuleMRLMFile, GetOutputDirectory() );
   std::strcat(m_BMSShapeAnalysisModuleMRLMFile, "/BatchMake_Scripts/");
@@ -500,7 +501,7 @@ char * ShapeAnalysisModuleComputation::GetOutputFile()
 }
 
 // Execute BatchMake script
-void ShapeAnalysisModuleComputation::ExecuteBatchMake(char *_Input)
+void ShapeAnalysisModuleComputation::ExecuteBatchMake(const char *_Input)
 {
   std::cout << "\tExecuting BatchMake..." << std::endl;
 
@@ -588,17 +589,17 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
         }
       else
         {
-        first = whichmrml * nbShapesPerMRML;
-        last = ( (whichmrml + 1) * nbShapesPerMRML) - 1;
+        first = whichmrml * this->m_nbShapesPerMRML;
+        last = ( (whichmrml + 1) * this->m_nbShapesPerMRML) - 1;
 
         // to know if it's the last mrml
         if( (Nb_Data >= first) && (Nb_Data <= last) )
           {
-          DataNumber = Nb_Data % nbShapesPerMRML;
+          DataNumber = Nb_Data % this->m_nbShapesPerMRML;
           }
         else
           {
-          DataNumber = nbShapesPerMRML;
+          DataNumber = this->m_nbShapesPerMRML;
           }
         }
 
@@ -757,11 +758,11 @@ void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
           }
         if( (Nb_Data >= first) && (Nb_Data <= last) )
           {
-          mrmlfile.append(Convert_Double_To_CharArray(first + Nb_Data % nbShapesPerMRML - 1) );
+          mrmlfile.append(Convert_Double_To_CharArray(first + Nb_Data % this->m_nbShapesPerMRML - 1) );
           if( nbcolormap == 2 )
             {
-            mrmlfilePhi.append(Convert_Double_To_CharArray(first + Nb_Data % nbShapesPerMRML - 1) );
-            mrmlfileTheta.append(Convert_Double_To_CharArray(first + Nb_Data % nbShapesPerMRML - 1) );
+            mrmlfilePhi.append(Convert_Double_To_CharArray(first + Nb_Data % this->m_nbShapesPerMRML - 1) );
+            mrmlfileTheta.append(Convert_Double_To_CharArray(first + Nb_Data % this->m_nbShapesPerMRML - 1) );
             }
           }
         else
@@ -2547,7 +2548,7 @@ void ShapeAnalysisModuleComputation::ComputationMean()
     // add all values of the coordinates
     if( initialize == true )
       {
-      for( int i = 0; i < nbPoints; i++ )
+      for( int _i = 0; _i < nbPoints; ++_i )
         {
         m_meanX.push_back(0);
         m_meanY.push_back(0);
@@ -2555,17 +2556,17 @@ void ShapeAnalysisModuleComputation::ComputationMean()
         }
       initialize = false;
       }
-    for( int i = 0; i < nbPoints; i++ )
+    for( int j = 0; j < nbPoints; ++j )
       {
       double *p;
       p = pts->GetPoint(i);
 
-      m_meanX[i] = m_meanX[i] + p[0];
-      m_meanY[i] = m_meanY[i] + p[1];
-      m_meanZ[i] = m_meanZ[i] + p[2];
+      m_meanX[j] = m_meanX[i] + p[0];
+      m_meanY[j] = m_meanY[i] + p[1];
+      m_meanZ[j] = m_meanZ[i] + p[2];
       }
     }
-  for( int i = 0; i < nbPoints; i++ )
+  for( int i = 0; i < nbPoints; ++i )
     {
     m_meanX[i] = m_meanX[i] / DataNumber;
     m_meanY[i] = m_meanY[i] / DataNumber;
@@ -2645,18 +2646,18 @@ void ShapeAnalysisModuleComputation::GetRandomNum(int min, int max)
 
   // Create a random permutation
   int index, temp;
-  for( int i = 0; i < nofNum; i++ )
+  for( int i = 0; i < nofNum; ++i )
     {
     m_permutations[i] = i;
     }
-  for( int i = 1; i < nofNum; i++ )
+  for( int i = 1; i < nofNum; ++i )
     {
     index = i + (rand() % (nofNum - i) );
     temp = m_permutations[i];
     m_permutations[i] = m_permutations[index];
     m_permutations[index] = temp;
     }
-  for( int i = 0; i < nofNum; i++ )
+  for( int i = 0; i < nofNum; ++i )
     {
     m_permutations[i]++;
     }
@@ -2738,7 +2739,7 @@ void ShapeAnalysisModuleComputation::RunParticlesModule()
     if( ( (Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR) ) && dataitk[0] == 'D' )
       {
       std::strstream st;
-      for( int i = 0; i < length; i++ )
+      for( int i = 0; i < length; ++i )
         {
         st << dataitk[i];
         }
@@ -2811,7 +2812,7 @@ void ShapeAnalysisModuleComputation::CreateMrmlParticle()
       {
       nbMRML = 0;
       }
-    for( int i = 0; i < (nbMRML + 1); i++ ) // +1 since the 1st is with all the datas
+    for( int i = 0; i < (nbMRML + 1); ++i ) // +1 since the 1st is with all the datas
       {
       std::string              mrmlfile;
       std::vector<std::string> transformfile;
@@ -3122,7 +3123,7 @@ void ShapeAnalysisModuleComputation::CreateMrmlParticle()
       argsMRML.push_back(0);
       // itk sys parameters
       int    length;
-      time_t start, end;
+      time_t start;
       time(&start);
 
       double timeout = 0.05;
@@ -3138,9 +3139,9 @@ void ShapeAnalysisModuleComputation::CreateMrmlParticle()
         if( ( (Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR) ) && dataitk[0] == 'D' )
           {
           std::strstream st;
-          for( int i = 0; i < length; i++ )
+          for( int j = 0; j < length; ++j )
             {
-            st << dataitk[i];
+            st << dataitk[j];
             }
           std::string dim = st.str();
           }
@@ -3464,7 +3465,7 @@ void ShapeAnalysisModuleComputation::WriteComputationLog()
     std::cout << std::endl;
 
 
-    for ( int i = 0 ; i < data_flags.size() ; i ++ )
+    for ( unsigned long i = 0 ; i < data_flags.size() ; i ++ )
     {
 	string input_file = GetNthDataListValue(i+1,GetColumnVolumeFile());
 	if ( data_flags[i]==1 )

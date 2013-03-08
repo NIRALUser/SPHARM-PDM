@@ -615,21 +615,21 @@ void ParticleModuleParameters::CommandlineParticleCorrespondencePreprocessing()
 
   MakePPDirectory();
 
-  args.push_back("ParticleCorrespondencePreprocessing" );
-  args.push_back("--parameterFileName" );
-  args.push_back(preprocess_file.c_str() );
-  args.push_back("--voxelSize" );
-  args.push_back("1" );
-  args.push_back("--smoothing" );
-  args.push_back(Convert_Double_To_CharArray(GetSmoomting() ) );
-  args.push_back("--outputDirectory" );
-  args.push_back(PPOutputDirectory.c_str() );
-  args.push_back(0);
+  this->m_args.push_back("ParticleCorrespondencePreprocessing" );
+  this->m_args.push_back("--parameterFileName" );
+  this->m_args.push_back(preprocess_file.c_str() );
+  this->m_args.push_back("--voxelSize" );
+  this->m_args.push_back("1" );
+  this->m_args.push_back("--smoothing" );
+  this->m_args.push_back(Convert_Double_To_CharArray(GetSmoomting() ) );
+  this->m_args.push_back("--outputDirectory" );
+  this->m_args.push_back(PPOutputDirectory.c_str() );
+  this->m_args.push_back(0);
 
   std::cout << "ParticleCorrespondencePreprocessing command line: " << std::endl;
-  for( unsigned int k = 0; k < args.size() - 1; k++ )
+  for( unsigned int k = 0; k < this->m_args.size() - 1; k++ )
     {
-    std::cout << args.at(k) << " ";
+    std::cout << this->m_args.at(k) << " ";
     }
   std::cout << " " << std::endl; std::cout << " " << std::endl;
 
@@ -640,7 +640,7 @@ void ParticleModuleParameters::RunParticleCorrespondencePreprocessing()
   CommandlineParticleCorrespondencePreprocessing();
 
   std::cout << "....Run ParticleCorrespondencePreprocessing.... " << std::endl;
-  Run(args, 1);
+  Run(this->m_args, 1);
 
 }
 
@@ -689,7 +689,7 @@ void ParticleModuleParameters::CreateCorrespondenceFiles()
       }
     writemha << ")" << std::endl;
 
-    int which_template = GetTemplate();
+    unsigned int which_template = GetTemplate();
 
     writemha << "(fixed_domains" << std::endl;
     for( unsigned int i = 0; i < LPTS.size(); i++ )
@@ -762,15 +762,15 @@ void ParticleModuleParameters::CreateCorrespondenceFiles()
 void ParticleModuleParameters::CommandlineShapeWorksRun()
 {
 
-  args.clear();
-  args.push_back("ShapeWorksRun" );
-  args.push_back(Correspondence_file.c_str() );
-  args.push_back(0);
+  this->m_args.clear();
+  this->m_args.push_back("ShapeWorksRun" );
+  this->m_args.push_back(Correspondence_file.c_str() );
+  this->m_args.push_back(0);
 
   std::cout << "ShapeWorksRun command line: " << std::endl;
-  for( unsigned int n = 0; n < args.size() - 1; n++ )
+  for( unsigned int n = 0; n < this->m_args.size() - 1; n++ )
     {
-    std::cout << args.at(n);
+    std::cout << this->m_args.at(n);
     }
   std::cout << " " << std::endl;
 }
@@ -782,7 +782,7 @@ void ParticleModuleParameters::RunShapeWorksRun()
   std::cout << " " << std::endl;
   std::cout << "....Run ShapeWorksRun.... " << std::endl;
 
-  Run(args, 1);
+  Run(this->m_args, 1);
 
 }
 
@@ -847,7 +847,7 @@ void ParticleModuleParameters::CreateVTKFiles()
 }
 
 // find all the .lpts and stock there names
-void ParticleModuleParameters::FindPostLptsFiles(std::string pathFiles, std::vector<std::string> VectorFile)
+void ParticleModuleParameters::FindPostLptsFiles(std::string pathFiles, std::vector<std::string> /* VectorFile */)
 {
   PostLptsWptsFile.clear();
   itksys::Glob globPostLptsFile;

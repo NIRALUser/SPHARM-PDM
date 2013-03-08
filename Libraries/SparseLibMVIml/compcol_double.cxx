@@ -68,17 +68,17 @@ CompCol_Mat_double::CompCol_Mat_double(const CompCol_Mat_double & S) :
 /*  Construct from storage vectors */
 /***********************************/
 
-CompCol_Mat_double::CompCol_Mat_double(int M, int N, int nz, double *val, int *r, int *c, int base) :
-  val_(val, nz), rowind_(r, nz), colptr_(c, N + 1), base_(base), nz_(nz)
+CompCol_Mat_double::CompCol_Mat_double(int M, int N, int nz, double *_val, int *r, int *c, int _base) :
+  val_(_val, nz), rowind_(r, nz), colptr_(c, N + 1), base_(_base), nz_(nz)
 {
   dim_[0] = M;
   dim_[1] = N;
 }
 
-CompCol_Mat_double::CompCol_Mat_double(int M, int N, int nz, const VECTOR_double & val, const VECTOR_int & r,
+CompCol_Mat_double::CompCol_Mat_double(int M, int N, int nz, const VECTOR_double & _val, const VECTOR_int & r,
                                        const VECTOR_int  & c,
-                                       int base) :
-  val_(val), rowind_(r), colptr_(c), base_(base), nz_(nz)
+                                       int _base) :
+  val_(_val), rowind_(r), colptr_(c), base_(_base), nz_(nz)
 {
   dim_[0] = M;
   dim_[1] = N;

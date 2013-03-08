@@ -255,10 +255,10 @@ void SphericalHarmonicMeshSource::set_up_icosahedron_triangs(Point3* all_vert,
                                                              Point3* all_triangs,
                                                              int subdiv,
                                                              int n_vert,
-                                                             int n_phi,
-                                                             int n_theta,
+                                                             int /* n_phi */,
+                                                             int /* n_theta */,
                                                              double *icos,
-                                                             int n_triangs,
+                                                             int /* n_triangs */,
                                                              int *triangs)
 {
   int    i, n, m, k, numtriags;
@@ -558,7 +558,7 @@ void SphericalHarmonicMeshSource::interpol_vert(int n_phi,
 }
 
 void SphericalHarmonicMeshSource::interpol_2d(int n_phi,
-                                              int n_theta,
+                                              int /* n_theta */,
                                               int xd,
                                               int xu,
                                               int yd,

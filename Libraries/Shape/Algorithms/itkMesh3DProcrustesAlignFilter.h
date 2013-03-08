@@ -77,6 +77,8 @@ public:
   */
   void SetNumberOfInputs( unsigned int num );
 
+  using itk::ProcessObject::SetInput;
+
   /** Sets one input mesh (starting with idx=0). */
   void SetInput( unsigned int idx, InputMeshPointer mesh );
 
@@ -167,7 +169,10 @@ public:
   itkSetMacro(Convergence, double );
 
   /** Creates an ouput object. */
-  virtual DataObjectPointer MakeOutput(unsigned int idx);
+  using itk::ProcessObject::MakeOutput;
+
+  virtual itk::ProcessObject::DataObjectPointer
+  MakeOutput(itk::ProcessObject::DataObjectPointerArraySizeType idx);
 
   /** Normalization with Scaling on (default)*/
   void SetUseScalingOn()

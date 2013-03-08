@@ -42,7 +42,7 @@ void SphericalHarmonicCoefficientFileReader::Update()
     throw SphericalHarmonicCoefficientFileReaderException(__FILE__, __LINE__, "Coef file couldn't be open");
     }
 
-  static char* format_3_real = " { %lf , %lf , %lf } , ";
+  const char* format_3_real = " { %lf , %lf , %lf } , ";
 
   /** Test for format exception. */
   if( fscanf(file, " { %d,", &count) != 1 )

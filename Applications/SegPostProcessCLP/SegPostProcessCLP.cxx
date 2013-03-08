@@ -66,7 +66,7 @@
 using namespace itk;
 using namespace std;
 
-static int debug = 1;
+static int globalDebug = 1;
 static void draw_fill_inside_image(unsigned short *image, int *dim, int new_label);
 
 static int NoDiagConnect(unsigned short *image, int *dim);
@@ -79,10 +79,11 @@ int main( int argc, char * argv[] )
 {
 
   PARSE_ARGS;
+  globalDebug = debug;
   // if (debug) cerr<<"begins"<<endl;
   const int Dimension = 3;
   const int NO_LABEL = 0;
-
+  
   double variance[Dimension];
   for( int i = 0; i < Dimension; i++ )
     {
@@ -896,18 +897,19 @@ int main( int argc, char * argv[] )
     // covarianceAlgorithm = CovarianceAlgorithmType::New();
 
     // Fill labelList vector with the labels IDs
-    PixelType           label;
+    {
     ImageSampleIterator iterLabel = labelSample->Begin();
     while( iterLabel != labelSample->End() )
       {
-      label = iterLabel.GetMeasurementVector()[0];
-      if( label != 0 && !searchList(label, labelList) )
+      PixelType           _label =
+        iterLabel.GetMeasurementVector()[0];
+      if( _label != 0 && !searchList(_label, labelList) )
         {
-        labelList.push_back( label );
+        labelList.push_back( _label );
         }
       ++iterLabel;
       }
-
+    }
     sort(labelList.begin(), labelList.end() );
 
     cout << "3" << endl;
@@ -916,7 +918,9 @@ int main( int argc, char * argv[] )
     membershipSample->SetNumberOfClasses(nbLabels);
 
     ImageSampleIterator iter = imageSample->Begin();
-    iterLabel = labelSample->Begin();   // set iterLabel Iterator to the beginning of labelSample
+    {
+    // set iterLabel Iterator to the beginning of labelSample
+    ImageSampleIterator iterLabel = labelSample->Begin();
     while( iter != imageSample->End() )
       {
       label = iterLabel.GetMeasurementVector()[0];
@@ -927,7 +931,7 @@ int main( int argc, char * argv[] )
       ++iter;
       ++iterLabel;
       }
-
+    }
     /*   int l;
        l=labelList[0]; //the WM is the first in the list
        classSample = membershipSample->GetClassSample(l);
@@ -1136,7 +1140,7 @@ static int NoDiagConnect(unsigned short *image, int *dim)
   while( correctionNeeded )
     {
     cnt++;
-    if( debug )
+    if( globalDebug )
       {
       cout << "NoDiag scan " << cnt << endl;
       }

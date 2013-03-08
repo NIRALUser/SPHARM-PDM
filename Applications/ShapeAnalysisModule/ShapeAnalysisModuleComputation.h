@@ -52,9 +52,9 @@ public:
 
   void WriteBMSShapeAnalysisModuleFile2();
 
-  void ExecuteBatchMake(char *_Input);
+  void ExecuteBatchMake(const char *_Input);
 
-  void ExecuteMeshMath(int, char *, bool);
+  void ExecuteMeshMath(int, const char *, bool);
 
   void ExecuteMeshMathTemplate();
 
@@ -80,15 +80,14 @@ public:
 
 private:
 
-  int    m_StudyNumber;
   int    ComputeMean;
   char   m_BMSShapeAnalysisModuleFile[512];
   char   m_BMSShapeAnalysisModuleMRLMFile[512];
   char   m_OutputFile[512];
-  char   m_SegPostProcessDir[512];
-  char   m_GenParaMeshDir[512];
-  char   m_ParaToSPHARMMeshDir[512];
-  double const_orientation;
+  // char   m_SegPostProcessDir[512];
+  // char   m_GenParaMeshDir[512];
+  // char   m_ParaToSPHARMMeshDir[512];
+  // double const_orientation;
 
   vector<int>    m_Dims;
   vector<double> m_meanX;
@@ -101,7 +100,7 @@ private:
 
   int m_nbHorizontal;
   int m_nbVertical;
-  int nbShapesPerMRML;
+  int m_nbShapesPerMRML;
 
   vector<int> m_permutations;
 

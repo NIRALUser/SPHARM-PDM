@@ -31,8 +31,10 @@ std::vector<std::string> ReadNameFromCSV(std::string Filename)
 std::vector<std::vector<double> > ReadDataFromCSV(std::string Filename, std::vector<std::string> FieldsName)
 {
 	std::vector<std::vector<double> > Data;
-	for(int i=0; i<FieldsName.size(); i++)
-		Data.push_back(std::vector<double>());
+	for(size_t i=0; i<FieldsName.size(); i++)
+          {
+          Data.push_back(std::vector<double>());
+          }
 	std::ifstream File(Filename.c_str(), std::ios::in);
 	std::string Buffer;
 	getline(File,Buffer);
@@ -40,7 +42,7 @@ std::vector<std::vector<double> > ReadDataFromCSV(std::string Filename, std::vec
 	while(!File.eof())
 	{
 		std::istringstream iss(Buffer);
-		for(int i=0; i<FieldsName.size(); i++)
+		for(size_t i=0; i<FieldsName.size(); i++)
 		{
 			double Value;
 			Value=atof((Buffer.substr(0,Buffer.find_first_of(","))).c_str());
@@ -55,7 +57,7 @@ std::vector<std::vector<double> > ReadDataFromCSV(std::string Filename, std::vec
 void GetBounds(std::vector<double> Vector, double Bounds[])
 {
 	double min=100000,max=-1000000;
-	for(int i=0; i<Vector.size(); i++)
+	for(size_t i=0; i<Vector.size(); i++)
 	{
 		if(Vector[i]<min)
 			min=Vector[i];
@@ -90,9 +92,9 @@ int main(int argc, char* argv[])
 	else
 		std::cout<<"Error reading VTK File. Check VTK Format."<<std::endl;
 	
-	for(int i=0; i<FieldsName.size(); i++)
+	for(size_t i=0; i<FieldsName.size(); i++)
 	{
-		if(PolyData->GetPoints()->GetNumberOfPoints()!=FieldsData[i].size()*phiIteration)
+        if(PolyData->GetPoints()->GetNumberOfPoints() != (vtkIdType)FieldsData[i].size()*phiIteration)
 		{
 			std::cout<<"Data samples and points size doesn't match!"<<std::endl;
 			std::cout<<"Abort."<<std::endl;
@@ -100,13 +102,13 @@ int main(int argc, char* argv[])
 		}
 	}
 	
-	for(int i=0; i<FieldsName.size(); i++)
+	for(size_t i=0; i<FieldsName.size(); i++)
 	{
 		vtkSmartPointer<vtkFloatArray> Field(vtkFloatArray::New());
 		vtkSmartPointer<vtkFloatArray> FieldSlicer(vtkFloatArray::New());
 		Field->SetNumberOfComponents(FieldsData[i].size()*phiIteration);
 		FieldSlicer->SetNumberOfComponents(FieldsData[i].size()*phiIteration);
-		for(int j=0; j<FieldsData[i].size(); j++)
+		for(size_t j = 0; j<FieldsData[i].size(); j++)
 		{
 			double* Bounds=new double[2];
 			GetBounds(FieldsData[i],Bounds);

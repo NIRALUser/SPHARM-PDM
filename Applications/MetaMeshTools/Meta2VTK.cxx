@@ -35,7 +35,6 @@ int main(int argc, const char * *argv)
 
   char * infile = strdup(argv[1]);
   char * outfile = strdup(argv[2]);
-  bool   debug      = ipExistsArgument(argv, "-v");
 
   typedef itk::DefaultDynamicMeshTraits<double, 3, 3, double, double> MeshTraitsType;
   typedef itk::Mesh<double, 3, MeshTraitsType>                        itkMeshType;

@@ -28,11 +28,11 @@ Mesh3DProcrustesAlignFilter<TInputMesh, TOutputMesh>
 }
 
 template <class TInputMesh, class TOutputMesh>
-typename Mesh3DProcrustesAlignFilter<TInputMesh, TOutputMesh>::DataObjectPointer
+typename itk::ProcessObject::DataObjectPointer
 Mesh3DProcrustesAlignFilter<TInputMesh, TOutputMesh>
-::MakeOutput(unsigned int)
+::MakeOutput(itk::ProcessObject::DataObjectPointerArraySizeType /* idx */)
 {
-  return static_cast<DataObject *>(TOutputMesh::New().GetPointer() );
+  return static_cast<itk::ProcessObject::DataObjectPointer>(TOutputMesh::New().GetPointer() );
 }
 
 template <class TInputMesh, class TOutputMesh>
@@ -197,6 +197,7 @@ Mesh3DProcrustesAlignFilter<TInputMesh, TOutputMesh>
   InputMeshPointer sourceMesh = this->GetInput( idx );
 
   source.set_size( sourceMesh->GetNumberOfPoints(), 3 );
+  {
   typename InputMeshType::PointsContainer::ConstIterator inputIt;
   unsigned int i = 0;
   for( inputIt = sourceMesh->GetPoints()->Begin(); inputIt != sourceMesh->GetPoints()->End(); ++inputIt )
@@ -205,13 +206,14 @@ Mesh3DProcrustesAlignFilter<TInputMesh, TOutputMesh>
       {
       source[i][dim] = inputIt.Value()[dim] - m_Center[idx][dim];
       }
-    i++;
     }
+  }
   // copy target mesh coordinates to target matrix
   MatrixType target;
   target.set_size( 3, targetMesh->GetNumberOfPoints() );
+  {
   typename OutputMeshType::PointsContainer::ConstIterator outputIt;
-  i = 0;
+  unsigned i = 0;
   for( outputIt = targetMesh->GetPoints()->Begin(); outputIt != targetMesh->GetPoints()->End(); ++outputIt )
     {
     for( int dim = 0; dim < 3; dim++ )
@@ -220,6 +222,7 @@ Mesh3DProcrustesAlignFilter<TInputMesh, TOutputMesh>
       }
     i++;
     }
+  }
   // do procrustes matching
   MatrixType            x1 = target * source / (target.fro_norm() * source.fro_norm() );
   vnl_svd<CoordRepType> svd( x1 );

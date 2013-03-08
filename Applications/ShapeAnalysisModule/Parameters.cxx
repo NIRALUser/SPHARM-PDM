@@ -490,12 +490,12 @@ int Parameters::GetFinalFlipXYZ()
   return m_XYZ_Flip;
 }
 
-int Parameters::SetHorizontalGridPara(int _HorizontalGridPara)
+void  Parameters::SetHorizontalGridPara(int _HorizontalGridPara)
 {
   m_HorizontalGridParaGrid = _HorizontalGridPara;
 }
 
-int Parameters::SetVerticalGridPara(int _VerticalGridPara)
+void Parameters::SetVerticalGridPara(int _VerticalGridPara)
 {
   m_VerticalGridParaGrid = _VerticalGridPara;
 }
@@ -1103,7 +1103,7 @@ char * Parameters::GetAllSurfmeanSPHARMprocalignFiles(int ind)
 }
 
 // Get all the names of the phi files
-char * Parameters::GetAllPhiFiles(int ind)
+char * Parameters::GetAllPhiFiles(int /* ind */)
 {
   Phi_Files = new char[512];
   char  c[512];
@@ -1129,7 +1129,7 @@ char * Parameters::GetAllPhiFiles(int ind)
 }
 
 // Get all the names of the theta files
-char * Parameters::GetAllThetaFiles(int ind)
+char * Parameters::GetAllThetaFiles(int /* ind */)
 {
   Theta_Files = new char[512];
   char  c[512];
@@ -1212,7 +1212,7 @@ void Parameters::ModifyCSV(int Particles)
           }
         else
           {
-          if( nbline < m_EulerNumber.size() )
+          if( nbline < static_cast<long int>(m_EulerNumber.size()) )
             {
             line.append(",");
             line.append(m_EulerNumber.at(nbline) );

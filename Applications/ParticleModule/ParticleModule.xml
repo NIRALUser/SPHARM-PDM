@@ -38,7 +38,7 @@
 			<description>Output Directory</description>
 		</directory>
 		
-		<label>Avanced Input File</label>
+		<label>Advanced Input File</label>
 		<description>Choose the colum of the volume file</description>
 		<integer>
 			<name>columMeshFile</name>

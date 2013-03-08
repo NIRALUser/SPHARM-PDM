@@ -67,17 +67,17 @@ CompRow_Mat_double::CompRow_Mat_double(const CompRow_Mat_double & S) :
 /*  Construct from storage vectors */
 /***********************************/
 
-CompRow_Mat_double::CompRow_Mat_double(int M, int N, int nz, double *val, int *r, int *c, int base) :
-  val_(val, nz), rowptr_(r, M + 1), colind_(c, nz), base_(base), nz_(nz)
+CompRow_Mat_double::CompRow_Mat_double(int M, int N, int nz, double *_val, int *r, int *c, int _base) :
+  val_(_val, nz), rowptr_(r, M + 1), colind_(c, nz), base_(_base), nz_(nz)
 {
   dim_[0] = M;
   dim_[1] = N;
 }
 
-CompRow_Mat_double::CompRow_Mat_double(int M, int N, int nz, const VECTOR_double & val, const VECTOR_int & r,
+CompRow_Mat_double::CompRow_Mat_double(int M, int N, int nz, const VECTOR_double & _val, const VECTOR_int & r,
                                        const VECTOR_int & c,
-                                       int base) :
-  val_(val), rowptr_(r), colind_(c), base_(base), nz_(nz)
+                                       int _base) :
+  val_(_val), rowptr_(r), colind_(c), base_(_base), nz_(nz)
 {
   dim_[0] = M;
   dim_[1] = N;

@@ -42,7 +42,7 @@ int readtxtfile_vec(const char *filename, MV_Vector_double *Aptr)
     }
 
   // one vector element per line
-  while( line_ptr = fgets(line, 82, in_file) )
+  while( (line_ptr = fgets(line, 82, in_file)) != 0 )
     {
     if( sscanf(line_ptr, "%lg", &tmp) >= 1 )
       {
@@ -105,7 +105,7 @@ int readtxtfile_vec(const char *filename, MV_Vector_int *Aptr)
     }
 
   // one vector element per line
-  while( line_ptr = fgets(line, 82, in_file) )
+  while( (line_ptr = fgets(line, 82, in_file)) != 0 )
     {
     if( sscanf(line_ptr, "%d", &tmp) >= 1 )
       {

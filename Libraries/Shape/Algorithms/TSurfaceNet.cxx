@@ -746,13 +746,16 @@ TVertex TVertexList::pop()
     last_->next_ = f->next_;
     }
 
-  static TVertexItem * last = NULL;
-  if( last )
-    {
-    delete last;
-    }
+  // this code makes no sense, and
+  // has no side effects outside this
+  // method.
+  // static TVertexItem * last = NULL;
+  // if( last )
+  //   {
+  //   delete last;
+  //   }
 
-  last = f;
+  // last = f;
 
   return f->val_;
 }
@@ -792,15 +795,15 @@ void TVertexList::insert_after(TVertex val, TVertexItem* it)
 
 void TVertexList::print(std::ostream& os) const
 {
-  int first = 1;
+  int _first = 1;
 
   if( !empty() )
     {
     for( TVertexItem* ptr = last_->next_; ; ptr = ptr->next_ )
       {
-      if( first )
+      if( _first )
         {
-        first = 0;
+        _first = 0;
         }
       else
         {
@@ -1201,7 +1204,7 @@ TVertexList * TNetExtractor::extractnet()
                 neighb_act[count_act++] = num_act;
 
                 int      t_ne2 = diag_translate(dir1, dir2, ne2);
-                numentry dbg = num[1 + z_tab[dir1] + z_tab[dir2]][xy + xy_tab[dir1] + xy_tab[dir2]];
+                // numentry dbg = num[1 + z_tab[dir1] + z_tab[dir2]][xy + xy_tab[dir1] + xy_tab[dir2]];
                 num_act = num[1 + z_tab[dir1] + z_tab[dir2]]
                   [xy + xy_tab[dir1] + xy_tab[dir2]].nums[t_ne2];
                 neighb_act[count_act++] = num_act;

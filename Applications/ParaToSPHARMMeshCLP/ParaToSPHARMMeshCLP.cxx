@@ -792,15 +792,15 @@ int main( int argc, const char * * argv )
         {
         std::cout << "writing para mesh data" << std::endl;
         }
-      MeshType *             paraMesh = meshsrc->GetOutputParaMesh();
-      PointsContainerPointer paraPoints = paraMesh->GetPoints();
+      MeshType *             _paraMesh = meshsrc->GetOutputParaMesh();
+      PointsContainerPointer paraPoints = _paraMesh->GetPoints();
 
       outFileName.erase();
       outFileName.append(base_string);
       outFileName.append("_para.vtk");
 
       itkMeshTovtkPolyData * ITKVTKConverter4 = new itkMeshTovtkPolyData;
-      ITKVTKConverter4->SetInput(paraMesh);
+      ITKVTKConverter4->SetInput(_paraMesh);
 
       vtkwriter->SetInput(ITKVTKConverter4->GetOutput() );
       vtkwriter->SetFileName(outFileName.c_str() );

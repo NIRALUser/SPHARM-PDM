@@ -84,13 +84,17 @@ void SphericalHarmonicSpatialObject::GetCoefs(SphericalHarmonicSpatialObject::Co
 /** p_coefsMeshSpatialObject is the hidden mesh to provide results
 for the three geometric functions (IsInside,  ComputeBoundingBox).
 Pay attention to the variable 'depth'?? */
-bool SphericalHarmonicSpatialObject::ValueAt( const PointType & point, double & value, unsigned int depth,
-                                              char *name) const
+bool SphericalHarmonicSpatialObject::ValueAt( const PointType & /* point */,
+                                              double & /* value */,
+                                              unsigned int /* depth */,
+                                              char * /* name */) const
 {
   return false;
 }
 
-bool SphericalHarmonicSpatialObject::IsEvaluableAt(const PointType & point, unsigned int depth, char *name) const
+bool SphericalHarmonicSpatialObject::IsEvaluableAt(const PointType & /* point */,
+                                                   unsigned int /* depth */,
+                                                   char * /* name */) const
 {
   return false;
 }

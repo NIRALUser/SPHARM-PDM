@@ -44,7 +44,9 @@
 #include <vtkCell.h>
 #include <vtkPoints.h>
 
-#define M_PI 3.14159265358979323846
+#if !defined(M_PI)
+#define M_PI 3.14159265358979323846264338327950288   /* pi */
+#endif
 // bp2009
 // bp2010
 #include "vtkPointLocator.h"
@@ -132,6 +134,15 @@ typedef SphereMeshSourceType::PointType                                         
 typedef itk::SimplexMeshToTriangleMeshFilter<SimplexMeshType, TriangleMeshType> SimplexToTriangleType;
 typedef float                                                                   LUTValueType;
 // bp2009
+
+static int GetIntFromString(const char *inputLine)
+{
+  std::string Line = inputLine;
+  int         loc = Line.find("=", 1);
+  std::string NbPoint = Line.erase(0, loc + 1);
+  int         Val = atoi(NbPoint.c_str() );
+  return Val;
+}
 
 /* qsort float comparision function */
 static int oldStyleCompare( const void* a_, const void* b_ )
@@ -681,7 +692,7 @@ int main(int argc, const char * *argv)
   bool PvalueColorMapOn = ipExistsArgument(argv, "-significanceLevel");
 // double PvalueColorMapNb;
   std::string PvalueColorMapNb_string;
-  double      PvalueColorMapNb;
+  double      PvalueColorMapNb(0.0);
   if( PvalueColorMapOn )
     {
     nbfile = ipGetStringMultipArgument(argv, "-significanceLevel", files, maxNumFiles);
@@ -968,7 +979,7 @@ int main(int argc, const char * *argv)
       double      x[3];
       vtkPoints * PointVTK = vtkPoints::New();
       PointVTK = meshin->GetOutput()->GetPoints();
-      vtkPoints * pointsTmp = vtkPoints::New();
+
       for( int PointId = 0; PointId < (meshin->GetOutput()->GetNumberOfPoints() ); PointId++ )
         {
         PointVTK->GetPoint(PointId, x);
@@ -1050,7 +1061,7 @@ int main(int argc, const char * *argv)
   else if( meshValueOn )
     {
 
-    int num = 0;
+    // int num(0);
     // read input mesh
     MeshConverterType::Pointer converter = MeshConverterType::New();
     MeshSOType::Pointer              SOMesh =
@@ -1370,10 +1381,10 @@ int main(int argc, const char * *argv)
     // create align MeshFiles
     for( int index = 0; index < numMeshes; index++ )
       {
-      MeshType::Pointer   RegisteredMesh = procrustesFilter->GetOutput(index + 1);
+      MeshType::Pointer   _RegisteredMesh = procrustesFilter->GetOutput(index + 1);
       MeshSOType::Pointer inputMeshSO =
         dynamic_cast<MeshSOType *>(converter->ReadMeta(AlignMeshFiles[index].c_str() ).GetPointer() );
-      inputMeshSO->SetMesh(RegisteredMesh);
+      inputMeshSO->SetMesh(_RegisteredMesh);
       writer->SetInput(inputMeshSO);
       writer->SetFileName(AlignMeshOutputFiles[index + 1].c_str() );
       writer->Update();
@@ -1398,7 +1409,6 @@ int main(int argc, const char * *argv)
       numTriangles[i] = 0;
       neighboor[i] = 0;
       }
-    int    num = 0;
     float  std = 0;
     double sum = 0;
     float  avgTriangle = 0;
@@ -1419,18 +1429,19 @@ int main(int argc, const char * *argv)
       // z!=0 load file (correctFilename) wich is already correct to improve the correction
       if( z != 0 )
         {
-        MeshConverterType::Pointer       converter = MeshConverterType::New();
-        MeshSOType::Pointer              SOMesh =
-          dynamic_cast<MeshSOType *>(converter->ReadMeta(correctFilename).GetPointer());
-        MeshType::Pointer                mesh = SOMesh->GetMesh();
-        MeshType::PointsContainerPointer points = mesh->GetPoints();
+        MeshConverterType::Pointer       _converter = MeshConverterType::New();
+        MeshSOType::Pointer              _SOMesh =
+          dynamic_cast<MeshSOType *>(_converter->ReadMeta(correctFilename).GetPointer());
+        MeshType::Pointer                _mesh = _SOMesh->GetMesh();
+        MeshType::PointsContainerPointer _points = _mesh->GetPoints();
         }
 
       typedef CellType::PointIdIterator PointIdIterator;
       CellIterator cellIterator = mesh->GetCells()->Begin();
       CellIterator cellEnd      = mesh->GetCells()->End();
-      PointType    curPoint;
+      // PointType    curPoint;
 
+      int    _num = 0;
       // calculate average triangle for all points, max, min
       while( cellIterator != cellEnd )
         {
@@ -1442,24 +1453,24 @@ int main(int argc, const char * *argv)
         for( int dim = 0; dim < 3; dim++ )
           {
           pIndex1 = *pit;
-          PointType curPoint =  points->GetElement(pIndex1);
-          p1[dim] = curPoint[dim];
+          PointType _curPoint =  points->GetElement(pIndex1);
+          p1[dim] = _curPoint[dim];
           }
 
         ++pit;
         for( int dim = 0; dim < 3; dim++ )
           {
           pIndex2 = *pit;
-          PointType curPoint =  points->GetElement(pIndex2);
-          p2[dim] = curPoint[dim];
+          PointType _curPoint =  points->GetElement(pIndex2);
+          p2[dim] = _curPoint[dim];
           }
 
         ++pit;
         for( int dim = 0; dim < 3; dim++ )
           {
           pIndex3 = *pit;
-          PointType curPoint =  points->GetElement(pIndex3);
-          p3[dim] = curPoint[dim];
+          PointType _curPoint =  points->GetElement(pIndex3);
+          p3[dim] = _curPoint[dim];
           }
 
         a = (p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]);
@@ -1476,7 +1487,7 @@ int main(int argc, const char * *argv)
         numTriangles[pIndex3]++;
 
         ++cellIterator;
-        ++num;
+        ++_num;
         }
       // calculate the average of the triangles
       for( int i = 0; i < numPoints; i++ )
@@ -1522,18 +1533,18 @@ int main(int argc, const char * *argv)
             }
           n = 0;
           numNeighboor = 0;
-          for( int c = 0; c < numPoints; c++ )
+          for( int _c = 0; _c < numPoints; _c++ )
             {
-            neighboor[c] = 0;
+            neighboor[_c] = 0;
             }
           PointType    curPoint =  points->GetElement(i);
-          CellIterator cellIterator = mesh->GetCells()->Begin();
-          CellIterator cellEnd      = mesh->GetCells()->End();
+          CellIterator _cellIterator = mesh->GetCells()->Begin();
+          CellIterator _cellEnd      = mesh->GetCells()->End();
           bool         p2neighboor = 0, p3neighboor = 0;
           // find the neighboors and calculate the new point with the neighboors
-          while( cellIterator != cellEnd )
+          while( _cellIterator != _cellEnd )
             {
-            CellType *                cell = cellIterator.Value();
+            CellType *                cell = _cellIterator.Value();
             TriangleType *            line = dynamic_cast<TriangleType *>(cell);
             LineType::PointIdIterator pit = line->PointIdsBegin();
             MeshType::PointType       p1, p2, p3, p;
@@ -1542,34 +1553,34 @@ int main(int argc, const char * *argv)
             for( int dim = 0; dim < 3; dim++ )
               {
               pIndex1 = *pit;
-              PointType curPoint =  points->GetElement(pIndex1);
-              p1[dim] = curPoint[dim];
+              PointType _curPoint =  points->GetElement(pIndex1);
+              p1[dim] = _curPoint[dim];
               }
             ++pit;
             for( int dim = 0; dim < 3; dim++ )
               {
               pIndex2 = *pit;
-              PointType curPoint =  points->GetElement(pIndex2);
-              p2[dim] = curPoint[dim];
+              PointType _curPoint =  points->GetElement(pIndex2);
+              p2[dim] = _curPoint[dim];
               }
             ++pit;
             for( int dim = 0; dim < 3; dim++ )
               {
               pIndex3 = *pit;
-              PointType curPoint =  points->GetElement(pIndex3);
-              p3[dim] = curPoint[dim];
+              PointType _curPoint =  points->GetElement(pIndex3);
+              p3[dim] = _curPoint[dim];
               }
             // if pIndex1 is the bad point
             if( pIndex1 == i )
               {
               // know if pIndex2 and pIndex3 are already neighboors
-              for( int b = 0; b < n; b++ )
+              for( int _b = 0; _b < n; _b++ )
                 {
-                if( pIndex2 == neighboor[b] )
+                if( pIndex2 == neighboor[_b] )
                   {
                   p2neighboor = 1;
                   }
-                if( pIndex3 == neighboor[b] )
+                if( pIndex3 == neighboor[_b] )
                   {
                   p3neighboor = 1;
                   }
@@ -1607,13 +1618,13 @@ int main(int argc, const char * *argv)
             else if( pIndex2 == i )
               {
               // know if pIndex1 and pIndex3 are already neighboors
-              for( int b = 0; b < n; b++ )
+              for( int _b = 0; _b < n; _b++ )
                 {
-                if( pIndex1 == neighboor[b] )
+                if( pIndex1 == neighboor[_b] )
                   {
                   p2neighboor = 1;
                   }
-                if( pIndex3 == neighboor[b] )
+                if( pIndex3 == neighboor[_b] )
                   {
                   p3neighboor = 1;
                   }
@@ -1651,13 +1662,13 @@ int main(int argc, const char * *argv)
             else if( pIndex3 == i )
               {
               // know if pIndex1 and pIndex3 are already neighboors
-              for( int b = 0; b < n; b++ )
+              for( int _b = 0; _b < n; _b++ )
                 {
-                if( pIndex1 == neighboor[b] )
+                if( pIndex1 == neighboor[_b] )
                   {
                   p2neighboor = 1;
                   }
-                if( pIndex2 == neighboor[b] )
+                if( pIndex2 == neighboor[_b] )
                   {
                   p3neighboor = 1;
                   }
@@ -1692,8 +1703,8 @@ int main(int argc, const char * *argv)
               neighboor[n] = pIndex2;
               ++n;
               }
-            ++cellIterator;
-            ++num;
+            ++_cellIterator;
+            ++_num;
             }
           // calculate the new point : the average of the neighboors
           for( int dim = 0; dim < 3; dim++ )
@@ -1959,18 +1970,20 @@ int main(int argc, const char * *argv)
     output << "TYPE=Scalar " << std::endl;
 
     float thicknew = 0;
-    int   num = 0;
+    {
+    int   _num = 0;
     for( int c = 0; c < nPts; c++ )
       {
       if( label[c] == 11 )
         {
         thicknew = thick[c] + thicknew;
-        num++;
+        _num++;
         // every values of one label : label == 11
         // output <<thick[c] << std::endl;
         }
       }
-    thicknew = thicknew / num;
+    thicknew = thicknew / _num;
+    }
     output << thicknew << std::endl;
 
     inputFile.close();
@@ -2001,8 +2014,9 @@ int main(int argc, const char * *argv)
       }
 
     float *val = new float[30];
-    int    i = 1;
     int    max = 0;
+    {
+    int    i = 1;
     for( int y = 1; y <= num[0]; y++ )
       {
       val[i] = num[y];
@@ -2021,7 +2035,7 @@ int main(int argc, const char * *argv)
       i++;
       max = i;
       }
-
+    }
     while( (input.getline(line, 1000) ) != NULL )
       {
       float a, b, c, d, e, f, g, h, i;
@@ -2177,14 +2191,14 @@ int main(int argc, const char * *argv)
     int val = 0;
     std::ofstream output;
     std::ofstream output2;
-    for( int num = 0; num < numFiles; num++ )
+    for( int _num = 0; _num < numFiles; _num++ )
       {
-      attrFile[num]= new std::ifstream();
-      attrFile[num]->open(MaxFiles[num].c_str());
-      attrFile[num]->seekg(0, std::ios::beg);
+      attrFile[_num]= new std::ifstream();
+      attrFile[_num]->open(MaxFiles[_num].c_str());
+      attrFile[_num]->seekg(0, std::ios::beg);
       for( val = 0; val < 2; val++ )
         {
-        attrFile[num]->getline(line2, 1000);
+        attrFile[_num]->getline(line2, 1000);
         }
       }
 
@@ -2194,19 +2208,19 @@ int main(int argc, const char * *argv)
       float point;
       sscanf(line, " %f ", &point);
       value[index][0] = point;
-      for( int num = 0; num < numFiles; num++ )
+      for( int _num = 0; _num < numFiles; _num++ )
         {
         float point2;
-        attrFile[num]->getline(line2, 1000);
+        attrFile[_num]->getline(line2, 1000);
         sscanf(line2, " %f ", &point2);
-        value[index][num + 1] = point2;
+        value[index][_num + 1] = point2;
         }
       ++index;
       }
-    for( int num = 0; num < numFiles; num++ )
+    for( int _num = 0; _num < numFiles; _num++ )
       {
-      attrFile[num]->close();
-      delete attrFile[num];
+      attrFile[_num]->close();
+      delete attrFile[_num];
       }
     input.close();
     for( int a = 0; a < numberOfLines; a++ )
@@ -2318,14 +2332,14 @@ int main(int argc, const char * *argv)
         }
       }
     std::vector<std::ifstream *> attrFile(numFiles);
-    for( int num = 0; num < numFiles; num++ )
+    for( int _num = 0; _num < numFiles; _num++ )
       {
-      attrFile[num] = new std::ifstream();
-      attrFile[num]->open(distFiles[num].c_str() );
-      attrFile[num]->seekg(0, std::ios::beg);
+      attrFile[_num] = new std::ifstream();
+      attrFile[_num]->open(distFiles[_num].c_str() );
+      attrFile[_num]->seekg(0, std::ios::beg);
       for( val = 0; val < 2; val++ )
         {
-        attrFile[num]->getline(line2, 1000);
+        attrFile[_num]->getline(line2, 1000);
         }
       }
 
@@ -2334,19 +2348,19 @@ int main(int argc, const char * *argv)
       float point;
       sscanf(line, " %f ", &point);
       value[index][0] = point;
-      for( int num = 0; num < numFiles; num++ )
+      for( int _num = 0; _num < numFiles; _num++ )
         {
         float point2;
-        attrFile[num]->getline(line2, 1000);
+        attrFile[_num]->getline(line2, 1000);
         sscanf(line2, " %f ", &point2);
-        value[index][num + 1] = point2;
+        value[index][_num + 1] = point2;
         }
       ++index;
       }
-    for( int num = 0; num < numFiles; num++ )
+    for( int _num = 0; _num < numFiles; _num++ )
       {
-      attrFile[num]->close();
-      delete attrFile[num];
+      attrFile[_num]->close();
+      delete attrFile[_num];
       }
     input.close();
     for( int a = 0; a < numberOfLines; a++ )
@@ -2439,14 +2453,14 @@ int main(int argc, const char * *argv)
         }
       }
     std::vector<std::ifstream *> attrFile(numFiles);
-    for( int num = 0; num < numFiles; num++ )
+    for( int _num = 0; _num < numFiles; _num++ )
       {
-      attrFile[num] = new std::ifstream();
-      attrFile[num]->open(distReFiles[num].c_str() );
-      attrFile[num]->seekg(0, std::ios::beg);
+      attrFile[_num] = new std::ifstream();
+      attrFile[_num]->open(distReFiles[_num].c_str() );
+      attrFile[_num]->seekg(0, std::ios::beg);
       for( val = 0; val < 2; val++ )
         {
-        attrFile[num]->getline(line2, 1000);
+        attrFile[_num]->getline(line2, 1000);
         }
       }
 
@@ -2455,19 +2469,19 @@ int main(int argc, const char * *argv)
       float point;
       sscanf(line, " %f ", &point);
       value[index][0] = point;
-      for( int num = 0; num < numFiles; num++ )
+      for( int _num = 0; _num < numFiles; _num++ )
         {
         float point2;
-        attrFile[num]->getline(line2, 1000);
+        attrFile[_num]->getline(line2, 1000);
         sscanf(line2, " %f ", &point2);
-        value[index][num + 1] = point2;
+        value[index][_num + 1] = point2;
         }
       ++index;
       }
-    for( int num = 0; num < numFiles; num++ )
+    for( int _num = 0; _num < numFiles; _num++ )
       {
-      attrFile[num]->close();
-      delete attrFile[num];
+      attrFile[_num]->close();
+      delete attrFile[_num];
       }
     input.close();
     for( int a = 0; a < numberOfLines; a++ )
@@ -2923,14 +2937,14 @@ int main(int argc, const char * *argv)
       assert( nDim == 1 );
       assert( strcmp( typeString, "Scalar" ) == 0 );
       input.seekg(0, std::ios::beg);
-      const int numEntries = 3;
-      int       counter = 0;
-      while( counter < numEntries && !input.eof() )
+      const int _numEntries = 3;
+      int       _counter = 0;
+      while( _counter < _numEntries && !input.eof() )
         {
         input.getline( line, 1000 );
         if( (line[0] != '#') )
           {
-          counter++;
+          _counter++;
           }
         }
 
@@ -3161,10 +3175,7 @@ int main(int argc, const char * *argv)
       avefile.open(AveFiles[FileId].c_str() );
       // Get the number of point in the file
       avefile.getline(output, 32);
-      std::string Line = output;
-      int         loc = Line.find("=", 1);
-      std::string NbPoint = Line.erase(0, loc + 1);
-      int         Val = atoi(NbPoint.c_str() );
+      int Val = GetIntFromString(output);
       if( Val != NbOfPoint )
         {
         std::cerr << "The file must have the same number of points as the meta file" << std::endl;
@@ -3264,10 +3275,7 @@ int main(int argc, const char * *argv)
     char output[64];
     vectorFile.getline(output, 32);
     outfileVec << output << std::endl;
-    std::string Line = output;
-    int         loc = Line.find("=", 1);
-    std::string NbPoint = Line.erase(0, loc + 1);
-    int         Val = atoi(NbPoint.c_str() );
+    int Val = GetIntFromString(output);
     vectorFile.getline(output, 32);
     outfileVec << output << std::endl;
     vectorFile.getline(output, 32);
@@ -3340,10 +3348,7 @@ int main(int argc, const char * *argv)
     avefile.open(VectFile);
     // Get the number of point in the file
     avefile.getline(out, 32);
-    std::string Line = out;
-    int         loc = Line.find("=", 1);
-    std::string NbPoint = Line.erase(0, loc + 1);
-    int         Val = atoi(NbPoint.c_str() );
+    int Val = GetIntFromString(out);
     if( Val != NbOfPoint )
       {
       std::cerr << "The file must have the same number of point as the meta file" << std::endl;
@@ -3446,10 +3451,7 @@ int main(int argc, const char * *argv)
     avefile.open(VectFile);
     // Get the number of point in the file
     avefile.getline(out, 32);
-    std::string Line = out;
-    int         loc = Line.find("=", 1);
-    std::string NbPoint = Line.erase(0, loc + 1);
-    int         Val = atoi(NbPoint.c_str() );
+    int         Val = GetIntFromString(out);
     double      Mean = 0.0;
     if( Val != NbOfPoint )
       {
@@ -3557,10 +3559,7 @@ int main(int argc, const char * *argv)
       std::cout << "Reading the vector file " << VectFile << std::endl;
       }
     vectorFile.getline(output, 64);
-    std::string  Line = output;
-    int          loc = Line.find("=", 1);
-    std::string  NbPoint = Line.erase(0, loc + 1);
-    unsigned int Val = atoi(NbPoint.c_str() );
+    unsigned int Val = GetIntFromString(output);
 
     // make sure the two meshes have the same number of verts
     if( inputMesh->GetNumberOfPoints() != Val )
@@ -4350,7 +4349,7 @@ int main(int argc, const char * *argv)
     char     line[70];
     ifstream input;
     int      NPoints;
-    float    value;
+    // float    value;
     char *   aux;
     input.open(files[0], ios::in);
 
@@ -4382,7 +4381,7 @@ int main(int argc, const char * *argv)
     for( int i = 0; i < NPoints; i++ )
       {
       input.getline(line, 70, '\n');
-      value = atof(line);
+      float value = atof(line);
       Scalars.SetElement(cont, value);
       cont++;
 
@@ -4431,7 +4430,7 @@ int main(int argc, const char * *argv)
       {
       for( int i = 0; i < NPoints; i++ )
         {
-        value = Scalars[i];
+        float value = Scalars[i];
         scalars_ori->InsertNextValue(value);
         // If range[0] is not 0 i have to shift the values prior scaling
         // if (value >= minPvalue) //TODO
@@ -4457,7 +4456,7 @@ int main(int argc, const char * *argv)
       {
       for( int i = 0; i < NPoints; i++ )
         {
-        value = Scalars[i];
+        float value = Scalars[i];
         scalars_ori->InsertNextValue(value);
         // If range[0] is not 0 i have to shift the values prior scaling
         if( range[0] != 0.0 )
@@ -4990,20 +4989,23 @@ int main(int argc, const char * *argv)
     inputTemplate->Update();
 
     // Computing the normals in the original mesh
+    vtkDataArray *ArrayTemplate;
+    {
+    vtkPolyData *vtkMeshNormals;
     vtkPolyDataNormals *meshNormals = vtkPolyDataNormals::New();
     meshNormals->SetComputePointNormals(1);
     meshNormals->SetComputeCellNormals(0);
     meshNormals->SetSplitting(0);
     meshNormals->SetInput(inputTemplate->GetOutput() );
     meshNormals->Update();
-    vtkPolyData * vtkMeshNormals = meshNormals->GetOutput();
+    vtkMeshNormals = meshNormals->GetOutput();
     vtkMeshNormals->Update();
 
     // Write normals out
     unsigned int nPoints = vtkMeshNormals->GetNumberOfPoints();
     std::cout << nPoints << std::endl;
-    vtkDataArray *ArrayTemplate = vtkDataArray::SafeDownCast(vtkMeshNormals->GetPointData()->GetNormals() );
-
+    ArrayTemplate = vtkDataArray::SafeDownCast(vtkMeshNormals->GetPointData()->GetNormals() );
+    }
     // Creating the point locator to compute the closest point to
     vtkPointLocator *pointLocatorT = vtkPointLocator::New();
     pointLocatorT->SetDataSet(inputTemplate->GetOutput() );
@@ -5012,11 +5014,11 @@ int main(int argc, const char * *argv)
     int             counter = 0; unsigned int ptID;
     vtkDoubleArray *particlesT = vtkDoubleArray::New();
     particlesT->SetNumberOfComponents( 3 );
-    double pt[3], normal[3];
 
     std::ifstream in( TestMeshFiles[1].c_str() );
     while( in )
       {
+      double pt[3], normal[3];
       in >> pt[0] >> pt[1] >> pt[2];
       // ptID=pointLocatorT->FindClosestPoint(pt[0],pt[1],pt[2]);
       ptID = pointLocatorT->FindClosestPoint(pt);
@@ -5045,13 +5047,16 @@ int main(int argc, const char * *argv)
       input->Update();
 
       // **** START STEP 1 -> Computing the normals in the new mesh
+      vtkPolyData * vtkMeshNormals;
+      {
       vtkPolyDataNormals *meshNormals = vtkPolyDataNormals::New();
       meshNormals->SetComputePointNormals(1);
       meshNormals->SetComputeCellNormals(0);
       meshNormals->SetSplitting(0);
       meshNormals->SetInput(input->GetOutput() );
       meshNormals->Update();
-      vtkPolyData * vtkMeshNormals = meshNormals->GetOutput();
+      vtkMeshNormals = meshNormals->GetOutput();
+      }
       vtkMeshNormals->Update();
 
       // Write normals out
@@ -5065,27 +5070,29 @@ int main(int argc, const char * *argv)
       pointLocator->SetDataSet(input->GetOutput() );
       pointLocator->BuildLocator();
 
-      int             counter = 0; unsigned int ptID;
+      int             _counter = 0;
       vtkDoubleArray *particles = vtkDoubleArray::New();
       particles->SetNumberOfComponents( 3 );
-      double ptT[3], pt[3], normal[3];
+      double ptT[3];
 
-      std::ifstream in( TestMeshFiles[index + 1].c_str() );
-      while( in )
+      std::ifstream _in( TestMeshFiles[index + 1].c_str() );
+      while( _in )
         {
-        in >> pt[0] >> pt[1] >> pt[2];
-        // ptID=pointLocator->FindClosestPoint(pt[0],pt[1],pt[2]);
-        ptID = pointLocator->FindClosestPoint(pt);
-        Array->GetTuple(ptID, normal);
-        particles->InsertTupleValue( counter, normal );
-        counter++;
+        double pt[3], normal[3];
+        _in >> pt[0] >> pt[1] >> pt[2];
+        // _ptID=pointLocator->FindClosestPoint(pt[0],pt[1],pt[2]);
+        unsigned int _ptID = pointLocator->FindClosestPoint(pt);
+        Array->GetTuple(_ptID, normal);
+        particles->InsertTupleValue( _counter, normal );
+        _counter++;
         }
 
       std::cout << particles->GetNumberOfTuples() << " particles read from " << TestMeshFiles[index + 1] << std::endl;
       in.close();
-      // std::cout << "Number of particles...  " << counter << std::endl;
-      for( int i = 0; i < counter; i++ )
+      // std::cout << "Number of particles...  " << _counter << std::endl;
+      for( int i = 0; i < _counter; i++ )
         {
+        double pt[3];
         // Retrieve the particle normal from template and mesh
         particlesT->GetTupleValue(i, ptT);
         particles->GetTupleValue(i, pt);
@@ -5104,8 +5111,7 @@ int main(int argc, const char * *argv)
       // *** END STEP 3
       }
 
-    counter = 0;
-    for( int index = 1; index < numFiles; index = index + 2 )
+    for(int index = 1; index < numFiles; index = index + 2 )
       {
 
       std::cout << "Processing " << TestMeshFiles[index].c_str() << std::endl;
@@ -5115,26 +5121,27 @@ int main(int argc, const char * *argv)
       outFile += "new.lpts";
 
       std::ofstream out( outFile.c_str() );
-      std::ifstream in( TestMeshFiles[index].c_str() );
-
-      while( in )
+      std::ifstream __in( TestMeshFiles[index].c_str() );
+      int _counter = 0;
+      while( __in )
         {
-        in >> pt[0] >> pt[1] >> pt[2];
+        double pt[3];
+        __in >> pt[0] >> pt[1] >> pt[2];
         // cout << pt[0] << " " << pt[1] << " " << pt[2] << endl;
-        if( flags->GetValue(counter) != 1 )
+        if( flags->GetValue(_counter) != 1 )
           {
           out << pt[0] << " " << pt[1] << " " << pt[2] << endl;
           }
         else
           {
-          std::cout << "Out particle " << counter << std::endl;
+          std::cout << "Out particle " << _counter << std::endl;
           }
-        counter++;
+        _counter++;
         }
 
       in.close();
       out.close();
-      counter = 0;
+      _counter = 0;
       }
 
     // std::cout << "Se fini!" << std::endl;

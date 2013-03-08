@@ -153,8 +153,8 @@ inline MV_ColMat_float::MV_ColMat_float( MV_ColMat_float & A, MV_Matrix_::ref_ty
 {
 }
 
-inline MV_ColMat_float::MV_ColMat_float(float* d,  int m,  int n, int lda, MV_Matrix_::ref_type i) :
-  v_(d, lda * n, MV_Vector_::ref), dim0_(m), dim1_(n), lda_(lda),
+inline MV_ColMat_float::MV_ColMat_float(float* d,  int m,  int n, int _lda, MV_Matrix_::ref_type i) :
+  v_(d, _lda * n, MV_Vector_::ref), dim0_(m), dim1_(n), lda_(_lda),
   ref_(i)
 {
 }

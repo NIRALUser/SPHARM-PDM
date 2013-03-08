@@ -151,6 +151,7 @@ public:
   itkGetConstReferenceMacro(NumberOfIterations, unsigned int);
   itkSetMacro(NumberOfIterations, unsigned int);
 
+  using itk::ProcessObject::SetInput;
   /** accept the input image */
   virtual void SetInput( const InputImageType * inputImage );
 

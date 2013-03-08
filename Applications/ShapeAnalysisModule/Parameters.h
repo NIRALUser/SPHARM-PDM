@@ -102,9 +102,9 @@ public:
   void SetFinalFlip(int _None_Flip, int _X_Flip, int _Y_Flip, int _Z_Flip, int _XY_Flip, int _YZ_Flip, int _XZ_Flip,
                     int _XYZ_Flip);
 
-  int SetHorizontalGridPara(int _HorizontalGridPara);
+  void SetHorizontalGridPara(int _HorizontalGridPara);
 
-  int SetVerticalGridPara(int _VerticalGridPara);
+  void SetVerticalGridPara(int _VerticalGridPara);
 
   char * GetModulePath();
 

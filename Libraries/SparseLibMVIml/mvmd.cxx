@@ -195,14 +195,14 @@ MV_ColMat_double::MV_ColMat_double(double* d,  int m,  int n) :
     }
 }
 
-MV_ColMat_double::MV_ColMat_double(double* d,  int m,  int n, int lda) :
-  v_(m * n), dim0_(m), dim1_(n), lda_(lda), ref_(0)
+MV_ColMat_double::MV_ColMat_double(double* d,  int m,  int n, int _lda) :
+  v_(m * n), dim0_(m), dim1_(n), lda_(_lda), ref_(0)
 {
   for( int j = 0; j < n; j++ )
     {
     for( int i = 0; i < m; i++ )
       {
-      operator()(i, j) = d[j * lda + i];      // could be made faster!!
+      operator()(i, j) = d[j * _lda + i];      // could be made faster!!
       }
     }
 }

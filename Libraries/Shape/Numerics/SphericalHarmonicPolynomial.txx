@@ -1511,11 +1511,11 @@ void SphericalHarmonicPolynomial<TDimension>::FollowRidge(unsigned int from_l, u
                                                           double *startPoint, double *uv, double *point,
                                                           double stepSize)
 {
-  double GradKappa[2];
+  double _GradKappa[2];
 
-  this->GradKappa(from_l, to_l, 1 - family, startPoint, GradKappa);
-  uv[0] = startPoint[0] + stepSize * GradKappa[0];
-  uv[1] = startPoint[1] + stepSize * GradKappa[1];
+  this->GradKappa(from_l, to_l, 1 - family, startPoint, _GradKappa);
+  uv[0] = startPoint[0] + stepSize * _GradKappa[0];
+  uv[1] = startPoint[1] + stepSize * _GradKappa[1];
 
   this->Evaluate( from_l, to_l, uv[0], uv[1], point );
 }

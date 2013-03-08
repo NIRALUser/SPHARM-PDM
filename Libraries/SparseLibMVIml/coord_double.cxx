@@ -67,8 +67,8 @@ Coord_Mat_double::Coord_Mat_double(const Coord_Mat_double & S) :
 /*  Construct from storage vectors */
 /***********************************/
 
-Coord_Mat_double::Coord_Mat_double(int M, int N, int nz, double *val, int *r, int *c, int base) :
-  val_(val, nz), rowind_(r, nz), colind_(c, nz), base_(base), nz_(nz)
+Coord_Mat_double::Coord_Mat_double(int M, int N, int nz, double *_val, int *r, int *c, int _base) :
+  val_(_val, nz), rowind_(r, nz), colind_(c, nz), base_(_base), nz_(nz)
 {
   dim_[0] = M;
   dim_[1] = N;

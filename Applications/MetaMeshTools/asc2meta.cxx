@@ -43,7 +43,7 @@ int main(int argc, const char **argv)
         string meta_cell="Cells = \n";
 	int n_points, n_cells;
 	float temp;
-	int i,j=0;
+	int i;
 	
 	// Check arguments (input and output file needed)
 	if (argc !=3) 

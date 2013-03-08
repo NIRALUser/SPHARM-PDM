@@ -209,7 +209,7 @@
 	</parameters>
 	
 	<parameters advanced="true">
-		<label>Avanced Input File</label>
+		<label>Advanced Input File</label>
 		<description>Choose the colum of the volume file</description>
 		<boolean>
 			<name>inputColumn</name>
@@ -231,7 +231,7 @@
 		</integer>		
 	</parameters>
 	<parameters advanced="true">
-		<label>Avanced Post Processed Segmentation</label>
+		<label>Advanced Post Processed Segmentation</label>
 		<description>SegPostProcess Advanced Parameters</description>
 		
 		<boolean>

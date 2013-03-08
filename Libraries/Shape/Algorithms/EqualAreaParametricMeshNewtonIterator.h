@@ -31,7 +31,7 @@ public:
 
   void set_aTa(const EqualAreaParametricMeshSparseMatrix& aT);          // set this = aT . a
 
-  void print(char* name, const int append);      // writes matrix to cout
+  void print(const char* name, const int append);      // writes matrix to cout
 
   void test_matrix();
 
@@ -65,14 +65,27 @@ private:
   double                             min_ineq;  // value of worst inactive inequality
   // dangerous: file scope variable!
 
-  double *                            x, *x_try, *newton_dir, *dx, *proj_dx, *lambda;
-  double                              rho, alpha_step, *gCG, *hCG;
+  double *                            m_x;
+  double *                            m_x_try;
+  double *                            m_newton_dir;
+  double *                            m_dx;
+  double *                            m_proj_dx;
+  double *                            m_lambda;
+  double                              m_rho;
+  double                              m_alpha_step;
+  double *                            gCG;
+  double *                            hCG;
   double *                            constr_ineq, *grad, *gradY, *aTgrad;
-  int                                 n_active, *active;
-  double *                            c_hat, *c_hat_l, *c_hat_r;
-  int                                 count, last_complete;
+  int                                 n_active;
+  int *                               active;
+  double *                            c_hat;
+  double *                            c_hat_l;
+  double *                            c_hat_r;
+  int                                 count;
+  int                                 last_complete;
   const IteratorSurfaceNet &          net;
-  EqualAreaParametricMeshSparseMatrix jacobi_aT, jacobi_aTa;
+  EqualAreaParametricMeshSparseMatrix jacobi_aT;
+  EqualAreaParametricMeshSparseMatrix jacobi_aTa;
   char *                              activity;
 
   int     line_search(double & step, double & c_sqr_sum);
@@ -93,7 +106,7 @@ private:
 
   void     estimate_jacobian();
 
-  int     activate(int act, char *);          // returns 0 if no_activation, else 1
+  int     activate(int act, const char *); // returns 0 if no_activation, else 1
 
   int     inactivate(int);              // returns 0 if delayed, else 1
 
@@ -130,9 +143,9 @@ private:
 
   double det3(const double *, const double *, const double *);
 
-  inline double sqr(double x)
+  inline double sqr(double val)
   {
-    return x * x;
+    return val * val;
   }
 
 public:

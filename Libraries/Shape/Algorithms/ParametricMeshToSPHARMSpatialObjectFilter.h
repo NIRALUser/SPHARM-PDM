@@ -71,7 +71,6 @@ public:
 
 class ParametricMeshToSPHARMSpatialObjectFilterLegendre
 {
-  const       double Pi2;
   const double       SQRT2;
   double * * *       plm;
   double       A(int l, int m);
@@ -182,6 +181,8 @@ public:
     m_FlipParametrizationIndex  = flipIndex;
   }
 
+  using itk::ProcessObject::SetOutput;
+
   /** Set the mesh output of this process object. This call is slated
    * to be removed from ITK. You should GraftOutput() and possible
    * DataObject::DisconnectPipeline() to properly change the output. */
@@ -192,7 +193,9 @@ public:
 
   /** Make a DataObject of the correct type to used as the specified
    * output.  */
-  virtual DataObjectPointer MakeOutput(unsigned int idx);
+  using itk::ProcessObject::MakeOutput;
+
+  virtual itk::ProcessObject::DataObjectPointer MakeOutput(itk::ProcessObject::DataObjectPointerArraySizeType idx);
 
   void GenerateOutputInformation()
   {
@@ -265,7 +268,6 @@ private:
   double *     m_flatCoeffs;
 
   bool m_ParaEllipseAlignment;
-  int  m_MirrorCoordinateIndex;
   int  m_FlipParametrizationIndex;
 
   SpatialObjectType::Pointer m_FlipTemplate;

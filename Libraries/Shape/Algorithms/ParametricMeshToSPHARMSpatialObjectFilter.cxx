@@ -68,7 +68,7 @@ ParametricMeshToSPHARMSpatialObjectFilter::~ParametricMeshToSPHARMSpatialObjectF
 }
 
 ParametricMeshToSPHARMSpatialObjectFilter::DataObjectPointer
-ParametricMeshToSPHARMSpatialObjectFilter::MakeOutput(unsigned int)
+ParametricMeshToSPHARMSpatialObjectFilter::MakeOutput(itk::ProcessObject::DataObjectPointerArraySizeType /* idx */)
 {
   SpatialObjectType::Pointer SO = SpatialObjectType::New();
 
@@ -665,7 +665,7 @@ int ParametricMeshToSPHARMSpatialObjectFilter::BestFlipAlign(CoefListType * coef
 }
 
 ParametricMeshToSPHARMSpatialObjectFilterLegendre::ParametricMeshToSPHARMSpatialObjectFilterLegendre(const int l_in) :
-  Pi2(M_PI + M_PI), SQRT2(sqrt( (double) 2) ),  L(l_in)
+  SQRT2(sqrt( (double) 2) ),  L(l_in)
 {
   int    i, j, l, m, sgn;
   double n1, n2;
