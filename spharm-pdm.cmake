@@ -22,11 +22,12 @@ include(${BatchMake_USE_FILE})
 #-----------------------------------------------------------------------------
 
 set(CLAPACK_LIBRARY_DIRECTORIES
-  ${CLAPACK_DIR}/SRC
-  ${CLAPACK_DIR}/BLAS/SRC
+  #${CLAPACK_DIR}/SRC
+  #${CLAPACK_DIR}/BLAS/SRC
   ${CLAPACK_DIR}/F2CLIBS/libf2c)
 set(CLAPACK_LIBRARIES lapack blas f2c)
 
+link_directories( ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} )
 link_directories(${CLAPACK_LIBRARY_DIRECTORIES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/IO)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/SpatialObject)
