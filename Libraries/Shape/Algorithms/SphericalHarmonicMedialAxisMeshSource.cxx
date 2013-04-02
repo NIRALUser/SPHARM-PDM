@@ -104,6 +104,7 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 	Point3* vertex = new Point3[n_vert];
 	Point3* medialVertex = new Point3[m_theta];
 	m_radius = new double[m_theta];
+	m_partialRadius = new double[m_theta*m_phi];
 	double* surface = new double[m_theta];
 	m_area = new double[m_theta];
 	m_partialArea = new double[m_theta*m_phi];
@@ -159,9 +160,9 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 			p2[1]=vertex[i*m_phi+(j+1)%m_phi][1];
 			p2[2]=vertex[i*m_phi+(j+1)%m_phi][2];
 			
-			x=p1[0]-medialVertex[i][0];
-			y=p1[1]-medialVertex[i][1];
-			z=p1[2]-medialVertex[i][2];
+			x=abs(p1[0]-medialVertex[i][0]);
+			y=abs(p1[1]-medialVertex[i][1]);
+			z=abs(p1[2]-medialVertex[i][2]);
 			distance=sqrt(x*x+y*y+z*z);
 			m_radius[i]+=distance;
 			
@@ -179,6 +180,9 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 			surface[i]+=triangle;
 			m_area[i]+=triangle;
 			m_partialArea[i+j*m_theta]=triangle;
+			std::cout << "Partial Radius position " << j << " point one " << p1[0] << "-" << p1[1] << "-" << p1[2] <<  " point two medial point " << medialVertex[i][0] << "-" << medialVertex[i][1] << "-" << medialVertex[i][2] << " distance " << distance << std::endl;
+//			m_partialRadius[i+j*m_theta]=distance;
+			m_partialRadius[i*m_phi+j]=distance;
 		}
 		m_radius[i]/=m_phi;
 	}
@@ -252,13 +256,13 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 	Lines->InsertNextCell(Line);
 	m_outputMedialAxis->SetPoints(Points);
 	m_outputMedialAxis->SetLines(Lines);
-	m_outputMedialAxis->GetPointData()->AddArray(Theta);
-	m_outputMedialAxis->GetPointData()->AddArray(ThetaScaled);
-	m_outputMedialAxis->GetPointData()->AddArray(Radius);
-	m_outputMedialAxis->GetPointData()->AddArray(RadiusScaled);
-	m_outputMedialAxis->GetPointData()->AddArray(Surface);
-	m_outputMedialAxis->GetPointData()->AddArray(SurfaceScaled);
-	m_outputMedialAxis->GetPointData()->AddArray(Volume);
+	//m_outputMedialAxis->GetPointData()->AddArray(Theta);
+	//m_outputMedialAxis->GetPointData()->AddArray(ThetaScaled);
+	//m_outputMedialAxis->GetPointData()->AddArray(Radius);
+	//m_outputMedialAxis->GetPointData()->AddArray(RadiusScaled);
+	//m_outputMedialAxis->GetPointData()->AddArray(Surface);
+	//m_outputMedialAxis->GetPointData()->AddArray(SurfaceScaled);
+	//m_outputMedialAxis->GetPointData()->AddArray(Volume);
 
   /**
 	 * Specify the method used for allocating cells
