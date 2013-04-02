@@ -100,6 +100,7 @@ namespace neurolib
 			
 			double* GetTheta(){return m_ThetaTable;}
 			double* GetRadius(){return m_radius;}
+			double* GetPartialRadius(){return m_partialRadius;}
 			double* GetArea(){return m_area;}
 			double* GetPartialArea(){return m_partialArea;}
 			
@@ -150,6 +151,7 @@ namespace neurolib
 			double *m_radius;
 			double *m_area;
 			double *m_partialArea;
+			double *m_partialRadius;
 
 // 			double *m_icos;   // icosahedron
 	};
