@@ -614,6 +614,32 @@ int main( int argc, const char * * argv )
 		for(int i=0; i<medialMesh_npoints; i++)
 		    outfile_pa<<partialArea[i] << std::endl;
 		outfile_pa.close();
+
+		double* partialRadius;
+		partialRadius=medialmeshsrc->GetPartialRadius();
+
+		vtkFloatArray *scalars_partialRadius = vtkFloatArray::New();
+		scalars_partialRadius->SetNumberOfComponents(1);
+		scalars_partialRadius->SetName("partial_radius");
+
+		for(int i=0; i<medialMesh_npoints; i++)
+		     scalars_partialRadius->InsertNextValue(partialRadius[i]);
+
+		polydataAtt->GetPointData()->AddArray(scalars_partialRadius);   
+
+		std::ofstream outfile_pr;
+		outFileName.erase();
+		outFileName.append(base_string);
+		outFileName.append("_medialMeshPartialRadius.txt");
+		outfile_pr.open(outFileName.c_str(), ios::out);
+		// print the header
+		outfile_pr << "NUMBER_OF_POINTS=" << medialMesh_npoints << std::endl;
+		outfile_pr << "DIMENSION=" << 1 << std::endl;
+		outfile_pr << "TYPE=Scalar" << std::endl;
+		for(int i=0; i<medialMesh_npoints; i++)
+		    outfile_pr<<partialRadius[i] << std::endl;
+		outfile_pr.close();
+
 		// END Add scalars for visualization
 		vtkwriter->SetInput(polydataAtt);
 		outFileName.erase();
