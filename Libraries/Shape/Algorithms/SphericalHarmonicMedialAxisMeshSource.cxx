@@ -180,8 +180,6 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 			surface[i]+=triangle;
 			m_area[i]+=triangle;
 			m_partialArea[i+j*m_theta]=triangle;
-			std::cout << "Partial Radius position " << j << " point one " << p1[0] << "-" << p1[1] << "-" << p1[2] <<  " point two medial point " << medialVertex[i][0] << "-" << medialVertex[i][1] << "-" << medialVertex[i][2] << " distance " << distance << std::endl;
-//			m_partialRadius[i+j*m_theta]=distance;
 			m_partialRadius[i*m_phi+j]=distance;
 		}
 		m_radius[i]/=m_phi;
