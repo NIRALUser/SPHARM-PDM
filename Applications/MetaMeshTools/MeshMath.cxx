@@ -173,204 +173,181 @@ int main(int argc, const char * *argv)
     {
     std::cout << "Usage:" << std::endl;
     std::cout << argv[0] << " inputmesh/inputarray OutputFileName [options]" << std::endl;
+    std::cout << " -subtract <meshfile>      Subtract mesh from inputmesh, write a KWMeshVisu readable text file"  << std::endl;
+    std::cout << " -magnitude                Magnitude of the input metaArray file (mvh/mva) and writes a KWMeshVisu readable file"    << std::endl;
+    std::cout << " -scaleMVA <double>        Scales the input metaArray file (mvh/mva) and writes a KWMeshVisu readable file"  << std::endl;
+    std::cout << " -scaleMesh <DimX> <DimY> <DimZ>       Scales the input mesh file" << std::endl;
+    std::cout << " -avgMesh <Meshfile1> <Meshfile2> ..."  << std::endl;
+    std::cout << "   Compute the average mesh from inputmesh file1, file2..." << std::endl;
+    std::cout << " -ave <Vectorfile1> <Vectorfile2> ..."  << std::endl;
+    std::cout << "   Compute the average vector field from file1, file2... generated with -substract"
+          << std::endl;
+    std::cout << " -normave  <Vectorfile1> <Vectorfile2> ..." << std::endl;
+    std::cout << "   Works as the \"-ave\" option, but the average vector are projected on the normal at each point "    << std::endl;
+    std::cout << " -InvVect <VectorFile>     Invert all the vectors created with the -substract option and write a KWMeshVisu readable file"   << std::endl;
+    std::cout << " -magdir <VectorFile>  Compute the signed magnitude of each of the vector from the vector field.(+ if in the normal direction, - otherwise)"   << std::endl;
+    std::cout << " -magNormDir <VectorFile> Compute the signed magnitude of the normal projection of the vector field"   << std::endl;
+    std::cout << " -applyVec <VectorFile> Deforme the mesh according to the vector field specified as input" << std::endl;
+    std::cout << " -meshValues                Find the points and cells in a mesh. The outputfile is a textfile with the values"<< std::endl;
+    std::cout << " -avgGaussMesh <Meshfile1> <Meshfile2> ... -gaussMeshPara <mean>,<stdev>,<val1>,<val2>,... "<< std::endl;
+    std::cout << "   Compute the gaussian average for mesh files." << std::endl;
+    std::cout << "   The first parameter is the average, then the standard deviation of the Gaussian model and the rest are the values associated with the files"   << std::endl;
+    std::cout << " -avgGaussKWM <txtfile1> <txtfile2>... -gaussKWMPara <mean>,<stdev>,<val1>,<val2>,... "
+      << std::endl;
+    std::cout << "  Compute the gaussian average for KWMeshVisu files." << std::endl;
     std::cout
-    << "     -subtract <meshfile>      Subtract mesh from inputmesh, write a KWMeshVisu readable text file"
+    <<
+    "  The first parameter is the average, then the standard deviation of the Gaussian model and the rest are the values associated with the files"
     << std::endl;
     std::cout
     <<
-    "     -magnitude                Magnitude of the input metaArray file (mvh/mva) and writes a KWMeshVisu readable file"
-    << std::endl;
-    std::cout
-    << "     -scaleMVA <double>        Scales the input metaArray file (mvh/mva) and writes a KWMeshVisu readable file"
-    << std::endl;
-    std::cout << "     -scaleMesh <DimX> <DimY> <DimZ>       Scales the input mesh file" << std::endl;
-    std::cout << "     -avgMesh <Meshfile1> <Meshfile2> ..."  << std::endl;
-    std::cout << "          Compute the average mesh from inputmesh file1, file2..." << std::endl;
-    std::cout << "     -ave <Vectorfile1> <Vectorfile2> ..."  << std::endl;
-    std::cout << "          Compute the average vector field from file1, file2... generated with -substract"
-              << std::endl;
-    std::cout << "     -normave  <Vectorfile1> <Vectorfile2> ..." << std::endl;
-    std::cout
-    << "          Works as the \"-ave\" option, but the average vector are projected on the normal at each point "
-    << std::endl;
-    std::cout
-    <<
-    "     -InvVect <VectorFile>     Invert all the vectors created with the -substract option and write a KWMeshVisu readable file"
-    << std::endl;
-    std::cout
-    <<
-    "     -magdir <VectorFile>      Compute the signed magnitude of each of the vector from the vector field.(+ if in the normal direction, - otherwise)"
-    << std::endl;
-    std::cout
-    << "     -magNormDir <VectorFile>  Compute the signed magnitude of the normal projection of the vector field"
-    << std::endl;
-    std::cout << "     -applyVec <VectorFile> Deforme the mesh according to the vector field specified as input"
-              << std::endl;
-    std::cout
-    <<
-    "     -meshValues                Find the points and cells in a mesh. The outputfile is a textfile with the values"
-    << std::endl;
-    std::cout << "     -avgGaussMesh <Meshfile1> <Meshfile2> ... -gaussMeshPara <mean>,<stdev>,<val1>,<val2>,... "
-              << std::endl;
-    std::cout << "          Compute the gaussian average for mesh files." << std::endl;
-    std::cout
-    <<
-    "          The first parameter is the average, then the standard deviation of the Gaussian model and the rest are the values associated with the files"
-    << std::endl;
-    std::cout << "     -avgGaussKWM <txtfile1> <txtfile2>... -gaussKWMPara <mean>,<stdev>,<val1>,<val2>,... "
-              << std::endl;
-    std::cout << "          Compute the gaussian average for KWMeshVisu files." << std::endl;
-    std::cout
-    <<
-    "          The first parameter is the average, then the standard deviation of the Gaussian model and the rest are the values associated with the files"
-    << std::endl;
-    std::cout
-    <<
-    "     -alignMesh <Meshfile1> <Meshfile2>... Align all of the meshes to the inputmesh (== MeshFile0) using Procrustes alignment"
+    " -alignMesh <Meshfile1> <Meshfile2>... Align all of the meshes to the inputmesh (== MeshFile0) using Procrustes alignment"
     << endl;
-    std::cout << "     -BadTriangle <thresh value> [-correctMesh correctFilename] "  << std::endl;
+    std::cout << " -BadTriangle <thresh value> [-correctMesh correctFilename] "  << std::endl;
     std::cout
     <<
-    "          Find the bad triangles in a Mesh. The <thresh value> is the value of the threshFactor to calculate the standard deviation for the bad triangles. The output is a KWMeshVisu text file with the values of the average of the triangles of the mesh "
+    "  Find the bad triangles in a Mesh. The <thresh value> is the value of the threshFactor to calculate the standard deviation for the bad triangles. The output is a KWMeshVisu text file with the values of the average of the triangles of the mesh "
     << std::endl;
-    std::cout << "          To have a new Mesh with the correct triangles -correctMesh " <<  std::endl;
-    std::cout << "     -extraction extractFilename [-extractClosest] [-nn]" << std::endl;
+    std::cout << "  To have a new Mesh with the correct triangles -correctMesh " <<  std::endl;
+    std::cout << " -extraction extractFilename [-extractClosest] [-nn]" << std::endl;
     std::cout
     <<
-    "          To extract an attribute.The Input is the Mesh, the extractFilename is the attribute image and the Output is a KWMeshVisu text file with the attribute extraction"
+    "  To extract an attribute.The Input is the Mesh, the extractFilename is the attribute image and the Output is a KWMeshVisu text file with the attribute extraction"
     << std::endl;
-    std::cout << "          [-extractClosest]: extract closest attribute" << std::endl;
-    std::cout << "          [-nn]: nearest neighbor interpolation (default: linear)" << std::endl;
-    std::cout << "     -value <file1> <file2>... " << std::endl;
+    std::cout << "  [-extractClosest]: extract closest attribute" << std::endl;
+    std::cout << "  [-nn]: nearest neighbor interpolation (default: linear)" << std::endl;
+    std::cout << " -value <file1> <file2>... " << std::endl;
     std::cout
-    << "          Extract the 5th column from a textfile and write a KWMeshVisu file with the values obtained"
+    << "  Extract the 5th column from a textfile and write a KWMeshVisu file with the values obtained"
     <<  std::endl;
-    std::cout << "     -subKWM <textname>       Difference between 2 KWMeshVisu files" << std::endl;
+    std::cout << " -subKWM <textname>       Difference between 2 KWMeshVisu files" << std::endl;
     std::cout
     <<
-    "     -MaxColor <textfile>...  Compare each point in every files, find a max for every points, keep 5% near the max, the other values will be 0"
-    << std::endl;
-    std::cout
-    <<
-    "     -dist_absolute <textfile>,<textfile>...  -result_absolute <textfile>,<textfile>... Absolute distance map between KWMeshVisu files"
+    " -MaxColor <textfile>...  Compare each point in every files, find a max for every points, keep 5% near the max, the other values will be 0"
     << std::endl;
     std::cout
     <<
-    "     -dist_relative <textfile>,<textfile>...  -result_relative <textfile>,<textfile>... Relative distance map between KWMeshVisu files (values between -1 & 1)"
+    " -dist_absolute <textfile>,<textfile>...  -result_absolute <textfile>,<textfile>... Absolute distance map between KWMeshVisu files"
     << std::endl;
-    std::cout << "     -label <textfile>      Separate every labels, find the mean..." << std::endl;
     std::cout
-    << "     -color -val <number_of_label>,<value_label>... -oldval <number_of_old_label>,<old_value_label>..."
+    <<
+    " -dist_relative <textfile>,<textfile>...  -result_relative <textfile>,<textfile>... Relative distance map between KWMeshVisu files (values between -1 & 1)"
     << std::endl;
-    std::cout << "          To change the value of labels to see the evolution with KWMeshVisu. " <<  std::endl;
-    std::cout << "          Value_label is when the label grow up. " <<  std::endl;
-    std::cout << "          Old_value_label is for the label wich has already grown up." <<  std::endl;
+    std::cout << " -label <textfile>      Separate every labels, find the mean..." << std::endl;
     std::cout
-    << "     -first <textfile>...   Convert a column file into a line file with a comma between each value"
+    << " -color -val <number_of_label>,<value_label>... -oldval <number_of_old_label>,<old_value_label>..."
+    << std::endl;
+    std::cout << "  To change the value of labels to see the evolution with KWMeshVisu. " <<  std::endl;
+    std::cout << "  Value_label is when the label grow up. " <<  std::endl;
+    std::cout << "  Old_value_label is for the label wich has already grown up." <<  std::endl;
+    std::cout
+    << " -first <textfile>...   Convert a column file into a line file with a comma between each value"
     << std::endl;
     // cchou MC2Origin
-    std::cout << "     -MC2Origin       Translate the Center of Mass to the Origin" << std::endl;
+    std::cout << " -MC2Origin       Translate the Center of Mass to the Origin" << std::endl;
     // bp2009 StatsKWM
-    std::cout << "     -avgOneKWM       Computes the avg of an input KWMeshVisu readable file" << std::endl;
-    std::cout << "     -medianOneKWM    Computes the min of an input KWMeshVisu readable file" << std::endl;
-    std::cout << "     -minOneKWM       Computes the min of an input KWMeshVisu readable file" << std::endl;
-    std::cout << "     -maxOneKWM       Computes the max of an input KWMeshVisu readable file" << std::endl;
-    std::cout << "     -per1OneKWM      Computes the 1% percentile of an input KWMeshVisu readable file" << std::endl;
-    std::cout << "     -per99OneKWM     Computes the 99% percentile of an input KWMeshVisu readable file" << std::endl;
+    std::cout << " -avgOneKWM       Computes the avg of an input KWMeshVisu readable file" << std::endl;
+    std::cout << " -medianOneKWM    Computes the min of an input KWMeshVisu readable file" << std::endl;
+    std::cout << " -minOneKWM       Computes the min of an input KWMeshVisu readable file" << std::endl;
+    std::cout << " -maxOneKWM       Computes the max of an input KWMeshVisu readable file" << std::endl;
+    std::cout << " -per1OneKWM      Computes the 1% percentile of an input KWMeshVisu readable file" << std::endl;
+    std::cout << " -per99OneKWM     Computes the 99% percentile of an input KWMeshVisu readable file" << std::endl;
     // bp2009 StatsKWM
     // bp2009 FillHole
-    std::cout << "     -FillHole        Fills up a hole in a open mesh." << std::endl;
-    std::cout << "                          If more than one hole exists, this operation might have to be repeated."
-              << std::endl;
+    std::cout << " -FillHole        Fills up a hole in a open mesh." << std::endl;
+    std::cout << "      If more than one hole exists, this operation might have to be repeated."
+      << std::endl;
     // bp2009 FillHole
     // bp2009 BordersOut
-    std::cout << "     -BordersOut      Outputs the borders of a mesh (if there)." << std::endl;
+    std::cout << " -BordersOut      Outputs the borders of a mesh (if there)." << std::endl;
     // bp2009 BordersOut
     // bp2009 IsOpen
-    std::cout << "     -IsOpen          Gives back an integer defining whether the mesh is open or not" << std::endl;
+    std::cout << " -IsOpen          Gives back an integer defining whether the mesh is open or not" << std::endl;
     // bp2009 IsOpen
     // bp2009 CleanMesh
     std::cout
-    << "     -CleanMesh       Re-mesh the input mesh and gives back a new clean mesh without degenerated triangles"
+    << " -CleanMesh       Re-mesh the input mesh and gives back a new clean mesh without degenerated triangles"
     << std::endl;
     // bp2009 CleanMesh
     // bp2009 SmoothMesh
-    std::cout << "     -SmoothMesh iterations    Gives back a Laplacian smoothed surface" << std::endl;
-    std::cout << "                                  Iterations defines how many times the Laplacian is applied."
-              << std::endl;
+    std::cout << " -SmoothMesh iterations    Gives back a Laplacian smoothed surface" << std::endl;
+    std::cout << "          Iterations defines how many times the Laplacian is applied."
+      << std::endl;
     // bp2009 SmoothMesh
     // bp2009 FilterNormals
     std::cout
     <<
-    "     -FilterNormals direction <MeshFileVTK> <MeshFileVTKOut>  ... Changes homogeneously normals of the polygons in a mesh"
+    " -FilterNormals direction <MeshFileVTK> <MeshFileVTKOut>  ... Changes homogeneously normals of the polygons in a mesh"
     << std::endl;
     std::cout
     <<
-    "                                                           direction= [1] normals outwards [-1] normals inwards"
+    "               direction= [1] normals outwards [-1] normals inwards"
     << std::endl;
     // bp2009 FilterNormals
     // bp2009 StatsROI
-    std::cout << "     -statsROI <txtROIFileIn>   Process a KWMeshVisu file, given a ROI Mask" << std::endl;
-    std::cout << "                                   Outputs a new KWMeshVisu only with the info in the mask"
-              << std::endl;
+    std::cout << " -statsROI <txtROIFileIn>   Process a KWMeshVisu file, given a ROI Mask" << std::endl;
+    std::cout << "       Outputs a new KWMeshVisu only with the info in the mask"
+      << std::endl;
     // bp2009 StatsROI
     // bp2009 KWMtoPolyData
     std::cout
     <<
-    "     -KWMtoPolyData <txtFileIn> <nameScalarField>   Writes a KWM scalar field (1D) into a PolyData Field Data Scalar to visualize in Slicer3"
+    " -KWMtoPolyData <txtFileIn> <nameScalarField>   Writes a KWM scalar field (1D) into a PolyData Field Data Scalar to visualize in Slicer3"
     << std::endl;
-    std::cout << "                                                                    " << std::endl;
     // bp2009 KWMtoPolyData
-    std::cout << "     -significanceLevel <double> the min Pvalue for the Pval ColorMap " << std::endl;
-    std::cout << "                                                                    " << std::endl;
+    std::cout << " -significanceLevel <double> the min Pvalue for the Pval ColorMap " << std::endl;
 
     // bp2009 ProcessROI
-    std::cout << "     -processROI <txtROIFileIn> <MeshFileIn>  ... [TEMP - do not know where to put this]"
-              << std::endl;
-    std::cout << "                                                   Gets stats for a distances ROI map" << std::endl;
+    std::cout << " -processROI <txtROIFileIn> <MeshFileIn>  ... [TEMP - do not know where to put this]" << std::endl;
+    std::cout << "   Gets stats for a distances ROI map" << std::endl;
     // bp2009 ProcessROI
-    std::cout << "     -surfaceArea <AttributeFile>   Computes surface area in a txt file" << std::endl;
-    std::cout <<"     -lobarSurfaceArea <ParcellationAttributeFile>   Computes lobar surface area (output: csv file)"<<std::endl;
-    std::cout << "     -variance <AttributeFile2> <AttributeFile3>...   Compute variance across population" << std::endl;
+    std::cout << " -surfaceArea <AttributeFile>   Computes surface area in a txt file" << std::endl;
+    std::cout << " -lobarSurfaceArea <ParcellationAttributeFile>   Computes lobar surface area (output: csv file)"<<std::endl;
+    std::cout << " -variance <AttributeFile2> <AttributeFile3>...   Compute variance across population" << std::endl;
     // bp2010 GetCurvatures
     std::cout
     <<
-    "     -GetCurvatures <txtFileOut_C> <txtFileOut_S> <txtFileOut_Gauss> <txtFileOut_mean>... Gets an assorted set of curvature measurements:"
+    " -GetCurvatures <txtFileOut_C> <txtFileOut_S> <txtFileOut_Gauss> <txtFileOut_mean>... Gets an assorted set of curvature measurements:"
     << std::endl;
     std::cout
     <<
-    "	Koenderink curvature values for an input mesh (shape index = S, curvedness = C), Gaussian Curvature and Mean Curvature"
+    "   Koenderink curvature values for an input mesh (shape index = S, curvedness = C), Gaussian Curvature and Mean Curvature"
     << std::endl;
     // bp2010 GetCurvatures
     // bp2010 particleConsistency
     std::cout
     <<
-    "     -particleConsistency <vtkFileIn_1> <lptsFileIn_1> ... <vtkFileIn_n> <lptsFileIn_n> ... Generates new particle files where fliped particles does not appear"
+    " -particleConsistency <vtkFileIn_1> <lptsFileIn_1> ... <vtkFileIn_n> <lptsFileIn_n> ... Generates new particle files where fliped particles does not appear"
     << std::endl;
     // bp2010 particleConsistency
     // bp2010 GetDirectionFeatures
     std::cout
     <<
-    "     -GetDirectionFeatures ... Generates three KWM loadable files that have directionality features with respect to X, Y and Z directions"
+    " -GetDirectionFeatures ... Generates three KWM loadable files that have directionality features with respect to X, Y and Z directions"
     << std::endl;
     // bp2010 GetDirectionFeatures
     std::cout
     <<
-    "     -closestPoint <InputAttributeFile1> <InputMesh2>   Computes interpolated attribute file (output file) for second mesh using closest point interpolation between two input meshes"
+    " -closestPoint <InputAttributeFile1> <InputMesh2>   Computes interpolated attribute file (output file) for second mesh using closest point interpolation between two input meshes"
     << std::endl;
-    std::cout << "     -extractVertices <YLocationAttributeFile.txt> <ZLocationAttributeFile.txt>  Extract points and write 3 different files listing respectively X, Y and Z values"
+    std::cout << " -extractVertices <YLocationAttributeFile.txt> <ZLocationAttributeFile.txt>  Extract points and write 3 different files listing respectively X, Y and Z values"
     << std::endl;
-    std::cout <<"     -mean <AttributeFile2> <AttributeFile3>... Compute mean scalar attribute file (assuming same number of vertices)" << std::endl;
+    std::cout << " -mean <AttributeFile2> <AttributeFile3>... Compute mean scalar attribute file (assuming same number of vertices)" << std::endl;
     //cx2011 cart2bary
-    std::cout <<"     -cart2bary <vtkPointFileIn> Project each point in <vtkPointFileIn> onto the <inputmesh> and then calculate the Barycentric coordinate of the projected point, output to <OutputFileName>" << std::endl;
+    std::cout << " -cart2bary <vtkPointFileIn> Project each point in <vtkPointFileIn> onto the <inputmesh> and then calculate the Barycentric coordinate of the projected point, output to <OutputFileName>" << std::endl;
 
     //bp2011
-    std::cout <<"     -attSTD <attribute_file2> <attribute_file2> ...<attribute_fileN> ... Compute std for a collection of vector or scalar files" << std::endl;
-    std::cout <<"     -VTKtolpts  ... Create a particle file out of a triangulated VTK mesh" << std::endl;
+    std::cout << " -attSTD <attribute_file2> <attribute_file2> ...<attribute_fileN> ... Compute std for a collection of vector or scalar files" << std::endl;
+    std::cout << " -VTKtolpts  ... Create a particle file out of a triangulated VTK mesh" << std::endl;
     //bp2012
-    std::cout <<"     -relaxPolygons iterations... Mesh relaxation based in vtkWindowedSincPolyDataFilter" << std::endl;
-    std::cout <<"     -decimateMesh <target reduction> ... Mesh decimation, reducing the number of points. Target reduction is a value from 0..1 that indicates in what % vertices should be reduced" << std::endl;
-    std::cout << "     -verbose                   Verbose output" << std::endl;
+    std::cout << " -relaxPolygons iterations... Mesh relaxation based in vtkWindowedSincPolyDataFilter" << std::endl;
+    std::cout << " -decimateMesh <target reduction> ... Mesh decimation, reducing the number of points. Target reduction is a value from 0..1 that indicates in what % vertices should be reduced" << std::endl;
+    //mst2013
+    std::cout << " -listPointData    lists info about all the VTK point Data in the vtk file" << std::endl;
+    std::cout << " -PointDataOp <name> <op> <val>   <name>: name of point data, " << std::endl
+	      << "     <op>: [threshBelow | sub]  threshBelow: set to 0 all data below <value>, sub: subtract value"   << std::endl;
+    
+    std::cout << " -verbose                   Verbose output" << std::endl;
     return 0;
     }
 
@@ -836,6 +813,33 @@ int main(int argc, const char * *argv)
   double decimateMeshTR = ipGetDoubleArgument(argv, "-decimateMesh",1.0);
   //bp2012 decimateMesh
 
+  //ms2013  pointData
+  bool listPointDataOn  = ipExistsArgument(argv,"-listPointData");
+  //ms2013  pointData
+  bool PointDataOpOn = ipExistsArgument(argv, "-PointDataOp");
+  std::vector<std::string> pointDataOpCmd;
+  if( PointDataOpOn )
+    {
+    nbfile = ipGetStringMultipArgument(argv, "-PointDataOp", files, 3);
+    for( int i = 0; i < nbfile; i++ )
+      {
+      pointDataOpCmd.push_back(files[i]);
+      }
+    }
+
+  // PROCESSING STARTS HERE
+  // PROCESSING STARTS HERE
+  // PROCESSING STARTS HERE
+  // PROCESSING STARTS HERE
+  // PROCESSING STARTS HERE
+  // PROCESSING STARTS HERE
+  // PROCESSING STARTS HERE
+  // PROCESSING STARTS HERE
+  // PROCESSING STARTS HERE
+  // PROCESSING STARTS HERE
+  // PROCESSING STARTS HERE
+  // PROCESSING STARTS HERE
+  // PROCESSING STARTS HERE
   if( subtractOn )
     {
     // read in the input files
@@ -3639,6 +3643,10 @@ int main(int argc, const char * *argv)
 
     // Sum up Original Points
     double sum[3];
+    sum[0] = 0;
+    sum[1] = 0;
+    sum[2] = 0;
+
     for( unsigned int pointID = 0; pointID < points->Size(); pointID++ )
       {
       PointType curPoint = points->GetElement(pointID);
@@ -4247,7 +4255,7 @@ int main(int argc, const char * *argv)
   else if( filterNormalsOn ) // bp2009
     {
 
-    std::cout << "Arguments " << " " << argv[0] << " " << argv[1] << " " << argv[2] << " " << argv[3] << std::endl;
+    std::cout << "Arguments " << " " << argv[0] << " " << inputFilename << " " << argv[2] << " " << argv[3] << std::endl;
 
     std::cout << "Reading mesh " << " " << argv[2] << std::endl;
     vtkPolyDataReader *meshin = vtkPolyDataReader::New();
@@ -4823,12 +4831,12 @@ int main(int argc, const char * *argv)
     }
   else if( GetCurvaturesOn )   // bp2010
     {
-    std::cout << "Arguments " << " " << argv[0] << " " << argv[1] << " " << argv[2] << " " << argv[3] << " "
+    std::cout << "Arguments " << " " << argv[0] << " " << inputFilename << " " << argv[2] << " " << argv[3] << " "
               << argv[4] << std::endl;
 
     // Read PolyData info
     vtkPolyDataReader *polyIn = vtkPolyDataReader::New();
-    polyIn->SetFileName(argv[1]); polyIn->Update();
+    polyIn->SetFileName(inputFilename); polyIn->Update();
     vtkPolyData* polydata = polyIn->GetOutput();
 
     // Calculate Curvedness and Shape Index
@@ -4910,9 +4918,9 @@ int main(int argc, const char * *argv)
   else if( GetDirectionFeaturesOn ) // bp2010
     {
     // Reading the first mesh (template)
-    // std::cout << "Reading template mesh " << argv[1] << std::endl;
+    // std::cout << "Reading template mesh " << inputFilename << std::endl;
     vtkPolyDataReader *inputTemplate = vtkPolyDataReader::New();
-    inputTemplate->SetFileName(argv[1]);
+    inputTemplate->SetFileName(inputFilename);
     inputTemplate->Update();
     vtkPolyData* polydata = inputTemplate->GetOutput();
 
@@ -5873,6 +5881,88 @@ int main(int argc, const char * *argv)
 	SurfaceWriter->Update();
 
 	if (debug) std::cout << "Writing new mesh " << outputFilename << std::endl;
+  } else if (listPointDataOn) //ms2013
+  {
+    // Read PolyData info
+    vtkPolyDataReader *polyIn = vtkPolyDataReader::New();
+    if (debug) std::cout << "Reading vtk mesh " << inputFilename << std::endl;
+    polyIn->SetFileName(inputFilename); 
+    polyIn->Update();
+    vtkPolyData* polydata = polyIn->GetOutput();
+    unsigned int    nPoints = polydata->GetNumberOfPoints();;
+
+    unsigned int numberOfArrays = polydata->GetPointData()->GetNumberOfArrays();
+    std::cout << "Number of Scalars " << numberOfArrays << ", number of Points " << nPoints << std::endl;
+     
+    for (unsigned int j = 0 ; j < numberOfArrays ; j ++)
+      { 
+	std::cout << "  name " << j << ": " << polydata->GetPointData()->GetArrayName(j) <<std::endl;
+
+	polydata->GetPointData()->SetActiveScalars(polydata->GetPointData()->GetArrayName(j));
+	vtkDoubleArray *scalarData = (vtkDoubleArray *) polydata->GetPointData()->GetArray(j);
+
+	if (scalarData) 
+	  {
+	    double min = scalarData->GetComponent(0,0);
+	    double max = min;
+	    for (unsigned int i = 0 ; i < nPoints; i++)
+	      {
+		double val = scalarData->GetComponent(i,0);
+		if (min > val)  min = val;
+		if (max < val)  max = val;
+	      }
+	
+	    std::cout << "     min/max :" << min << " / " << max <<std::endl;
+	  }
+      }
+  } else if (PointDataOpOn)
+  {
+    
+    // Read PolyData info
+    vtkPolyDataReader *polyIn = vtkPolyDataReader::New();
+    if (debug) std::cout << "Reading vtk mesh " << inputFilename << std::endl;
+    polyIn->SetFileName(inputFilename); 
+    polyIn->Update();
+    vtkPolyData* polydata = polyIn->GetOutput();
+    unsigned int    nPoints = polydata->GetNumberOfPoints();;
+
+    unsigned int numberOfArrays = polydata->GetPointData()->GetNumberOfArrays();
+    if (debug) std::cout << "Number of Scalars " << numberOfArrays << ", number of Points " << nPoints << std::endl;
+
+    const char * name = pointDataOpCmd[0].c_str();
+    polydata->GetPointData()->SetActiveScalars(name);
+    vtkDoubleArray *scalarData = (vtkDoubleArray *) polydata->GetPointData()->GetArray(name);
+    if (scalarData) 
+      {
+	double opValue = atof(pointDataOpCmd[2].c_str());
+	if (debug)  std::cout << "operation " << pointDataOpCmd[1] << " : " << opValue << std::endl;
+     
+	if (! pointDataOpCmd[1].compare("threshBelow"))
+	{
+	  for (unsigned int i = 0 ; i < nPoints; i++)
+	    {
+	      if (scalarData->GetComponent(i,0) < opValue)  scalarData->SetComponent(i,0, 0);
+	    }
+	
+	} else if (! pointDataOpCmd[1].compare("sub")) 
+	{
+	  for (unsigned int i = 0 ; i < nPoints; i++)
+	    {
+	      double curValue = scalarData->GetComponent(i,0);
+	      scalarData->SetComponent(i,0, curValue - opValue);
+	    }
+	} else 
+	{
+	  std::cout << "No (known) point operation detected -> exiting" << std::endl;
+	}
+      }
+    if (debug)  std::cout << "saving modified vtk in " << outputFilename  << std::endl;
+     
+    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    SurfaceWriter->SetInput(polydata);
+    SurfaceWriter->SetFileName(outputFilename);
+    SurfaceWriter->Update();
+
   } else
     {
 
