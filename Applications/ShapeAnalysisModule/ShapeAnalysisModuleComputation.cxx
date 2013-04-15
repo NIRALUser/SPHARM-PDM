@@ -22,13 +22,11 @@ void ShapeAnalysisModuleComputation::Computation()
   m_nbHorizontal = GetHorizontalGridPara();
   m_nbVertical = GetVerticalGridPara();
   this->m_nbShapesPerMRML = m_nbHorizontal * m_nbVertical;
-  int nummrml = -1; // if -1 you will have one all the shapes
 
   SetAllFilesName();
   OverWrite();
   WriteBMSShapeAnalysisModuleFile();
   ExecuteBatchMake(GetBMSShapeAnalysisModuleFile() ); 
-  //std::cout << GetBMSShapeAnalysisModuleFile() << std::endl;
 
   if( GetTemplateMState() == true )
     {
@@ -47,54 +45,6 @@ void ShapeAnalysisModuleComputation::Computation()
     }
 
   ExecuteMeshMathTemplate();
-  // Delete the transform file;
-  for( int type = 0; type < 3; type++ )
-    {
-    DeleteTransformsFolders(type);
-    }
-
-  int DataNumber = GetDataNumber();
-  int nbVTKlastMRML, nbMRML;
-  if( DataNumber > this->m_nbShapesPerMRML )
-    {
-    nbVTKlastMRML = DataNumber % this->m_nbShapesPerMRML;
-    if( nbVTKlastMRML != 0 )
-      {
-      nbMRML = (DataNumber - nbVTKlastMRML) / this->m_nbShapesPerMRML + 1;
-      }
-    else
-      {
-      nbMRML = (DataNumber - nbVTKlastMRML) / this->m_nbShapesPerMRML;
-      }
-    }
-  else
-    {
-    nbMRML = 0;
-    }
-  for( int i = 0; i < nbMRML + 1; i++ )  // +1 since the 1st is with all the datas
-
-    {
-    if( nummrml != -1 )
-      {
-      SetFilesNameMRML(nummrml);
-      }
-
-   //CHECK IF CREATEMRML EXISTS, ONLY IF IT DOES COMPUTE MRML
-   std::string pathString= itksys::SystemTools::FindProgram("CreateMRML");
-    if (pathString=="")
-	std::cout << "CreateMRML is not installed in your system " << nummrml << " will not be created." << std::endl; 
-    else  
-        WriteBMSMRMLScene(nummrml);
-
-    nummrml++;
-    }
-
-  /*	ExecuteBatchMake(GetBMSShapeAnalysisModuleMRMLFile());
-   SetBMSShapeAnalysisModuleFile(true);*/
-  /*std::cout<<"Modify output csv"<<std::endl;
-  ModifyCSV();
-
-  std::cout<<"Computing ShapeAnalysisModule: Done!"<<std::endl<<std::endl;*/
 
   // Particles
   if( GetParticlesState() )
@@ -107,14 +57,6 @@ void ShapeAnalysisModuleComputation::Computation()
       ExecuteMeshMath(i, "phi", 1);
       ExecuteMeshMath(i, "theta", 1);
       }
-    std::cout << "MRML" << std::endl;
-
-    //CHECK IF CREATEMRML EXISTS, ONLY IF IT DOES COMPUTE MRML
-    std::string pathString= itksys::SystemTools::FindProgram("CreateMRML");
-    if (pathString=="")
-	std::cout << "CreateMRML is not installed in your system " << nummrml << " will not be created." << std::endl; 
-    else  
-        CreateMrmlParticle();
 
     }
   else
@@ -122,7 +64,7 @@ void ShapeAnalysisModuleComputation::Computation()
     ModifyCSV(0);
     }
 
-  WriteComputationLog();
+  std::cout << "DONE COMPUTING SPHARM" << std::endl;
 
   return;
 }
@@ -556,752 +498,6 @@ void ShapeAnalysisModuleComputation::ExecuteBatchMake(const char *_Input)
   return;
 }
 
-// Write the BMS script to create a MRML file
-void ShapeAnalysisModuleComputation::WriteBMSMRMLScene(int whichmrml)
-{
-  for( int count = 0; count < 3; count++ ) // None,ecalign,procallign
-    {
-    int endcount;
-    if( whichmrml == -1 )
-      {
-      endcount = 2;
-      }
-    else
-      {
-      endcount = 3;
-      }
-    for( int nbcolormap = 0; nbcolormap < endcount; nbcolormap++ )
-      {
-      std::string mrmlfilePhi;
-      std::string mrmlfileTheta;
-
-      double dim0, dim1, dim2;
-      int    count_line, count_col, nbdisplay;
-      count_line = 1; count_col = 0; nbdisplay = 1;
-      dim0 = 0; dim1 = 0; dim2 = 0;
-
-      int DataNumber;
-      int Nb_Data = GetDataNumber();
-      int first, last;
-      if( whichmrml == -1 )
-        {
-        DataNumber = GetDataNumber();
-        }
-      else
-        {
-        first = whichmrml * this->m_nbShapesPerMRML;
-        last = ( (whichmrml + 1) * this->m_nbShapesPerMRML) - 1;
-
-        // to know if it's the last mrml
-        if( (Nb_Data >= first) && (Nb_Data <= last) )
-          {
-          DataNumber = Nb_Data % this->m_nbShapesPerMRML;
-          }
-        else
-          {
-          DataNumber = this->m_nbShapesPerMRML;
-          }
-        }
-
-      std::vector<std::string> Name;
-      std::vector<std::string> NameVTK;
-      std::vector<std::string> NameTrans;
-      std::vector<std::string> NbFidu;
-      std::vector<std::string> NameTemplate;
-      std::vector<std::string> randomcolor;
-      std::vector<std::string> transformfile;
-      std::vector<std::string> NbTrans;
-      std::vector<std::string> NameColormap;
-      // init all names
-      for( int i = 0; i < DataNumber; i++ )
-        {
-        std::string help_Name;
-        if( whichmrml == -1 )
-          {
-          help_Name.append(GetAllFilesName(i) );
-          }
-        else
-          {
-          help_Name.append(GetListFiles(i) );
-          }
-        if( GetTemplateMState() )
-          {
-          help_Name.append("_pp_surf_tMeanSPHARM");
-          }
-        else
-          {
-          help_Name.append("_pp_surfSPHARM");
-          }
-        if( count == 1 )
-          {
-          help_Name.append("_ellalign");
-          }
-        if( count == 2 )
-          {
-          help_Name.append("_procalign");
-          }
-        Name.push_back(help_Name);
-
-        std::string help_NameTrans;
-        if( whichmrml == -1 )
-          {
-          help_NameTrans.append(GetAllFilesName(i) );
-          }
-        else
-          {
-          help_NameTrans.append(GetListFiles(i) );
-          }
-        if( GetTemplateMState() )
-          {
-          help_NameTrans.append("_tMean");
-          }
-        if( count == 1 )
-          {
-          help_NameTrans.append("_ellalign");
-          }
-        if( count == 2 )
-          {
-          help_NameTrans.append("_procalign");
-          }
-        help_NameTrans.append("Trans");
-        NameTrans.push_back(help_NameTrans);
-
-        std::string help_NameVTK;
-        if( count == 1 )
-          {
-          help_NameVTK.append("../");
-          }
-        if( count == 2 )
-          {
-          help_NameVTK.append("../");
-          }
-        help_NameVTK.append("../Mesh/SPHARM/");
-        if( whichmrml == -1 )
-          {
-          help_NameVTK.append(GetAllFilesName(i) );
-          }
-        else
-          {
-          help_NameVTK.append(GetListFiles(i) );
-          }
-        if( GetTemplateMState() )
-          {
-          help_NameVTK.append("_pp_surf_tMeanSPHARM");
-          }
-        else
-          {
-          help_NameVTK.append("_pp_surfSPHARM");
-          }
-        if( count == 1 )
-          {
-          help_NameVTK.append("_ellalign");
-          }
-        if( count == 2 )
-          {
-          help_NameVTK.append("_procalign");
-          }
-        help_NameVTK.append(".vtk");
-        NameVTK.push_back(help_NameVTK);
-        }
-
-      // create the mrml name
-      std::vector<const char *> args;
-      std::string               mrmlfile;
-      if( whichmrml != -1 )
-        {
-        mrmlfile.append(GetOutputDirectory() );
-        mrmlfile.append("/MRML");
-        if( count == 1 )
-          {
-          mrmlfile.append("/Ellalign");
-          }
-        if( count == 2 )
-          {
-          mrmlfile.append("/Procalign");
-          }
-        if( nbcolormap == 0 )
-          {
-          mrmlfile.append("/ShapeAnalysisModuleMRMLscene_Phi");
-          }
-        if( nbcolormap == 1 )
-          {
-          mrmlfile.append("/ShapeAnalysisModuleMRMLscene_Theta");
-          }
-        if( nbcolormap == 2 )
-          {
-          mrmlfile.append("/ShapeAnalysisModuleMRMLscene");
-          mrmlfilePhi.append(mrmlfile);
-          mrmlfilePhi.append("_Phi");
-          mrmlfileTheta.append(mrmlfile);
-          mrmlfileTheta.append("_Theta");
-          }
-        if( GetTemplateMState() )
-          {
-          mrmlfile.append("_tMean_");
-          if( nbcolormap == 2 )
-            {
-            mrmlfilePhi.append("_tMean_");
-            mrmlfileTheta.append("_tMean_");
-            }
-          }
-        mrmlfile.append(Convert_Double_To_CharArray(first) );
-        if( nbcolormap == 2 )
-          {
-          mrmlfilePhi.append(Convert_Double_To_CharArray(first) );
-          mrmlfileTheta.append(Convert_Double_To_CharArray(first) );
-          }
-        mrmlfile.append("_");
-        if( nbcolormap == 2 )
-          {
-          mrmlfilePhi.append("_");
-          mrmlfileTheta.append("_");
-          }
-        if( (Nb_Data >= first) && (Nb_Data <= last) )
-          {
-          mrmlfile.append(Convert_Double_To_CharArray(first + Nb_Data % this->m_nbShapesPerMRML - 1) );
-          if( nbcolormap == 2 )
-            {
-            mrmlfilePhi.append(Convert_Double_To_CharArray(first + Nb_Data % this->m_nbShapesPerMRML - 1) );
-            mrmlfileTheta.append(Convert_Double_To_CharArray(first + Nb_Data % this->m_nbShapesPerMRML - 1) );
-            }
-          }
-        else
-          {
-          mrmlfile.append(Convert_Double_To_CharArray(last) );
-          if( nbcolormap == 2 )
-            {
-            mrmlfilePhi.append(Convert_Double_To_CharArray(last) );
-            mrmlfileTheta.append(Convert_Double_To_CharArray(last) );
-            }
-          }
-        if( count == 1 )
-          {
-          mrmlfile.append("_ellalign");
-          if( nbcolormap == 2 )
-            {
-            mrmlfilePhi.append("_ellalign");
-            mrmlfileTheta.append("_ellalign");
-            }
-          }
-        if( count == 2 )
-          {
-          mrmlfile.append("_procalign");
-          if( nbcolormap == 2 )
-            {
-            mrmlfilePhi.append("_procalign");
-            mrmlfileTheta.append("_procalign");
-            }
-          }
-        mrmlfile.append(".mrml");
-        if( nbcolormap == 2 )
-          {
-          mrmlfilePhi.append(".mrml");
-          mrmlfileTheta.append(".mrml");
-          }
-        }
-      else
-        {
-        mrmlfile.append(GetOutputDirectory() );
-        mrmlfile.append("/MRML");
-        if( count == 1 )
-          {
-          mrmlfile.append("/Ellalign");
-          }
-        if( count == 2 )
-          {
-          mrmlfile.append("/Procalign");
-          }
-        if( nbcolormap == 0 )
-          {
-          mrmlfile.append("/ShapeAnalysisModuleMRMLscene_allVTK_Phi");
-          }
-        if( nbcolormap == 1 )
-          {
-          mrmlfile.append("/ShapeAnalysisModuleMRMLscene_allVTK_Theta");
-          }
-        if( nbcolormap == 2 )
-          {
-          mrmlfile.append("/ShapeAnalysisModuleMRMLscene_allVTK");
-          }
-        if( GetTemplateMState() )
-          {
-          mrmlfile.append("_tMean");
-          }
-        mrmlfile.append(".mrml");
-        }
-
-      std::cout << "mrml " << mrmlfile << std::endl;
-
-      args.push_back("CreateMRML");
-      args.push_back(mrmlfile.c_str() );
-
-      // know the orientation
-      std::string firstFile1;
-      firstFile1.append(GetOutputDirectory() );
-      firstFile1.append("/Mesh/SPHARM/");
-      if( whichmrml == -1 )
-        {
-        firstFile1.append(GetAllFilesName(0) );
-        }
-      else
-        {
-        firstFile1.append(GetListFiles(0) );
-        }
-      if( GetTemplateMState() )
-        {
-        firstFile1.append("_pp_surf_tMeanSPHARM");
-        }
-      else
-        {
-        firstFile1.append("_pp_surfSPHARM");
-        }
-      if( count == 1 )
-        {
-        firstFile1.append("_ellalign");
-        }
-      if( count == 2 )
-        {
-        firstFile1.append("_procalign");
-        }
-      firstFile1.append(".vtk");
-      vector<double> Dims;
-      SetImageDimensions( (char *)(firstFile1).c_str() );
-      Dims = GetImageDimensions();
-
-      int NbDataFirstMRML;
-      NbDataFirstMRML = GetDataNumber();
-      for( int i = 0; i < DataNumber; i++ )
-        {
-
-        if( (count == 0) || (count == 1) || ( (count == 2) && (nbcolormap == 2) ) )   // add the template   NB no
-                                                                                      // template for procalign
-
-          {
-          if( i == 0 &&  whichmrml >= 0 )
-            {
-            std::string tmp_NameTemplate;
-            tmp_NameTemplate.append(GetTemplate(count) );
-            NameTemplate.push_back(tmp_NameTemplate);
-
-            // add shape
-            args.push_back("-m" ); args.push_back("-f" ); args.push_back( (NameTemplate.back() ).c_str() );
-            args.push_back("-n"); args.push_back("template");
-
-            if( nbcolormap != 2 )
-              {
-              // add color map
-
-              std::string tmp_NameColormap;
-              if( count == 1 )
-                {
-                tmp_NameColormap.append("../");
-                }
-              if( count == 2 )
-                {
-                tmp_NameColormap.append("../");
-                }
-              if( nbcolormap == 0 )
-                {
-                tmp_NameColormap.append("../Mesh/SPHARM/customLUT_Color_Map_Phi.txt");
-                }
-              if( nbcolormap == 1 )
-                {
-                tmp_NameColormap.append("../Mesh/SPHARM/customLUT_Color_Map_Theta.txt");
-                }
-
-              NameColormap.push_back(tmp_NameColormap);
-
-              args.push_back("-as" );
-              if( nbcolormap == 0 )
-                {
-                args.push_back("Color_Map_Phi" );
-                }
-              if( nbcolormap == 1 )
-                {
-                args.push_back("Color_Map_Theta" );
-                }
-              args.push_back("-cc" );
-              args.push_back( (NameColormap.back() ).c_str() );
-              }
-
-            else
-              {
-              // random color
-              std::string tmp_randomcolor;
-              double      color;
-              color = rand() % 255 + 1;
-              tmp_randomcolor.append(Convert_Double_To_CharArray(color / 255) );
-              tmp_randomcolor.append(",");
-              color = rand() % 255 + 1;
-              tmp_randomcolor.append(Convert_Double_To_CharArray(color / 255) );
-              tmp_randomcolor.append(",");
-              color = rand() % 255 + 1;
-              tmp_randomcolor.append(Convert_Double_To_CharArray(color / 255) );
-              randomcolor.push_back(tmp_randomcolor);
-              args.push_back("-dc" );
-              args.push_back( (randomcolor.back() ).c_str() );
-              }
-
-            }
-          }
-
-        // calculation of the transforms
-        if( GetDirectionToDisplay() == "XYZ" )
-          {
-          dim0 = Dims[0] * count_col;
-          dim1 = Dims[1] * count_line;
-          }
-        if( GetDirectionToDisplay() == "XZY" )
-          {
-          dim0 = Dims[0] * count_col;
-          dim2 = Dims[2] * count_line;
-          }
-        if( GetDirectionToDisplay() == "YXZ" )
-          {
-          dim1 = Dims[1] * count_col;
-          dim0 = Dims[0] * count_line;
-          }
-        if( GetDirectionToDisplay() == "YZX" )
-          {
-          dim1 = Dims[1] * count_col;
-          dim2 = Dims[2] * count_line;
-          }
-        if( GetDirectionToDisplay() == "ZXY" )
-          {
-          dim2 = Dims[2] * count_col;
-          dim0 = Dims[0] * count_line;
-          }
-        if( GetDirectionToDisplay() == "ZYX" )
-          {
-          dim2 = Dims[2] * count_col;
-          dim1 = Dims[1] * count_line;
-          }
-
-        if( nbcolormap != 2 )
-          {
-          // create the transform file.
-          std::string tmp_transformfile;
-          tmp_transformfile.append("./TransformFiles/transform");
-          if( whichmrml == -1 )
-            {
-            tmp_transformfile.append(Convert_Double_To_CharArray(i) );
-            }
-          if( whichmrml != -1 )
-            {
-            tmp_transformfile.append(Convert_Double_To_CharArray(NbDataFirstMRML + i) );
-            }
-          tmp_transformfile.append(".txt");
-          transformfile.push_back(tmp_transformfile);
-
-          args.push_back("-t" );
-          args.push_back("-f" );
-          args.push_back( (transformfile.back() ).c_str() );
-          args.push_back("-n" );
-          args.push_back( (NameTrans.at(i) ).c_str() );
-          if( (whichmrml == -1 && nbcolormap == 0) ||  (whichmrml == 0 && nbcolormap == 0 ) )
-            {
-            args.push_back("-l" );
-            std::string tmp_NbTrans;
-            if( GetDirectionToDisplay() == "XYZ" )
-              {
-              tmp_NbTrans = "1,0,0,0,1,0,0,0,1,";
-              tmp_NbTrans += Convert_Double_To_CharArray(dim0);
-              tmp_NbTrans += ",";
-              tmp_NbTrans += Convert_Double_To_CharArray(dim1);
-              tmp_NbTrans += ",0";
-              }
-            if( GetDirectionToDisplay() == "XZY" )
-              {
-
-              tmp_NbTrans = "1,0,0,0,1,0,0,0,1,";
-              tmp_NbTrans += Convert_Double_To_CharArray(dim0);
-              tmp_NbTrans += ",0,";
-              tmp_NbTrans += Convert_Double_To_CharArray(dim2 * -1);
-              }
-            if( GetDirectionToDisplay() == "YXZ" )
-              {
-              tmp_NbTrans = "1,0,0,0,1,0,0,0,1,";
-              tmp_NbTrans += Convert_Double_To_CharArray(dim0);
-              tmp_NbTrans += ",";
-              tmp_NbTrans += Convert_Double_To_CharArray(dim1);
-              tmp_NbTrans += ",0";
-              }
-            if( GetDirectionToDisplay() == "YZX" )
-              {
-              tmp_NbTrans = "1,0,0,0,1,0,0,0,1,0,";
-              tmp_NbTrans += Convert_Double_To_CharArray(dim1);
-              tmp_NbTrans += ",";
-              tmp_NbTrans += Convert_Double_To_CharArray(dim2 * -1);
-              }
-            if( GetDirectionToDisplay() == "ZXY" )
-              {
-              tmp_NbTrans = "1,0,0,0,1,0,0,0,1,";
-              tmp_NbTrans += Convert_Double_To_CharArray(dim0);
-              tmp_NbTrans += ",0,";
-              tmp_NbTrans += Convert_Double_To_CharArray(dim2 * -1);
-              }
-            if( GetDirectionToDisplay() == "ZYX" )
-              {
-              tmp_NbTrans = "1,0,0,0,1,0,0,0,1,0,";
-              tmp_NbTrans += Convert_Double_To_CharArray(dim1);
-              tmp_NbTrans += ",";
-              tmp_NbTrans += Convert_Double_To_CharArray(dim2 * -1);
-              }
-            NbTrans.push_back(tmp_NbTrans);
-            args.push_back( (NbTrans.back() ).c_str() );
-            }
-
-          // add shape
-          args.push_back("-m" ); args.push_back("-f" ); args.push_back( (NameVTK.at(i) ).c_str() ); args.push_back("-n");
-          args.push_back( (Name.at(i) ).c_str() );
-
-          // add color map
-          if( nbcolormap != 2 )
-            {
-            std::string tmp_NameColormap;
-            if( count == 1 )
-              {
-              tmp_NameColormap.append("../");
-              }
-            if( count == 2 )
-              {
-              tmp_NameColormap.append("../");
-              }
-            if( nbcolormap == 0 )
-              {
-              tmp_NameColormap.append("../Mesh/SPHARM/customLUT_Color_Map_Phi.txt");
-              }
-            if( nbcolormap == 1 )
-              {
-              tmp_NameColormap.append("../Mesh/SPHARM/customLUT_Color_Map_Theta.txt");
-              }
-            NameColormap.push_back(tmp_NameColormap);
-            args.push_back("-as" );
-            if( nbcolormap == 0 )
-              {
-              args.push_back("Color_Map_Phi" );
-              }
-            if( nbcolormap == 1 )
-              {
-              args.push_back("Color_Map_Theta" );
-              }
-            args.push_back("-cc" );
-            args.push_back( (NameColormap.back() ).c_str() );
-            }
-          else
-            {
-            // random color
-            std::string tmp_randomcolor;
-            double      color;
-            color = rand() % 255 + 1;
-            tmp_randomcolor.append(Convert_Double_To_CharArray(color / 255) );
-            tmp_randomcolor.append(",");
-            color = rand() % 255 + 1;
-            tmp_randomcolor.append(Convert_Double_To_CharArray(color / 255) );
-            tmp_randomcolor.append(",");
-            color = rand() % 255 + 1;
-            tmp_randomcolor.append(Convert_Double_To_CharArray(color / 255) );
-            randomcolor.push_back(tmp_randomcolor);
-            args.push_back("-dc" ); args.push_back( (randomcolor.back() ).c_str() );
-            }
-
-          // link shape and transform
-          args.push_back("-p" );
-          args.push_back( (NameTrans.at(i) ).c_str() );
-
-          // how many .vtk per line
-          if( whichmrml == -1 )
-            {
-            if( nbdisplay != 10 )
-              {
-              count_col++;
-              }
-            else
-              {
-              count_col = 0;
-              count_line++;
-              nbdisplay = 0;
-              }
-            }
-          else
-            {
-            if( nbdisplay != m_nbHorizontal )
-              {
-              count_col++;
-              }
-            else
-              {
-              count_col = 0;
-              count_line++;
-              nbdisplay = 0;
-              }
-            }
-
-          // add fiducial
-          args.push_back("-q"); args.push_back("-id");
-          args.push_back( (Name.at(i) ).c_str() );
-          args.push_back("-lbl");
-          args.push_back( (Name.at(i) ).c_str() );
-          args.push_back("-sc");
-          args.push_back("0,0,0");
-          args.push_back("-pos");
-
-          std::string tmp_NbFidu;
-          if( GetDirectionToDisplay() == "XYZ" )
-            {
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[3] + dim0 + Dims[0] / 2) );
-            tmp_NbFidu.append(",");
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[6] + dim1) );
-            tmp_NbFidu.append(",");
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[7]) );
-
-            }
-          if( GetDirectionToDisplay() == "XZY" )
-            {
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[3] + dim0 + Dims[0] / 2) );
-            tmp_NbFidu.append(",");
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[5]) );
-            tmp_NbFidu.append(",");
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[8] + dim2) );
-            }
-          if( GetDirectionToDisplay() == "YXZ" )
-            {
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[4] + dim0) );
-            tmp_NbFidu.append(",");
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[5] + dim1 + Dims[1] / 2) );
-            tmp_NbFidu.append(",");
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[7]) );
-            }
-          if( GetDirectionToDisplay() == "YZX" )
-            {
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[3]) );
-            tmp_NbFidu.append(",");
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[5] + dim1 + Dims[1] / 2) );
-            tmp_NbFidu.append(",");
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[8] + dim2) );
-            }
-          if( GetDirectionToDisplay() == "ZXY" )
-            {
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[4] + dim0) );
-            tmp_NbFidu.append(",");
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[5]) );
-            tmp_NbFidu.append(",");
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[7] + dim2 + Dims[3] / 2) );
-            }
-          if( GetDirectionToDisplay() == "ZYX" )
-            {
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[3]) );
-            tmp_NbFidu.append(",");
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[6] + dim1) );
-            tmp_NbFidu.append(",");
-            tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[7] + dim2 + Dims[3] / 2) );
-            }
-          NbFidu.push_back(tmp_NbFidu);
-          args.push_back( (NbFidu.back() ).c_str() );
-
-          nbdisplay++;
-          } // end if !=no colormap
-        }   // enf for each data
-
-      args.push_back(0);
-
-      // write files with the commande line using to create the mrml
-
-      /*char fileCommanLine[512];
-      std::strcpy (fileCommanLine,"/biomed-resimg/conte_projects/CONTE_NEO/Data/Vent_Shape/SPHARM/SPHARM_10_15_Slicer/LeftVentLong2/MRML/commandline");
-      std::strcat (fileCommanLine,Convert_Double_To_CharArray(whichmrml));
-      std::strcat (fileCommanLine,"_");
-      std::strcat (fileCommanLine,Convert_Double_To_CharArray(count));
-      std::strcat (fileCommanLine,"_");
-      std::strcat (fileCommanLine,Convert_Double_To_CharArray(nbcolormap));
-      std::strcat (fileCommanLine,".txt");
-      std::cout<<fileCommanLine<<std::endl;
-      std::ofstream file(fileCommanLine);
-
-      if(file)
-      {
-        for(int k=0; k<args.size();k++)
-          {file<<args.at(k)<<" ";}
-        file.close();
-      }*/
-
-      // itk sys parameters
-      int    length;
-      double timeout = 0.05;
-      int    result;
-      char*  dataitk = NULL;
-      std::cout << "" << std::endl;
-
-      // Run the application
-      itksysProcess* gp = itksysProcess_New();
-      itksysProcess_SetCommand(gp, &*args.begin() );
-      itksysProcess_SetOption(gp, itksysProcess_Option_HideWindow, 1);
-      itksysProcess_Execute(gp);
-
-      while( int Value = itksysProcess_WaitForData(gp, &dataitk, &length, &timeout) ) // wait for 1s
-        {
-        if( ( (Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR) ) && dataitk[0] == 'D' )
-          {
-          strstream st;
-          for( int i = 0; i < length; i++ )
-            {
-            st << dataitk[i];
-            }
-          string dim = st.str();
-          }
-        timeout = 0.05;
-        }
-
-      itksysProcess_WaitForExit(gp, 0);
-
-      result = 1;
-
-      switch( itksysProcess_GetState(gp) )
-        {
-        case itksysProcess_State_Exited:
-          {
-          result = itksysProcess_GetExitValue(gp);
-          } break;
-        case itksysProcess_State_Error:
-          {
-          std::cerr << "Error: Could not run " << args[0] << ":\n";
-          std::cerr << itksysProcess_GetErrorString(gp) << "\n";
-          std::cout << "Error: Could not run " << args[0] << ":\n";
-          std::cout << itksysProcess_GetErrorString(gp) << "\n";
-          } break;
-        case itksysProcess_State_Exception:
-          {
-          std::cerr << "Error: " << args[0] << " terminated with an exception: "
-                    << itksysProcess_GetExceptionString(gp) << "\n";
-          std::cout << "Error: " << args[0] << " terminated with an exception: "
-                    << itksysProcess_GetExceptionString(gp) << "\n";
-          } break;
-        case itksysProcess_State_Starting:
-        case itksysProcess_State_Executing:
-        case itksysProcess_State_Expired:
-        case itksysProcess_State_Killed:
-          {
-          // Should not get here.
-          std::cerr << "Unexpected ending state after running " << args[0] << std::endl;
-          std::cout << "Unexpected ending state after running " << args[0] << std::endl;
-          } break;
-        }
-      itksysProcess_Delete(gp);
-
-      if( whichmrml != -1 )
-        {
-
-        if( nbcolormap == 2 ) // merge the .mrml
-
-          {
-          ModifyMRML(mrmlfile, mrmlfilePhi, mrmlfileTheta );
-          }
-        }
-      } // end nbcolormap
-
-    } // end for count
-}
-
 // Write Batchmake script to compute Shape Analysis
 void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
 {
@@ -1392,14 +588,6 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
   BMSShapeAnalysisModuleFile << "#Create directories" << std::endl;
   BMSShapeAnalysisModuleFile << "MakeDirectory(" << GetOutputDirectory() << "/BatchMake_Scripts/)" << std::endl;
   BMSShapeAnalysisModuleFile << "MakeDirectory(" << GetOutputDirectory() << "/Mesh/)" << std::endl;
-  BMSShapeAnalysisModuleFile << "  MakeDirectory(" << GetOutputDirectory() << "/MRML)" << std::endl;
-  BMSShapeAnalysisModuleFile << "  MakeDirectory(" << GetOutputDirectory() << "/MRML/Procalign)" << std::endl;
-  BMSShapeAnalysisModuleFile << "  MakeDirectory(" << GetOutputDirectory() << "/MRML/Ellalign)" << std::endl;
-  BMSShapeAnalysisModuleFile << "  MakeDirectory(" << GetOutputDirectory() << "/MRML/Ellalign/TransformFiles)"
-                             << std::endl;
-  BMSShapeAnalysisModuleFile << "  MakeDirectory(" << GetOutputDirectory() << "/MRML/Procalign/TransformFiles)"
-                             << std::endl;
-  BMSShapeAnalysisModuleFile << "  MakeDirectory(" << GetOutputDirectory() << "/MRML/TransformFiles)" << std::endl;
   BMSShapeAnalysisModuleFile << "MakeDirectory(" << GetOutputDirectory() << "/Mesh/PostProcess/)" << std::endl;
   BMSShapeAnalysisModuleFile << "MakeDirectory(" << GetOutputDirectory() << "/Mesh/SPHARM/)" << std::endl;
   BMSShapeAnalysisModuleFile << "MakeDirectory(" << GetOutputDirectory() << "/Template/)" << std::endl;
@@ -1412,16 +600,6 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
   BMSShapeAnalysisModuleFile << "set(tdir '" << GetOutputDirectory() << "/Template/')" << std::endl;
   BMSShapeAnalysisModuleFile << "set(Outputdir '" << GetOutputDirectory() << "/OutputGroupFile/')" << std::endl;
   BMSShapeAnalysisModuleFile << "set(Eulerdir '" << GetOutputDirectory() << "/EulerFiles/')" << std::endl;
-  BMSShapeAnalysisModuleFile << "set(transformdir '" << GetOutputDirectory() << "/MRML/TransformFiles')" << std::endl;
-
-/*
-BMSShapeAnalysisModuleFile<<" ListFileInDir(Transformfiles ${transformdir} *.txt)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"FileExists(fileCreated 'transform0.txt')"<<std::endl;
-BMSShapeAnalysisModuleFile<<"If( ${fileCreated} == 1 )"<<std::endl;
-BMSShapeAnalysisModuleFile<<"ForEach(files ${Transformfiles})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"DeleteFile(${files})"<<std::endl;
-BMSShapeAnalysisModuleFile<<"EndForEach(files)"<<std::endl;
-BMSShapeAnalysisModuleFile<<"EndIf(${fileCreated})"<<std::endl;*/
 
   BMSShapeAnalysisModuleFile << "echo()" << std::endl;
 
@@ -2215,6 +1393,7 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile2()
   BMSShapeAnalysisModuleFile << "      #The Template is the Mean" << std::endl;
   BMSShapeAnalysisModuleFile << "      listFileInDir(testPara ${SPHARMdir} ${basename}*SPHARM*)" << std::endl;
   BMSShapeAnalysisModuleFile << "       SetApp(Para @ParaToSPHARMMeshCLP)" << std::endl;
+
   BMSShapeAnalysisModuleFile << "        SetAppOption(Para.inSurfFile ${SPHARMdir}${basename}_pp_surf.vtk)"
                              << std::endl;
   BMSShapeAnalysisModuleFile << "        SetAppOption(Para.inParaFile ${SPHARMdir}${basename}_pp_para.vtk)"
@@ -2224,6 +1403,7 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile2()
   BMSShapeAnalysisModuleFile << "	     SetAppOption(Para.flipTemplateFileOn 1)" << std::endl;
   BMSShapeAnalysisModuleFile
   << "        SetAppOption(Para.flipTemplateFile.flipTemplateFile ${tdir}${flipTemplate})" << std::endl;
+
   BMSShapeAnalysisModuleFile << "        SetAppOption(Para.subdivLevel 1)" << std::endl;
   BMSShapeAnalysisModuleFile << "        SetAppOption(Para.subdivLevel.subdivLevel " << GetSubdivLevel() << ")"
                              << std::endl;
@@ -2236,13 +1416,15 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile2()
   BMSShapeAnalysisModuleFile << "        SetAppOption(Para.phiIteration 1)" << std::endl;
   BMSShapeAnalysisModuleFile << "        SetAppOption(Para.phiIteration.phiIteration " << GetPhiIteration() << ")"
 		  << std::endl;
-  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh 1)" << std::endl;
-  BMSShapeAnalysisModuleFile << "    SetAppOption(ParaT.medialMesh.medialMesh " << GetPhiIteration() << ")"
+  BMSShapeAnalysisModuleFile << "    SetAppOption(Para.medialMesh 1)" << std::endl;
+  BMSShapeAnalysisModuleFile << "    SetAppOption(Para.medialMesh.medialMesh " << GetPhiIteration() << ")"
 		  << std::endl;
   BMSShapeAnalysisModuleFile << "        SetAppOption(Para.regTemplateFileOn 1)" << std::endl;
   BMSShapeAnalysisModuleFile << "        SetAppOption(Para.regTemplateFile.regTemplateFile ${tdir}${regTemplate})"
                              << std::endl;
+
   BMSShapeAnalysisModuleFile << "SetAppOption(Para.finalFlipIndex 1)" << std::endl;
+
   if( GetFinalFlipN() == 1 )
     {
     BMSShapeAnalysisModuleFile << "        SetAppOption(Para.finalFlipIndex.finalFlipIndex " << 0 << ")" << std::endl;
@@ -2274,16 +1456,18 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile2()
   if( GetFinalFlipXYZ() == 1 )
     {
     BMSShapeAnalysisModuleFile << "        SetAppOption(Para.finalFlipIndex.finalFlipIndex " << 6 << ")" << std::endl;
-    }
+   }
 
   if( GetParaOut1State() == true )
     {
     BMSShapeAnalysisModuleFile << "      SetAppOption(Para.writePara 1)" << std::endl;
     }
+
+
+
   BMSShapeAnalysisModuleFile << "      Run(output ${Para} error)" << std::endl;
   BMSShapeAnalysisModuleFile << "  if(${error} != '')" << std::endl;
   BMSShapeAnalysisModuleFile << "    echo('ParaToSPHARMMesh: '${error})" << std::endl;
-// BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
   BMSShapeAnalysisModuleFile << "  endif(${error})" << std::endl;
   BMSShapeAnalysisModuleFile << "    endif(${value})" << std::endl;
 
@@ -2431,26 +1615,6 @@ void ShapeAnalysisModuleComputation::OverWrite()
       std::strcat(ParaToSPHARMMesh_Files[i + 6 * DataNumber], Base_Files[i]);
       std::strcat(ParaToSPHARMMesh_Files[i + 6 * DataNumber], "_pp_surf_paraTheta.txt");
 
-//      ParaToSPHARMMesh_Files[i+7*DataNumber] = new char[512];
-//      std::strcpy(ParaToSPHARMMesh_Files[i+7*DataNumber],dir);
-//      std::strcat(ParaToSPHARMMesh_Files[i+7*DataNumber],Base_Files[i]);
-//      std::strcat(ParaToSPHARMMesh_Files[i+7*DataNumber],"_pp_surf_tMeanSPHARM.vtk");
-//
-//      ParaToSPHARMMesh_Files[i+8*DataNumber] = new char[512];
-//      std::strcpy(ParaToSPHARMMesh_Files[i+8*DataNumber],dir);
-//      std::strcat(ParaToSPHARMMesh_Files[i+8*DataNumber],Base_Files[i]);
-//      std::strcat(ParaToSPHARMMesh_Files[i+8*DataNumber],"_pp_surf_tMeanSPHARM_ellalign.vtk");
-//
-//      ParaToSPHARMMesh_Files[i+9*DataNumber] = new char[512];
-//      std::strcpy(ParaToSPHARMMesh_Files[i+9*DataNumber],dir);
-//      std::strcat(ParaToSPHARMMesh_Files[i+9*DataNumber],Base_Files[i]);
-//      std::strcat(ParaToSPHARMMesh_Files[i+9*DataNumber],"_pp_surf_tMeanSPHARM.coef");
-
-//      ParaToSPHARMMesh_Files[i+10*DataNumber] = new char[512];
-//      std::strcpy(ParaToSPHARMMesh_Files[i+10*DataNumber],dir);
-//      std::strcat(ParaToSPHARMMesh_Files[i+10*DataNumber],Base_Files[i]);
-//      std::strcat(ParaToSPHARMMesh_Files[i+10*DataNumber],"_pp_surf_tMeanSPHARM_ellalign.coef");
-
       }
 
     // check if the directory is empty
@@ -2558,12 +1722,12 @@ void ShapeAnalysisModuleComputation::ComputationMean()
       }
     for( int j = 0; j < nbPoints; ++j )
       {
-      double *p;
-      p = pts->GetPoint(i);
+       double *p;
 
-      m_meanX[j] = m_meanX[i] + p[0];
-      m_meanY[j] = m_meanY[i] + p[1];
-      m_meanZ[j] = m_meanZ[i] + p[2];
+       p = pts->GetPoint(j);
+       m_meanX[j] = m_meanX[j] + p[0];
+       m_meanY[j] = m_meanY[j] + p[1];
+       m_meanZ[j] = m_meanZ[j] + p[2];
       }
     }
   for( int i = 0; i < nbPoints; ++i )
@@ -2584,11 +1748,10 @@ void ShapeAnalysisModuleComputation::ComputationMean()
   polydata->SetPolys(vtkcells);
   vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
   writer->SetFileName(m_PolyFile);
-  writer->SetInput( polydata);
+  writer->SetInput(polydata);
   writer->Write();
 
   WriteMeanFile(nbPoints);
-
 }
 
 // Write the mean file use as a template for ParaToSPHARMMesh
@@ -2606,21 +1769,21 @@ void ShapeAnalysisModuleComputation::WriteMeanFile(int nbPoints)
   int         nbline = 0;
 
   std::ifstream tmpPolyFile(m_PolyFile);
-  std::ofstream meanAll(m_MeanFile);
-  meanAll << "#vtk DataFile Version 3.0" << std::endl;
+  std::ofstream meanAll;
+  meanAll.open(m_MeanFile, ios::out);
+  meanAll << "# vtk DataFile Version 3.0" << std::endl;
   meanAll << "vtk output" << std::endl;
   meanAll << "ASCII" << std::endl;
   meanAll << "DATASET POLYDATA" << std::endl;
   meanAll << "POINTS " << nbPoints << " float" << std::endl;
   for( unsigned int i = 0; i < m_meanX.size(); i += 3 )
     {
+
     meanAll << m_meanX[i] << " " << m_meanY[i] << " " << m_meanZ[i] << " "
-            << m_meanX[i
-               + 1] << " "
-            << m_meanY[i
-               + 1] << " "
+            << m_meanX[i + 1] << " " << m_meanY[i + 1] << " "
             << m_meanZ[i + 1] << " " << m_meanX[i + 2] << " " << m_meanY[i + 2] << " " << m_meanZ[i + 2] << endl;
     }
+    meanAll << std::endl;
 
   while( getline(tmpPolyFile, line) )
     {
@@ -2630,6 +1793,8 @@ void ShapeAnalysisModuleComputation::WriteMeanFile(int nbPoints)
       }
     nbline++;
     }
+
+  meanAll.close();
 
   remove( m_PolyFile );
 
@@ -2785,404 +1950,6 @@ void ShapeAnalysisModuleComputation::RunParticlesModule()
     }
   itksysProcess_Delete(gp);
 
-}
-
-void ShapeAnalysisModuleComputation::CreateMrmlParticle()
-{
-  int nbShapesPerMRML = GetHorizontalGridPara() * GetVerticalGridPara();
-
-  for( int colormap = 0; colormap < 2; colormap++ )
-    {
-
-    int DataNumber = GetDataNumber();
-    int nbVTKlastMRML, nbMRML;
-    if( DataNumber > nbShapesPerMRML )
-      {
-      nbVTKlastMRML = DataNumber % nbShapesPerMRML;
-      if( nbVTKlastMRML != 0 )
-        {
-        nbMRML = (DataNumber - nbVTKlastMRML) / nbShapesPerMRML + 1;
-        }
-      else
-        {
-        nbMRML = (DataNumber - nbVTKlastMRML) / nbShapesPerMRML;
-        }
-      }
-    else
-      {
-      nbMRML = 0;
-      }
-    for( int i = 0; i < (nbMRML + 1); ++i ) // +1 since the 1st is with all the datas
-      {
-      std::string              mrmlfile;
-      std::vector<std::string> transformfile;
-      std::vector<std::string> NameTrans;
-      std::vector<std::string> Name;
-      std::vector<std::string> Namevtk;
-      std::vector<std::string> RelativePathToVTK;
-      std::vector<std::string> NbTrans;
-      std::vector<std::string> NbFidu;
-      std::vector<std::string> NameColormap;
-      int                      first, last, DataNumberPerMRML;
-      double                   dim0, dim1, dim2;
-      int                      count_line, count_col, nbdisplay;
-      count_line = 1; count_col = 0; nbdisplay = 0;
-      dim0 = 0; dim1 = 0; dim2 = 0;
-
-      std::vector<const char *> argsMRML;
-      first = (i - 1) * nbShapesPerMRML;
-      last = (i * nbShapesPerMRML) - 1;
-
-      // create the mrml name
-      mrmlfile.append(GetOutputDirectory() );
-      mrmlfile.append("/ParticleCorrespondence/MRML/ParticleModuleMRMLscene_");
-      if( colormap == 0 )
-        {
-        mrmlfile.append("Phi");
-        }
-      else
-        {
-        mrmlfile.append("Theta");
-        }
-
-      if( i == 0 )
-        {
-        mrmlfile.append("_allVTK.mrml");
-        DataNumberPerMRML = DataNumber;
-        }
-      else
-        {
-        mrmlfile.append("_");
-        mrmlfile.append(Convert_Double_To_CharArray(first) );
-        mrmlfile.append("_");
-        mrmlfile.append(Convert_Double_To_CharArray(last) );
-        mrmlfile.append(".mrml");
-        DataNumberPerMRML = nbShapesPerMRML;
-        }
-      std::cout << "mrml " << mrmlfile << std::endl;
-      argsMRML.push_back("CreateMRML");
-      argsMRML.push_back(mrmlfile.c_str() );
-      for( int k = 0; k < DataNumberPerMRML; k++ )
-        {
-        size_t         found, found2;
-        std::string    relativeName, NameFile, TransName;
-        vector<double> Dims;
-
-        std::string file;
-        file.append( (string) GetPostCorrespondenceFiles(k) );
-
-        found = file.find_last_of("/\\");
-        relativeName.append(file.substr(found + 1) );
-
-        Namevtk.push_back(relativeName);
-        relativeName.insert(0, "../Corresponding_Meshes/");
-
-        RelativePathToVTK.push_back(relativeName);
-        found2 = (Namevtk.back() ).find_last_of(".\\");
-
-        TransName.append( (Namevtk.back() ).substr(0, found2) );
-        Name.push_back(TransName);
-
-        TransName.append("Trans");
-        NameTrans.push_back(TransName);
-
-        std::string file0;
-        file0.append( (string) GetPostCorrespondenceFiles(0) );
-        SetImageDimensions( (char *)file0.c_str() );
-        Dims = GetImageDimensions();
-
-        // calculation of the transforms
-        if( GetDirectionToDisplay() == "XYZ" )
-          {
-          dim0 = Dims[0] * count_col;
-          dim1 = Dims[1] * count_line;
-          }
-        if( GetDirectionToDisplay() == "XZY" )
-          {
-          dim0 = Dims[0] * count_col;
-          dim2 = Dims[2] * count_line;
-          }
-        if( GetDirectionToDisplay() == "YXZ" )
-          {
-          dim1 = Dims[1] * count_col;
-          dim0 = Dims[0] * count_line;
-          }
-        if( GetDirectionToDisplay() == "YZX" )
-          {
-          dim1 = Dims[1] * count_col;
-          dim2 = Dims[2] * count_line;
-          }
-        if( GetDirectionToDisplay() == "ZXY" )
-          {
-          dim2 = Dims[2] * count_col;
-          dim0 = Dims[0] * count_line;
-          }
-        if( GetDirectionToDisplay() == "ZYX" )
-          {
-          dim2 = Dims[2] * count_col;
-          dim1 = Dims[1] * count_line;
-          }
-
-        // create the transform file.
-        std::string tmp_transformfile;
-        tmp_transformfile.append("./TransformFiles/transformCM");
-        if( i == 0 )
-          {
-          tmp_transformfile.append(Convert_Double_To_CharArray(k) );
-          }
-        else
-          {
-          tmp_transformfile.append(Convert_Double_To_CharArray(DataNumber + first + k) );
-          }
-        tmp_transformfile.append(".txt");
-        transformfile.push_back(tmp_transformfile);
-        argsMRML.push_back("-t" );
-        argsMRML.push_back("-f" );
-        argsMRML.push_back( (transformfile.back() ).c_str() );
-
-        argsMRML.push_back("-n" );
-        argsMRML.push_back( (NameTrans.back() ).c_str() );
-        argsMRML.push_back("-l" );
-        std::string tmp_NbTrans;
-        if( GetDirectionToDisplay() == "XYZ" )
-          {
-          tmp_NbTrans = "1,0,0,0,1,0,0,0,1,";
-          tmp_NbTrans += Convert_Double_To_CharArray(dim0);
-          tmp_NbTrans += ",";
-          tmp_NbTrans += Convert_Double_To_CharArray(dim1);
-          tmp_NbTrans += ",0";
-          }
-        if( GetDirectionToDisplay() == "XZY" )
-          {
-
-          tmp_NbTrans = "1,0,0,0,1,0,0,0,1,";
-          tmp_NbTrans += Convert_Double_To_CharArray(dim0);
-          tmp_NbTrans += ",0,";
-          tmp_NbTrans += Convert_Double_To_CharArray(dim2 * -1);
-          }
-        if( GetDirectionToDisplay() == "YXZ" )
-          {
-          tmp_NbTrans = "1,0,0,0,1,0,0,0,1,";
-          tmp_NbTrans += Convert_Double_To_CharArray(dim0);
-          tmp_NbTrans += ",";
-          tmp_NbTrans += Convert_Double_To_CharArray(dim1);
-          tmp_NbTrans += ",0";
-          }
-        if( GetDirectionToDisplay() == "YZX" )
-          {
-          tmp_NbTrans = "1,0,0,0,1,0,0,0,1,0,";
-          tmp_NbTrans += Convert_Double_To_CharArray(dim1);
-          tmp_NbTrans += ",";
-          tmp_NbTrans += Convert_Double_To_CharArray(dim2 * -1);
-          }
-        if( GetDirectionToDisplay() == "ZXY" )
-          {
-          tmp_NbTrans = "1,0,0,0,1,0,0,0,1,";
-          tmp_NbTrans += Convert_Double_To_CharArray(dim0);
-          tmp_NbTrans += ",0,";
-          tmp_NbTrans += Convert_Double_To_CharArray(dim2 * -1);
-          }
-        if( GetDirectionToDisplay() == "ZYX" )
-          {
-          tmp_NbTrans = "1,0,0,0,1,0,0,0,1,0,";
-          tmp_NbTrans += Convert_Double_To_CharArray(dim1);
-          tmp_NbTrans += ",";
-          tmp_NbTrans += Convert_Double_To_CharArray(dim2 * -1);
-          }
-        NbTrans.push_back(tmp_NbTrans);
-        argsMRML.push_back( (NbTrans.back() ).c_str() );
-
-        // add shape
-        argsMRML.push_back("-m" ); argsMRML.push_back("-f" ); argsMRML.push_back( (RelativePathToVTK.back() ).c_str() );
-        argsMRML.push_back("-n");  argsMRML.push_back(Namevtk.back().c_str() );
-
-        // add color map
-        std::string tmp_NameColormap;
-        if( colormap == 0 )
-          {
-          tmp_NameColormap.append("../../Mesh/SPHARM/customLUT_Color_Map_Phi.txt");
-          }
-        else
-          {
-          tmp_NameColormap.append("../../Mesh/SPHARM/customLUT_Color_Map_Theta.txt");
-          }
-        NameColormap.push_back(tmp_NameColormap);
-        argsMRML.push_back("-as" );
-        if( colormap == 0 )
-          {
-          argsMRML.push_back("Color_Map_Phi" );
-          }
-        else
-          {
-          argsMRML.push_back("Color_Map_Theta" );
-          }
-        argsMRML.push_back("-cc" );
-        argsMRML.push_back( (NameColormap.back() ).c_str() );
-
-        // link shape and transform
-        argsMRML.push_back("-p" );
-        argsMRML.push_back( (NameTrans.back() ).c_str() );
-
-        // add fiducial
-        argsMRML.push_back("-q"); argsMRML.push_back("-id");
-        argsMRML.push_back( (Name.back() ).c_str() );
-        argsMRML.push_back("-lbl");
-        argsMRML.push_back( (Name.back() ).c_str() );
-        argsMRML.push_back("-sc");
-        argsMRML.push_back("0,0,0");
-        argsMRML.push_back("-pos");
-
-        std::string tmp_NbFidu;
-        if( GetDirectionToDisplay() == "XYZ" )
-          {
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[3] + dim0 + Dims[0] / 2) );
-          tmp_NbFidu.append(",");
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[6] + dim1) );
-          tmp_NbFidu.append(",");
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[7]) );
-
-          }
-        if( GetDirectionToDisplay() == "XZY" )
-          {
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[3] + dim0 + Dims[0] / 2) );
-          tmp_NbFidu.append(",");
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[5]) );
-          tmp_NbFidu.append(",");
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[8] + dim2) );
-          }
-        if( GetDirectionToDisplay() == "YXZ" )
-          {
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[4] + dim0) );
-          tmp_NbFidu.append(",");
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[5] + dim1 + Dims[1] / 2) );
-          tmp_NbFidu.append(",");
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[7]) );
-          }
-        if( GetDirectionToDisplay() == "YZX" )
-          {
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[3]) );
-          tmp_NbFidu.append(",");
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[5] + dim1 + Dims[1] / 2) );
-          tmp_NbFidu.append(",");
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[8] + dim2) );
-          }
-        if( GetDirectionToDisplay() == "ZXY" )
-          {
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[4] + dim0) );
-          tmp_NbFidu.append(",");
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[5]) );
-          tmp_NbFidu.append(",");
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[7] + dim2 + Dims[3] / 2) );
-          }
-        if( GetDirectionToDisplay() == "ZYX" )
-          {
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[3]) );
-          tmp_NbFidu.append(",");
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[6] + dim1) );
-          tmp_NbFidu.append(",");
-          tmp_NbFidu.append(Convert_Double_To_CharArray(Dims[7] + dim2 + Dims[3] / 2) );
-          }
-        NbFidu.push_back(tmp_NbFidu);
-        argsMRML.push_back( (NbFidu.back() ).c_str() );
-
-        nbdisplay++;
-
-        // how many .vtk per line
-        if( i == 0 )
-          {
-          if( nbdisplay != 10 )
-            {
-            count_col++;
-            }
-          else
-            {
-            count_col = 0;
-            count_line++;
-            nbdisplay = 0;
-            }
-          }
-        else
-          {
-          if( nbdisplay != GetHorizontalGridPara() )
-            {
-            count_col++;
-            }
-          else
-            {
-            count_col = 0;
-            count_line++;
-            nbdisplay = 0;
-            }
-          }
-
-        }
-
-      /*for (int l =0; l<argsMRML.size();l++)
-      {std::cout << argsMRML.at(l)<< " " ;}*/
-
-      argsMRML.push_back(0);
-      // itk sys parameters
-      int    length;
-      time_t start;
-      time(&start);
-
-      double timeout = 0.05;
-      int    result;
-      char*  dataitk = NULL;
-
-      itksysProcess* gp = itksysProcess_New();
-      itksysProcess_SetCommand(gp, &*argsMRML.begin() );
-      itksysProcess_SetOption(gp, itksysProcess_Option_HideWindow, 1);
-      itksysProcess_Execute(gp);
-      while( int Value = itksysProcess_WaitForData(gp, &dataitk, &length, &timeout) ) // wait for 1s
-        {
-        if( ( (Value == itksysProcess_Pipe_STDOUT) || (Value == itksysProcess_Pipe_STDERR) ) && dataitk[0] == 'D' )
-          {
-          std::strstream st;
-          for( int j = 0; j < length; ++j )
-            {
-            st << dataitk[j];
-            }
-          std::string dim = st.str();
-          }
-        }
-
-      itksysProcess_WaitForExit(gp, 0);
-      result = 1;
-
-      switch( itksysProcess_GetState(gp) )
-        {
-        case itksysProcess_State_Exited:
-          {
-          result = itksysProcess_GetExitValue(gp);
-          } break;
-        case itksysProcess_State_Error:
-          {
-          std::cerr << "Error: Could not run " << argsMRML[0] << ":\n";
-          std::cerr << itksysProcess_GetErrorString(gp) << "\n";
-          std::cout << "Error: Could not run " << argsMRML[0] << ":\n";
-          std::cout << itksysProcess_GetErrorString(gp) << "\n";
-          } break;
-        case itksysProcess_State_Exception:
-          {
-          std::cerr << "Error: " << argsMRML[0] << " terminated with an exception: "
-                    << itksysProcess_GetExceptionString(gp) << "\n";
-          std::cout << "Error: " << argsMRML[0] << " terminated with an exception: "
-                    << itksysProcess_GetExceptionString(gp) << "\n";
-          } break;
-        case itksysProcess_State_Starting:
-        case itksysProcess_State_Executing:
-        case itksysProcess_State_Expired:
-        case itksysProcess_State_Killed:
-          {
-          // Should not get here.
-          std::cerr << "Unexpected ending state after running " << argsMRML[0] << std::endl;
-          std::cout << "Unexpected ending state after running " << argsMRML[0] << std::endl;
-          } break;
-        }
-      itksysProcess_Delete(gp);
-      }
-    }
 }
 
 void ShapeAnalysisModuleComputation::WriteComputationLog()
