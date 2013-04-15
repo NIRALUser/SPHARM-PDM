@@ -46,8 +46,6 @@ public:
 
   char * GetOutputFile();
 
-  void WriteBMSMRMLScene(int);
-
   void WriteBMSShapeAnalysisModuleFile();
 
   void WriteBMSShapeAnalysisModuleFile2();
@@ -67,8 +65,6 @@ public:
   void WriteMeanFile(int);
 
   void RunParticlesModule();
-
-  void CreateMrmlParticle();
 
   void WriteComputationLog();
 
