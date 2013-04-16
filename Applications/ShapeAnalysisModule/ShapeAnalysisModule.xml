@@ -16,7 +16,7 @@
 		<label>Group Project IO</label>
 		<description>Input File and Output File</description>	
 		<file>
-			<name>GroupeProjectInputFile</name>
+			<name>GroupProjectInputFile</name>
 			<label>Input File</label>
 			<index>1</index>
 			<channel>input</channel>
@@ -33,7 +33,7 @@
 		</boolean>
 		
 		<directory>
-			<name>GroupeProjectOutputDirectory</name>
+			<name>GroupProjectOutputDirectory</name>
 			<label>Output Directory</label>
 			<index>2</index>
 			<channel>output</channel>
