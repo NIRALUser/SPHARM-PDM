@@ -18,10 +18,8 @@ int main(int argc, char * argv [])
     m_computation.SetColumnVolumeFile(columVolumeFile);
     }
 
-
-
-  m_computation.SetParameterFile(GroupeProjectInputFile.c_str() );
-  m_computation.SetOutputDirectory(GroupeProjectOutputDirectory.c_str() );
+  m_computation.SetParameterFile(GroupProjectInputFile.c_str() );
+  m_computation.SetOutputDirectory(GroupProjectOutputDirectory.c_str() );
   m_computation.ReadFile(m_computation.GetParameterFile() );
 
   m_computation.SetOverwriteSegPostProcess(OverwriteSegPostProcess);
@@ -54,7 +52,7 @@ int main(int argc, char * argv [])
   m_computation.SetFlipTemplateState(useFlipTemplate);
   if( useFlipTemplate )
     {
-    m_computation.SetFlipTemplate(flipTemplate.c_str() );
+    m_computation.SetFlipTemplate(flipTemplate.c_str());
     }
 
   m_computation.SetTemplateMState(MTemplate);
