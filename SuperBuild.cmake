@@ -219,10 +219,6 @@ if(verbose)
   endforeach()
 endif()
 
-#------------------------------------------------------------------------------
-# Try to find Slicer3 to compile CreateMRML
-#------------------------------------------------------------------------------
-find_package(Slicer3 QUIET )
 
 #------------------------------------------------------------------------------
 # Configure and build
@@ -240,7 +236,6 @@ ExternalProject_Add(${proj}
     ${COMMON_EXTERNAL_PROJECT_ARGS}
     -D${LOCAL_PROJECT_NAME}_USE_SUPERBUILD:BOOL=OFF
     -D${LOCAL_PROJECT_NAME}_USE_GIT_PROTOCOL:BOOL=${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL
-    -DSlicer3_DIR:PATH=${Slicer3_DIR}
     -DUSE_SYSTEM_BatchMake:BOOL=${USE_SYSTEM_BatchMake}
     -DBatchMake_DIR:PATH=${BatchMake_DIR}
     -DUSE_SYSTEM_VTK:BOOL=${USE_SYSTEM_VTK}

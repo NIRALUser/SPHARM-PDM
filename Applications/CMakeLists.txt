@@ -139,24 +139,3 @@ if(COMPILE_ParticleModule)
 endif(COMPILE_ParticleModule)
 
 
-find_package(Slicer3 QUIET )
-if( Slicer3_FOUND )
-  option(COMPILE_CreateMRML "Compile CreateMRML." ON)
-  if(COMPILE_CreateMRML)
-
-    set(CreateMRML_REPOSITORY ${GIT_PROTOCOL}://github.com/booboo69500/CreateMRML.git CACHE STRING "" FORCE)
-    ExternalProject_Add(CreateMRML
-      GIT_REPOSITORY ${CreateMRML_REPOSITORY}
-      GIT_TAG "1e17d6dc66dca98b5622918408825d888ebd5a42"
-      UPDATE_COMMAND ""
-      SOURCE_DIR CreateMRML
-      BINARY_DIR CreateMRML-build
-      CMAKE_GENERATOR ${gen}
-      CMAKE_ARGS
-        -DSlicer3_DIR:PATH=${Slicer3_DIR}
-        ${external_projects_vars}        INSTALL_COMMAND ""
-        INSTALL_COMMAND ""
-        #    INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}
-    )
-  endif()
-endif()
