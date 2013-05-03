@@ -134,6 +134,13 @@ Processing of Binary Labels: it ensures spherical topology of the segmentation
       <longflag>noCCL</longflag>
       <description>If selected, do not perform a connected component labeling and threshold for the largest part</description>
     </boolean>
+   <boolean>
+      <name>UseUnitSpacing</name>
+      <default>false</default>
+      <label>UseUnitSpacing</label>
+      <longflag>UseUnitSpacing</longflag>
+      <description>Use Unit spacing on the image</description>
+    </boolean>
     <boolean>
       <name>debug</name>
       <default>false</default>

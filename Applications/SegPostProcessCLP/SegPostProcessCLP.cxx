@@ -114,7 +114,7 @@ int main( int argc, char * argv[] )
   typedef Image<SmoothImagePixelType, Dimension> SmoothImageType;
   typedef ImageFileReader<ImageType>             VolumeReaderType;
   typedef ImageFileWriter<ImageType>             VolumeWriterType;
-
+  typedef ImageFileWriter<SmoothImageType> SmoothWriterType ;
   typedef ResampleImageFilter<ImageType, ImageType> ResamplerType;
   typedef AffineTransform<CoordRepType, Dimension>  TransformType;
 
@@ -204,7 +204,7 @@ int main( int argc, char * argv[] )
       catch( ExceptionObject e )
         {
         e.Print(cout);
-        exit(0);
+        return EXIT_FAILURE;
         }
       if( debug )
         {
@@ -384,7 +384,7 @@ int main( int argc, char * argv[] )
     catch( ExceptionObject e )
       {
       e.Print(cout);
-      exit(0);
+      return EXIT_FAILURE;
       }
     if( debug )
       {
@@ -413,7 +413,7 @@ int main( int argc, char * argv[] )
   catch( ExceptionObject e )
     {
     e.Print(cout);
-    exit(0);
+    return EXIT_FAILURE;
     }
 
   int dim[Dimension];
@@ -467,7 +467,7 @@ int main( int argc, char * argv[] )
     threshFilter->Update();
     procImage = threshFilter->GetOutput();
     }
-
+	
   // clear edge and fill inside
   if( debug )
     {
@@ -484,7 +484,7 @@ int main( int argc, char * argv[] )
 
   // Rescaling the data ?
   if( isotropicOn )
-    {
+    { 
     const itk::Vector<double, 3> inSpacing = procImage->GetSpacing();
     double                       minSpacing = inSpacing[0];
     for( int i = 1; i < Dimension; i++ )
@@ -545,6 +545,7 @@ int main( int argc, char * argv[] )
         {
         cout << "Tresholding at 50% " << endl;
         }
+
       binThreshFilterType::Pointer binTreshFilter = binThreshFilterType::New();
       binTreshFilter->SetInput(resampleFilter->GetOutput() );
       binTreshFilter->SetUpperThreshold(LABEL_VAL);
@@ -682,8 +683,8 @@ int main( int argc, char * argv[] )
     binTreshFilter->SetOutsideValue(0);
     binTreshFilter->SetInsideValue(LABEL_VAL);
     binTreshFilter->Update();
-
     procImage = binTreshFilter->GetOutput();
+    
     }
 
   // Conversion to float & gauss filter & Conversion to unsigned short & Tresholding at LABEL_VAL/2
@@ -791,17 +792,26 @@ int main( int argc, char * argv[] )
       binTreshFilter->Update();
 
       procImage = binTreshFilter->GetOutput();
+
       }
     }
+
+const itk::Vector<double, 3> SpacingImage = procImage->GetSpacing();
+if(UseUnitSpacing )
+{ 
+ float values[3]={1.0,1.0,1.0};
+  procImage->SetSpacing(values);
+}
 
   if( !noLS )   // do level set smoothing!
     {
     if( debug )
       {
-      cout << "Level Set Smoothing"  << endl;
+      cout << "Level Set Smoothing 1"  << endl;
       }
     CastToRealFilterType::Pointer toReal = CastToRealFilterType::New();
     toReal->SetInput(procImage );
+
 
     AntiAliasFilterType::Pointer antiAliasFilter = AntiAliasFilterType::New();
     antiAliasFilter->SetInput( toReal->GetOutput() );
@@ -809,6 +819,7 @@ int main( int argc, char * argv[] )
     antiAliasFilter->SetNumberOfIterations( numberOfIterations );
     antiAliasFilter->SetNumberOfLayers( 2 );
     antiAliasFilter->Update();
+
 
     RescaleFilter::Pointer rescale = RescaleFilter::New();
     rescale->SetInput( antiAliasFilter->GetOutput() );
@@ -823,8 +834,10 @@ int main( int argc, char * argv[] )
     binTreshFilter->SetInsideValue(1);
     binTreshFilter->Update();
     procImage = binTreshFilter->GetOutput();
-    }
 
+
+    }
+if( UseUnitSpacing ) procImage->SetSpacing(SpacingImage);
   // connect everything by 6 connectedness, so that no diagonals in data
   if( debug )
     {
@@ -837,7 +850,7 @@ int main( int argc, char * argv[] )
   dim[2] = imageRegion.GetSize(2);
   clear_edge(data, dim, 0);
   NoDiagConnect(data, dim);
-
+    
   if( deleteVessels )
     {
     cout << "1" << endl;
@@ -1059,6 +1072,7 @@ int main( int argc, char * argv[] )
       {
       if( !skullstrippingOn )
         {
+
         writer->SetFileName(outfileName.c_str() );
         writer->SetInput(procImage);
         writer->Write();
@@ -1073,7 +1087,7 @@ int main( int argc, char * argv[] )
   catch( ExceptionObject e )
     {
     e.Print(cout);
-    exit(0);
+    return EXIT_FAILURE;
     }
 
   // second part of skullstripping : using the binary mask
@@ -1122,7 +1136,7 @@ int main( int argc, char * argv[] )
     }
 
   cout << "end of prog" << endl;
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 static int NoDiagConnect(unsigned short *image, int *dim)
@@ -1270,96 +1284,75 @@ static void clear_edge(unsigned short *image, int *dims, int clear_label)
 
 }
 
-static void
+static void 
 draw_fill_inside_image(unsigned short *image, int *dims, int new_label)
-// Fill the 'inside' part of an image (closed objects that do not touch the
-// image edges)
+  // Fill the 'inside' part of an image (closed objects that do not touch the
+  // image edges)
 {
-  int size_plane = dims[0] * dims[1];
+  int size_plane = dims[0]*dims[1];
   int size_line = dims[0];
 
   unsigned short label;
-
-  if( new_label > 1 )
-    {
-    label = new_label - 1;
-    }
-  else
-    {
-    label = new_label + 1;
-    }
-
+  if (new_label > 1) label = new_label-1;
+  else label = new_label+1;
+  
   unsigned short background = 0;
+
   // fill image edges -> won't work if object touches the edge !!
-  for( int z = 0; z < dims[2]; z++ )
-    {
-    for( int y = 0; y < dims[1]; y++ )
-      {
-      if( (y == 0) || (y == dims[1] - 1) ||
-          (z == 0) || (z == dims[2] - 1) ) // draw whole plane
-        {
-        for( int x = 0; x < dims[0]; x++ )
-          {
-          image[x +  size_line * y + size_plane * z] = label;
-          }
-        }
-      else     // draw edges of x
-        {
-        image[0 +  size_line * y + size_plane * z] = label;
-        image[size_line - 1 +  size_line * y + size_plane * z] = label;
-        }
+  for (int z = 0; z < dims[2]; z++) {
+    for (int y = 0; y < dims[1]; y++) {
+      if ( (y == 0) || (y == dims[1]-1) ||
+        (z == 0) || (z == dims[2]-1) ) { // draw whole plane
+     for (int x = 0; x < dims[0] ; x++) 
+       image[x +  size_line * y + size_plane * z] = label;
+      } else { // draw edges of x
+     image[0 +  size_line * y + size_plane * z] = label;
+     image[size_line - 1 +  size_line * y + size_plane * z] = label;
       }
     }
+  }
+  bool changed = true;
+  while (changed) {
+	changed = false;
   // forward propagation
-  for( int z = 1; z < dims[2] - 1; z++ )
-    {
-    for( int y = 1; y < dims[1] - 1; y++ )
-      {
-      for( int x = 1; x < dims[0] - 1; x++ )
-        {
-        int index = x +  size_line * y + size_plane * z;
-        if( image[index] == background && // check past neighborhood
-            (image[index - 1] == label ||
-             image[index + size_line] == label ||
-             image[index - size_plane] == label
-            ) )
-          {
-          image[index] = label;
-          }
-        }
+  for (int z = 1; z < dims[2]-1; z++) {
+    for (int y = 1; y < dims[1]-1; y++) {
+      for (int x = 1; x < dims[0]-1; x++) {
+     int index = x +  size_line * y + size_plane * z;
+     if (image[index] == background &&    // check past neighborhood
+         (image[index - 1] == label || 
+          image[index - size_line] == label || 
+          image[index - size_plane] == label 
+          )) {
+       image[index] = label;
+	changed = true;	
+     }
       }
     }
+  }
+
   // backward propagation
-  for( int z = dims[2] - 2; z > 0; z-- )
-    {
-    for( int y = dims[1] - 2; y > 0; y-- )
-      {
-      for( int x = dims[0] - 2; x > 0; x-- )
-        {
-        int index = x +  size_line * y + size_plane * z;
-        if( image[index] == background && // check past neighborhood
-            (image[index + 1] == label ||
-             image[index + size_line] == label ||
-             image[index + size_plane] == label
-            ) )
-          {
-          image[index] = label;
-          }
-        }
+  for (int z = dims[2]-2; z > 0; z--) {
+    for (int y = dims[1]-2; y > 0; y--) {
+      for (int x = dims[0]-2; x > 0; x--) {
+     int index = x +  size_line * y + size_plane * z;
+     if (image[index] == background &&    // check past neighborhood
+         (image[index + 1] == label || 
+          image[index + size_line] == label || 
+          image[index + size_plane] == label 
+          )) {
+       image[index] = label;
+	changed = true;
+     }
       }
     }
+  }
+  }
   // reassign labels
-  for( int i = 0; i < dims[2] * dims[1] * dims[0]; i++ )
-    {
-    if( image[i] == label )
-      {
-      image[i] = background;
-      }
-    else if( image[i] == background )
-      {
-      image[i] = new_label;
-      }
-    }
+  for (int i = 0; i < dims[2]*dims[1]*dims[0]; i++) {
+    if (image[i] == label) image[i] = background;
+    else if (image[i] == background) image[i] = new_label;
+  }
 }
 
 bool searchList(int label, vector<int> list)
