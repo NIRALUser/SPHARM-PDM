@@ -339,7 +339,7 @@ void EqualAreaParametricMeshNewtonIterator::activate_initial(const int n_equal, 
 }
 
 void EqualAreaParametricMeshNewtonIterator::constraints(const IteratorSurfaceNet& /* net */,
-                                                        const double */* x */,
+                                                        const double *_x/* x */,
                                                         double *equal,
                                                         double *inequal)
 {
@@ -348,15 +348,15 @@ void EqualAreaParametricMeshNewtonIterator::constraints(const IteratorSurfaceNet
   for( int face = 0; face < net.nface; face++ )
     {
     // determine inequal through side effect
-    equal[face] = spher_area4(this->m_x, net.face + 4 * face, inequal + 4 * face) - desired_area;
+    equal[face] = spher_area4(_x, net.face + 4 * face, inequal + 4 * face) - desired_area;
     }
 }
 
-double EqualAreaParametricMeshNewtonIterator::one_inequality(const IteratorSurfaceNet & /* net */, const double */* x */, int which)
+double EqualAreaParametricMeshNewtonIterator::one_inequality(const IteratorSurfaceNet & /* net */, const double *x_/* x */, int which)
 {
   double sines[4];
 
-  (void) spher_area4(this->m_x, net.face + which / 4 * 4, sines);
+  (void) spher_area4(x_, net.face + which / 4 * 4, sines);
   return sines[which % 4];
 }
 
@@ -610,7 +610,8 @@ double EqualAreaParametricMeshNewtonIterator::iterate()
   // // write_vector("this->m_lambda", jacobi_aTa.n_col, this->m_lambda, 0); // debug
   int inactivated = 0;
   int i;
-  for( i = 0; i < n_active; i++ )
+  //for( i = 0; i < n_active; i++ )
+   for(i=n_active-1; i>=0; i--)
     {
     if( this->m_lambda[net.nface - 1 + i] < 0 && c_hat[net.nface - 1 + i] > -par.ineq_low )
       {
