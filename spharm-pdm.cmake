@@ -44,3 +44,8 @@ add_subdirectory(Applications)
 
 FILE( GLOB list_files ${CMAKE_CURRENT_SOURCE_DIR}/bmm/*.* )
 FILE( COPY ${list_files} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} )
+
+#======================================================================================
+  # Create Tests
+ include(CTest)
+ add_subdirectory(Testing) # contains a CMakeLists.txt
