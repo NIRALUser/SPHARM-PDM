@@ -197,7 +197,6 @@ Mesh3DProcrustesAlignFilter<TInputMesh, TOutputMesh>
   InputMeshPointer sourceMesh = this->GetInput( idx );
 
   source.set_size( sourceMesh->GetNumberOfPoints(), 3 );
-  {
   typename InputMeshType::PointsContainer::ConstIterator inputIt;
   unsigned int i = 0;
   for( inputIt = sourceMesh->GetPoints()->Begin(); inputIt != sourceMesh->GetPoints()->End(); ++inputIt )
@@ -206,14 +205,13 @@ Mesh3DProcrustesAlignFilter<TInputMesh, TOutputMesh>
       {
       source[i][dim] = inputIt.Value()[dim] - m_Center[idx][dim];
       }
+    i++;
     }
-  }
   // copy target mesh coordinates to target matrix
   MatrixType target;
   target.set_size( 3, targetMesh->GetNumberOfPoints() );
-  {
   typename OutputMeshType::PointsContainer::ConstIterator outputIt;
-  unsigned i = 0;
+  i = 0;
   for( outputIt = targetMesh->GetPoints()->Begin(); outputIt != targetMesh->GetPoints()->End(); ++outputIt )
     {
     for( int dim = 0; dim < 3; dim++ )
@@ -222,22 +220,21 @@ Mesh3DProcrustesAlignFilter<TInputMesh, TOutputMesh>
       }
     i++;
     }
-  }
   // do procrustes matching
   MatrixType            x1 = target * source / (target.fro_norm() * source.fro_norm() );
   vnl_svd<CoordRepType> svd( x1 );
   MatrixType            postTrans = svd.V() * svd.U().transpose();
   MatrixType            x2 = target * source * postTrans;
   CoordRepType          x2Trace = 0;
-  for( unsigned int i = 0; i < x2.rows(); i++ )
+  for( unsigned int i_ = 0; i_ < x2.rows(); i_++ )
     {
-    x2Trace += x2[i][i];
+    x2Trace += x2[i_][i_];
     }
   MatrixType   x3 = source.transpose() * source;
   CoordRepType x3Trace = 0;
-  for( unsigned int i = 0; i < x3.rows(); i++ )
+  for( unsigned int i_ = 0; i_ < x3.rows(); i_++ )
     {
-    x3Trace += x3[i][i];
+    x3Trace += x3[i_][i_];
     }
   CoordRepType scale = x2Trace / x3Trace;
 
