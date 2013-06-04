@@ -1,10 +1,15 @@
 #project(SegPostProcessCLP)
 
-set(SegPostProcessCLP_SOURCE SegPostProcessCLP.cxx )
-GENERATECLP(SegPostProcessCLP_SOURCE SegPostProcessCLP.xml)
-add_executable(SegPostProcessCLP ${SegPostProcessCLP_SOURCE})
+set( CLP SegPostProcessCLP )
 
-target_link_libraries(SegPostProcessCLP ${ITK_LIBRARIES})
+set(${CLP}_SOURCE ${CLP}.cxx )
+GENERATECLP(${CLP}_SOURCE ${CLP}.xml)
+add_executable(${CLP} ${${CLP}_SOURCE})
+target_link_libraries(${CLP} ${ITK_LIBRARIES})
+
+add_library(${CLP}Lib STATIC ${${CLP}_SOURCE})
+set_target_properties (${CLP}Lib PROPERTIES COMPILE_FLAGS "-Dmain=ModuleEntryPoint")
+target_link_libraries(${CLP}Lib ${ITK_LIBRARIES})
 
 install(TARGETS
   SegPostProcessCLP
