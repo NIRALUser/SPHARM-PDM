@@ -346,6 +346,8 @@ int main(int argc, const char * *argv)
     std::cout << " -listPointData    lists info about all the VTK point Data in the vtk file" << std::endl;
     std::cout << " -PointDataOp <name> <op> <val>   <name>: name of point data, " << std::endl
 	      << "     <op>: [threshBelow | sub]  threshBelow: set to 0 all data below <value>, sub: subtract value"   << std::endl;
+    //bp2013
+    std::cout << " -translateMesh <tx_DimX> <tx_DimY> <tx_DimZ> ,  translates a mesh for a given amount " << std::endl;
     
     std::cout << " -verbose                   Verbose output" << std::endl;
     return 0;
@@ -825,6 +827,17 @@ int main(int argc, const char * *argv)
       {
       pointDataOpCmd.push_back(files[i]);
       }
+    }
+
+  //bp2013
+  bool translateOn = ipExistsArgument(argv, "-translateMesh");
+  std::vector<std::string> vector_translateFactor;
+  int numtranslateparams = nbfile + 3;
+  float *TranslateParams = new float[numscaleparams];
+  if( translateOn )
+    {
+    char * tmp_str = ipGetStringArgument(argv, "-translateMesh", NULL);
+    ipExtractFloatTokens(TranslateParams, tmp_str, numtranslateparams);
     }
 
   // PROCESSING STARTS HERE
@@ -5963,7 +5976,36 @@ int main(int argc, const char * *argv)
     SurfaceWriter->SetFileName(outputFilename);
     SurfaceWriter->Update();
 
-  } else
+  } else  if( translateOn )
+    {
+
+     std::cout << "Displacing mesh by " << TranslateParams[0] << " - "  << TranslateParams[1] << " - " << TranslateParams[2] << std::endl;
+
+     vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+     meshin->SetFileName(inputFilename);
+     meshin->Update();
+     double x[3];
+     vtkPoints * PointsVTK = vtkPoints::New();
+     PointsVTK = meshin->GetOutput()->GetPoints();
+
+     for( int PointId = 0; PointId < (meshin->GetOutput()->GetNumberOfPoints() ); PointId++ )
+        {
+        PointsVTK->GetPoint(PointId, x);
+        double vert[3];
+        for( unsigned int dim = 0; dim < 3; dim++ )
+          {
+          vert[dim] = x[dim] + TranslateParams[dim];
+          }
+        PointsVTK->SetPoint(PointId, vert);
+        }
+
+     vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+     SurfaceWriter->SetInput(meshin->GetOutput() );
+     SurfaceWriter->SetFileName(outputFilename);
+     SurfaceWriter->Update();
+     
+    }
+    else
     {
 
     std::cout << "No operation to do -> exiting" << std::endl;
