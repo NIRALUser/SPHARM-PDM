@@ -91,6 +91,7 @@ if(COMPILE_ShapeAnalysisModule)
   add_subdirectory(ShapeAnalysisModule)
 endif(COMPILE_ShapeAnalysisModule)
 
+option(COMPILE_shapeAnalysisMANCOVA_Wizard "Compile shapeAnalysisMANCOVA_Wizard." OFF)
 option(COMPILE_StatNonParamTestPDM "Compile StatNonParamTestPDM." ON)
 if(COMPILE_StatNonParamTestPDM)
   ###add download Mancova and configure mancova project. Qt for wizard....
@@ -105,6 +106,7 @@ if(COMPILE_StatNonParamTestPDM)
     BINARY_DIR MANCOVA-build
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
+      -DCOMPILE_shapeAnalysisMANCOVA_Wizard:BOOL={COMPILE_shapeAnalysisMANCOVA_Wizard}
       -DITK_DIR:PATH=${ITK_DIR}
       -DVTK_DIR:PATH=${VTK_DIR}
       -DGenerateCLP_DIR:PATH=${GenerateCLP_DIR}
