@@ -99,5 +99,5 @@ int main(int argc, char * argv [])
   m_computation.Computation();
 
   //return EXIT_SUCCESS;
-  return -1;
+  return 0;
 }
