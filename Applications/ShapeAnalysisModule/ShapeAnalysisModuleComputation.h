@@ -56,7 +56,7 @@ public:
 
   void ExecuteMeshMathTemplate();
 
-  void Computation();
+  int Computation();
 
   void OverWrite();
 

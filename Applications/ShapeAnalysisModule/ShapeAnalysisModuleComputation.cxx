@@ -11,7 +11,7 @@ ShapeAnalysisModuleComputation::~ShapeAnalysisModuleComputation()
 }
 
 // Compute Shape Analysis
-void ShapeAnalysisModuleComputation::Computation()
+int ShapeAnalysisModuleComputation::Computation()
 {
 
   std::cout << "\n\nComputing ShapeAnalysisModule..." << std::endl << std::endl;
@@ -66,7 +66,7 @@ void ShapeAnalysisModuleComputation::Computation()
 
   std::cout << "DONE COMPUTING SPHARM" << std::endl;
 
-  return;
+  return 0;
 }
 
 // Execute MeshMath to write a KWM scalar field (1D) into a PolyData Field Data Scalar to visualize in Slicer3
