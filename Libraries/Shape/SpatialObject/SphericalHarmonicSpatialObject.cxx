@@ -71,7 +71,7 @@ void SphericalHarmonicSpatialObject::SetCoefs(SphericalHarmonicSpatialObject::Co
 {
   m_Coefs = coeflist;
   m_Count = m_Coefs.size(); // Each item in the vector is a 3D point.
-  m_Harmonic = (int) floor(sqrt(m_Count) ) - 1;
+  m_Harmonic = (int) floor(sqrt(double(m_Count)) ) - 1;
   // std::cout<<"m_Count = " <<m_Count <<std::endl;
   ComputeHiddenMeshSpatialObject();
 }

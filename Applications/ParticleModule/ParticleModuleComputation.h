@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <itksys/Glob.hxx>
-#include <dirent.h>
+//#include <dirent.h>
 
 class ParticleModuleComputation : public ParticleModuleParameters
 {

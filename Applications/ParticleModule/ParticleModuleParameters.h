@@ -10,7 +10,7 @@
 #include <itksys/Process.h>
 #include <string>
 #include <stdlib.h>
-#include <dirent.h>
+//#include <dirent.h>
 #include <iostream>
 #include <cstring>
 #include <fstream>

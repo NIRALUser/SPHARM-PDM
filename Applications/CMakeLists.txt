@@ -47,7 +47,7 @@ if(COMPILE_ImageMath)
   set(ImageMath_REPOSITORY https://www.nitrc.org/svn/niral_utilities/trunk/ImageMath CACHE STRING "" FORCE)
   ExternalProject_Add(ImageMath
     SVN_REPOSITORY ${ImageMath_REPOSITORY}
-    SVN_REVISION -r 36
+    SVN_REVISION -r 44
     SVN_USERNAME slicerbot
     SVN_PASSWORD slicer
     UPDATE_COMMAND ""
@@ -76,7 +76,7 @@ if(COMPILE_GenParaMeshCLP)
   add_subdirectory(GenParaMeshCLP)
 endif(COMPILE_GenParaMeshCLP)
 
-option(COMPILE_RadiusToMesh "Compile GenParaMeshCLP." ON)
+option(COMPILE_RadiusToMesh "Compile RadiusToMesh." ON)
 if(COMPILE_RadiusToMesh)
   add_subdirectory(RadiusToMesh)
 endif(COMPILE_RadiusToMesh)

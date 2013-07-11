@@ -197,15 +197,15 @@ double  ParametricMeshToSPHARMSpatialObjectFilter::flip_fu0(double n)
 
   if( flip_mm(n) == 0 )
     {
-    retval = pow(-1, flip_ll(n) );
+    retval = pow(-1.0, flip_ll(n) );
     }
   else if( flip_mm(n) % 2 == 1 )
     {
-    retval = pow(-1, flip_ll(n) + flip_m2(n) );
+    retval = pow(-1.0, flip_ll(n) + flip_m2(n) );
     }
   else
     {
-    retval = pow(-1, flip_ll(n) + flip_m2(n) + 1);
+    retval = pow(-1.0, flip_ll(n) + flip_m2(n) + 1);
     }
   return retval;
 }
@@ -216,22 +216,22 @@ double  ParametricMeshToSPHARMSpatialObjectFilter::flip_fu1(double n)
 
   if( flip_mm(n) == 0 )
     {
-    retval = pow(-1, flip_ll(n) );
+    retval = pow(-1.0, flip_ll(n) );
     }
   else if( flip_mm(n) % 2 == 1 )
     {
-    retval = pow(-1, flip_ll(n) );
+    retval = pow(-1.0, flip_ll(n) );
     }
   else
     {
-    retval = pow(-1, flip_ll(n) + 1);
+    retval = pow(-1.0, flip_ll(n) + 1);
     }
   return retval;
 }
 
 double  ParametricMeshToSPHARMSpatialObjectFilter::flip_fu2(double n)
 {
-  return pow(-1, flip_m2(n) );
+  return pow(-1.0, flip_m2(n) );
 }
 
 double  ParametricMeshToSPHARMSpatialObjectFilter::flip_reflect( double n)

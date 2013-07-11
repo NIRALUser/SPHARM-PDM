@@ -1,5 +1,6 @@
 #include "ShapeAnalysisModuleComputation.h"
 #include <itksys/SystemTools.hxx>
+#include <itksys/Directory.hxx>
 
 ShapeAnalysisModuleComputation::ShapeAnalysisModuleComputation()
   : Parameters()
@@ -452,7 +453,7 @@ void ShapeAnalysisModuleComputation::ExecuteBatchMake(const char *_Input)
   bm::ScriptParser m_Parser;
 
   // the module path exist
-  if( chdir(GetModulePath() ) == 0 )
+  if( itksys::SystemTools::ChangeDirectory(GetModulePath() ) == 0 )
     {
     // if bmm files are in the same directory as the Shape Analysis Module
     m_Parser.LoadWrappedApplication(GetModulePath() );
@@ -1647,7 +1648,7 @@ void ShapeAnalysisModuleComputation::OverWrite()
       int length = strlen(GetOutputDirectory() );
       length = length + 10;
 
-      DIR *          pdir = NULL;
+    /*  DIR *          pdir = NULL;
       struct dirent *pent;
       pdir = opendir(dirTemplate);
       while( (pent = readdir(pdir) ) )
@@ -1661,7 +1662,32 @@ void ShapeAnalysisModuleComputation::OverWrite()
           remove(file);
           // cerr<<"Error deleting file "<<file<<endl;
           }
+        }*/
+  unsigned long nbFiles= itksys:: Directory::GetNumberOfFilesInDirectory(dirTemplate);
+   unsigned long i =0;
+   
+    for(i=0 ; i< nbFiles-1 ; i++)
+    {
+      itksys:: Directory direc ; 
+    
+      if (!direc.Load (dirTemplate))
+      {
+       cerr << "Directory  cannot be read!" << endl;
+      }
+      const char * FileDir=direc.GetFile(i) ;
+     
+      char *file = NULL;
+      file = new char[512];
+      strcpy(file, dirTemplate);
+      strcat(file,FileDir);
+      if( file[length] != '.' )
+        {
+        remove(file);
+        // cerr<<"Error deleting file "<<file<<endl;
         }
+    }
+
+
       }
     }
 }

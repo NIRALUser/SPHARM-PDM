@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <itksys/Process.h>
 #include <vector>
-#include <dirent.h>
+//#include <dirent.h>
 
 #include "itkImage.h"
 #include "itkImageFileReader.h"

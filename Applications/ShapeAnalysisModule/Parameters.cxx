@@ -5,7 +5,8 @@
 #include <sstream>
 #include <string>
 #include <itksys/SystemTools.hxx>
-
+#include <itksys/Directory.hxx>
+#include "itkExceptionObject.h"
 using namespace std;
 
 Parameters::Parameters()
@@ -971,7 +972,7 @@ bool Parameters::GetOverwriteParaToSPHARMMesh()
 // To know if the directory is empty or not
 bool Parameters::DirectoryIsEmpty(const char * path)
 {
-  DIR *          dir = opendir(path);
+ /* DIR *          dir = opendir(path);
   struct dirent *mydir;
   int            nbFiles = -2;
 
@@ -984,6 +985,15 @@ bool Parameters::DirectoryIsEmpty(const char * path)
       }
     }
   else
+    {
+    cerr << " Cannot read the directory " << path << endl;
+    }*/
+unsigned long nbFiles=0;
+   if( itksys::SystemTools::FileIsDirectory(path) )
+   {
+       nbFiles= itksys:: Directory::GetNumberOfFilesInDirectory(path);
+   }
+    else
     {
     cerr << " Cannot read the directory " << path << endl;
     }
@@ -1463,7 +1473,7 @@ void Parameters::DeleteTransformsFolders(int type)
     int length = strlen(GetOutputDirectory() );
     length = length + 10;
 
-    DIR *          pdir = NULL;
+    /*DIR *          pdir = NULL;
     struct dirent *pent;
     pdir = opendir(dirTransform);
     while( (pent = readdir(pdir) ) )
@@ -1477,8 +1487,31 @@ void Parameters::DeleteTransformsFolders(int type)
         remove(file);
         // cerr<<"Error deleting file "<<file<<endl;
         }
+      }*/
+   unsigned long nbFiles= itksys:: Directory::GetNumberOfFilesInDirectory(dirTransform);
+   unsigned long i =0;
+    //SetDirectory(dirTransform.toStdString());
+    for(i=0 ; i< nbFiles-1 ; i++)
+    {
+      itksys:: Directory dir ; 
+    
+      if (!dir.Load (dirTransform))
+      {
+       cerr << "Directory  cannot be read!" << endl;
       }
+      const char * FileDir=dir.GetFile(i) ;
+     
+      char *file = NULL;
+      file = new char[512];
+      strcpy(file, dirTransform);
+      strcat(file,FileDir);
+      if( file[length] != '.' )
+        {
+        remove(file);
+        // cerr<<"Error deleting file "<<file<<endl;
+        }
     }
+  }
 
 }
 

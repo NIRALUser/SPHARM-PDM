@@ -2,7 +2,8 @@
 #define SHAPEANALYSISTOOLCOMPUTATION_H
 
 #include "Parameters.h"
-
+#include <ctime>
+#include<sys/types.h>
 #include <strstream>
 #include <iostream>
 #include <cstring>
@@ -18,8 +19,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <itksys/Glob.hxx>
-#include <dirent.h>
-
+//#include <dirent.h>
+#ifdef WIN32
+#include "process.h"
+#endif
 #include "bmScriptParser.h"
 #include "BMString.h"
 

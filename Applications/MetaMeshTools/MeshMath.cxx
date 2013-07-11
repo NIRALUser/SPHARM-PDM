@@ -143,7 +143,11 @@ static int GetIntFromString(const char *inputLine)
   int         Val = atoi(NbPoint.c_str() );
   return Val;
 }
+int roundd (double d)
+{
+ return static_cast<int>(d + 0.5);
 
+}
 /* qsort float comparision function */
 static int oldStyleCompare( const void* a_, const void* b_ )
 {
@@ -1203,7 +1207,7 @@ int main(int argc, const char * *argv)
           Distance::VectorImageType::IndexType vectorIndex;
           for( int indexDim = 0; indexDim < 3; indexDim++ )
             {
-            vectorIndex[indexDim] =  (long int) round( point_index[indexDim] );
+            vectorIndex[indexDim] =  (long int) roundd( point_index[indexDim] );
             }
           vectorPixel = closestVectorImage->GetPixel(vectorIndex);
           for( unsigned int dim = 0; dim < 3; dim++ )
@@ -1243,7 +1247,7 @@ int main(int argc, const char * *argv)
           Distance::VectorImageType::IndexType vectorIndex;
           for( int indexDim = 0; indexDim < 3; indexDim++ )
             {
-            vectorIndex[indexDim] =  (long int) round( point_index[indexDim] );
+            vectorIndex[indexDim] =  (long int) roundd( point_index[indexDim] );
             }
           vectorPixel = closestVectorImage->GetPixel(vectorIndex);
           for( unsigned int dim = 0; dim < 3; dim++ )
@@ -4465,7 +4469,7 @@ int main(int argc, const char * *argv)
           // 100
           // prov=((float)(value/0.05))*99.0;
           prov = ( (float)(value / 0.05) ) * 99.0;
-          rounded = (int)round(prov); // std::cout << "value"<<value <<"round"<< rounded << std::endl;
+          rounded = (int)roundd(prov); // std::cout << "value"<<value <<"round"<< rounded << std::endl;
           }
 
         // std::cout << rounded << std::endl;
@@ -4486,7 +4490,7 @@ int main(int argc, const char * *argv)
           }
         prov = ( (float)(value / (range[1] - range[0]) ) ) * 100.0; // Due to the way slicer maps the scalars have to be
                                                                     // scaled from 0 .. 100
-        rounded = (int)round(prov);
+        rounded = (int)roundd(prov);
         // std::cout << rounded << std::endl;
         scalars->InsertNextValue(rounded);
         Scalars.SetElement(i, rounded);
@@ -5142,12 +5146,12 @@ int main(int argc, const char * *argv)
       outFile += "new.lpts";
 
       std::ofstream out( outFile.c_str() );
-      std::ifstream __in( TestMeshFiles[index].c_str() );
+      std::ifstream inputFile( TestMeshFiles[index].c_str() );
       int _counter = 0;
-      while( __in )
+      while( inputFile )
         {
         double pt[3];
-        __in >> pt[0] >> pt[1] >> pt[2];
+        inputFile >> pt[0] >> pt[1] >> pt[2];
         // cout << pt[0] << " " << pt[1] << " " << pt[2] << endl;
         if( flags->GetValue(_counter) != 1 )
           {
@@ -5160,7 +5164,7 @@ int main(int argc, const char * *argv)
         _counter++;
         }
 
-      in.close();
+      inputFile.close();
       out.close();
       _counter = 0;
       }

@@ -1,4 +1,3 @@
-
 # Make sure this file is included only once
 get_filename_component(CMAKE_CURRENT_LIST_FILENAME ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
 if(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED)
@@ -80,7 +79,9 @@ if(NOT DEFINED ${extProjName}_DIR AND NOT ${USE_SYSTEM_${extProjName}})
         -DVTK_USE_QT:BOOL=ON
         -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
         )
+    
     endif()
+    
     find_package(Qt4 REQUIRED)
   else(${PROJECT_NAME}_USE_QT)
     set(VTK_QT_ARGS
@@ -142,9 +143,10 @@ if(NOT DEFINED ${extProjName}_DIR AND NOT ${USE_SYSTEM_${extProjName}})
       ${VTK_QT_ARGS}
       ${VTK_MAC_ARGS}
       )
+    
   ### --- End Project specific additions
   set(${proj}_REPOSITORY ${git_protocol}://vtk.org/VTK.git CACHE STRING "" FORCE)
-  set(${proj}_GIT_TAG "v5.8.0" CACHE STRING "" FORCE)
+  set(${proj}_GIT_TAG "v5.10.1" CACHE STRING "" FORCE)
   ExternalProject_Add(${proj}
     GIT_REPOSITORY ${${proj}_REPOSITORY}
     GIT_TAG ${${proj}_GIT_TAG}
@@ -162,9 +164,22 @@ if(NOT DEFINED ${extProjName}_DIR AND NOT ${USE_SYSTEM_${extProjName}})
     DEPENDS
       ${${proj}_DEPENDENCIES}
     BUILD_COMMAND ${VTK_BUILD_STEP}
+    
     )
+    
+      set(VTKPatchScript ${CMAKE_CURRENT_LIST_DIR}/VTKPatch.cmake)
+  ExternalProject_Add_Step(${proj} VTKPatch
+    COMMENT "get rid of obsolete C/CXX flags"
+    DEPENDEES download
+    DEPENDERS configure
+    COMMAND ${CMAKE_COMMAND}
+    -DVTKSource=<SOURCE_DIR>
+    -P ${VTKPatchScript}
+    )
+    
   set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
 else()
+  
   if(${USE_SYSTEM_${extProjName}})
     find_package(${extProjName} ${ITK_VERSION_MAJOR} REQUIRED)
     if(NOT ${extProjName}_DIR)

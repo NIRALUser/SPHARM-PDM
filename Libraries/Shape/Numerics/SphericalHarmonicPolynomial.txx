@@ -37,7 +37,7 @@ SphericalHarmonicPolynomial<TDimension>::~SphericalHarmonicPolynomial()
 }
 
 template <unsigned int TDimension>
-void SphericalHarmonicPolynomial<TDimension>::SetCoefs(SphericalHarmonicPolynomial<TDimension>::CoefListType& coeflist)
+void SphericalHarmonicPolynomial<TDimension>::SetCoefs(CoefListType& coeflist)
 {
   if( coeflist.empty() )
     {
