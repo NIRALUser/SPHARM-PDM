@@ -25,7 +25,11 @@ set(CLAPACK_LIBRARY_DIRECTORIES
   #${CLAPACK_DIR}/SRC
   #${CLAPACK_DIR}/BLAS/SRC
   ${CLAPACK_DIR}/F2CLIBS/libf2c)
-set(CLAPACK_LIBRARIES lapack blas f2c)
+if(WIN32)
+  set(CLAPACK_LIBRARIES lapack blas libf2c)
+else()
+  set(CLAPACK_LIBRARIES lapack blas f2c)
+endif()
 
 link_directories( ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} )
 link_directories(${CLAPACK_LIBRARY_DIRECTORIES})
