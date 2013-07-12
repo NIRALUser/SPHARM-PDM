@@ -57,7 +57,16 @@ option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
 option(USE_SYSTEM_BatchMake "Build using an externally defined version of BatchMake" OFF)
 option(USE_SYSTEM_CLAPACK "Build using an externally defined version of CLAPACK" OFF)
 option(USE_SYSTEM_LAPACK "Build using an externally defined version of LAPACK" OFF)
-
+option(COMPILE_StatNonParamTestPDM "Compile StatNonParam and ShapeMancova" ON)
+option(COMPILE_shapeworks "Compile shapeworks." ON)
+option(COMPILE_ImageMath "Compile ImageMath." ON)
+option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
+option(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
+option(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
+option(COMPILE_RadiusToMesh "Compile RadiusToMesh." ON)
+option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
+option(COMPILE_ShapeAnalysisModule "Compile ShapeAnalysisModule." ON)
+option(COMPILE_ParticleModule "Compile ParticleModule." ON)
 
 #-----------------------------------------------------------------------------
 # Prerequisites
@@ -239,6 +248,16 @@ ExternalProject_Add(${proj}
     -DUSE_SYSTEM_BatchMake:BOOL=${USE_SYSTEM_BatchMake}
     -DBatchMake_DIR:PATH=${BatchMake_DIR}
     -DUSE_SYSTEM_VTK:BOOL=${USE_SYSTEM_VTK}
+    -DCOMPILE_StatNonParamTestPDM:PATH=${COMPILE_StatNonParamTestPDM}
+    -DCOMPILE_shapeworks:PATH=${COMPILE_shapeworks}
+    -DCOMPILE_ImageMath:PATH=${COMPILE_ImageMath}
+    -DCOMPILE_SegPostProcessCLP:PATH=${COMPILE_SegPostProcessCLP}
+    -DCOMPILE_GenParaMeshCLP:PATH=${COMPILE_GenParaMeshCLP}
+    -DCOMPILE_MetaMeshTools:PATH=${COMPILE_MetaMeshTools}
+    -DCOMPILE_RadiusToMesh:PATH=${COMPILE_RadiusToMesh}
+    -DCOMPILE_ParaToSPHARMMeshCLP:PATH=${COMPILE_ParaToSPHARMMeshCLP}
+    -DCOMPILE_ShapeAnalysisModule:PATH=${COMPILE_ShapeAnalysisModule}
+    -DCOMPILE_ParticleModule:PATH=${COMPILE_ParticleModule}
     -DVTK_DIR:PATH=${VTK_DIR}
     ${trilinos_blas_args}
     ${SLICER_ARGS}
