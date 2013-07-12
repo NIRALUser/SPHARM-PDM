@@ -86,10 +86,14 @@ endif()
 # spharm-pdm dependency list
 #------------------------------------------------------------------------------
 
+set(dependent_BOOST )
+if(COMPILE_StatNonParamTestPDM)
+   set(dependent_BOOST Boost)
+endif()
 set(ITK_VERSION_MAJOR 4)
 set(ITK_EXTERNAL_NAME ITKv${ITK_VERSION_MAJOR})
 set(${LOCAL_PROJECT_NAME}_DEPENDENCIES
-  CLAPACK Boost
+  CLAPACK ${dependent_BOOST}
   ${ITK_EXTERNAL_NAME} VTK SlicerExecutionModel
   BatchMake
 )
