@@ -1287,7 +1287,88 @@ int main(int argc, const char * *argv)
   else if( avgMeshOn )
     {
 
-    MeshConverterType::Pointer converter = MeshConverterType::New();
+    	if( debug )
+    	{
+		std::cout << "Reading mesh " << " " << argv[2] << std::endl;
+    	}
+
+	vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+	meshin->SetFileName(inputFilename);
+	meshin->Update();
+	vtkPolyData *polydata = meshin->GetOutput();
+	vtkPoints *avgPoints = vtkPoints::New();
+	avgPoints=meshin->GetOutput()->GetPoints();
+
+	int numMeshes = AvgMeshFiles.size();
+	for( int index = 0; index < numMeshes; index++ )
+        {
+	      try
+	        {
+
+	          if( debug )
+	          {
+		        std::cout << "Reading  mesh " << AvgMeshFiles[index] << std::endl;
+		  }
+		  vtkPolyDataReader *meshin2 = vtkPolyDataReader::New();
+		  meshin2->SetFileName((char*)AvgMeshFiles[index].c_str());
+		  meshin2->Update();
+
+		  vtkPoints *meshPoints = vtkPoints::New();
+		  meshPoints=meshin2->GetOutput()->GetPoints();
+		  vtkPoints *tmpPoints = vtkPoints::New();
+		  for( unsigned int pointID = 0; pointID < meshPoints->GetNumberOfPoints(); pointID++ )
+                  {
+		    double curPoint[3];
+		    double avgPoint[3];
+		    double tmpPoint[3];
+                    meshPoints->GetPoint(pointID, curPoint);
+ 		    avgPoints->GetPoint(pointID, avgPoint);
+	            for( unsigned int dim = 0; dim < 3; dim++ )
+                    {
+ 		       tmpPoint[dim] = curPoint[dim] + avgPoint[dim];
+		    }
+		    tmpPoints->InsertPoint(pointID, tmpPoint);
+		  }
+
+		        avgPoints = tmpPoints;
+       		}
+	        catch( itk::ExceptionObject ex )
+	        {
+        		std::cerr << "Error reading meshfile:  " << AvgMeshFiles[index] << std::endl << "ITK error: "
+                  << ex.GetDescription() << std::endl;
+		        exit(-3);
+        	}
+		
+	 }
+
+	vtkPoints *tmpPoints = vtkPoints::New();
+    	for( unsigned int pointID = 0; pointID < avgPoints->GetNumberOfPoints(); pointID++ )
+  	{
+	      double avgPoint[3];
+	      double tmpPoint[3];
+              avgPoints->GetPoint(pointID, avgPoint);
+	      for( unsigned int dim = 0; dim < 3; dim++ )
+	      {
+	        tmpPoint[dim] = avgPoint[dim] / (numMeshes + 1);
+              }
+              tmpPoints->InsertPoint(pointID, tmpPoint);
+      	}
+	avgPoints = tmpPoints;
+
+    polydata->SetPoints(avgPoints);
+    polydata->Update();
+    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    SurfaceWriter->SetInput(polydata);
+    SurfaceWriter->SetFileName(outputFilename);
+    SurfaceWriter->Update();
+    if (debug)
+    {
+       std::cout << "Writing new mesh " << outputFilename << std::endl;
+    }
+
+
+
+   /* MeshConverterType::Pointer converter = MeshConverterType::New();
 
     // read input
     if( debug )
@@ -1355,7 +1436,7 @@ int main(int argc, const char * *argv)
     writer->SetInput(SOMesh);
     writer->SetFileName(outputFilename);
     writer->Update();
-
+*/
     }
   else if( alignMeshOn )
     {
@@ -3678,6 +3759,10 @@ int main(int argc, const char * *argv)
       {
       MC[dim] = (double) sum[dim] / (points->Size() + 1);
       }
+   // if (debug) 
+    //  {
+        std::cout << "Mesh " << inputFilename << " MC " << MC[0] << " " << MC[1] << " " << MC[2] << std::endl;
+    //  }
     // Create a New Point Set "newpts" with the Shifted Values
     MeshType::PointsContainerPointer newpts = MeshType::PointsContainer::New();
     for( unsigned int pointID = 0; pointID < points->Size(); pointID++ )
