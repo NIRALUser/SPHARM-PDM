@@ -92,7 +92,7 @@ if(COMPILE_ShapeAnalysisModule)
 endif(COMPILE_ShapeAnalysisModule)
 
 option(COMPILE_shapeAnalysisMANCOVA_Wizard "Compile shapeAnalysisMANCOVA_Wizard." OFF)
-option(COMPILE_StatNonParamTestPDM "Compile StatNonParamTestPDM." ON)
+option(COMPILE_StatNonParamTestPDM "Compile StatNonParamTestPDM." OFF)
 if(COMPILE_StatNonParamTestPDM)
   ###add download Mancova and configure mancova project. Qt for wizard....
   set(MANCOVA_REPOSITORY https://www.nitrc.org/svn/shape_mancova CACHE STRING "" FORCE)
@@ -116,7 +116,7 @@ if(COMPILE_StatNonParamTestPDM)
   )
 endif(COMPILE_StatNonParamTestPDM)
 
-option(COMPILE_shapeworks "Compile shapeworks." ON)
+option(COMPILE_shapeworks "Compile shapeworks." OFF)
 if(COMPILE_shapeworks)
   set(shapeworks_REPOSITORY  https://www.nitrc.org/svn/shapeworks/code CACHE STRING "" FORCE)
   ExternalProject_Add(shapeworks
@@ -135,7 +135,7 @@ if(COMPILE_shapeworks)
   )
 endif(COMPILE_shapeworks)
 
-option(COMPILE_ParticleModule "Compile ParticleModule." ON)
+option(COMPILE_ParticleModule "Compile ParticleModule." OFF)
 if(COMPILE_ParticleModule)
   add_subdirectory(ParticleModule)
 endif(COMPILE_ParticleModule)
