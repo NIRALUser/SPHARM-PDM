@@ -75,6 +75,7 @@
 #include <vtkPlane.h>
 #include <vtkWindowedSincPolyDataFilter.h>
 #include <vtkDecimatePro.h>
+#include <sstream>
 
 //#include "MeshMathImpl.cxx"
 
@@ -4390,49 +4391,7 @@ int main(int argc, const char * *argv)
   normalGenerator->SetNonManifoldTraversal(1);
 */
 
-    // Write normals out
-
-    // polydata = normals->GetOutput();
-/*	std::ofstream outputX ( argv[3] ) ;
-  std::ofstream outputY ( argv[4] ) ;
-  std::ofstream outputZ ( argv[5] ) ;
-
-    nPoints = polydata->GetNumberOfPoints();
-  //std::cout << nPoints << std::endl ;
-  vtkDataArray *Array = vtkDataArray::SafeDownCast(polydata->GetPointData()->GetNormals());
-
-  outputX << "NUMBER_OF_POINTS=" << nPoints << std::endl ;
-    outputX << "DIMENSION=1" << std::endl << "TYPE=Scalar" << std::endl;
-
-  outputY << "NUMBER_OF_POINTS=" << nPoints << std::endl ;
-    outputY << "DIMENSION=1" << std::endl << "TYPE=Scalar" << std::endl;
-
-  outputZ << "NUMBER_OF_POINTS=" << nPoints << std::endl ;
-    outputZ << "DIMENSION=1" << std::endl << "TYPE=Scalar" << std::endl;
-
-  if(Array)
-  {
-    int nc = Array->GetNumberOfTuples();
-    std::cout << "Got array and it has " << nc << " normal components" << std::endl;
-
-                for(unsigned int i = 0; i < nPoints; i++)
-                {
-      double tuple[3];
-      Array->GetTuple(i, tuple);
-     // cout << "Normal " << i << " values " << tuple[0] << " " << tuple[1] << " " << tuple[2] << endl;
-      outputX << tuple[0] << std::endl ;
-      outputY << tuple[1] << std::endl ;
-      outputZ << tuple[2] << std::endl ;
-                }
-  }
-  else
-    std::cout << "Got no array?" << std::endl;
-
-    outputX.close ();
-  outputY.close ();
-  outputZ.close ();*/
-
-    // Writing the new mesh, with the patched hole
+     // Writing the new mesh, with the patched hole
     vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
     // SurfaceWriter->SetInput(polyC->GetOutput());
     // SurfaceWriter->SetInput(normals->GetOutput());
@@ -4452,140 +4411,66 @@ int main(int argc, const char * *argv)
 
     if( debug )
       {
-      std::cout << "Input Mesh readed ...  " << inputFilename << std::endl;
+      std::cout << "Input Mesh read ...  " << inputFilename << std::endl;
       }
 
     // *** START PARSING KWMeshVisu file
     char     line[70];
     ifstream input;
-    int      NPoints;
-    // float    value;
+    int      NPoints, NDimension;
     char *   aux;
     input.open(files[0], ios::in);
 
     input.getline(line, 70, '\n');
-
     aux = strtok(line, " = ");
     aux = strtok(NULL, " = ");
-    ;
     NPoints = atof(aux);
 
     input.getline(line, 70, '\n');
-    input.getline(line, 70, '\n');
+    aux = strtok(line, " = ");
+    aux = strtok(NULL, " = ");
+    NDimension = atof(aux);
+
+    input.getline(line, 70, '\n'); // read type line
 
     vtkFloatArray *scalars = vtkFloatArray::New();
-    scalars->SetNumberOfComponents(1);
+    scalars->SetNumberOfComponents(NDimension);
     scalars->SetName(files[1]);
 
-    std::string orititle = files[1];
-    orititle = orititle  + "_original";
-    vtkFloatArray *scalars_ori = vtkFloatArray::New();
-    scalars_ori->SetNumberOfComponents(1);
-    scalars_ori->SetName(orititle.c_str() );
-
-    itk::VariableLengthVector<LUTValueType> Scalars(NPoints);
-
-    int    cont = 0; // contador = counter
-    double range[2]; range[0] = 99999999; range[1] = 0;
-    // range[1]=-99999999;
+    int cont = 0;
     for( int i = 0; i < NPoints; i++ )
       {
-      input.getline(line, 70, '\n');
-      float value = atof(line);
-      Scalars.SetElement(cont, value);
-      cont++;
+          input.getline(line, 70, '\n');
+	  float value=0;
+	  if (NDimension == 1)
+          { 
+            value = atof(line);
+	    scalars->InsertNextValue(value);
+          }
+          else
+	  {
+            std::string proc_string = line;
+	    std::istringstream iss(proc_string);
 
-      if( value > range[1] )
-        {
-        range[1] = value;
-        }
-
-      if( value < range[0] )
-        {
-        range[0] = value;
-        }
+	    do{
+              std::string sub;
+              iss >> sub;
+ 	      if (sub!= "")
+              {
+	        value = atof(sub.c_str());
+                scalars->InsertNextValue(value);
+	      }	
+	    }while (iss);
+          } 
+	  cont++;
       }
 
     input.close();
     // End reading the Input
     // *** END PARSING KWMeshVisu file
 
-    if( debug )
-      {
-      std::cout << "Min " << range[0] << " Max " << range[1] << std::endl;
-      }
-    if( debug )
-      {
-      std::cout << NPoints << " " << cont << std::endl;
-      }
-
-    // To force an interval different from the min-max difference...
-    // range[0]=-10.567; range[1]=16.275;
-
-    // ** START SCALING SCALARS - I love this sentence :D
-    float prov = 0;
-    int   rounded, sig;
-    if( range[0] < 0.0 )
-      {
-      sig = 1;
-      }
-    else
-      {
-      sig = 0;
-      }
-
-    int maxLUT = 255;
-
-    if( PvalueColorMapOn ) // TODO
-      {
-      for( int i = 0; i < NPoints; i++ )
-        {
-        float value = Scalars[i];
-        scalars_ori->InsertNextValue(value);
-        // If range[0] is not 0 i have to shift the values prior scaling
-        // if (value >= minPvalue) //TODO
-        if( value >= PvalueColorMapNb )
-          {
-          rounded = 100;
-          }
-        else
-          {
-          // prov=((float)(value/minPvalue)))*99.0; //Due to the way slicer maps the scalars have to be scaled from 0 ..
-          // 100
-          // prov=((float)(value/0.05))*99.0;
-          prov = ( (float)(value / 0.05) ) * 99.0;
-          rounded = (int)roundd(prov); // std::cout << "value"<<value <<"round"<< rounded << std::endl;
-          }
-
-        // std::cout << rounded << std::endl;
-        scalars->InsertNextValue(rounded);
-        Scalars.SetElement(i, rounded);
-        }
-      }
-    else
-      {
-      for( int i = 0; i < NPoints; i++ )
-        {
-        float value = Scalars[i];
-        scalars_ori->InsertNextValue(value);
-        // If range[0] is not 0 i have to shift the values prior scaling
-        if( range[0] != 0.0 )
-          {
-          value = value - range[0];
-          }
-        prov = ( (float)(value / (range[1] - range[0]) ) ) * 100.0; // Due to the way slicer maps the scalars have to be
-                                                                    // scaled from 0 .. 100
-        rounded = (int)roundd(prov);
-        // std::cout << rounded << std::endl;
-        scalars->InsertNextValue(rounded);
-        Scalars.SetElement(i, rounded);
-        }
-      // ** END SCALING SCALARS
-      }
-
     polydataAtt->GetPointData()->AddArray(scalars);
-    polydataAtt->GetPointData()->AddArray(scalars_ori);
-    if( debug )
+        if( debug )
       {
       std::cout << "Scalar map added to the mesh" << std::endl;
       }
@@ -4600,113 +4485,7 @@ int main(int argc, const char * *argv)
       std::cout << "Writing new mesh " << outputFilename << std::endl;
       }
 
-    // START CREATION LUT
-    if( debug )
-      {
-      std::cout << "Start creation LUT" << std::endl;
-      }
-    vtkColorTransferFunction* DistanceMapTFunc = vtkColorTransferFunction::New();
-    // RGB TESTS
-    DistanceMapTFunc->SetColorSpaceToRGB();
-
-    if( PvalueColorMapOn )
-      { // std::cout << "map" << std::endl;
-      maxLUT = 100;
-      DistanceMapTFunc->AddRGBPoint(0.0, 255, 0, 0);
-      DistanceMapTFunc->AddRGBPoint(50.00, 255, 255, 0);
-      DistanceMapTFunc->AddRGBPoint(99.98, 0, 255, 0);
-      DistanceMapTFunc->AddRGBPoint(99.99, 0, 0, 255);
-      DistanceMapTFunc->AddRGBPoint(100.00, 0, 0, 255);
-      }
-    else
-      {
-      maxLUT = 255;
-      if( !sig )
-        {
-        double rangeLUT[2]; rangeLUT[0] = 0; rangeLUT[1] = 255;
-        DistanceMapTFunc->AdjustRange(rangeLUT);
-        DistanceMapTFunc->RemoveAllPoints();
-        DistanceMapTFunc->AddRGBPoint(rangeLUT[0], 0, 255, 0);
-        DistanceMapTFunc->AddRGBPoint( (fabs(rangeLUT[1] - rangeLUT[0]) ) / 2, 255, 255, 0);
-        DistanceMapTFunc->AddRGBPoint(rangeLUT[1], 255, 0, 0);
-        }
-      else
-        {
-        double rangeLUT[3]; rangeLUT[0] = 0; rangeLUT[1] = (255 * (fabs(range[0]) ) ) / (range[1] - range[0]);
-        rangeLUT[2] = 255;
-        if( debug )
-          {
-          std::cout << rangeLUT[0] << " - " << rangeLUT[1] << " - " << rangeLUT[2] << std::endl;
-          }
-        DistanceMapTFunc->AddRGBPoint(rangeLUT[0], 255, 0, 0);
-        DistanceMapTFunc->AddRGBPoint(rangeLUT[1], 255, 255, 255);
-        DistanceMapTFunc->AddRGBPoint(rangeLUT[1] + 0.0001, 255, 255, 255);
-        DistanceMapTFunc->AddRGBPoint(rangeLUT[2], 0, 102, 255);
-        }
-      }
-
-    // *** START PARSING KWMeshVisu file
-    std::string LUToutputFile, filename(outputFilename);
-    int         found = filename.find_last_of("/\\");
-    ofstream    LUToutput;
-    LUToutputFile.assign(outputFilename, found + 1);
-    LUToutputFile.append("customLUT_");
-    LUToutputFile.append(files[1]);
-    LUToutputFile.append(".txt");
-    LUToutput.open(LUToutputFile.c_str(), ios::out);
-
-    double rgb_point[3] = {0, 0, 0};
-    if( PvalueColorMapOn )
-      {
-      cont = 0;
-      // for (double value = range[0]; value <range[1]; value += (range[1] - range[0])/255)
-      for( double value = 0; value < 101; value++ )
-        {
-        DistanceMapTFunc->GetColor(value, rgb_point);
-        LUToutput << cont << "     " << value << "     " << rgb_point[0] << "     " << rgb_point[1] << "     "
-                  << rgb_point[2] << "     255" << std::endl;
-        cont++;
-
-        }
-      }
-    else
-      {
-      cont = 0;
-      // for (double value = range[0]; value <range[1]; value += (range[1] - range[0])/255)
-      for( double value = 0; value < 255; value++ )
-        {
-        DistanceMapTFunc->GetColor(value, rgb_point);
-        LUToutput << cont << "     " << value << "     " << rgb_point[0] << "     " << rgb_point[1] << "     "
-                  << rgb_point[2] << "     255" << std::endl;
-        cont++;
-
-        }
-      }
-    LUToutput.close();
-    // End reading the Input
-    // *** END PARSING KWMeshVisu file
-    // END CREATION LUT
-
-    // START AUX
-    std::ofstream outfile;
-    std::string   DistanceoutputFile;
-    DistanceoutputFile.assign(outputFilename, found + 1);
-    DistanceoutputFile.append("distances_scaled.txt");
-    outfile.open(DistanceoutputFile.c_str(), ios::out);
-    // print the header
-    outfile << "NUMBER_OF_POINTS=" << NPoints << std::endl;
-    outfile << "DIMENSION=" << 1 << std::endl;
-    outfile << "TYPE=Scalar" << std::endl;
-    for( int OutLine = 0; OutLine < NPoints; OutLine++ )
-      {
-      outfile << Scalars[OutLine] << std::endl;
-      }
-    outfile.close();
-    // END AUX
-
-    DistanceMapTFunc->Delete();
     scalars->Delete();
-
     }
   else if( surfaceAreaOn )
     {
