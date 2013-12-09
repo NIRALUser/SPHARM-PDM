@@ -11,9 +11,12 @@ add_library(${CLP}Lib STATIC ${${CLP}_SOURCE})
 set_target_properties (${CLP}Lib PROPERTIES COMPILE_FLAGS "-Dmain=ModuleEntryPoint")
 target_link_libraries(${CLP}Lib ${ITK_LIBRARIES})
 
-install(TARGETS
-  SegPostProcessCLP
-  BUNDLE DESTINATION  bin
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib/static  )
+if( NOT EXTENSION_SUPERBUILD_BINARY_DIR )
+  install(TARGETS
+    SegPostProcessCLP
+    BUNDLE DESTINATION  bin
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib/static  
+  )
+endif()

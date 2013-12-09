@@ -28,7 +28,7 @@ void WriteEulerFile( std::string outEulerName, int Eulernum);
 
 // static int debug = 0;
 
-int main( int argc, const char * * argv )
+int main( int argc, char * argv[] )
 {
 
   PARSE_ARGS;
@@ -85,7 +85,7 @@ int main( int argc, const char * * argv )
     catch( itk::ExceptionObject ex )
       {
       std::cout << ex.GetDescription() << std::endl;
-      return 1;
+      return EXIT_FAILURE ;
       }
     ReaderType::SceneType::Pointer          scene1 = readerSH->GetScene();
     ReaderType::SceneType::ObjectListType * objList =  scene1->GetObjects(1, NULL);
@@ -177,9 +177,9 @@ int main( int argc, const char * * argv )
       {
       log << "Failed " << infile << " " << e.what();
       }
-    return -1;
+    return EXIT_FAILURE ;
     }
-
+  return EXIT_SUCCESS ;
 }
 
 void WriteEulerFile( std::string outEulerName, int Eulernum)

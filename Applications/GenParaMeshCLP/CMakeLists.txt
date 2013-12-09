@@ -8,10 +8,19 @@ target_link_libraries( GenParaMeshCLP
   ${ITK_LIBRARIES}
   vtkIO ShapeAlgorithms SparseMatrixLib)
 
+add_library(GenParaMeshCLPLib STATIC ${GenParaMeshCLP_SOURCE})
+set_target_properties (GenParaMeshCLPLib PROPERTIES COMPILE_FLAGS "-Dmain=ModuleEntryPoint")
+target_link_libraries(GenParaMeshCLPLib
+  ${ITK_LIBRARIES}
+  vtkIO ShapeAlgorithms SparseMatrixLib
+)
 
-install(TARGETS
-  GenParaMeshCLP
-  BUNDLE DESTINATION  bin
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib/static  )
+if( NOT EXTENSION_SUPERBUILD_BINARY_DIR )
+ install(TARGETS
+   GenParaMeshCLP
+   BUNDLE DESTINATION  bin
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib/static  
+ )
+endif()

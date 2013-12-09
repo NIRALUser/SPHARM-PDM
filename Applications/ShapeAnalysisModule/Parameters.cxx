@@ -30,7 +30,17 @@ void Parameters::SetModulePath(char *path)
   strcpy(m_ModulePath, path);
   char* p = strrchr(m_ModulePath, '/');
   p[1] = '\0';
-  strcat(m_ModulePath, "BatchMake_Applications/");
+
+  #ifdef SLICER_EXTENSION_PATH
+   std::string pathToBinaries = string(m_ModulePath) + "../../../ExternalBin:"+string(m_ModulePath);
+   std::string pathToBatchMakeApplications = string(m_ModulePath) + "../../../bmm/";
+   strcat(m_ModulePath, "../../../bmm/");
+
+   setenv ("PATH",pathToBinaries.c_str(),1); 
+   setenv ("BatchmakeShapeAnalysisModule_Dir",pathToBatchMakeApplications.c_str(),1);
+  #else 
+   strcat(m_ModulePath, "BatchMake_Applications/");
+  #endif
 }
 
 // Get the slicer module path
@@ -193,12 +203,12 @@ int Parameters::GetColumnVolumeFile()
 
 void Parameters::SetOutputDirectory(const char *_OutputDirectory)
 {
-  std::strcpy(m_OutputDirectory, _OutputDirectory);
+  m_OutputDirectory = itksys::SystemTools::CollapseFullPath(_OutputDirectory);
 }
 
-char * Parameters::GetOutputDirectory()
+const char * Parameters::GetOutputDirectory()
 {
-  return m_OutputDirectory;
+  return m_OutputDirectory.c_str();
 }
 
 void Parameters::SetDataNumber(int _DataNumber)

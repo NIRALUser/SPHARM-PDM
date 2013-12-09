@@ -8,19 +8,17 @@ Processing of Binary Labels: it ensures spherical topology of the segmentation
 
   <parameters>
     <label>IO</label>
-    <description>Input/output parameters</description>
-    <image>
+    <image type="label">
       <name>fileName</name>
       <label>Input Image</label>
       <channel>input</channel>
       <index>0</index>
       <description>Input image to be filtered (Tissue segmentation file)</description>
     </image>
-    <image>
+    <image type="label">
       <name>outfileName</name>
       <label>Output Image</label>
       <channel>output</channel>
-      <!--<longflag>out</longflag>-->
       <index>1</index>
       <description>Output filtered</description>
     </image>
@@ -29,7 +27,6 @@ Processing of Binary Labels: it ensures spherical topology of the segmentation
   
   <parameters advanced="true">
     <label>Gaussian Filter</label>
-    <description>Gaussian Filtering parameters</description> 
     <boolean>
       <name>gaussianOn</name>
       <default>false</default>
@@ -52,7 +49,6 @@ Processing of Binary Labels: it ensures spherical topology of the segmentation
 
   <parameters advanced="true">
     <label>LevelSet based smoothing</label>
-    <description>LevelSet smoothing parameters</description>
     <double>
       <name>maximumRMSError</name>
       <default>0.01</default>
@@ -78,7 +74,6 @@ Processing of Binary Labels: it ensures spherical topology of the segmentation
   
   <parameters advanced="true">
     <label>Advanced Options</label>
-    <description>Other Options for this program</description>
     <integer>
       <name>label</name>
       <default>0</default>
@@ -109,6 +104,7 @@ Processing of Binary Labels: it ensures spherical topology of the segmentation
     </boolean>
     <double-vector>
       <name>spacing_vect</name>
+      <default>0.75,0.75,0.75</default>
       <label>x,y and z directions</label>
       <longflag>space</longflag>
       <description>x,y and z directions</description>
@@ -148,48 +144,18 @@ Processing of Binary Labels: it ensures spherical topology of the segmentation
       <longflag>verb</longflag>
       <description>Verbose mode</description>
     </boolean>
-  </parameters>
+  </parameters> 
 
-  <!--  <parameters>
-	  <label>Delete Vessels</label>
-	  <description>Vessels deleting</description>
-	  <image>
-		  <name>delVesselCorrectedImName</name>
-		  <label>Grayscale Image</label>
-		  <longflag>deleteVessels</longflag>
-		  <channel>input</channel>
-		  <description>Image to determine the threshold</description>
-	  </image>
-	  <image>
-		  <name>MaskfileName</name>
-		  <label>Mask (optional)</label>
-		  <longflag>Mask</longflag>
-		  <channel>output</channel>
-		  <description>Save the mask used for the Vessels deleting</description>
-	  </image>
-  </parameters>
-  -->
-  
-  <!-- <boolean>
-	  <name>deleteVessels</name>
-	  <default>false</default>
-	  <label>Delete Vessels</label>
-	  <longflag>deleteVessels</longflag>
-	  <description>Vessels deleting</description>
-    </boolean>
-    -->
-    
   <parameters>
     <label>Skull Stripping</label>
-    <description>Skull stripping</description>
-    <image>
+    <image type="scalar">
       <name>notstrippedfileName</name>
       <label>Grayscale Image</label>
       <longflag>skullstripping</longflag>
       <channel>input</channel>
       <description>Image to be stripped</description>
     </image>
-    <image>
+    <image type="label">
       <name>maskfileName</name>
       <label>Mask (optional)</label>
       <longflag>mask</longflag>

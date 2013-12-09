@@ -84,6 +84,7 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, const char * s
     {
     end = 1;
     }
+
   for( int j = 0; j < end; j++ )
     {
 
@@ -102,30 +103,33 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, const char * s
         {
         if( j == 0 )
           {
-          fileType = GetAllSurfmeanSPHARMFiles(numData);
+            fileType = GetAllSurfmeanSPHARMFiles(numData);
+	    fileType = GetAllSurfSPHARMFiles(numData);
           }
         else if( j == 1 )
           {
-          fileType = GetAllSurfmeanSPHARMellalignFiles(numData);
+            fileType = GetAllSurfmeanSPHARMellalignFiles(numData);
+	    fileType = GetAllSurfSPHARMellalignFiles(numData);
           }
         else if( j == 2 )
           {
-          fileType = GetAllSurfmeanSPHARMprocalignFiles(numData);
+            fileType = GetAllSurfmeanSPHARMprocalignFiles(numData);
+	    fileType = GetAllSurfSPHARMprocalignFiles(numData);
           }
         }
       else
         {
         if( j == 0 )
           {
-          fileType = GetAllSurfSPHARMFiles(numData);
+            fileType = GetAllSurfSPHARMFiles(numData);
           }
         else if( j == 1 )
           {
-          fileType = GetAllSurfSPHARMellalignFiles(numData);
+            fileType = GetAllSurfSPHARMellalignFiles(numData);
           }
         else if( j == 2 )
           {
-          fileType = GetAllSurfSPHARMprocalignFiles(numData);
+            fileType = GetAllSurfSPHARMprocalignFiles(numData);
           }
         }
       }
@@ -340,15 +344,15 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMathTemplate()
 void ShapeAnalysisModuleComputation::SetBMSShapeAnalysisModuleFile(bool changeDirectory)
 {
   std::strcpy(m_BMSShapeAnalysisModuleFile, GetOutputDirectory() );
-  std::cout << GetBMSShapeAnalysisModuleFile() << std::endl;
+//  std::cout << GetBMSShapeAnalysisModuleFile() << std::endl;
 
-  if( changeDirectory == false )
-    {
+ // if( changeDirectory == false )
+  //  {
     std::strcat(m_BMSShapeAnalysisModuleFile, "/");
     std::cout << GetBMSShapeAnalysisModuleFile() << std::endl;
-    }
+   // }
 
-  else
+ /* else
     {
     std::strcat(m_BMSShapeAnalysisModuleFile, "/BatchMake_Scripts/");
     std::cout << GetBMSShapeAnalysisModuleFile() << std::endl;
@@ -361,11 +365,12 @@ void ShapeAnalysisModuleComputation::SetBMSShapeAnalysisModuleFile(bool changeDi
     std::cout << " " << std::endl; std::cout << GetBMSShapeAnalysisModuleFile() << std::endl;
     }
   else
-    {
+    {*/
 
     std::strcat(m_BMSShapeAnalysisModuleFile,
-                "ShapeAnalysisModule.bms"); std::cout << GetBMSShapeAnalysisModuleFile() << std::endl;
-    }
+                "ShapeAnalysisModule.bms"); 
+   // std::cout << GetBMSShapeAnalysisModuleFile() << std::endl;
+  //  }
 
   std::cout << GetBMSShapeAnalysisModuleFile() << std::endl;
   return;
@@ -449,6 +454,7 @@ void ShapeAnalysisModuleComputation::ExecuteBatchMake(const char *_Input)
   std::cout << "\tExecuting BatchMake..." << std::endl;
 
   char *           envpath = getenv("BatchmakeShapeAnalysisModule_Dir");
+  //std::cout<<"envpath:"<<envpath<<std::endl;
   std::string      applicationPath;
   bm::ScriptParser m_Parser;
 

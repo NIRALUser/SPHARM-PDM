@@ -120,7 +120,7 @@ public:
 
   int MeanTemplateExist();
 
-  char * GetOutputDirectory();
+  const char * GetOutputDirectory();
 
   int GetDataNumber();
 
@@ -331,7 +331,7 @@ private:
   int ListSize;
 
   char m_ParamFile[512];
-  char m_OutputDirectory[512];
+  std::string m_OutputDirectory;
   bool m_RandomizeInputs;
   bool m_debug;
 

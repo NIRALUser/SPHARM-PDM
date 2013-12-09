@@ -1,4 +1,6 @@
-
+if( NOT EXTERNAL_SOURCE_DIRECTORY )
+  set( EXTERNAL_SOURCE_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/ExternalSources )
+endif()
 # Make sure this file is included only once
 get_filename_component(CMAKE_CURRENT_LIST_FILENAME ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
 if(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED)
@@ -64,7 +66,7 @@ endif()
   ### --- End Project specific additions
   ExternalProject_Add(${proj}
     DOWNLOAD_DIR ${CMAKE_BINARY_DIR}
-    SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
+    SOURCE_DIR ${EXTERNAL_SOURCE_DIRECTORY}/${proj}
     BINARY_DIR ${proj}-build
     URL ${CLAPACK_file}
     URL_MD5 ${CLAPACK_MD5}

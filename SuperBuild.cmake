@@ -1,3 +1,4 @@
+
 #-----------------------------------------------------------------------------
 set(verbose FALSE)
 #-----------------------------------------------------------------------------
@@ -10,8 +11,41 @@ enable_language(CXX)
 enable_testing()
 include(CTest)
 
+set( EXTERNAL_SOURCE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )
+
 #-----------------------------------------------------------------------------
 include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
+#-----------------------------------------------------------------------------
+#If it is build as an extension
+#-----------------------------------------------------------------------------
+if( ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
+  set( USE_SYSTEM_VTK ON CACHE BOOL "Use system VTK" FORCE )
+  #set( USE_SYSTEM_ITK OFF CACHE BOOL "Use system ITK" FORCE)
+  #set( USE_SYSTEM_SlicerExecutionModel ON CACHE BOOL "Use system SlicerExecutionModel" FORCE)
+  set( BUILD_SHARED_LIBS OFF CACHE BOOL "Use shared libraries" FORCE)
+  set(EXTENSION_SUPERBUILD_BINARY_DIR ${${EXTENSION_NAME}_BINARY_DIR} )
+  unsetForSlicer(NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER ITK_DIR SlicerExecutionModel_DIR VTK_DIR ITK_VERSION_MAJOR CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
+  find_package(Slicer REQUIRED)
+  include(${Slicer_USE_FILE})
+  unsetAllForSlicerBut( NAMES VTK_DIR Slicer_HOME )
+  resetForSlicer(NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS  ITK_DIR SlicerExecutionModel_DIR ITK_VERSION_MAJOR )
+  #------------------------------------------------------------------------------
+  # For BatchMake Zlib usage
+  #------------------------------------------------------------------------------
+  # If SlicerExtension, Use BatchMake CURL_SPECIAL_LIBZ var to compile bmcurl with zlib
+  # from Slicer because tries to link with zlib from Slicer (names mangled for Slicer: slicer_zlib_... see SlicerBuildTree/zlib-install/include/zlib_mangle.h)
+  # Otherwise compiles with zlib from ITK (mangled itk_zlib_... see BatchMake/Utilities/Zip/itk_zlib_mangle.h) and try to link with zlib from Slicer => FAIL
+  find_library( PathToSlicerZlib
+    NAMES zlib
+    PATHS ${Slicer_HOME}/../zlib-install/lib # ${Slicer_HOME} is <topofbuildtree>/Slicer-build: defined in SlicerConfig.cmake
+    PATH_SUFFIXES Debug Release RelWithDebInfo MinSizeRel # For Windows, it can be any one of these
+    NO_DEFAULT_PATH
+    NO_SYSTEM_ENVIRONMENT_PATH
+  )
+  set( BatchMakeCURLCmakeArg -DCURL_SPECIAL_LIBZ:PATH=${PathToSlicerZlib} )
+else()
+  set( SUPERBUILD_NOT_EXTENSION TRUE )
+endif()
 
 #-----------------------------------------------------------------------------
 # Git protocole option
@@ -23,15 +57,6 @@ if(NOT ${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL)
 endif()
 
 find_package(Git REQUIRED)
-set(CMAKE_MODULE_PATH
-  ${CMAKE_SOURCE_DIR}/CMake
-  ${CMAKE_SOURCE_DIR}/SuperBuild
-  ${CMAKE_BINARY_DIR}/CMake
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/CMake #  CMake directory
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/CMake # CMake directory
-  ${CMAKE_MODULE_PATH}
-  )
 
 #-----------------------------------------------------------------------------
 # Enable and setup External project global properties
@@ -47,19 +72,53 @@ else()
   set(gen "${CMAKE_GENERATOR}")
 endif()
 
+
+# With CMake 2.8.9 or later, the UPDATE_COMMAND is required for updates to occur.
+# For earlier versions, we nullify the update state to prevent updates and
+# undesirable rebuild.
+option(FORCE_EXTERNAL_BUILDS "Force rebuilding of external project (if they are updated)" OFF)
+if(CMAKE_VERSION VERSION_LESS 2.8.9 OR NOT FORCE_EXTERNAL_BUILDS)
+  set(cmakeversion_external_update UPDATE_COMMAND)
+  set(cmakeversion_external_update_value "" )
+else()
+  set(cmakeversion_external_update LOG_UPDATE )
+  set(cmakeversion_external_update_value 1)
+endif()
+
 #-----------------------------------------------------------------------------
 # Superbuild option(s)
 #-----------------------------------------------------------------------------
+option(BUILD_STYLE_UTILS "Build uncrustify, cppcheck, & KWStyle" OFF)
+CMAKE_DEPENDENT_OPTION(
+  USE_SYSTEM_Uncrustify "Use system Uncrustify program" OFF
+  "BUILD_STYLE_UTILS" OFF
+  )
+CMAKE_DEPENDENT_OPTION(
+  USE_SYSTEM_KWStyle "Use system KWStyle program" OFF
+  "BUILD_STYLE_UTILS" OFF
+  )
+CMAKE_DEPENDENT_OPTION(
+  USE_SYSTEM_Cppcheck "Use system Cppcheck program" OFF
+  "BUILD_STYLE_UTILS" OFF
+  )
+
+set(EXTERNAL_PROJECT_BUILD_TYPE "Release" CACHE STRING "Default build type for support libraries")
 
 option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
 option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
 option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
+option(USE_SYSTEM_zlib "Build using external zlib" ON)
 option(USE_SYSTEM_BatchMake "Build using an externally defined version of BatchMake" OFF)
 option(USE_SYSTEM_CLAPACK "Build using an externally defined version of CLAPACK" OFF)
-option(USE_SYSTEM_LAPACK "Build using an externally defined version of LAPACK" OFF)
+option(BUILD_SHARED_LIBS "Use shared libraries" OFF) #to give the user the option to configure their builds as they want
+
+#------------------------------------------------------------------------------
+# ${LOCAL_PROJECT_NAME} modules and external tools
+#------------------------------------------------------------------------------
+
 option(COMPILE_StatNonParamTestPDM "Compile StatNonParam and ShapeMancova" OFF)
 option(COMPILE_shapeworks "Compile shapeworks." OFF)
-option(COMPILE_ImageMath "Compile ImageMath." ON)
+option(COMPILE_ImageMath "Compile ImageMath." OFF)
 option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
 option(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
 option(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
@@ -68,35 +127,16 @@ option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
 option(COMPILE_ShapeAnalysisModule "Compile ShapeAnalysisModule." ON)
 option(COMPILE_ParticleModule "Compile ParticleModule." OFF)
 
-#-----------------------------------------------------------------------------
-# Prerequisites
 #------------------------------------------------------------------------------
-#
-set(${CMAKE_PROJECT_NAME}_BUILD_TESTING ON CACHE BOOL "Turn on Testing for BRAINS")
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Statically Link Everything")
+# ${LOCAL_PROJECT_NAME} dependency list
+#------------------------------------------------------------------------------
 
-# Compute -G arg for configuring external projects with the same CMake generator:
-if(CMAKE_EXTRA_GENERATOR)
-  set(gen "${CMAKE_EXTRA_GENERATOR} - ${CMAKE_GENERATOR}")
-else()
-  set(gen "${CMAKE_GENERATOR}")
+set(${LOCAL_PROJECT_NAME}_DEPENDENCIES ITKv4 SlicerExecutionModel VTK BatchMake CLAPACK)
+
+if(BUILD_STYLE_UTILS)
+  list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDENCIES Cppcheck KWStyle Uncrustify)
 endif()
 
-#------------------------------------------------------------------------------
-# spharm-pdm dependency list
-#------------------------------------------------------------------------------
-
-set(dependent_BOOST )
-if(COMPILE_StatNonParamTestPDM)
-   set(dependent_BOOST Boost)
-endif()
-set(ITK_VERSION_MAJOR 4)
-set(ITK_EXTERNAL_NAME ITKv${ITK_VERSION_MAJOR})
-set(${LOCAL_PROJECT_NAME}_DEPENDENCIES
-  CLAPACK ${dependent_BOOST}
-  ${ITK_EXTERNAL_NAME} VTK SlicerExecutionModel
-  BatchMake
-)
 
 #-----------------------------------------------------------------------------
 # Define Superbuild global variables
@@ -134,7 +174,6 @@ endmacro()
 # Common external projects CMake variables
 #-----------------------------------------------------------------------------
 list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
-  CMAKE_BUILD_TYPE:PATH
   MAKECOMMAND:STRING
   CMAKE_SKIP_RPATH:BOOL
   CMAKE_BUILD_TYPE:STRING
@@ -160,32 +199,16 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   CTEST_NEW_FORMAT:BOOL
   MEMORYCHECK_COMMAND_OPTIONS:STRING
   MEMORYCHECK_COMMAND:PATH
-  CMAKE_SHARED_LINKER_FLAGS:STRING
-  CMAKE_EXE_LINKER_FLAGS:STRING
-  CMAKE_MODULE_LINKER_FLAGS:STRING
   SITE:STRING
   BUILDNAME:STRING
   )
 
 
-#-------------------------------------------------------------------------
-# augment compiler flags
-#-------------------------------------------------------------------------
-include(CompilerFlagSettings)
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_DEBUG_DESIRED_FLAGS} -L${CMAKE_BINARY_DIR}/lib")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_DEBUG_DESIRED_FLAGS} -L${CMAKE_BINARY_DIR}/lib")
-else() # Release, or anything else
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_RELEASE_DESIRED_FLAGS} -L${CMAKE_BINARY_DIR}/lib")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_RELEASE_DESIRED_FLAGS} -L${CMAKE_BINARY_DIR}/lib")
-endif()
-
-#-----------------------------------------------------------------------------
-# Build external projects
-#-----------------------------------------------------------------------------
 _expand_external_project_vars()
 set(COMMON_EXTERNAL_PROJECT_ARGS ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS})
-SlicerMacroCheckExternalProjectDependency(${LOCAL_PROJECT_NAME})
+set(extProjName ${LOCAL_PROJECT_NAME})
+set(proj        ${LOCAL_PROJECT_NAME})
+SlicerMacroCheckExternalProjectDependency(${proj})
 
 #-----------------------------------------------------------------------------
 # Set CMake OSX variable to pass down the external project
@@ -198,23 +221,70 @@ if(APPLE)
     -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
 endif()
 
+set(${LOCAL_PROJECT_NAME}_CLI_RUNTIME_DESTINATION  bin)
+set(${LOCAL_PROJECT_NAME}_CLI_LIBRARY_DESTINATION  lib)
+set(${LOCAL_PROJECT_NAME}_CLI_ARCHIVE_DESTINATION  lib)
+if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
+  set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION  ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION} )
+  set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_LIBRARY_DESTINATION  ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_LIBRARY_DESTINATION} )
+  set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_ARCHIVE_DESTINATION  ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_ARCHIVE_DESTINATION} )
+else()
+  set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION  bin)
+  set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_LIBRARY_DESTINATION  lib)
+  set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_ARCHIVE_DESTINATION  lib)
+endif()
 #-----------------------------------------------------------------------------
 # Add external project CMake args
 #-----------------------------------------------------------------------------
 list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   BUILD_EXAMPLES:BOOL
   BUILD_TESTING:BOOL
+  LOCAL_PROJECT_NAME:STRING
   ITK_VERSION_MAJOR:STRING
   ITK_DIR:PATH
   VTK_DIR:PATH
-  Boost_DIR:PATH
-  boost_version:STRING
-  CLAPACK_DIR:PATH
   GenerateCLP_DIR:PATH
-)
+  SlicerExecutionModel_DIR:PATH
+  CLAPACK_DIR:PATH
+  BatchMake_DIR:PATH
+  BOOST_INCLUDE_DIR:PATH
+  BOOST_ROOT:PATH
+  COMPILE_StatNonParamTestPDM:BOOL
+  COMPILE_shapeworks:BOOL
+  COMPILE_ImageMath:BOOL
+  COMPILE_MetaMeshTools:BOOL
+  COMPILE_SegPostProcessCLP:BOOL
+  COMPILE_GenParaMeshCLP:BOOL
+  COMPILE_RadiusToMesh:BOOL
+  COMPILE_ParaToSPHARMMeshCLP:BOOL
+  COMPILE_ShapeAnalysisModule:BOOL
+  COMPILE_ParticleModule:BOOL
+  INSTALL_RUNTIME_DESTINATION:STRING
+  INSTALL_LIBRARY_DESTINATION:STRING
+  INSTALL_ARCHIVE_DESTINATION:STRING
+  ${LOCAL_PROJECT_NAME}_CLI_LIBRARY_DESTINATION:PATH
+  ${LOCAL_PROJECT_NAME}_CLI_ARCHIVE_DESTINATION:PATH
+  ${LOCAL_PROJECT_NAME}_CLI_RUNTIME_DESTINATION:PATH
+  ${LOCAL_PROJECT_NAME}_CLI_INSTALL_LIBRARY_DESTINATION:PATH
+  ${LOCAL_PROJECT_NAME}_CLI_INSTALL_ARCHIVE_DESTINATION:PATH
+  ${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION:PATH
+  )
+
+if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
+  list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
+    MIDAS_PACKAGE_API_KEY:STRING
+    MIDAS_PACKAGE_EMAIL:STRING
+    MIDAS_PACKAGE_URL:STRING
+    Slicer_DIR:PATH
+    EXTENSION_SUPERBUILD_BINARY_DIR:PATH
+    )
+else()
+  list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
+    SUPERBUILD_NOT_EXTENSION:BOOL
+    )
+endif()
 _expand_external_project_vars()
 set(COMMON_EXTERNAL_PROJECT_ARGS ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS})
-
 
 if(verbose)
   message("Inner external project args:")
@@ -247,24 +317,17 @@ ExternalProject_Add(${proj}
     --no-warn-unused-cli # HACK Only expected variables should be passed down.
     ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
     ${COMMON_EXTERNAL_PROJECT_ARGS}
-    -D${LOCAL_PROJECT_NAME}_USE_SUPERBUILD:BOOL=OFF
-    -D${LOCAL_PROJECT_NAME}_USE_GIT_PROTOCOL:BOOL=${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL
-    -DUSE_SYSTEM_BatchMake:BOOL=${USE_SYSTEM_BatchMake}
-    -DBatchMake_DIR:PATH=${BatchMake_DIR}
-    -DUSE_SYSTEM_VTK:BOOL=${USE_SYSTEM_VTK}
-    -DCOMPILE_StatNonParamTestPDM:PATH=${COMPILE_StatNonParamTestPDM}
-    -DCOMPILE_shapeworks:PATH=${COMPILE_shapeworks}
-    -DCOMPILE_ImageMath:PATH=${COMPILE_ImageMath}
-    -DCOMPILE_SegPostProcessCLP:PATH=${COMPILE_SegPostProcessCLP}
-    -DCOMPILE_GenParaMeshCLP:PATH=${COMPILE_GenParaMeshCLP}
-    -DCOMPILE_MetaMeshTools:PATH=${COMPILE_MetaMeshTools}
-    -DCOMPILE_RadiusToMesh:PATH=${COMPILE_RadiusToMesh}
-    -DCOMPILE_ParaToSPHARMMeshCLP:PATH=${COMPILE_ParaToSPHARMMeshCLP}
-    -DCOMPILE_ShapeAnalysisModule:PATH=${COMPILE_ShapeAnalysisModule}
-    -DCOMPILE_ParticleModule:PATH=${COMPILE_ParticleModule}
-    -DVTK_DIR:PATH=${VTK_DIR}
-    ${trilinos_blas_args}
-    ${SLICER_ARGS}
+    -D${LOCAL_PROJECT_NAME}_SUPERBUILD:BOOL=OFF
   INSTALL_COMMAND ""
   )
+
+## Force rebuilding of the main subproject every time building from super structure
+ExternalProject_Add_Step(${proj} forcebuild
+    COMMAND ${CMAKE_COMMAND} -E remove
+    ${CMAKE_CURRENT_BUILD_DIR}/${proj}-prefix/src/${proj}-stamp/${proj}-build
+    DEPENDEES configure
+    DEPENDERS build
+    ALWAYS 1
+  )
+
 
