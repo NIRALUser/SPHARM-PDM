@@ -20,15 +20,20 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
 #-----------------------------------------------------------------------------
 if( ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
   set( USE_SYSTEM_VTK ON CACHE BOOL "Use system VTK" FORCE )
-  #set( USE_SYSTEM_ITK OFF CACHE BOOL "Use system ITK" FORCE)
-  #set( USE_SYSTEM_SlicerExecutionModel ON CACHE BOOL "Use system SlicerExecutionModel" FORCE)
-  set( BUILD_SHARED_LIBS OFF CACHE BOOL "Use shared libraries" FORCE)
+  if( WIN32 )
+    set( USE_SYSTEM_ITK ON CACHE BOOL "Use system ITK" FORCE)
+    set( USE_SYSTEM_SlicerExecutionModel ON CACHE BOOL "Use system SlicerExecutionModel" FORCE)
+  endif()
   set(EXTENSION_SUPERBUILD_BINARY_DIR ${${EXTENSION_NAME}_BINARY_DIR} )
-  unsetForSlicer(NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER ITK_DIR SlicerExecutionModel_DIR VTK_DIR ITK_VERSION_MAJOR CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
+
+  unsetForSlicer(NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER DCMTK_DIR ITK_DIR SlicerExecutionModel_DIR VTK_DIR QT_QMAKE_EXECUTABLE ITK_VERSION_MAJOR CMAKE_CXX_FLAGS CMAKE_C_FLAGS Teem_DIR)
   find_package(Slicer REQUIRED)
   include(${Slicer_USE_FILE})
-  unsetAllForSlicerBut( NAMES VTK_DIR Slicer_HOME )
-  resetForSlicer(NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS  ITK_DIR SlicerExecutionModel_DIR ITK_VERSION_MAJOR )
+  unsetAllForSlicerBut( NAMES VTK_DIR QT_QMAKE_EXECUTABLE DCMTK_DIR Teem_DIR Slicer_HOME)
+  resetForSlicer(NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS ITK_DIR SlicerExecutionModel_DIR ITK_VERSION_MAJOR )
+  if( APPLE )
+    set( CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,@loader_path/../../../../../ )
+  endif()
   #------------------------------------------------------------------------------
   # For BatchMake Zlib usage
   #------------------------------------------------------------------------------
