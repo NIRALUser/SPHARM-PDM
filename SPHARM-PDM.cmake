@@ -1,11 +1,7 @@
 project(spharmpdm)
 
 if( EXTENSION_SUPERBUILD_BINARY_DIR )
-  if(APPLE) # On mac, Ext/cli_modules/DTIAtlasBuilder so Ext/ExternalBin is ../ExternalBin
-    set(RELATIVE_EXTENSION_PATH ..)
-  else() # On Windows : idem Linux : Ext/lib/Slicer4.2/cli_modules/DTIAtlasBuilder so Ext/ExternalBin is ../../../ExternalBin
-    set(RELATIVE_EXTENSION_PATH ../../..)
-  endif()
+   set(RELATIVE_EXTENSION_PATH ..)
   set(NOCLI_INSTALL_DIR ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${RELATIVE_EXTENSION_PATH})
   #-----------------------------------------------------------------------------
   # Program definitions for C++ interfacing
