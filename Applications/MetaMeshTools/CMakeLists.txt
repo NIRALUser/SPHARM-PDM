@@ -32,6 +32,22 @@ ADD_EXECUTABLE(asc2meta asc2meta.cxx)
 ADD_EXECUTABLE(BYU2VTK BYU2VTK.cxx)
 target_link_libraries(BYU2VTK ${VTK_LIBRARIES} )
 
+
+macro(INSTALL_EXECUTABLE)
+  set(options )
+  set( oneValueArgs OUTPUT_DIR )
+  set(multiValueArgs LIST_EXEC )
+  CMAKE_PARSE_ARGUMENTS(LOCAL
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+    )
+  foreach( tool ${LOCAL_LIST_EXEC})
+    install(TARGETS ${tool} DESTINATION ${LOCAL_OUTPUT_DIR} )
+  endforeach()
+endmacro()
+
 if( NOT EXTENSION_SUPERBUILD_BINARY_DIR )
   install(TARGETS
    STL2Meta
@@ -44,4 +60,9 @@ if( NOT EXTENSION_SUPERBUILD_BINARY_DIR )
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib/static  
    )
+else()
+  set( NotCLIToolsList
+    MeshMath STL2Meta Meta2STL Meta2VTK VTK2Meta asc2vtk asc2meta BYU2VTK
+     )
+  INSTALL_EXECUTABLE( OUTPUT_DIR ${NOCLI_INSTALL_DIR}/ExternalBin LIST_EXEC ${NotCLIToolsList} )
 endif()

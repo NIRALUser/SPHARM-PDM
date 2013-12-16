@@ -32,12 +32,11 @@ void Parameters::SetModulePath(char *path)
   p[1] = '\0';
 
   #ifdef SLICER_EXTENSION_PATH
-   std::string pathToBinaries = string(m_ModulePath) + "../ExternalBin:"+string(m_ModulePath);
-   std::string pathToBatchMakeApplications = string(m_ModulePath) + "../bmm/";
+   std::string pathToBinaries = string("PATH=") + string(m_ModulePath) + "../ExternalBin:"+string(m_ModulePath);
+   std::string pathToBatchMakeApplications = string("BatchmakeShapeAnalysisModule_Dir=") + string(m_ModulePath) + "../bmm/";
    strcat(m_ModulePath, "../bmm/");
-
-   setenv ("PATH",pathToBinaries.c_str(),1); 
-   setenv ("BatchmakeShapeAnalysisModule_Dir",pathToBatchMakeApplications.c_str(),1);
+   itksys::SystemTools::PutEnv(pathToBinaries.c_str()); 
+   itksys::SystemTools::PutEnv(pathToBatchMakeApplications.c_str());
   #else 
    strcat(m_ModulePath, "BatchMake_Applications/");
   #endif

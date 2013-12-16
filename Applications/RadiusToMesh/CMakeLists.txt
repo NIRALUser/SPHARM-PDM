@@ -20,3 +20,7 @@ GENERATECLP(RadiusToMesh.cxx RadiusToMesh.xml)
 ADD_EXECUTABLE(RadiusToMesh RadiusToMesh.cxx)
 
 TARGET_LINK_LIBRARIES(RadiusToMesh   ${VTK_LIBRARIES} )
+
+if( EXTENSION_SUPERBUILD_BINARY_DIR )
+  install(TARGETS RadiusToMesh DESTINATION ${NOCLI_INSTALL_DIR}/ExternalBin )
+endif()

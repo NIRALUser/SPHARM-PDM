@@ -82,31 +82,10 @@ IF(BUILD_TESTING)
   ADD_SUBDIRECTORY(Testing)
 ENDIF(BUILD_TESTING)
 
-macro(INSTALL_EXECUTABLE)
-  set(options )
-  set( oneValueArgs OUTPUT_DIR )
-  set(multiValueArgs LIST_EXEC )
-  CMAKE_PARSE_ARGUMENTS(LOCAL
-    "${options}"
-    "${oneValueArgs}"
-    "${multiValueArgs}"
-    ${ARGN}
-    )
-  foreach( tool ${LOCAL_LIST_EXEC})
-    install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${tool} DESTINATION ${LOCAL_OUTPUT_DIR} )
-  endforeach()
-endmacro()
+
 
 
 if( EXTENSION_SUPERBUILD_BINARY_DIR )
-  set( CLIToolsList
-    GenParaMeshCLP SegPostProcessCLP ParaToSPHARMMeshCLP ShapeAnalysisModule
-     )
-  set( NotCLIToolsList
-    MeshMath RadiusToMesh STL2Meta Meta2STL Meta2VTK VTK2Meta asc2vtk asc2meta BYU2VTK
-     )
-  INSTALL_EXECUTABLE( OUTPUT_DIR ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION} LIST_EXEC ${CLIToolsList} )
-  INSTALL_EXECUTABLE( OUTPUT_DIR ${NOCLI_INSTALL_DIR}/ExternalBin LIST_EXEC ${NotCLIToolsList} )
   install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bmm DESTINATION ${NOCLI_INSTALL_DIR} )
   set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
   include(${Slicer_EXTENSION_CPACK})
