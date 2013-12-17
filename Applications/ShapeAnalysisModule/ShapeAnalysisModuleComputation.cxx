@@ -151,12 +151,12 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, const char * s
 
     if( _scalar == "phi" )
       {
-      args.push_back(GetAllPhiFiles(0) );
+      args.push_back(GetAllPhiFiles(0).c_str() );
       args.push_back("Color_Map_Phi");
       }
     if( _scalar == "theta" )
       {
-      args.push_back(GetAllThetaFiles(0) );
+      args.push_back(GetAllThetaFiles(0).c_str() );
       args.push_back("Color_Map_Theta");
       }
 
@@ -260,12 +260,12 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMathTemplate()
 
       if( color_map == 0 )
         {
-        args.push_back(GetAllPhiFiles(0) );
+        args.push_back(GetAllPhiFiles(0).c_str() );
         args.push_back("Color_Map_Phi");
         }
       if( color_map == 1 )
         {
-        args.push_back(GetAllThetaFiles(0) );
+        args.push_back(GetAllThetaFiles(0).c_str() );
         args.push_back("Color_Map_Theta");
         }
 
@@ -1498,7 +1498,7 @@ void ShapeAnalysisModuleComputation::OverWrite()
   for( int i = 0; i < DataNumber; i++ )
     {
     Base_Files[i] = new char[512];
-    std::strcpy(Base_Files[i], GetAllFilesName(i) );
+    std::strcpy(Base_Files[i], GetAllFilesName(i).c_str() );
     }
 
   // Overwrite files created by SegPostProcess
@@ -1715,7 +1715,7 @@ void ShapeAnalysisModuleComputation::ComputationMean()
     std::strcpy(Base_Files[i], "/");
     std::strcpy(Base_Files[i], GetOutputDirectory() );
     std::strcat(Base_Files[i], "/Mesh/SPHARM/");
-    std::strcat(Base_Files[i], GetAllFilesName(i) );
+    std::strcat(Base_Files[i], GetAllFilesName(i).c_str() );
     std::strcat(Base_Files[i], "_pp_surfSPHARM_procalign.vtk");
 
     // read a vtk file
