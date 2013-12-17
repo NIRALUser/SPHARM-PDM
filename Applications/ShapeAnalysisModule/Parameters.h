@@ -195,7 +195,7 @@ public:
   void SetFilesNameMRML(int);
 
   // void  SetAllFilesName25(int);
-  char * GetAllFilesName(int);
+  string GetAllFilesName(int);
 
   char * GetAllSurfSPHARMFiles(int);
 
@@ -209,9 +209,9 @@ public:
 
   char * GetAllSurfmeanSPHARMprocalignFiles(int);
 
-  char * GetAllPhiFiles(int);
+  string GetAllPhiFiles(int);
 
-  char * GetAllThetaFiles(int);
+  string GetAllThetaFiles(int);
 
   void SetImageDimensions(char *);
 
@@ -376,13 +376,14 @@ private:
   vector<double> m_Dims;
   vector<double> m_Box;
 
-  char* * m_AllFilesName;
+  //char* * m_AllFilesName;
+  std::vector < string > m_AllFilesName;
   char* * m_AllFilesName25;
   char* * surfSPHARM_Files;
   char* * surfSPHARM_ellalign_Files;
   char* * surfSPHARM_procalign_Files;
-  char*   Phi_Files;
-  char*   Theta_Files;
+  string  Phi_Files;
+  string   Theta_Files;
 
   int    m_VerticalGridParaGrid;
   int    m_HorizontalGridParaGrid;
