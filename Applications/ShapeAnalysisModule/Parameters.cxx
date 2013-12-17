@@ -771,28 +771,9 @@ void Parameters::SetAllFilesName()
 
   int DataNumber = GetDataNumber();
 
-  m_AllFilesName = new char *[DataNumber];
-  // m_ListFiles= new char *[DataNumber];
   for( int i = 0; i < DataNumber; i++ )
     {
-    m_AllFilesName[i] = new char[512];
-    // m_ListFiles[i] = new char[512];
-    char  c[512];
-    char *file;
-
-    std::strcpy(c, GetNthDataListValue(i + 1, GetColumnVolumeFile() ).c_str() );
-    file = std::strrchr(c, '/');
-    for( unsigned int j = 0; j < strlen(file); j++ )
-      {
-      file[j] = file[j + 1];
-      if( file[j] == '.' )
-        {
-        file[j] = '\0';
-        }
-      }
-    std::strcpy(m_AllFilesName[i], file);
-    // std::strcpy(m_ListFiles[i],file);
-
+      m_AllFilesName.push_back(itksys::SystemTools::GetFilenameWithoutExtension(GetNthDataListValue(i + 1, GetColumnVolumeFile() )) );
     }
 }
 
@@ -834,7 +815,7 @@ std::cout<<"DataNumber_csv"<<DataNumber_csv<<std::endl;*/
 
       m_ListFiles[listfile_index] = new char[512];
 
-      std::strcpy(m_ListFiles[listfile_index], m_AllFilesName[i]);
+      std::strcpy(m_ListFiles[listfile_index], m_AllFilesName[i].c_str());
 
 // std::cout<<"m_ListFiles[listfile_index]"<<m_ListFiles[listfile_index]<<std::endl;
       listfile_index++;
@@ -843,73 +824,9 @@ std::cout<<"DataNumber_csv"<<DataNumber_csv<<std::endl;*/
 // std::cout<<"end"<<std::endl;
 }
 
-/*
-void Parameters::SetAllFilesName(int nummrml)
+string Parameters::GetAllFilesName(int i)
 {
-  int DataNumber_csv=GetDataNumber();
-  int DataNumber=GetDataNumber();
-
-
-  int begining, end,lastmrml;
-
-  if(nummrml>=0){
-
-    begining=nummrml*25;
-    end=((nummrml+1)*25)-1;
-
-    //to know if it's the last mrml
-    lastmrml=begining+(end-begining)+1;
-    if(DataNumber<=lastmrml)
-    {
-      end=DataNumber-1;
-      DataNumber=end;
-    }
-  }
-
-  else{
-    begining=0;
-    end=DataNumber;
-  }
-
-  if(nummrml==-1){m_AllFilesName = new char *[DataNumber];}
-  else{m_ListFiles= new char *[DataNumber];}
-
-
-  for(int i=0;i<DataNumber_csv;i++)
-  {
-    if(nummrml==-1){m_AllFilesName[i] = new char[512];}
-    else{m_ListFiles[i] = new char[512];}
-    char c[512];
-    char *file;
-
-    std::strcpy(c,GetNthDataListValue(i+1,GetColumnVolumeFile()).c_str());
-    file=std::strrchr(c,'/');
-
-    for(unsigned int j=0;j<strlen(file);j++)
-    {
-      file[j]=file[j+1];
-      if(file[j]=='.')
-        file[j]='\0';
-    }
-  if(nummrml==-1){	std::strcpy(m_AllFilesName[i],file);std::strcpy(m_ListFiles[i],file);}
-    else{
-
-//std::cout<<"end "<<end<<std::endl;
-//std::cout<<"begining "<<begining<<std::endl;
-
-if(i<=end && i>=begining) {
-std::cout<<"file "<<file<<std::endl;
-std::cout<<"m_ListFiles[i] "<<m_ListFiles[i]<<std::endl;
-std::strcpy(m_ListFiles[i],file);}}
-  }
-
-
-}
-*/
-
-char * Parameters::GetAllFilesName(int i)
-{
-  return m_AllFilesName[i];
+    return m_AllFilesName[i].c_str();
 }
 
 char * Parameters::GetListFiles(int i)
@@ -981,23 +898,7 @@ bool Parameters::GetOverwriteParaToSPHARMMesh()
 // To know if the directory is empty or not
 bool Parameters::DirectoryIsEmpty(const char * path)
 {
- /* DIR *          dir = opendir(path);
-  struct dirent *mydir;
-  int            nbFiles = -2;
-
-  if( dir != NULL )
-    {
-    while( (mydir = readdir(dir) ) != NULL )
-      {
-      nbFiles++;
-
-      }
-    }
-  else
-    {
-    cerr << " Cannot read the directory " << path << endl;
-    }*/
-unsigned long nbFiles=0;
+   unsigned long nbFiles=0;
    if( itksys::SystemTools::FileIsDirectory(path) )
    {
        nbFiles= itksys:: Directory::GetNumberOfFilesInDirectory(path);
@@ -1027,7 +928,7 @@ char * Parameters::GetAllSurfSPHARMFiles(int ind)
     surfSPHARM_Files[i] = new char[512];
     std::strcpy(surfSPHARM_Files[i], GetOutputDirectory() );
     std::strcat(surfSPHARM_Files[i], "/Mesh/SPHARM/");
-    std::strcat(surfSPHARM_Files[i], GetAllFilesName(i) );
+    std::strcat(surfSPHARM_Files[i], GetAllFilesName(i).c_str() );
     std::strcat(surfSPHARM_Files[i], "_pp_surfSPHARM.vtk");
     }
   return surfSPHARM_Files[ind];
@@ -1044,7 +945,7 @@ char * Parameters::GetAllSurfSPHARMellalignFiles(int ind)
     surfSPHARM_ellalign_Files[i] = new char[512];
     std::strcpy(surfSPHARM_ellalign_Files[i], GetOutputDirectory() );
     std::strcat(surfSPHARM_ellalign_Files[i], "/Mesh/SPHARM/");
-    std::strcat(surfSPHARM_ellalign_Files[i], GetAllFilesName(i) );
+    std::strcat(surfSPHARM_ellalign_Files[i], GetAllFilesName(i).c_str() );
     std::strcat(surfSPHARM_ellalign_Files[i], "_pp_surfSPHARM_ellalign.vtk");
 
     }
@@ -1062,7 +963,7 @@ char * Parameters::GetAllSurfSPHARMprocalignFiles(int ind)
     surfSPHARM_procalign_Files[i] = new char[512];
     std::strcpy(surfSPHARM_procalign_Files[i], GetOutputDirectory() );
     std::strcat(surfSPHARM_procalign_Files[i], "/Mesh/SPHARM/");
-    std::strcat(surfSPHARM_procalign_Files[i], GetAllFilesName(i) );
+    std::strcat(surfSPHARM_procalign_Files[i], GetAllFilesName(i).c_str() );
     std::strcat(surfSPHARM_procalign_Files[i], "_pp_surfSPHARM_procalign.vtk");
 
     }
@@ -1080,7 +981,7 @@ char * Parameters::GetAllSurfmeanSPHARMFiles(int ind)
     surfSPHARM_Files[i] = new char[512];
     std::strcpy(surfSPHARM_Files[i], GetOutputDirectory() );
     std::strcat(surfSPHARM_Files[i], "/Mesh/SPHARM/");
-    std::strcat(surfSPHARM_Files[i], GetAllFilesName(i) );
+    std::strcat(surfSPHARM_Files[i], GetAllFilesName(i).c_str() );
     std::strcat(surfSPHARM_Files[i], "_pp_surf_tMeanSPHARM.vtk");
     }
 
@@ -1098,7 +999,7 @@ char * Parameters::GetAllSurfmeanSPHARMellalignFiles(int ind)
     surfSPHARM_ellalign_Files[i] = new char[512];
     std::strcpy(surfSPHARM_ellalign_Files[i], GetOutputDirectory() );
     std::strcat(surfSPHARM_ellalign_Files[i], "/Mesh/SPHARM/");
-    std::strcat(surfSPHARM_ellalign_Files[i], GetAllFilesName(i) );
+    std::strcat(surfSPHARM_ellalign_Files[i], GetAllFilesName(i).c_str() );
     std::strcat(surfSPHARM_ellalign_Files[i], "_pp_surf_tMeanSPHARM_ellalign.vtk");
     }
   return surfSPHARM_ellalign_Files[ind];
@@ -1115,59 +1016,23 @@ char * Parameters::GetAllSurfmeanSPHARMprocalignFiles(int ind)
     surfSPHARM_procalign_Files[i] = new char[512];
     std::strcpy(surfSPHARM_procalign_Files[i], GetOutputDirectory() );
     std::strcat(surfSPHARM_procalign_Files[i], "/Mesh/SPHARM/");
-    std::strcat(surfSPHARM_procalign_Files[i], GetAllFilesName(i) );
+    std::strcat(surfSPHARM_procalign_Files[i], GetAllFilesName(i).c_str() );
     std::strcat(surfSPHARM_procalign_Files[i], "_pp_surf_tMeanSPHARM_procalign.vtk");
     }
   return surfSPHARM_procalign_Files[ind];
 }
 
 // Get all the names of the phi files
-char * Parameters::GetAllPhiFiles(int /* ind */)
+string Parameters::GetAllPhiFiles(int ind )
 {
-  Phi_Files = new char[512];
-  char  c[512];
-  char *file;
-
-  std::strcpy(c, GetNthDataListValue(1, GetColumnVolumeFile() ).c_str() );
-
-  file = std::strrchr(c, '/');
-  for( unsigned int j = 0; j < strlen(file); j++ )
-    {
-    file[j] = file[j + 1];
-    if( file[j] == '.' )
-      {
-      file[j] = '\0';
-      }
-    }
-  std::strcpy(Phi_Files, GetOutputDirectory() );
-  std::strcat(Phi_Files, "/Mesh/SPHARM/");
-  std::strcat(Phi_Files, file);
-
-  std::strcat(Phi_Files, "_pp_surf_paraPhi.txt");
+  Phi_Files = string ( GetOutputDirectory() ) + "/Mesh/SPHARM/" + itksys::SystemTools::GetFilenameWithoutExtension(GetNthDataListValue(ind + 1, GetColumnVolumeFile() )) + "_pp_surf_paraPhi.txt";
   return Phi_Files;
 }
 
 // Get all the names of the theta files
-char * Parameters::GetAllThetaFiles(int /* ind */)
+string Parameters::GetAllThetaFiles(int ind )
 {
-  Theta_Files = new char[512];
-  char  c[512];
-  char *file;
-
-  std::strcpy(c, GetNthDataListValue(1, GetColumnVolumeFile() ).c_str() );
-  file = std::strrchr(c, '/');
-  for( unsigned int j = 0; j < strlen(file); j++ )
-    {
-    file[j] = file[j + 1];
-    if( file[j] == '.' )
-      {
-      file[j] = '\0';
-      }
-    }
-  std::strcpy(Theta_Files, GetOutputDirectory() );
-  std::strcat(Theta_Files, "/Mesh/SPHARM/");
-  std::strcat(Theta_Files, file);
-  std::strcat(Theta_Files, "_pp_surf_paraTheta.txt");
+  Theta_Files = string ( GetOutputDirectory() ) + "/Mesh/SPHARM/" + itksys::SystemTools::GetFilenameWithoutExtension(GetNthDataListValue(ind + 1, GetColumnVolumeFile() )) + "_pp_surf_paraTheta.txt";
   return Theta_Files;
 }
 
@@ -1267,7 +1132,7 @@ char * Parameters::GetPostCorrespondenceFiles(int ind)
     Corres_Files[i] = new char[512];
     std::strcpy(Corres_Files[i], GetOutputDirectory() );
     std::strcat(Corres_Files[i], "/ParticleCorrespondence/Corresponding_Meshes/");
-    std::strcat(Corres_Files[i], GetAllFilesName(i) );
+    std::strcat(Corres_Files[i], GetAllFilesName(i).c_str() );
     if( GetTemplateMState() )
       {
       if( GetUseProcalign() )
