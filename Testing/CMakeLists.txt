@@ -8,7 +8,7 @@ set(TestDataDirectory ${CMAKE_CURRENT_SOURCE_DIR}/Data)
 
 
 ## Test 1 : Segpostprocess
-add_test(NAME SegPostProcessCLPHelp COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:SegPostProcessCLP> --help) # Should just display the Usage : ${CMAKE_CURRENT_BINARY_DIR} = DTIAtlasBuilder-build/Testing -> need to ../
+#add_test(NAME SegPostProcessCLPHelp COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:SegPostProcessCLP> --help) # Should just display the Usage : ${CMAKE_CURRENT_BINARY_DIR} = DTIAtlasBuilder-build/Testing -> need to ../
 
 add_executable(SegPostProcessCLPTest itkTest.cxx)
 target_link_libraries(SegPostProcessCLPTest SegPostProcessCLPLib)

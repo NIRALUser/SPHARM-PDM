@@ -572,7 +572,6 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
                                  << GetNthDataListValue(m_permutations[DataNumber],
                              GetColumnVolumeFile() ) << "')" << std::endl;
       }
-    BMSShapeAnalysisModuleFile << "" << std::endl;
     }
   else
     {
@@ -589,7 +588,6 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
                                                                                                    GetColumnVolumeFile() )
                                  << "')" << std::endl;
       }
-    BMSShapeAnalysisModuleFile << "" << std::endl;
     }
 
   BMSShapeAnalysisModuleFile << "#Create directories" << std::endl;
@@ -631,7 +629,6 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
 
   BMSShapeAnalysisModuleFile << "  Set(count 0)" << std::endl;
 
-  BMSShapeAnalysisModuleFile << "" << std::endl;
   BMSShapeAnalysisModuleFile << "ForEach(case ${OrigCasesList})" << std::endl;
   BMSShapeAnalysisModuleFile << "  #Extract basename" << std::endl;
   BMSShapeAnalysisModuleFile << "  GetFilename(basename ${case} NAME_WITHOUT_EXTENSION)" << std::endl;
@@ -645,9 +642,7 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
   BMSShapeAnalysisModuleFile << "  listFileInDir(testPara2 ${SPHARMdir} *${basename}*MeanSPHARM*)" << std::endl;
   BMSShapeAnalysisModuleFile << "  listFileInDir(testtemp ${tdir}  *SPHARM*)" << std::endl;
   BMSShapeAnalysisModuleFile << "  listFileInDir(testtemp2 ${tdir} *${basename}*SPHARM*)" << std::endl;
-  BMSShapeAnalysisModuleFile << "  " << std::endl;
   BMSShapeAnalysisModuleFile << "  set(ppcase ${PPdir}${basename}_pp.gipl.gz)" << std::endl;
-  BMSShapeAnalysisModuleFile << "  " << std::endl;
 
   BMSShapeAnalysisModuleFile << "  #Post Processing" << std::endl;
   BMSShapeAnalysisModuleFile << "  echo()" << std::endl;
@@ -671,11 +666,11 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
                              << GetEnforcedSpaceY() << "," << GetEnforcedSpaceZ() << ")" << std::endl;
   BMSShapeAnalysisModuleFile << "    Run(output ${Seg} error)" << std::endl;
   BMSShapeAnalysisModuleFile << "  if(${error} != '')" << std::endl;
-  BMSShapeAnalysisModuleFile << "    echo('SegPostProcess Error:' ${error}')" << std::endl;
+  BMSShapeAnalysisModuleFile << "    echo('SegPostProcess Error:' ${error})" << std::endl;
   // BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
   BMSShapeAnalysisModuleFile << "  endif(${error})" << std::endl;
   BMSShapeAnalysisModuleFile << "  endif(${testSeg})" << std::endl;
-  BMSShapeAnalysisModuleFile << "" << std::endl;
+  
 
   BMSShapeAnalysisModuleFile << "  #GenParaMesh" << std::endl;
   BMSShapeAnalysisModuleFile << "  echo()" << std::endl;
@@ -704,7 +699,6 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
   // BMSShapeAnalysisModuleFile<<"    exit()"<<std::endl;
   BMSShapeAnalysisModuleFile << "  endif(${error})" << std::endl;
   BMSShapeAnalysisModuleFile << "  endif(${value})" << std::endl;
-  BMSShapeAnalysisModuleFile << "" << std::endl;
 
   BMSShapeAnalysisModuleFile << "  #ParaToSPHARMMesh" << std::endl;
   BMSShapeAnalysisModuleFile << "  echo()" << std::endl;
@@ -797,7 +791,6 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
   BMSShapeAnalysisModuleFile << " DeleteFile(" << GetOutputDirectory()
                              << "/Template/${basename}_pp_surf_paraMix.txt)" << std::endl;
   BMSShapeAnalysisModuleFile << "  endif(${value})" << std::endl;
-  BMSShapeAnalysisModuleFile << "  " << std::endl;
 
   if( GetRegTemplateState() == false && GetFlipTemplateState() == false ) // TODO
     {
@@ -1335,7 +1328,6 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
   BMSShapeAnalysisModuleFile << "  appendFile(${OutputFile} '\\n' )" << std::endl;
   BMSShapeAnalysisModuleFile << "  echo()" << std::endl;
   BMSShapeAnalysisModuleFile << "EndForEach(case)" << std::endl;
-  BMSShapeAnalysisModuleFile << "" << std::endl << std::endl;
 
   /*BMSShapeAnalysisModuleFile<<" Set(BMSFile ${BMSdir}"<<"/ShapeAnalysisModule.bms"<<")"<<std::endl;
   BMSShapeAnalysisModuleFile<<" CopyFile("<<GetBMSShapeAnalysisModuleFile()<<" ${BMSdir})"<<std::endl;
@@ -1372,7 +1364,6 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile2()
                                                                                                  GetColumnVolumeFile() )
                                << "')" << std::endl;
     }
-  BMSShapeAnalysisModuleFile << "" << std::endl;
 
   BMSShapeAnalysisModuleFile << "set(SPHARMdir '" << GetOutputDirectory() << "/Mesh/SPHARM/')" << std::endl;
   BMSShapeAnalysisModuleFile << "set(tdir '" << GetOutputDirectory() << "/Template/')" << std::endl;
@@ -1382,7 +1373,6 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile2()
   BMSShapeAnalysisModuleFile << "  GetFilename(basename ${case} NAME_WITHOUT_EXTENSION)" << std::endl;
   BMSShapeAnalysisModuleFile << "  echo()" << std::endl;
   BMSShapeAnalysisModuleFile << "  echo('Case: '${case})" << std::endl;
-  BMSShapeAnalysisModuleFile << "  " << std::endl;
   BMSShapeAnalysisModuleFile << "  listFileInDir(testPara ${SPHARMdir} *${basename}*SPHARM*)" << std::endl;
   BMSShapeAnalysisModuleFile << "  listFileInDir(testPara2 ${SPHARMdir} *${basename}*MeanSPHARM*)" << std::endl;
   BMSShapeAnalysisModuleFile << "  listFileInDir(testtemp ${tdir}  *SPHARM*)" << std::endl;
