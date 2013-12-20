@@ -163,11 +163,21 @@ ParametricMeshToSPHARMSpatialObjectFilter::GetOutput(unsigned int idx)
     {
     return 0;
     }
+
 #ifdef _MSC_VER
-  return dynamic_cast<SpatialObjectType *>(this->GetOutput(idx) );
+  if ( _MSC_VER < 1500 )
+  {
+    return dynamic_cast<SpatialObjectType *>(this->GetOutput(idx) ) ;
+  }
+  else
+  {
+    return dynamic_cast<SpatialObjectType *>(this->itk::ProcessObject::GetOutput(idx) ) ;
+  }
 #else
   return dynamic_cast<SpatialObjectType *>(this->itk::ProcessObject::GetOutput(idx) );
 #endif
+
+
 };
 
 // Subroutines to flip parameterization
