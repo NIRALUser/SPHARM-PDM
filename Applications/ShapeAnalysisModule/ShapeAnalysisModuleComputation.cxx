@@ -44,8 +44,11 @@ int ShapeAnalysisModuleComputation::Computation()
     ExecuteMeshMath(i, "phi", 0);
     ExecuteMeshMath(i, "theta", 0);
     }
-
+#ifdef WIN32 
+  //ExecuteMeshMathTemplate();
+#else
   ExecuteMeshMathTemplate();
+#endif
 
   // Particles
   if( GetParticlesState() )
@@ -89,13 +92,15 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, const char * s
     {
 
     std::vector<const char *> args;
+	std::string cmd ;
     char*                     data = NULL;
     int                       length;
     double                    timeout = 0.05;
     int                       result;
     char *                    fileType = NULL;
 
-    args.push_back("MeshMath");
+
+	args.push_back("MeshMath");
 
     if( particule == 0 )
       {
@@ -148,16 +153,19 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, const char * s
     args.push_back(fileType);
     args.push_back(fileType);
     args.push_back("-KWMtoPolyData");
-
+	std::string getAllPhiFilesval ;
+	std::string getAllThetaFilesval ;
     if( _scalar == "phi" )
       {
-      args.push_back(GetAllPhiFiles(0).c_str() );
-      args.push_back("Color_Map_Phi");
+		  getAllPhiFilesval = GetAllPhiFiles(numData) ;
+		  args.push_back(getAllPhiFilesval.c_str() );
+          args.push_back("Color_Map_Phi");
       }
     if( _scalar == "theta" )
       {
-      args.push_back(GetAllThetaFiles(0).c_str() );
-      args.push_back("Color_Map_Theta");
+		 getAllThetaFilesval = GetAllThetaFiles(numData) ; 
+		 args.push_back(getAllThetaFilesval.c_str() );
+         args.push_back("Color_Map_Theta");
       }
 
     args.push_back(0);
@@ -165,6 +173,7 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, const char * s
     // Run the application
     itksysProcess* gp = itksysProcess_New();
     itksysProcess_SetCommand(gp, &*args.begin() );
+	//itksysProcess_SetCommand(gp, &cmd_char );
     itksysProcess_SetOption(gp, itksysProcess_Option_HideWindow, 1);
     itksysProcess_Execute(gp);
 
@@ -232,14 +241,16 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMath(int numData, const char * s
 
 void ShapeAnalysisModuleComputation::ExecuteMeshMathTemplate()
 {
-  std::cout << "meshmath template" << std::endl;
+  std::cout << "Mapping parameters in SPHARM template meshes using MeshMath" << std::endl;
 
   itksys::Glob             globTemplateList;
   std::vector<std::string> list_template;
   std::string              pathFile = GetOutputDirectory();
   std::string              path;
-  path = "/Template/*.vtk";
+  //path = "/Template/*.vtk";
+  path = "/Template/";
   pathFile = pathFile + path;
+  std::cout << "Path for MeshMathTemplate: " << pathFile << std::endl;
   globTemplateList.FindFiles(pathFile);
   list_template = globTemplateList.GetFiles();
   for( int color_map = 0;  color_map < 2; color_map++ )
@@ -268,9 +279,9 @@ void ShapeAnalysisModuleComputation::ExecuteMeshMathTemplate()
         args.push_back(GetAllThetaFiles(0).c_str() );
         args.push_back("Color_Map_Theta");
         }
-
+	  
       args.push_back(0);
-
+	
       // Run the application
       itksysProcess* gp = itksysProcess_New();
       itksysProcess_SetCommand(gp, &*args.begin() );
