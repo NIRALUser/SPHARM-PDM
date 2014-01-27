@@ -57,17 +57,6 @@ else()
 endif()
 
 #-----------------------------------------------------------------------------
-# Git protocole option
-#-----------------------------------------------------------------------------
-option(${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
-set(git_protocol "git")
-if(NOT ${CMAKE_PROJECT_NAME}_USE_GIT_PROTOCOL)
-  set(git_protocol "http")
-endif()
-
-find_package(Git REQUIRED)
-
-#-----------------------------------------------------------------------------
 # Enable and setup External project global properties
 #-----------------------------------------------------------------------------
 include(ExternalProject)
@@ -210,6 +199,8 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   MEMORYCHECK_COMMAND:PATH
   SITE:STRING
   BUILDNAME:STRING
+  Subversion_SVN_EXECUTABLE:FILEPATH
+  GIT_EXECUTABLE:FILEPATH
   )
 
 

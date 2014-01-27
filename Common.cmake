@@ -47,6 +47,27 @@ set(CMAKE_MODULE_PATH
 include(PreventInSourceBuilds)
 include(PreventInBuildInstalls)
 include(SlicerExtensionsConfigureMacros)
+
+#-----------------------------------------------------------------------------
+# Prerequisites
+#-----------------------------------------------------------------------------
+find_package(Subversion)
+if(NOT Subversion_FOUND)
+  message(WARNING "SVN may be needed to download external dependencies. Install SVN and try to re-configure")
+endif()
+
+find_package(Git)
+if(NOT GIT_FOUND)
+  message(WARNING "Git may be needed to download external dependencies: Install Git and try to re-configure")
+endif()
+
+option(USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
+if(NOT USE_GIT_PROTOCOL)
+  set(git_protocol "http")
+else(NOT USE_GIT_PROTOCOL)
+  set(git_protocol "git")
+endif()
+
 #-----------------------------------------------------------------------------
 # CMake Function(s) and Macro(s)
 #-----------------------------------------------------------------------------
