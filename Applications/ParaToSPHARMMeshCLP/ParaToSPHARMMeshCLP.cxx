@@ -508,7 +508,11 @@ int main( int argc, const char * * argv )
 
     vtkPolyDataWriter *vtkwriter;
     vtkwriter = vtkPolyDataWriter::New();
+    #if VTK_MAJOR_VERSION > 5
+    vtkwriter->SetInputData(ITKVTKConverter->GetOutput() );
+    #else
     vtkwriter->SetInput(ITKVTKConverter->GetOutput() );
+    #endif
     outFileName.erase();
     outFileName.append(base_string);
     outFileName.append("SPHARM.vtk");
@@ -641,7 +645,11 @@ int main( int argc, const char * * argv )
 		outfile_pr.close();
 
 		// END Add scalars for visualization
+    #if VTK_MAJOR_VERSION > 5
+		vtkwriter->SetInputData(polydataAtt);
+    #else
 		vtkwriter->SetInput(polydataAtt);
+    #endif
 		outFileName.erase();
 		outFileName.append(base_string);
 		outFileName.append("SPHARMMedialMesh.vtk");
@@ -652,8 +660,11 @@ int main( int argc, const char * * argv )
 	 
 	 vtkSmartPointer<vtkPolyData> medialAxis;
 	 medialAxis = medialmeshsrc->GetOutputMedialAxis();
-	 
+   #if VTK_MAJOR_VERSION > 5
+	 vtkwriter->SetInputData(medialAxis );
+   #else
 	 vtkwriter->SetInput(medialAxis );
+   #endif
 	 outFileName.erase();
 	 outFileName.append(base_string);
 	 outFileName.append("SPHARMMedialAxis.vtk");
@@ -716,9 +727,11 @@ int main( int argc, const char * * argv )
 
       itkMeshTovtkPolyData * ITKVTKConverter2 = new itkMeshTovtkPolyData;
       ITKVTKConverter2->SetInput(ellipseMesh);
-
+      #if VTK_MAJOR_VERSION > 5
+      vtkwriter->SetInputData(ITKVTKConverter2->GetOutput() );
+      #else
       vtkwriter->SetInput(ITKVTKConverter2->GetOutput() );
-
+      #endif
       outFileName.erase();
       outFileName.append(base_string);
       outFileName.append("SPHARM_ellalign.vtk");
@@ -805,8 +818,11 @@ int main( int argc, const char * * argv )
       std::cout << "procalign" << std::endl;
       itkMeshTovtkPolyData * ITKVTKConverter3 = new itkMeshTovtkPolyData;
       ITKVTKConverter3->SetInput(RegisteredMesh);
-
+      #if VTK_MAJOR_VERSION > 5
+      vtkwriter->SetInputData(ITKVTKConverter3->GetOutput() );
+      #else
       vtkwriter->SetInput(ITKVTKConverter3->GetOutput() );
+      #endif
       vtkwriter->SetFileName(outFileName.c_str() );
       vtkwriter->Write();
 
@@ -827,8 +843,11 @@ int main( int argc, const char * * argv )
 
       itkMeshTovtkPolyData * ITKVTKConverter4 = new itkMeshTovtkPolyData;
       ITKVTKConverter4->SetInput(_paraMesh);
-
+      #if VTK_MAJOR_VERSION > 5
+      vtkwriter->SetInputData(ITKVTKConverter4->GetOutput() );
+      #else
       vtkwriter->SetInput(ITKVTKConverter4->GetOutput() );
+      #endif
       vtkwriter->SetFileName(outFileName.c_str() );
       vtkwriter->Write();
 

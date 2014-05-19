@@ -127,7 +127,11 @@ int main(int argc, char* argv[])
 	
 	vtkSmartPointer<vtkPolyDataWriter> writer(vtkPolyDataWriter::New());
 	writer->SetFileName(output.c_str());
+  #if VTK_MAJOR_VERSION > 5
+	writer->SetInputData(PolyData);
+  #else
 	writer->SetInput(PolyData);
+  #endif
 	writer->Update();
 	
 	return 0;

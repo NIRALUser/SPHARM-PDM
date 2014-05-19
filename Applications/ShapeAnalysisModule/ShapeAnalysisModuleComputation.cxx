@@ -1781,7 +1781,11 @@ void ShapeAnalysisModuleComputation::ComputationMean()
   polydata->SetPolys(vtkcells);
   vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
   writer->SetFileName(m_PolyFile);
+  #if VTK_MAJOR_VERSION > 5
+  writer->SetInputData(polydata);
+  #else
   writer->SetInput(polydata);
+  #endif
   writer->Write();
 
   WriteMeanFile(nbPoints);

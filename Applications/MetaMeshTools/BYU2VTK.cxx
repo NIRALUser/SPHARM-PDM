@@ -90,7 +90,11 @@ int main(int argc, const char **argv)
 
   // write out the vtk mesh
   vtkPolyDataWriter *writer = vtkPolyDataWriter::New () ;
+  #if VTK_MAJOR_VERSION > 5
+  writer->SetInputData ( polydata ) ;
+  #else
   writer->SetInput ( polydata ) ;
+  #endif
   writer->SetFileName ( outfile ) ;
   writer->Update () ;
   writer->Delete () ;

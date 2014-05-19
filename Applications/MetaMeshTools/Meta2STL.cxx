@@ -70,8 +70,11 @@ int main(int argc, const char * *argv)
   vtkSTLWriter * STLFileWriter = vtkSTLWriter::New();
   // Gets and writes each Label-mesh in a different .stl file
   STLFileWriter->SetFileName(outputFilename.c_str() );
-
+  #if VTK_MAJOR_VERSION > 5
+  STLFileWriter->SetInputData( ITKVTKConverter->GetOutput() );
+  #else
   STLFileWriter->SetInput( ITKVTKConverter->GetOutput() );
+  #endif
   STLFileWriter->SetFileName( outputFilename.c_str() );
   STLFileWriter->Update();
 

@@ -1013,7 +1013,11 @@ int main(int argc, const char * *argv)
         PointVTK->SetPoint(PointId, vert);
         }
       vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+      #if VTK_MAJOR_VERSION > 5
+      SurfaceWriter->SetInputData(meshin->GetOutput() );
+      #else
       SurfaceWriter->SetInput(meshin->GetOutput() );
+      #endif
       SurfaceWriter->SetFileName(outputFilename);
       SurfaceWriter->Update();
       }
@@ -1357,9 +1361,13 @@ int main(int argc, const char * *argv)
 	avgPoints = tmpPoints;
 
     polydata->SetPoints(avgPoints);
-    polydata->Update();
+//    polydata->Update();//no more Update() function for vtkPolyData: http://www.vtk.org/Wiki/VTK/VTK_6_Migration/Removal_of_Update
     vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    #if VTK_MAJOR_VERSION > 5
+    SurfaceWriter->SetInputData(polydata);
+    #else
     SurfaceWriter->SetInput(polydata);
+    #endif
     SurfaceWriter->SetFileName(outputFilename);
     SurfaceWriter->Update();
     if (debug)
@@ -3247,11 +3255,16 @@ int main(int argc, const char * *argv)
     MeshNormals->SetComputePointNormals(1);
     MeshNormals->SetComputeCellNormals(0);
     MeshNormals->SetSplitting(0);
+    #if VTK_MAJOR_VERSION > 5
+    MeshNormals->SetInputData(vtkMesh);
+    #else
     MeshNormals->SetInput(vtkMesh);
-    MeshNormals->Update();
+    MeshNormals->Update();//no more Update() function for vtkPolyData: http://www.vtk.org/Wiki/VTK/VTK_6_Migration/Removal_of_Update
+    #endif
     vtkPolyData * vtkMeshNormals = MeshNormals->GetOutput();
+    #if VTK_MAJOR_VERSION <= 5
     vtkMeshNormals->Update();
-
+    #endif
     vtkPointData * NormalPoints = vtkMeshNormals->GetPointData();
     vtkDataArray * ArrayNormal = NormalPoints->GetNormals();
 
@@ -3431,11 +3444,16 @@ int main(int argc, const char * *argv)
     MeshNormals->SetComputePointNormals(1);
     MeshNormals->SetComputeCellNormals(0);
     MeshNormals->SetSplitting(0);
+    #if VTK_MAJOR_VERSION > 5
+    MeshNormals->SetInputData(vtkMesh);
+    #else
     MeshNormals->SetInput(vtkMesh);
+    #endif
     MeshNormals->Update();
     vtkPolyData * vtkMeshNormals = MeshNormals->GetOutput();
+    #if VTK_MAJOR_VERSION <= 5
     vtkMeshNormals->Update();
-
+    #endif
     vtkPointData * NormalPoints = vtkMeshNormals->GetPointData();
     vtkDataArray * ArrayNormal = NormalPoints->GetNormals();
     double *       MagList = new double[NbOfPoint];
@@ -3534,10 +3552,16 @@ int main(int argc, const char * *argv)
     MeshNormals->SetComputePointNormals(1);
     MeshNormals->SetComputeCellNormals(0);
     MeshNormals->SetSplitting(0);
+    #if VTK_MAJOR_VERSION > 5
+    MeshNormals->SetInputData(vtkMesh);
+    #else
     MeshNormals->SetInput(vtkMesh);
+    #endif
     MeshNormals->Update();
     vtkPolyData * vtkMeshNormals = MeshNormals->GetOutput();
+    #if VTK_MAJOR_VERSION <= 5
     vtkMeshNormals->Update();
+    #endif
 
     vtkPointData * NormalPoints = vtkMeshNormals->GetPointData();
     vtkDataArray * ArrayNormal = NormalPoints->GetNormals();
@@ -3800,7 +3824,11 @@ int main(int argc, const char * *argv)
       }
 
     vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+    #if VTK_MAJOR_VERSION > 5
+    meshinC->SetInputData(meshin->GetOutput() );
+    #else
     meshinC->SetInput(meshin->GetOutput() );
+    #endif
     meshinC->Update();
 
     if( debug )
@@ -3810,7 +3838,11 @@ int main(int argc, const char * *argv)
 
     // detect borders
     vtkFeatureEdges *boundaryEdges = vtkFeatureEdges::New();
+    #if VTK_MAJOR_VERSION > 5
+    boundaryEdges->SetInputData(meshinC->GetOutput() );
+    #else
     boundaryEdges->SetInput(meshinC->GetOutput() );
+    #endif
     boundaryEdges->BoundaryEdgesOn();       // only border points
     boundaryEdges->FeatureEdgesOff();
     boundaryEdges->NonManifoldEdgesOff();
@@ -3826,27 +3858,45 @@ int main(int argc, const char * *argv)
       }
 
     vtkStripper *patchSkel = vtkStripper::New();
+    #if VTK_MAJOR_VERSION > 5
+    patchSkel->SetInputData(boundaryEdges->GetOutput() );
+    #else
     patchSkel->SetInput(boundaryEdges->GetOutput() );
+    #endif
 
     vtkPolyData *      patchPoly = vtkPolyData::New();
     vtkTriangleFilter *patchTri = vtkTriangleFilter::New();
 
     // ORIGINAL
     patchPoly->Initialize();
+    #if VTK_MAJOR_VERSION > 5
+    patchTri->SetInputData(patchPoly);
+    #else
     patchTri->SetInput(patchPoly);
+    #endif
 
     vtkAppendPolyData *meshAppend = vtkAppendPolyData::New();
+    #if VTK_MAJOR_VERSION > 5
+    meshAppend->AddInputConnection(patchTri->GetOutputPort() );
+    meshAppend->AddInputConnection(meshinC->GetOutputPort() );
+    #else
     meshAppend->AddInput(patchTri->GetOutput() );
     meshAppend->AddInput(meshinC->GetOutput() );
+    #endif
     vtkCleanPolyData *poly = vtkCleanPolyData::New();
+    #if VTK_MAJOR_VERSION > 5
+    poly->SetInputData(meshAppend->GetOutput() );
+    #else
     poly->SetInput(meshAppend->GetOutput() );
-
+    #endif
     // Creating the patch!
     patchSkel->Update();
     patchPoly->Initialize();
     patchPoly->SetPoints(patchSkel->GetOutput()->GetPoints() );
     patchPoly->SetPolys(patchSkel->GetOutput()->GetLines() );
+    #if VTK_MAJOR_VERSION <= 5
     patchPoly->Update();
+    #endif
 
     // Triangulate the patches
     patchTri->Update();
@@ -3863,11 +3913,19 @@ int main(int argc, const char * *argv)
     poly->Update();
 
     vtkCleanPolyData *polyC = vtkCleanPolyData::New();
+    #if VTK_MAJOR_VERSION > 5
+    polyC->SetInputData(poly->GetOutput() );
+    #else
     polyC->SetInput(poly->GetOutput() );
+    #endif
     polyC->Update();
 
     // Verify if there are still open borders in the new patched mesh
+    #if VTK_MAJOR_VERSION > 5
+    boundaryEdges->SetInputData(polyC->GetOutput() );
+    #else
     boundaryEdges->SetInput(polyC->GetOutput() );
+    #endif
     // boundaryEdges->SetInput(normals->GetOutput());
     boundaryEdges->Update();
 
@@ -3887,7 +3945,11 @@ int main(int argc, const char * *argv)
 
     // project week update Arnaud Gelas
     vtkPolyDataNormals* normals = vtkPolyDataNormals::New();
+    #if VTK_MAJOR_VERSION > 5
+    normals->SetInputData( polyC->GetOutput() );
+    #else
     normals->SetInput( polyC->GetOutput() );
+    #endif
     normals->SetConsistency( true );
     normals->SetFlipNormals( true );
     normals->GetFlipNormals();
@@ -3896,7 +3958,11 @@ int main(int argc, const char * *argv)
     // Writing the new mesh, with the patched hole
     vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
     // SurfaceWriter->SetInput(polyC->GetOutput());
+    #if VTK_MAJOR_VERSION > 5
+    SurfaceWriter->SetInputData(normals->GetOutput() );
+    #else
     SurfaceWriter->SetInput(normals->GetOutput() );
+    #endif
     // SurfaceWriter->SetInput(patchTri->GetOutput());
     SurfaceWriter->SetFileName(outputFilename);
     SurfaceWriter->Update();
@@ -3916,12 +3982,20 @@ int main(int argc, const char * *argv)
     meshin->Update();
 
     vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+    #if VTK_MAJOR_VERSION > 5
+    meshinC->SetInputData(meshin->GetOutput() );
+    #else
     meshinC->SetInput(meshin->GetOutput() );
+    #endif
     meshinC->Update();
 
     // detect borders
     vtkFeatureEdges *boundaryEdges = vtkFeatureEdges::New();
+    #if VTK_MAJOR_VERSION > 5
+    boundaryEdges->SetInputData(meshinC->GetOutput() );
+    #else
     boundaryEdges->SetInput(meshinC->GetOutput() );
+    #endif
     boundaryEdges->BoundaryEdgesOn();       // only border points
     boundaryEdges->FeatureEdgesOff();
     boundaryEdges->NonManifoldEdgesOff();
@@ -3939,7 +4013,11 @@ int main(int argc, const char * *argv)
 
     // Writing the new mesh, only detected borders
     vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    #if VTK_MAJOR_VERSION > 5
+    SurfaceWriter->SetInputData(boundaryEdges->GetOutput() );
+    #else
     SurfaceWriter->SetInput(boundaryEdges->GetOutput() );
+    #endif
     SurfaceWriter->SetFileName(outputFilename);
     SurfaceWriter->Update();
     if( debug )
@@ -3957,12 +4035,20 @@ int main(int argc, const char * *argv)
     meshin->Update();
 
     vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+    #if VTK_MAJOR_VERSION > 5
+    meshinC->SetInputData(meshin->GetOutput() );
+    #else
     meshinC->SetInput(meshin->GetOutput() );
+    #endif
     meshinC->Update();
 
     // detect borders
     vtkFeatureEdges *boundaryEdges = vtkFeatureEdges::New();
+    #if VTK_MAJOR_VERSION > 5
+    boundaryEdges->SetInputData(meshinC->GetOutput() );
+    #else
     boundaryEdges->SetInput(meshinC->GetOutput() );
+    #endif
     boundaryEdges->BoundaryEdgesOn();       // only border points
     boundaryEdges->FeatureEdgesOff();
     boundaryEdges->NonManifoldEdgesOff();
@@ -4233,12 +4319,20 @@ int main(int argc, const char * *argv)
     meshin->Update();
 
     vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+    #if VTK_MAJOR_VERSION > 5
+    meshinC->SetInputData(meshin->GetOutput() );
+    #else
     meshinC->SetInput(meshin->GetOutput() );
+    #endif
     meshinC->Update();
 
     // Writing the new mesh, with not degenerated triangles
     vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    #if VTK_MAJOR_VERSION > 5
+    SurfaceWriter->SetInputData(meshinC->GetOutput() );
+    #else
     SurfaceWriter->SetInput(meshinC->GetOutput() );
+    #endif
     // SurfaceWriter->SetInput(boundaryEdges->GetOutput());
     SurfaceWriter->SetFileName(outputFilename);
     SurfaceWriter->Update();
@@ -4255,7 +4349,11 @@ int main(int argc, const char * *argv)
     meshin->Update();
 
     vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+    #if VTK_MAJOR_VERSION > 5
+    meshinC->SetInputData(meshin->GetOutput() );
+    #else
     meshinC->SetInput(meshin->GetOutput() );
+    #endif
     meshinC->Update();
 
     vtkSmoothPolyDataFilter *smoother = vtkSmoothPolyDataFilter::New();
@@ -4264,7 +4362,11 @@ int main(int argc, const char * *argv)
 
     // Writing the new mesh, with not degenerated triangles
     vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    #if VTK_MAJOR_VERSION > 5
+    SurfaceWriter->SetInputData(smoother->GetOutput() );
+    #else
     SurfaceWriter->SetInput(smoother->GetOutput() );
+    #endif
     SurfaceWriter->SetFileName(outputFilename);
     SurfaceWriter->Update();
 
@@ -4370,14 +4472,20 @@ int main(int argc, const char * *argv)
 
     // generate normals
     vtkPolyDataNormals* normals = vtkPolyDataNormals::New();
+    #if VTK_MAJOR_VERSION > 5
+    normals->SetInputData( polydata );
+    #else
     normals->SetInput( polydata );
+    #endif
     // normals->FlipNormalsOn();
     normals->AutoOrientNormalsOn();
     normals->SetConsistency(1);
     normals->SplittingOff();
     normals->Update();
     polydata = normals->GetOutput();
+    #if VTK_MAJOR_VERSION <= 5
     polydata->Update();
+    #endif
 
 /*
   //optional settings
@@ -4396,7 +4504,11 @@ int main(int argc, const char * *argv)
     // SurfaceWriter->SetInput(polyC->GetOutput());
     // SurfaceWriter->SetInput(normals->GetOutput());
     // SurfaceWriter->SetInput(patchTri->GetOutput());
+    #if VTK_MAJOR_VERSION > 5
+    SurfaceWriter->SetInputData(polydata);
+    #else
     SurfaceWriter->SetInput(polydata);
+    #endif
     SurfaceWriter->SetFileName(argv[3]);
     SurfaceWriter->Update();
     std::cout << "Writing new mesh " << argv[3] << std::endl;
@@ -4477,7 +4589,11 @@ int main(int argc, const char * *argv)
 
     // Writing the new mesh
     vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    #if VTK_MAJOR_VERSION > 5
+    SurfaceWriter->SetInputData(polydataAtt);
+    #else
     SurfaceWriter->SetInput(polydataAtt);
+    #endif
     SurfaceWriter->SetFileName(outputFilename);
     SurfaceWriter->Update();
     if( debug )
@@ -4722,17 +4838,29 @@ int main(int argc, const char * *argv)
 
     // Calculate Curvedness and Shape Index
     vtkCurvatures* curveMax = vtkCurvatures::New();
+    #if VTK_MAJOR_VERSION > 5
+    curveMax->SetInputData(polydata);
+    #else
     curveMax->SetInput(polydata);
+    #endif
     curveMax->SetCurvatureTypeToMaximum();
+    curveMax->Update();
     vtkPolyData* polydataCurvMax = curveMax->GetOutput();
+    #if VTK_MAJOR_VERSION <= 5
     polydataCurvMax->Update();
-
+    #endif
     vtkCurvatures* curveMin = vtkCurvatures::New();
+    #if VTK_MAJOR_VERSION > 5
+    curveMin->SetInputData(polydata);
+    #else
     curveMin->SetInput(polydata);
+    #endif
     curveMin->SetCurvatureTypeToMinimum();
+    curveMin->Update();
     vtkPolyData* polydataCurvMin = curveMin->GetOutput();
+    #if VTK_MAJOR_VERSION <= 5
     polydataCurvMin->Update();
-
+    #endif
     // Writing curvatures out
     std::ofstream curvedness( argv[3] );
     std::ofstream shapeIndex( argv[4] );
@@ -4820,10 +4948,16 @@ int main(int argc, const char * *argv)
     meshNormals->SetComputePointNormals(1);
     meshNormals->SetComputeCellNormals(0);
     meshNormals->SetSplitting(0);
+    #if VTK_MAJOR_VERSION > 5
+    meshNormals->SetInputData(inputTemplate->GetOutput() );
+    #else
     meshNormals->SetInput(inputTemplate->GetOutput() );
+    #endif
     meshNormals->Update();
     vtkPolyData * vtkMeshNormals = meshNormals->GetOutput();
+    #if VTK_MAJOR_VERSION <= 5
     vtkMeshNormals->Update();
+    #endif
 
     // Write normals out
     vtkDataArray *Array = vtkDataArray::SafeDownCast(vtkMeshNormals->GetPointData()->GetNormals() );
@@ -4885,11 +5019,16 @@ int main(int argc, const char * *argv)
     meshNormals->SetComputePointNormals(1);
     meshNormals->SetComputeCellNormals(0);
     meshNormals->SetSplitting(0);
+    #if VTK_MAJOR_VERSION > 5
+    meshNormals->SetInputData(inputTemplate->GetOutput() );
+    #else
     meshNormals->SetInput(inputTemplate->GetOutput() );
+    #endif
     meshNormals->Update();
     vtkMeshNormals = meshNormals->GetOutput();
+   	#if VTK_MAJOR_VERSION <= 5
     vtkMeshNormals->Update();
-
+    #endif
     // Write normals out
     unsigned int nPoints = vtkMeshNormals->GetNumberOfPoints();
     std::cout << nPoints << std::endl;
@@ -4942,11 +5081,17 @@ int main(int argc, const char * *argv)
       meshNormals->SetComputePointNormals(1);
       meshNormals->SetComputeCellNormals(0);
       meshNormals->SetSplitting(0);
+    	#if VTK_MAJOR_VERSION > 5
+      meshNormals->SetInputData(input->GetOutput() );
+      #else
       meshNormals->SetInput(input->GetOutput() );
+      #endif
       meshNormals->Update();
       vtkMeshNormals = meshNormals->GetOutput();
       }
+    	#if VTK_MAJOR_VERSION <= 5
       vtkMeshNormals->Update();
+      #endif
 
       // Write normals out
       unsigned int nPoints = vtkMeshNormals->GetNumberOfPoints();
@@ -5463,7 +5608,11 @@ int main(int argc, const char * *argv)
       outfile.close();
 
       vtkPolyDataWriter *meshWriter = vtkPolyDataWriter::New();
+    	#if VTK_MAJOR_VERSION > 5
+      meshWriter->SetInputData(mesh2);
+      #else
       meshWriter->SetInput(mesh2);
+      #endif
       std::string projectedFilename = outputFilename;
       size_t found = projectedFilename.rfind(".");
       if(found == std::string::npos)
@@ -5708,7 +5857,11 @@ int main(int argc, const char * *argv)
 	meshin->Update();
 
 	vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+	#if VTK_MAJOR_VERSION > 5
+	meshinC->SetInputData(meshin->GetOutput());
+  #else
 	meshinC->SetInput(meshin->GetOutput());
+  #endif
 	meshinC->Update();
 
 	vtkWindowedSincPolyDataFilter *smoother = vtkWindowedSincPolyDataFilter::New();
@@ -5725,7 +5878,11 @@ int main(int argc, const char * *argv)
 
  	//Writing the new mesh, with not degenerated triangles
 	vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
-	SurfaceWriter->SetInput(smoother->GetOutput());  
+	#if VTK_MAJOR_VERSION > 5
+	SurfaceWriter->SetInputData(smoother->GetOutput());
+  #else
+	SurfaceWriter->SetInput(smoother->GetOutput());
+  #endif
 	SurfaceWriter->SetFileName(outputFilename);
 	SurfaceWriter->Update();
 
@@ -5737,7 +5894,11 @@ int main(int argc, const char * *argv)
 	meshin->Update();
 
 	vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+	#if VTK_MAJOR_VERSION > 5
+	meshinC->SetInputData(meshin->GetOutput());
+  #else
 	meshinC->SetInput(meshin->GetOutput());
+  #endif
 	meshinC->Update();
 
   	vtkSmartPointer<vtkPolyData> input = vtkSmartPointer<vtkPolyData>::New();
@@ -5745,9 +5906,9 @@ int main(int argc, const char * *argv)
 
 	vtkSmartPointer<vtkDecimatePro> decimate = vtkSmartPointer<vtkDecimatePro>::New();
 	#if VTK_MAJOR_VERSION <= 5
-  		decimate->SetInputConnection(input->GetProducerPort());
+    decimate->SetInputConnection(input->GetProducerPort());
 	#else
-  		decimate->SetInputData(input);
+    decimate->SetInputData(input);
 	#endif
   	decimate->SetTargetReduction(decimateMeshTR); //10% reduction (if there was 100 triangles, now there will be 90)
   	decimate->Update();
@@ -5757,7 +5918,11 @@ int main(int argc, const char * *argv)
 
  	//Writing the new mesh, with not degenerated triangles
 	vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+  #if VTK_MAJOR_VERSION > 5
+	SurfaceWriter->SetInputData(decimate->GetOutput());  
+  #else
 	SurfaceWriter->SetInput(decimate->GetOutput());  
+  #endif
 	SurfaceWriter->SetFileName(outputFilename);
 	SurfaceWriter->Update();
 
@@ -5840,7 +6005,11 @@ int main(int argc, const char * *argv)
     if (debug)  std::cout << "saving modified vtk in " << outputFilename  << std::endl;
      
     vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    #if VTK_MAJOR_VERSION > 5
+    SurfaceWriter->SetInputData(polydata);
+    #else
     SurfaceWriter->SetInput(polydata);
+    #endif
     SurfaceWriter->SetFileName(outputFilename);
     SurfaceWriter->Update();
 
@@ -5868,7 +6037,11 @@ int main(int argc, const char * *argv)
         }
 
      vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+     #if VTK_MAJOR_VERSION > 5
+     SurfaceWriter->SetInputData(meshin->GetOutput() );
+     #else
      SurfaceWriter->SetInput(meshin->GetOutput() );
+     #endif
      SurfaceWriter->SetFileName(outputFilename);
      SurfaceWriter->Update();
      
