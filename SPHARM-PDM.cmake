@@ -40,7 +40,10 @@ include(${BatchMake_USE_FILE})
 #-----------------------------------------------------------------------------
 
 set(CLAPACK_LIBRARY_DIRECTORIES
-  ${CLAPACK_DIR}/F2CLIBS/libf2c)
+  ${CLAPACK_DIR}/F2CLIBS/libf2c
+  ${CLAPACK_DIR}/BLAS/SRC
+  ${CLAPACK_DIR}/SRC
+   )
 if(WIN32)
   set(CLAPACK_LIBRARIES lapack blas libf2c)
 else()
