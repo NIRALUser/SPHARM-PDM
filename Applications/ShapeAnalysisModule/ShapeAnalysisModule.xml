@@ -60,6 +60,14 @@
 			<default>false</default>
 			<description>Overwrite Post Processed Segmentation</description>
 		</boolean>
+
+		<boolean>
+			<name>Rescale</name>
+			<label>Rescale</label>
+			<longflag>RescaleSegPostProcess</longflag>
+			<default>true</default>
+			<description>Enforce spacing</description>
+		</boolean>
 		<float>
 			<name>sx</name>
 			<label>sx:</label>
