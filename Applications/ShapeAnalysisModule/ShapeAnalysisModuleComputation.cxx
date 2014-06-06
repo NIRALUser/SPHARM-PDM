@@ -673,6 +673,10 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
     {
     BMSShapeAnalysisModuleFile << "    SetAppOption(Seg.label.label " << GetLabel() << ")" << std::endl;
     }
+  if( GetRescaleState() == true )
+    {
+    BMSShapeAnalysisModuleFile << "    SetAppOption(Seg.scaleOn 1)" << std::endl;
+    }
   BMSShapeAnalysisModuleFile << "    SetAppOption(Seg.spacing_vect.spacing_vect " << GetEnforcedSpaceX() << ","
                              << GetEnforcedSpaceY() << "," << GetEnforcedSpaceZ() << ")" << std::endl;
   BMSShapeAnalysisModuleFile << "    Run(output ${Seg} error)" << std::endl;
