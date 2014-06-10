@@ -279,10 +279,21 @@ void Parameters::SetLabelState(bool _LabelState)
   m_LabelState = _LabelState;
 }
 
+void Parameters::SetRescaleState(bool _RescaleState)
+{
+  m_RescaleState = _RescaleState;
+}
+
 bool Parameters::GetLabelState()
 {
   return m_LabelState;
 }
+
+bool Parameters::GetRescaleState()
+{
+  return m_RescaleState;
+}
+
 
 void Parameters::SetNumberOfIterations(int _NumIter)
 {
