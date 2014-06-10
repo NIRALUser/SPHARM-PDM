@@ -60,6 +60,7 @@ public:
   void SetLabel(double _Label);
 
   void SetLabelState(bool _LabelState);
+  void SetRescaleState(bool _RescaleState);
 
   void SetNumberOfIterations(int _NumIter);
 
@@ -133,6 +134,7 @@ public:
   double GetLabel();
 
   bool GetLabelState();
+  bool GetRescaleState();
 
   int GetNumberOfIterations();
 
@@ -343,6 +345,7 @@ private:
 
   double m_Label;
   bool   m_LabelState;
+  bool   m_RescaleState;
   int    m_NumIter;
   int    m_SubdivLevel;
   int    m_SPHARMDegree;
