@@ -7,6 +7,7 @@
 #include "itkDefaultDynamicMeshTraits.h"
 #include "itkMesh.h"
 #include "itkTriangleCell.h"
+#include <vtkVersion.h>
 
 /**
   \class vtkPolyDataToitkMesh

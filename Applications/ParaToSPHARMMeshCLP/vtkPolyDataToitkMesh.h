@@ -4,6 +4,7 @@
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkPolyData.h"
+#include <vtkVersion.h>
 #include "itkDefaultDynamicMeshTraits.h"
 #include "itkMesh.h"
 #include "itkTriangleCell.h"

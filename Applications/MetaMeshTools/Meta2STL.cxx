@@ -35,6 +35,7 @@
 #include <vtkCellArray.h>
 #include <vtkSTLReader.h>
 #include <vtkSTLWriter.h>
+#include <vtkVersion.h>
 
 using namespace std;
 

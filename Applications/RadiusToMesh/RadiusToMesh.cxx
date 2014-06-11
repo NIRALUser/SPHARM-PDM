@@ -10,6 +10,7 @@
 #include <vtkCellArray.h>
 #include <vtkFieldData.h>
 #include "RadiusToMeshCLP.h"
+#include <vtkVersion.h>
 
 std::vector<std::string> ReadNameFromCSV(std::string Filename)
 {

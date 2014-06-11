@@ -22,6 +22,7 @@
 #include "GenParaMeshCLPCLP.h"
 #include "itkMeshTovtkPolyData.h"
 #include "vtkPolyDataWriter.h"
+#include <vtkVersion.h>
 
 using namespace std;
 void WriteEulerFile( std::string outEulerName, int Eulernum);

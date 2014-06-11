@@ -39,6 +39,7 @@
 #include "vtkIterativeClosestPointTransform.h"
 #include "vtkLandmarkTransform.h"
 #include "vtkPointLocator.h"
+#include <vtkVersion.h>
 #include <itkAffineTransform.h>
 #include <itkTransformFileWriter.h>
 

@@ -1,4 +1,4 @@
-if(USE_VTK_6)
+if(USE_VTKv6)
   set(ftsystem "${VTKSource}/ThirdParty/freetype/vtkfreetype/builds/unix/ftsystem.c")
   file(READ ${ftsystem} code)
   string(REPLACE

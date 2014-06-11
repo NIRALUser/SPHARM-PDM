@@ -10,6 +10,7 @@
 #include "vtkPoints.h"
 #include "vtkIdList.h"
 #include "vtkCellArray.h"
+#include <vtkVersion.h>
 
 #include <fstream>
 #include <iostream>

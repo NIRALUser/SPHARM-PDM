@@ -15,6 +15,7 @@
 #include <vtkPolyData.h>
 #include <vtkPolyDataWriter.h>
 #include <vtkSmartPointer.h>
+#include <vtkVersion.h>
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
