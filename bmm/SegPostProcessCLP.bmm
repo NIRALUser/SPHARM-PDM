@@ -27,6 +27,13 @@
 			</Parameter>
 			<Parameter>
 				<Type>1</Type>
+				<Name>scaleOn</Name>
+				<Value>--rescale</Value>
+				<External>0</External>
+				<Optional>1</Optional>
+			</Parameter>
+			<Parameter>
+				<Type>1</Type>
 				<Name>variance_vect</Name>
 				<Value>--var</Value>
 				<External>0</External>
