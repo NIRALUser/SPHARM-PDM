@@ -22,6 +22,23 @@ set(LOCAL_PROJECT_NAME SPHARM-PDM)
 option(${LOCAL_PROJECT_NAME}_SUPERBUILD "Build ${LOCAL_PROJECT_NAME} and the projects it depends on via SuperBuild.cmake." ON)
 mark_as_advanced(${LOCAL_PROJECT_NAME}_SUPERBUILD)
 
+
+#----------------------------------------------------------------------------------------
+# Common SPHARM-PDM extension variables that need to be declared in top level CMakeLists
+#----------------------------------------------------------------------------------------
+if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION OR EXTENSION_SUPERBUILD_BINARY_DIR )
+  set(EXTENSION_NAME SPHARM-PDM)
+  set(EXTENSION_HOMEPAGE "http://www.nitrc.org/projects/spharm-pdm")
+  set(EXTENSION_CATEGORY "Shape Analysis")
+  set(EXTENSION_CONTRIBUTORS "Beatriz Paniagua (UNC), Francois Budin (UNC), Martin Styner (UNC)")
+  set(EXTENSION_DESCRIPTION "SPHARM-PDM is a tool that computes point-based models using a parametric boundary description for the computing of Shape Analysis.")
+  set(EXTENSION_ICONURL "http://www.na-mic.org/Wiki/images/a/ad/Spharm-pdm-icon.png")
+  set(EXTENSION_SCREENSHOTURLS "http://www.na-mic.org/Wiki/images/3/34/Spharm-pdm-snapshot.png")
+  set(EXTENSION_BUILD_SUBDIRECTORY SPHARM-PDM-build)
+  set(MODULE_NAME SPHARM-PDM)
+endif()
+
+
 #-----------------------------------------------------------------------------
 # Superbuild script
 #-----------------------------------------------------------------------------
