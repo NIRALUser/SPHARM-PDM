@@ -375,12 +375,12 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
 
       origin = image->GetOrigin();
       // The mesh needs a flip regardless of orientation in X and Y
-      index[0] = -(net.vert[i]).x; index[1] = -(net.vert[i]).y; index[2] = (net.vert[i]).z;
+      index[0] = (net.vert[i]).x; index[1] = (net.vert[i]).y; index[2] = (net.vert[i]).z;
       image->TransformIndexToPhysicalPoint(index, phyPoint);
 
       // The mesh needs a translation if origin is not 0 in X and Y
-      curVertex[0] = phyPoint[0] - origin[0] / spacing[0];
-      curVertex[1] = phyPoint[1] - origin[1] / spacing[1];
+      curVertex[0] = -phyPoint[0];
+      curVertex[1] = -phyPoint[1];
       curVertex[2] = phyPoint[2];
 
       points->InsertElement(i, PointType(curVertex) );
