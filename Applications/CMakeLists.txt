@@ -44,18 +44,36 @@ set(external_projects_vars
 
 option(COMPILE_ImageMath "Compile ImageMath." ON)
 if(COMPILE_ImageMath)
-  set(ImageMath_REPOSITORY https://www.nitrc.org/svn/niral_utilities/trunk/ImageMath CACHE STRING "" FORCE)
+  set(proj ImageMath)
+  set(${proj}_CMAKE_OPTIONS
+    -DCOMPILE_CONVERTITKFORMATS:BOOL=OFF
+    -DCOMPILE_CORREVAL:BOOL=OFF
+    -DCOMPILE_CROPTOOLS:BOOL=OFF
+    -DCOMPILE_CURVECOMPARE:BOOL=OFF
+    -DCOMPILE_DMDBIOMARKERTOOL:BOOL=OFF
+    -DCOMPILE_DTIAtlasBuilder:BOOL=OFF
+    -DCOMPILE_DWI_NIFTINRRDCONVERSION:BOOL=OFF
+    -DCOMPILE_IMAGEMATH:BOOL=ON
+    -DCOMPILE_IMAGESTAT:BOOL=OFF
+    -DCOMPILE_MULTIATLASSEG:BOOL=OFF
+    -DCOMPILE_POLYDATAMERGE:BOOL=OFF
+    -DCOMPILE_POLYDATATRANSFORM:BOOL=OFF
+    -DCOMPILE_TRANSFORMDEFORMATIONFIELD:BOOL=OFF
+    -DCOMPILE_TEXTUREBIOMARKERTOOL:BOOL=OFF
+    -DITK_DIR:PATH=${ITK_DIR}
+)
+
+  set( ${proj}_REPOSITORY ${git_protocol}://github.com/NIRALUser/niral_utilities.git )
+  set( ${proj}_GIT_TAG dea3323b99be580b6fd2a7214ce60ddb9d7baec2 )
   ExternalProject_Add(ImageMath
-    SVN_REPOSITORY ${ImageMath_REPOSITORY}
-    SVN_REVISION -r 44
-    SVN_USERNAME slicerbot
-    SVN_PASSWORD slicer
+    GIT_REPOSITORY ${${proj}_REPOSITORY}
+    GIT_TAG ${${proj}_GIT_TAG}
     UPDATE_COMMAND ""
-    SOURCE_DIR ImageMath
-    BINARY_DIR ImageMath-build
+    SOURCE_DIR niral_utilities
+    BINARY_DIR viral_utilities-build
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
-      -DITK_DIR:PATH=${ITK_DIR}
+      ${${proj}_CMAKE_OPTIONS}
       ${external_projects_vars}
       INSTALL_COMMAND ""
   )
@@ -95,12 +113,12 @@ option(COMPILE_shapeAnalysisMANCOVA_Wizard "Compile shapeAnalysisMANCOVA_Wizard.
 option(COMPILE_StatNonParamTestPDM "Compile StatNonParamTestPDM." OFF)
 if(COMPILE_StatNonParamTestPDM)
   ###add download Mancova and configure mancova project. Qt for wizard....
-  set(MANCOVA_REPOSITORY https://www.nitrc.org/svn/shape_mancova CACHE STRING "" FORCE)
+  set( proj StatNonParamTestPDM)
+  set( ${proj}_REPOSITORY ${git_protocol}://github.com/NIRALUser/shapeAnalysisMANCOVA.git)
+  set( ${proj}_GIT_TAG f325dca1f1d91e8bf11b2ddd7f1983fb88a8d6a0 )
   ExternalProject_Add(MANCOVA
-    SVN_REPOSITORY ${MANCOVA_REPOSITORY}
-    SVN_REVISION -r 4
-    SVN_USERNAME slicerbot
-    SVN_PASSWORD slicer
+    GIT_REPOSITORY ${${proj}_REPOSITORY}
+    GIT_TAG ${${proj}_GIT_TAG}
     UPDATE_COMMAND ""
     SOURCE_DIR MANCOVA
     BINARY_DIR MANCOVA-build
