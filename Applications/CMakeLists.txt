@@ -91,6 +91,11 @@ if(COMPILE_ShapeAnalysisModule)
   add_subdirectory(ShapeAnalysisModule)
 endif(COMPILE_ShapeAnalysisModule)
 
+option(COMPILE_SpharmTool "Compile SpharmTool." ON)
+if(COMPILE_SpharmTool)
+  add_subdirectory(SpharmTool)
+endif(COMPILE_SpharmTool)
+
 option(COMPILE_shapeAnalysisMANCOVA_Wizard "Compile shapeAnalysisMANCOVA_Wizard." OFF)
 option(COMPILE_StatNonParamTestPDM "Compile StatNonParamTestPDM." OFF)
 if(COMPILE_StatNonParamTestPDM)

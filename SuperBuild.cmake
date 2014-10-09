@@ -124,6 +124,7 @@ option(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
 option(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
 option(COMPILE_RadiusToMesh "Compile RadiusToMesh." ON)
 option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
+option(COMPILE_SpharmTool "Compile SpharmTool." ON)
 option(COMPILE_ShapeAnalysisModule "Compile ShapeAnalysisModule." ON)
 option(COMPILE_ParticleModule "Compile ParticleModule." OFF)
 
@@ -261,6 +262,7 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   COMPILE_ParaToSPHARMMeshCLP:BOOL
   COMPILE_ShapeAnalysisModule:BOOL
   COMPILE_ParticleModule:BOOL
+  COMPILE_SpharmTool:BOOL
   INSTALL_RUNTIME_DESTINATION:STRING
   INSTALL_LIBRARY_DESTINATION:STRING
   INSTALL_ARCHIVE_DESTINATION:STRING
