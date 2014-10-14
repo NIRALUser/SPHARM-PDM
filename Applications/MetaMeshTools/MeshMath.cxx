@@ -694,7 +694,7 @@ int main(int argc, const char * *argv)
 
       }
     }
-  std::cout << PvalueColorMapNb << std::endl;
+  //std::cout << PvalueColorMapNb << std::endl;
 
 // bp2009 KWMtoPolyData
   bool KWMtoPolyDataOn = ipExistsArgument(argv, "-KWMtoPolyData");
@@ -954,7 +954,7 @@ int main(int argc, const char * *argv)
     int    bemeta;
     char * pch;
     pch = strrchr(inputFilename, 'v');
-    if( (strcmp("vtk", pch) != 0) )
+    if( !pch || (strcmp("vtk", pch) != 0) )
       {
       bemeta = 1;
       }
