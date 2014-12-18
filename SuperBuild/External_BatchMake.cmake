@@ -38,8 +38,8 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
   SlicerMacroCheckExternalProjectDependency(${proj})
 
 ExternalProject_Add(${proj}
-  GIT_REPOSITORY ${git_protocol}://batchmake.org/BatchMake.git
-  GIT_TAG "8addbdb62f0135ba01ffe12ddfc32121b6d66ef5" 
+  GIT_REPOSITORY ${git_protocol}://github.com/NIRALUser/BatchMake.git
+  GIT_TAG "c194f670839bd0efa39eb0f624ac4b88d0300ebf" 
   SOURCE_DIR BatchMake
   BINARY_DIR BatchMake-build
   ${cmakeversion_external_update} "${cmakeversion_external_update_value}"
@@ -56,7 +56,6 @@ ExternalProject_Add(${proj}
     -DBUILD_TESTING:BOOL=OFF
     -DDASHBOARD_SUPPORT:BOOL=OFF
     ${BatchMakeCURLCmakeArg}
-  PATCH_COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild/BatchMakePatchedZip.c ${CMAKE_CURRENT_BINARY_DIR}/BatchMake/Utilities/Zip/zip.c # No "" # Patch for windows compilation error (declaration of variable after beginning of block - "uLong year")
   DEPENDS ${${proj}_DEPENDENCIES}
   )
   set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/BatchMake)

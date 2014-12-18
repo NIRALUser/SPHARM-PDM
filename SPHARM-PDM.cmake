@@ -25,7 +25,7 @@ include(${ITK_USE_FILE})
 
 #-----------------------------------------------------------------------------
 find_package(VTK REQUIRED)
-include(${USE_VTK_FILE})
+include(${VTK_USE_FILE})
 
 #-----------------------------------------------------------------------------
 find_package(SlicerExecutionModel REQUIRED GenerateCLP)
