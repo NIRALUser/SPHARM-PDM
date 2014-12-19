@@ -43,11 +43,12 @@ if(NOT DEFINED ${extProjName}_DIR AND NOT ${USE_SYSTEM_${extProjName}})
     )
 
 set(CLAPACK_version 3.2.1)
-#set(CLAPACK_file "http://www.netlib.org/clapack/clapack-${clapack_version}-CMAKE.tgz")
-# Since the netlib.org server has been down several time, especially when the nightly dashboard
-# started, we added a copy of the archive to slicer3 lib mirrors.
-set(CLAPACK_file http://svn.slicer.org/Slicer3-lib-mirrors/trunk/clapack-${CLAPACK_version}-CMAKE.tgz)
-set(CLAPACK_MD5 4fd18eb33f3ff8c5d65a7d43913d661b)
+# We needed to patch CLAPACK to avoid building tests when BUILD_TESTING was set to OFF
+# Instead of patching the source code each time, we copied the source code from 
+# http://svn.slicer.org/Slicer3-lib-mirrors/trunk/clapack-3.2.1-CMAKE.tgz
+# to https://github.com/NIRALUser/CLAPACK
+set(${proj}_REPOSITORY ${git_protocol}://github.com/NIRALUser/CLAPACK.git)
+set(${proj}_GIT_TAG b12609ee7addcad38d6b9265a7d1ae5446b05255)
 
 # Turn off the warnings for CLAPACK on windows
 string(REPLACE "/W3" "/W0" CMAKE_CXX_FLAGS_CLAPACK "${ep_common_cxx_flags}")
@@ -65,11 +66,10 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 endif()
   ### --- End Project specific additions
   ExternalProject_Add(${proj}
-    DOWNLOAD_DIR ${CMAKE_BINARY_DIR}
+    GIT_REPOSITORY ${${proj}_REPOSITORY}
+    GIT_TAG ${${proj}_GIT_TAG}
     SOURCE_DIR ${EXTERNAL_SOURCE_DIRECTORY}/${proj}
     BINARY_DIR ${proj}-build
-    URL ${CLAPACK_file}
-    URL_MD5 ${CLAPACK_MD5}
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
       ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
@@ -77,6 +77,7 @@ endif()
       -DBUILD_EXAMPLES:BOOL=OFF
       -DBUILD_TESTING:BOOL=OFF
       ${${proj}_CMAKE_OPTIONS}
+    #PATCH_COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild/CLAPACK-PatchTesting.txt ${CMAKE_CURRENT_BINARY_DIR}/CLAPACK/CMakeLists.txt # No testing if BUILD_TESTING is set to OFF
     INSTALL_COMMAND ""
     DEPENDS
       ${${proj}_DEPENDENCIES}
@@ -85,7 +86,7 @@ endif()
   set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
 else()
   if(${USE_SYSTEM_${extProjName}})
-    find_package(${extProjName} ${ITK_VERSION_MAJOR} REQUIRED)
+    find_package(${extProjName} REQUIRED)
     if(NOT ${extProjName}_DIR)
       message(FATAL_ERROR "To use the system ${extProjName}, set ${extProjName}_DIR")
     endif()
