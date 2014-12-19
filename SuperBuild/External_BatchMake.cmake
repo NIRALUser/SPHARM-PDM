@@ -39,7 +39,7 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
 
 ExternalProject_Add(${proj}
   GIT_REPOSITORY ${git_protocol}://github.com/NIRALUser/BatchMake.git
-  GIT_TAG "c194f670839bd0efa39eb0f624ac4b88d0300ebf" 
+  GIT_TAG "5e1c185b564ac2acef35ba68fbde370c19ba33de" 
   SOURCE_DIR BatchMake
   BINARY_DIR BatchMake-build
   ${cmakeversion_external_update} "${cmakeversion_external_update_value}"
