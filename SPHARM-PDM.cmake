@@ -62,7 +62,11 @@ include_directories(${Boost_DIR}/include)
 include_directories(${Boost_DIR}/include)
 
 link_directories(${Boost_DIR}/lib)
-add_subdirectory(Libraries)
+option(BUILD_LIBRARIES "Build libraries" ON)
+mark_as_advanced(BUILD_LIBRARIES)
+if(BUILD_LIBRARIES)
+  add_subdirectory(Libraries)
+endif()
 add_subdirectory(Applications)
 
 FILE( GLOB list_files ${CMAKE_CURRENT_SOURCE_DIR}/bmm/*.* )
