@@ -135,14 +135,13 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DITK_LEGACY_REMOVE:BOOL=OFF
       -DITK_FUTURE_LEGACY_REMOVE:=BOOL=ON
       -DITKV3_COMPATIBILITY:BOOL=ON
-      -DITK_BUILD_ALL_MODULES:BOOL=ON
+      -DITK_BUILD_DEFAULT_MODULES:BOOL=ON
       -DITK_USE_REVIEW:BOOL=ON
       -DModule_ITKReview:BOOL=ON
       #-DITK_INSTALL_NO_DEVELOPMENT:BOOL=ON
-      -DITK_BUILD_ALL_MODULES:BOOL=ON
       -DKWSYS_USE_MD5:BOOL=ON # Required by SlicerExecutionModel
       -DITK_WRAPPING:BOOL=OFF #${BUILD_SHARED_LIBS} ## HACK:  QUICK CHANGE
-      -DFetch_MGHIO:BOOL=ON  # Allow building of the MGHIO classes
+      -DModule_MGHIO:BOOL=ON  # Allow building of the MGHIO classes
       -DITK_USE_SYSTEM_DCMTK:BOOL=${${PROJECT_NAME}_BUILD_DICOM_SUPPORT}
       ${${proj}_TIFF_ARGS}
       ${${proj}_JPEG_ARGS}
@@ -153,9 +152,9 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       ${${proj}_FFTWD_ARGS}
     )
   ### --- End Project specific additions
-  set(${proj}_REPOSITORY ${git_protocol}://itk.org/ITK.git)
-  set(${proj}_GIT_TAG c3624fafeb15f042839a8e6c463970e75ad40777)
-  set(ITK_VERSION_ID ITK-4.5)
+  set(${proj}_REPOSITORY ${git_protocol}://github.com/Slicer/ITK.git)
+  set(${proj}_GIT_TAG 0f6c2b3e00bdb4fdd590c428c19c2ed379e9a71d)
+  set(ITK_VERSION_ID ITK-4.7)
 
   ExternalProject_Add(${proj}
     GIT_REPOSITORY ${${proj}_REPOSITORY}
