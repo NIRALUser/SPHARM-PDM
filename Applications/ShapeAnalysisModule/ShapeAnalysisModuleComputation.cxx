@@ -677,8 +677,10 @@ void ShapeAnalysisModuleComputation::WriteBMSShapeAnalysisModuleFile()
     {
     BMSShapeAnalysisModuleFile << "    SetAppOption(Seg.scaleOn 1)" << std::endl;
     }
+
   BMSShapeAnalysisModuleFile << "    SetAppOption(Seg.spacing_vect.spacing_vect " << GetEnforcedSpaceX() << ","
                              << GetEnforcedSpaceY() << "," << GetEnforcedSpaceZ() << ")" << std::endl;
+
   BMSShapeAnalysisModuleFile << "    Run(output ${Seg} error)" << std::endl;
   BMSShapeAnalysisModuleFile << "  if(${error} != '')" << std::endl;
   BMSShapeAnalysisModuleFile << "    echo('SegPostProcess Error:' ${error})" << std::endl;

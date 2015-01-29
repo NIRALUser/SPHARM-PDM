@@ -27,6 +27,7 @@ int main(int argc, char * argv [])
   m_computation.SetOverwriteParaToSPHARMMesh(OverwriteParaToSPHARMMesh);
   m_computation.SetEnforcedSpace(sx, sy, sz);
   m_computation.SetLabelState(LabelState);
+  m_computation.SetRescaleState(Rescale);
   m_computation.SetLabel(ValueLabelNumber);
   m_computation.SetNumberOfIterations(NumberofIterations);
   m_computation.SetSubdivLevel(SubdivLevelValue);
