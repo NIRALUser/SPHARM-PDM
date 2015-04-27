@@ -11,6 +11,17 @@ endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
 #-----------------------------------------------------------------------------
+
+find_package(SlicerExecutionModel REQUIRED GenerateCLP)
+include(${GenerateCLP_USE_FILE})
+include(${SlicerExecutionModel_USE_FILE})
+include(${SlicerExecutionModel_CMAKE_DIR}/SEMMacroBuildCLI.cmake)
+#-----------------------------------------------------------------------------
+
+find_package(BatchMake REQUIRED)
+include(${BatchMake_USE_FILE})
+#-----------------------------------------------------------------------------
+
 set(expected_ITK_VERSION_MAJOR ${ITK_VERSION_MAJOR})
 find_package(ITK NO_MODULE REQUIRED)
 if(${ITK_VERSION_MAJOR} VERSION_LESS ${expected_ITK_VERSION_MAJOR})
@@ -26,16 +37,6 @@ include(${ITK_USE_FILE})
 #-----------------------------------------------------------------------------
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
-
-#-----------------------------------------------------------------------------
-find_package(SlicerExecutionModel REQUIRED GenerateCLP)
-include(${GenerateCLP_USE_FILE})
-include(${SlicerExecutionModel_USE_FILE})
-include(${SlicerExecutionModel_CMAKE_DIR}/SEMMacroBuildCLI.cmake)
-
-#-----------------------------------------------------------------------------
-find_package(BatchMake REQUIRED)
-include(${BatchMake_USE_FILE})
 
 #-----------------------------------------------------------------------------
 

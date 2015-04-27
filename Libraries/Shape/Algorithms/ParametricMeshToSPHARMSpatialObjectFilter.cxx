@@ -42,7 +42,7 @@ ParametricMeshToSPHARMSpatialObjectFilter::ParametricMeshToSPHARMSpatialObjectFi
 
   SpatialObjectType::Pointer output
     = dynamic_cast<SpatialObjectType *>(this->MakeOutput(0).GetPointer() );
-  this->SetNumberOfOutputs(1);
+  this->SetNumberOfIndexedOutputs(1);
 #ifdef _MSC_VER
   this->SetNthOutput(0, output.GetPointer() );
 #else

@@ -49,9 +49,9 @@ void
 Mesh3DProcrustesAlignFilter<TInputMesh, TOutputMesh>
 ::SetNumberOfInputs( unsigned int num )
 {
-  this->ProcessObject::SetNumberOfInputs( num );
+  this->ProcessObject::SetNumberOfIndexedInputs( num );
   this->ProcessObject::SetNumberOfRequiredInputs( num );
-  this->ProcessObject::SetNumberOfOutputs( num );
+  this->ProcessObject::SetNumberOfIndexedOutputs( num );
   this->ProcessObject::SetNumberOfRequiredOutputs( num );
   m_MeshTransform.resize( num );
   m_Center.resize( num );

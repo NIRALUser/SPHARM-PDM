@@ -25,11 +25,11 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
 {
   // Modify superclass default values, can be overridden by subclasses
   this->SetNumberOfRequiredInputs(1);
-  this->SetNumberOfOutputs(2);
+  this->SetNumberOfIndexedOutputs(2);
   OutputMeshPointer output
     = dynamic_cast<OutputMeshType *>(this->MakeOutput(0).GetPointer() );
 
-  this->SetNumberOfOutputs(2);
+  this->SetNumberOfIndexedOutputs(2);
   this->ProcessObject::SetNthOutput(0, output.GetPointer() );
   this->ProcessObject::SetNthOutput(1, output.GetPointer() );
 

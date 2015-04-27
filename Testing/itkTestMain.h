@@ -1,39 +1,39 @@
 /*=========================================================================
- *
- *  Copyright Insight Software Consortium
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0.txt
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- *=========================================================================*/
+*
+* Copyright Insight Software Consortium
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0.txt
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*=========================================================================*/
 /*=========================================================================
- *
- *  Portions of this file are subject to the VTK Toolkit Version 3 copyright.
- *
- *  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
- *
- *  For complete copyright, license and disclaimer of warranty information
- *  please refer to the NOTICE file at the top of the ITK source tree.
- *
- *=========================================================================*/
+*
+* Portions of this file are subject to the VTK Toolkit Version 3 copyright.
+*
+* Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+*
+* For complete copyright, license and disclaimer of warranty information
+* please refer to the NOTICE file at the top of the ITK source tree.
+*
+*=========================================================================*/
 #ifndef __itkTestMain_h
 #define __itkTestMain_h
 
 // This file is used to create TestDriver executables
 // These executables are able to register a function pointer to a string name
-// in a lookup table.   By including this file, it creates a main function
+// in a lookup table. By including this file, it creates a main function
 // that calls RegisterTests() then looks up the function pointer for the test
 // specified on the command line.
-#include "itkWin32Header.h"
+#include "itkMacro.h"
 #include <map>
 #include <string>
 #include <iostream>
@@ -46,7 +46,11 @@
 #include "itkSubtractImageFilter.h"
 #include "itkRescaleIntensityImageFilter.h"
 #include "itkExtractImageFilter.h"
+#if ITK_VERSION_MAJOR < 4
 #include "itkDifferenceImageFilter.h"
+#else
+#include "itkTestingComparisonImageFilter.h"
+#endif
 #include "itksys/SystemTools.hxx"
 #include "itkIntTypes.h"
 #include "itkFloatingPointExceptions.h"
@@ -56,15 +60,12 @@
 typedef int ( *MainFuncPointer )(int, char *[]);
 std::map<std::string, MainFuncPointer> StringToTestFunctionMap;
 
-#define REGISTER_TEST(test)       \
-  extern int test(int, char *[]); \
-  StringToTestFunctionMap[#test] = test
+#define REGISTER_TEST(test) \\
+extern int test(int, char *[]); \
+StringToTestFunctionMap[#test] = test
 
-int RegressionTestImage(const char *testImageFilename,
-                        const char *baselineImageFilename,
-                        int reportErrors,
-                        double intensityTolerance,
-                        ::itk::SizeValueType numberOfPixelsTolerance = 0,
+int RegressionTestImage(const char *testImageFilename, const char *baselineImageFilename, int reportErrors,
+                        double intensityTolerance, ::itk::SizeValueType numberOfPixelsTolerance = 0,
                         unsigned int radiusTolerance = 0);
 
 std::map<std::string, int> RegressionTestBaselines(char *);
@@ -75,7 +76,8 @@ void PrintAvailableTests()
 {
   std::cout << "Available tests:\n";
   std::map<std::string, MainFuncPointer>::iterator j = StringToTestFunctionMap.begin();
-  int                                              i = 0;
+  int i = 0;
+
   while( j != StringToTestFunctionMap.end() )
     {
     std::cout << i << ". " << j->first << "\n";
@@ -88,7 +90,7 @@ int main(int ac, char *av[])
 {
   itk::FloatingPointExceptions::Enable();
 
-  double       intensityTolerance  = 2.0;
+  double intensityTolerance = 2.0;
   unsigned int numberOfPixelsTolerance = 0;
   unsigned int radiusTolerance = 0;
 
@@ -104,7 +106,7 @@ int main(int ac, char *av[])
     int testNum = 0;
     std::cin >> testNum;
     std::map<std::string, MainFuncPointer>::iterator j = StringToTestFunctionMap.begin();
-    int                                              i = 0;
+    int i = 0;
     while( j != StringToTestFunctionMap.end() && i < testNum )
       {
       ++i;
@@ -169,7 +171,7 @@ int main(int ac, char *av[])
   if( j != StringToTestFunctionMap.end() )
     {
     MainFuncPointer f = j->second;
-    int             result;
+    int result;
     try
       {
       // Invoke the test's "main" function.
@@ -177,12 +179,12 @@ int main(int ac, char *av[])
       // Make a list of possible baselines
       for( int i = 0; i < static_cast<int>( compareList.size() ); i++ )
         {
-        char *                               baselineFilename = compareList[i].first;
-        char *                               testFilename = compareList[i].second;
-        std::map<std::string, int>           baselines = RegressionTestBaselines(baselineFilename);
+        char * baselineFilename = compareList[i].first;
+        char * testFilename = compareList[i].second;
+        std::map<std::string, int> baselines = RegressionTestBaselines(baselineFilename);
         std::map<std::string, int>::iterator baseline = baselines.begin();
-        std::string                          bestBaseline;
-        int                                  bestBaselineStatus = itk::NumericTraits<int>::max();
+        std::string bestBaseline;
+        int bestBaselineStatus = itk::NumericTraits<int>::max();
         while( baseline != baselines.end() )
           {
           baseline->second = RegressionTestImage(testFilename,
@@ -257,10 +259,10 @@ int RegressionTestImage(const char *testImageFilename,
 {
   // Use the factory mechanism to read the test and baseline files and convert
   // them to double
-  typedef itk::Image<double, ITK_TEST_DIMENSION_MAX>        ImageType;
+  typedef itk::Image<double, ITK_TEST_DIMENSION_MAX> ImageType;
   typedef itk::Image<unsigned char, ITK_TEST_DIMENSION_MAX> OutputType;
-  typedef itk::Image<unsigned char, 2>                      DiffOutputType;
-  typedef itk::ImageFileReader<ImageType>                   ReaderType;
+  typedef itk::Image<unsigned char, 2> DiffOutputType;
+  typedef itk::ImageFileReader<ImageType> ReaderType;
 
   // Read the baseline file
   ReaderType::Pointer baselineReader = ReaderType::New();
@@ -271,7 +273,7 @@ int RegressionTestImage(const char *testImageFilename,
     }
   catch( itk::ExceptionObject & e )
     {
-    std::cerr << "Exception detected while reading " << baselineImageFilename << " : "  << e.GetDescription();
+    std::cerr << "Exception detected while reading " << baselineImageFilename << " : " << e.GetDescription();
     return 1000;
     }
 
@@ -284,7 +286,7 @@ int RegressionTestImage(const char *testImageFilename,
     }
   catch( itk::ExceptionObject & e )
     {
-    std::cerr << "Exception detected while reading " << testImageFilename << " : "  << e.GetDescription() << std::endl;
+    std::cerr << "Exception detected while reading " << testImageFilename << " : " << e.GetDescription() << std::endl;
     return 1000;
     }
 
@@ -299,13 +301,17 @@ int RegressionTestImage(const char *testImageFilename,
     std::cerr << "The size of the Baseline image and Test image do not match!" << std::endl;
     std::cerr << "Baseline image: " << baselineImageFilename
               << " has size " << baselineSize << std::endl;
-    std::cerr << "Test image:     " << testImageFilename
+    std::cerr << "Test image: " << testImageFilename
               << " has size " << testSize << std::endl;
     return 1;
     }
 
   // Now compare the two images
+#if ITK_VERSION_MAJOR < 4
   typedef itk::DifferenceImageFilter<ImageType, ImageType> DiffType;
+#else
+  typedef itk::Testing::ComparisonImageFilter<ImageType, ImageType> DiffType;
+#endif
   DiffType::Pointer diff = DiffType::New();
   diff->SetValidInput( baselineReader->GetOutput() );
   diff->SetTestInput( testReader->GetOutput() );
@@ -320,8 +326,9 @@ int RegressionTestImage(const char *testImageFilename,
   if( ( status > numberOfPixelsTolerance ) && reportErrors )
     {
     typedef itk::RescaleIntensityImageFilter<ImageType, OutputType> RescaleType;
-    typedef itk::ImageFileWriter<DiffOutputType>                    WriterType;
-    typedef itk::ImageRegion<ITK_TEST_DIMENSION_MAX>                RegionType;
+    typedef itk::ExtractImageFilter<OutputType, DiffOutputType> ExtractType;
+    typedef itk::ImageFileWriter<DiffOutputType> WriterType;
+    typedef itk::ImageRegion<ITK_TEST_DIMENSION_MAX> RegionType;
     OutputType::SizeType size; size.Fill(0);
 
     RescaleType::Pointer rescale = RescaleType::New();
@@ -331,7 +338,7 @@ int RegressionTestImage(const char *testImageFilename,
     rescale->UpdateLargestPossibleRegion();
     size = rescale->GetOutput()->GetLargestPossibleRegion().GetSize();
 
-    // Get the center slice of the image,  In 3D, the first slice
+    // Get the center slice of the image, In 3D, the first slice
     // is often a black slice with little debugging information.
     OutputType::IndexType index; index.Fill(0);
     for( unsigned int i = 2; i < ITK_TEST_DIMENSION_MAX; i++ )
@@ -346,11 +353,8 @@ int RegressionTestImage(const char *testImageFilename,
 
     region.SetSize(size);
 
-    typedef itk::ExtractImageFilter<OutputType, DiffOutputType> ExtractType;
     ExtractType::Pointer extract = ExtractType::New();
-#if  ITK_VERSION_MAJOR >= 4
-    extract->SetDirectionCollapseToGuess(); // ITKv3 compatible, but not recommended
-#endif
+    extract->SetDirectionCollapseToSubmatrix();
     extract->SetInput( rescale->GetOutput() );
     extract->SetExtractionRegion(region);
 
@@ -359,7 +363,7 @@ int RegressionTestImage(const char *testImageFilename,
 
     std::cout << "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">";
     std::cout << status;
-    std::cout <<  "</DartMeasurement>" << std::endl;
+    std::cout << "</DartMeasurement>" << std::endl;
 
     std::ostringstream diffName;
     diffName << testImageFilename << ".diff.png";
@@ -481,13 +485,14 @@ int RegressionTestImage(const char *testImageFilename,
 std::map<std::string, int> RegressionTestBaselines(char *baselineFilename)
 {
   std::map<std::string, int> baselines;
+
   baselines[std::string(baselineFilename)] = 0;
 
   std::string originalBaseline(baselineFilename);
 
-  int                    x = 0;
+  int x = 0;
   std::string::size_type suffixPos = originalBaseline.rfind(".");
-  std::string            suffix;
+  std::string suffix;
   if( suffixPos != std::string::npos )
     {
     suffix = originalBaseline.substr( suffixPos, originalBaseline.length() );
