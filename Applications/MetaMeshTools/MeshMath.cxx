@@ -45,6 +45,9 @@
 #include <vtkPoints.h>
 #include <vtkVersion.h>
 
+#include <vtkTable.h>
+#include <vtkDelimitedTextReader.h>
+
 #if !defined(M_PI)
 #define M_PI 3.14159265358979323846264338327950288   /* pi */
 #endif
@@ -354,6 +357,8 @@ int main(int argc, const char * *argv)
 	      << "     <op>: [threshBelow | sub]  threshBelow: set to 0 all data below <value>, sub: subtract value"   << std::endl;
     //bp2013
     std::cout << " -translateMesh <tx_DimX> <tx_DimY> <tx_DimZ> ,  translates a mesh for a given amount " << std::endl;
+    //bp2015
+    std::cout << " -lookupPointData <csv_lookup> <scalar_field_name>,  substitutes scalar values in a given scalar field based on an input lookup " << std::endl;
     
     std::cout << " -verbose                   Verbose output" << std::endl;
     return 0;
@@ -845,6 +850,18 @@ int main(int argc, const char * *argv)
     char * tmp_str = ipGetStringArgument(argv, "-translateMesh", NULL);
     ipExtractFloatTokens(TranslateParams, tmp_str, numtranslateparams);
     }
+
+  //bp2015
+  bool lookupPointOn = ipExistsArgument(argv, "-lookupPointData");
+  if( lookupPointOn )
+      {
+      nbfile = ipGetStringMultipArgument(argv, "-lookupPointData", files, maxNumFiles);
+      if( nbfile != 2 )
+        {
+        std::cerr << "Error: Incorrect number of arguments!" << std::endl;
+        exit(1);
+        }
+      }
 
   // PROCESSING STARTS HERE
   // PROCESSING STARTS HERE
@@ -6047,8 +6064,77 @@ int main(int argc, const char * *argv)
      SurfaceWriter->Update();
      
     }
-    else
+    else if( lookupPointOn ) // bp2009
+  {
+  vtkPolyDataReader *polyRead = vtkPolyDataReader::New();
+  polyRead->SetFileName(inputFilename);
+  polyRead->Update();
+  vtkPolyData* polyIn = polyRead->GetOutput();
+  vtkPolyData* polyOut = polyRead->GetOutput();
+
+  if( debug )
     {
+    std::cout << "Input Mesh read ...  " << inputFilename << std::endl;
+    }
+
+  // *** START PARSING the csv file
+  vtkSmartPointer<vtkDelimitedTextReader> CSVreader = vtkSmartPointer<vtkDelimitedTextReader>::New();
+  CSVreader->SetFieldDelimiterCharacters(",");
+  CSVreader->SetFileName(files[0]);
+  CSVreader->SetHaveHeaders(true);
+  CSVreader->Update();
+  vtkSmartPointer<vtkTable> table = CSVreader->GetOutput();
+
+  polyIn->GetPointData()->SetActiveScalars(files[1]);
+  vtkDoubleArray* inputScalars = (vtkDoubleArray *) polyIn->GetPointData()->GetArray(files[1]);
+  vtkDoubleArray* outputScalars = (vtkDoubleArray *) polyIn->GetPointData()->GetArray(files[1]);
+
+  if (inputScalars && outputScalars)
+  {
+      if (debug)
+      {
+          std::cout << "Got arrays!" << std::endl;
+      }
+  }
+
+  std::cout << files[1] << std::endl;
+  //std::string newScalarName = files[1].str_c() + "_new";
+  //outputScalars->SetName(newScalarName);
+
+  for (unsigned int idx=0; idx < table->GetNumberOfRows() ; idx++)
+  {
+    for (unsigned int idxs = 0 ; idxs < polyIn->GetNumberOfPoints() ; idxs++)
+    {
+        if (inputScalars->GetVariantValue(idxs) == table->GetValue(idx,0))
+        {
+            outputScalars->SetVariantValue(idxs,table->GetValue(idx,1));
+        }
+    }
+  }
+
+  polyOut->GetPointData()->AddArray(outputScalars);
+      if( debug )
+    {
+    std::cout << "Scalar map added to the mesh" << std::endl;
+    }
+
+
+  // Writing the new mesh
+  vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+  #if VTK_MAJOR_VERSION > 5
+  SurfaceWriter->SetInputData(polyOut);
+  #else
+  SurfaceWriter->SetInput(polyOut);
+  #endif
+  SurfaceWriter->SetFileName(outputFilename);
+  SurfaceWriter->Update();
+  if( debug )
+    {
+    std::cout << "Writing new mesh " << outputFilename << std::endl;
+    }
+
+  }
+   else {
 
     std::cout << "No operation to do -> exiting" << std::endl;
     exit(-1);
