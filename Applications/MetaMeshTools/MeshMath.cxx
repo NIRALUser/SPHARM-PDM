@@ -6069,7 +6069,6 @@ int main(int argc, const char * *argv)
   vtkPolyDataReader *polyRead = vtkPolyDataReader::New();
   polyRead->SetFileName(inputFilename);
   polyRead->Update();
-  vtkPolyData* polyIn = polyRead->GetOutput();
   vtkPolyData* polyOut = polyRead->GetOutput();
 
   if( debug )
@@ -6078,6 +6077,13 @@ int main(int argc, const char * *argv)
     }
 
   // *** START PARSING the csv file
+  std::ifstream csvfile(files[0]);
+  if( !csvfile.good() )
+  {
+    std::cerr << "Could not open CSV file: " << files[0] << std::endl ;
+    std::cerr << "Abort" << std::endl ;
+    return 1 ;
+  }
   vtkSmartPointer<vtkDelimitedTextReader> CSVreader = vtkSmartPointer<vtkDelimitedTextReader>::New();
   CSVreader->SetFieldDelimiterCharacters(",");
   CSVreader->SetFileName(files[0]);
@@ -6085,33 +6091,35 @@ int main(int argc, const char * *argv)
   CSVreader->Update();
   vtkSmartPointer<vtkTable> table = CSVreader->GetOutput();
 
-  polyIn->GetPointData()->SetActiveScalars(files[1]);
-  vtkDoubleArray* inputScalars = (vtkDoubleArray *) polyIn->GetPointData()->GetArray(files[1]);
-  vtkDoubleArray* outputScalars = (vtkDoubleArray *) polyIn->GetPointData()->GetArray(files[1]);
+  vtkDoubleArray* outputScalars = (vtkDoubleArray *) polyOut->GetPointData()->GetArray(files[1]);
 
-  if (inputScalars && outputScalars)
+  if (outputScalars)
   {
       if (debug)
       {
-          std::cout << "Got arrays!" << std::endl;
+          std::cout << "Got array!" << std::endl;
       }
+  }
+  else
+  {
+    std::cerr << "Could not find field \'"<< files[1] << "\' in VTK file \'" << inputFilename << "\'"<< std::endl ;
+    std::cerr << "Abort" << std::endl ;
+    return 1 ;
   }
 
   std::cout << "Processing point data ... " << files[1] << std::endl;
 
   for (unsigned int idx=0; idx < table->GetNumberOfRows() ; idx++)
   {
-    for (unsigned int idxs = 0 ; idxs < polyIn->GetNumberOfPoints() ; idxs++)
+    for (unsigned int idxs = 0 ; idxs < polyOut->GetNumberOfPoints() ; idxs++)
     {
-        if (inputScalars->GetVariantValue(idxs) == table->GetValue(idx,0))
+        if (outputScalars->GetVariantValue(idxs) == table->GetValue(idx,0))
         {
             outputScalars->SetVariantValue(idxs,table->GetValue(idx,1));
         }
     }
   }
-
-  polyOut->GetPointData()->AddArray(outputScalars);
-      if( debug )
+  if( debug )
     {
     std::cout << "Scalar map added to the mesh" << std::endl;
     }
