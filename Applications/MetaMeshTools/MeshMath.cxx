@@ -6097,9 +6097,7 @@ int main(int argc, const char * *argv)
       }
   }
 
-  std::cout << files[1] << std::endl;
-  //std::string newScalarName = files[1].str_c() + "_new";
-  //outputScalars->SetName(newScalarName);
+  std::cout << "Processing point data ... " << files[1] << std::endl;
 
   for (unsigned int idx=0; idx < table->GetNumberOfRows() ; idx++)
   {
