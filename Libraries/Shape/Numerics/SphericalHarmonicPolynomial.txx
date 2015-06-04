@@ -1303,7 +1303,9 @@ void SphericalHarmonicPolynomial<TDimension>::GetOneRidgePoint(unsigned int from
       {
       prev = current;
       current = next;
-      next = values[i + 1];
+      if (i < LENGTH - 1) {
+        next = values[i + 1];
+      }
 
       this->Evaluate( from_l, to_l, curve[i * 2], curve[i * 2 + 1], x );
       out << x[0] << " " << x[1] << " " << x[2] << std::endl;
