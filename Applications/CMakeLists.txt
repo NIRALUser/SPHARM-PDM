@@ -44,7 +44,7 @@ set(external_projects_vars
 
 option(COMPILE_ImageMath "Compile ImageMath." OFF)
 if(COMPILE_ImageMath)
-  set(proj ImageMath)
+  set(proj niral_utilities)
   set(${proj}_CMAKE_OPTIONS
     -DCOMPILE_CONVERTITKFORMATS:BOOL=OFF
     -DCOMPILE_CORREVAL:BOOL=OFF
@@ -65,12 +65,12 @@ if(COMPILE_ImageMath)
 
   set( ${proj}_REPOSITORY ${git_protocol}://github.com/NIRALUser/niral_utilities.git )
   set( ${proj}_GIT_TAG 3996b452eaa807cd53f167e35de76e181d497e58 )
-  ExternalProject_Add(ImageMath
+  ExternalProject_Add(niral_utilities
     GIT_REPOSITORY ${${proj}_REPOSITORY}
     GIT_TAG ${${proj}_GIT_TAG}
     UPDATE_COMMAND ""
-    SOURCE_DIR niral_utilities
-    BINARY_DIR viral_utilities-build
+    SOURCE_DIR ${proj}
+    BINARY_DIR ${proj}-build
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
       ${${proj}_CMAKE_OPTIONS}
