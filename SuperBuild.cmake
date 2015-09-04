@@ -285,7 +285,7 @@ ExternalProject_Add_Step(${proj} forcebuild
   )
 
 if( ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
-  unsetForSlicer( NAMES VTK_DIR SlicerExecutionModel_DIR DCMTK_DIR ITK_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS zlib_DIR ZLIB_LIBRARY ZLIB_INCLUDE_DIR)
+  unsetForSlicer( NAMES VTK_DIR SlicerExecutionModel_DIR DCMTK_DIR ITK_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS)
   # Create fake imported target to avoid importing Slicer target: See SlicerConfig.cmake:line 820
   add_library(SlicerBaseLogic SHARED IMPORTED)
   find_package(Slicer REQUIRED)
@@ -293,7 +293,7 @@ if( ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
   if(BUILD_TESTING)
     add_subdirectory(Testing)
   endif()
-  resetForSlicer( NAMES VTK_DIR ITK_DIR SlicerExecutionModel_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS zlib_DIR ZLIB_LIBRARY ZLIB_INCLUDE_DIR)
+  resetForSlicer( NAMES VTK_DIR ITK_DIR SlicerExecutionModel_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS)
   set( NOCLI_INSTALL_DIR ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}/../ExternalBin)
   set( EXTENSION_NO_CLI asc2meta asc2vtk BYU2VTK MeshMath Meta2STL Meta2VTK SpharmTool STL2Meta VTK2Meta )
   foreach( VAR ${EXTENSION_NO_CLI})
