@@ -270,7 +270,7 @@ void SphericalHarmonicPolynomial<TDimension>::EvaluateDTheta(unsigned int from_l
       this->EvaluateAt(l, m, phi, theta, eval0);
       this->EvaluateAt(l, m + 1, phi, theta, eval1);
 
-      temp = sqrt(l + l * l - m - m * m);
+      temp = sqrt( static_cast<double>(l + l * l - m - m * m) );
       for( coord = 0; coord < (int) TDimension; coord++ )
         {
         this->GetCoefAt(l, m, coord, coef);
@@ -390,7 +390,7 @@ void SphericalHarmonicPolynomial<TDimension>::EvaluateDDThetaTheta(unsigned int 
       realLastTerm = eval2[0] * cos2Phi + eval2[1] * sin2Phi;
       imLastTerm = eval2[1] * cos2Phi - eval2[0] * sin2Phi;
 
-      factor0 = sqrt(l + l * l - m * (m + 1) );
+      factor0 = sqrt(static_cast<double>(l + l * l - m * (m + 1) ) );
       factor1 = l + l * l - (m + 1) * (m + 2);
       if( factor1 > 0 )
         {
@@ -470,7 +470,7 @@ void SphericalHarmonicPolynomial<TDimension>::EvaluateDDThetaPhi(unsigned int fr
       {
       this->EvaluateAt(l, m, phi, theta, eval0);
       this->EvaluateAt(l, m + 1, phi, theta, eval1);
-      factor = sqrt(l + l * l - m - m * m);
+      factor = sqrt( static_cast<double>(l + l * l - m - m * m) );
       for( coord = 0; coord < (int) TDimension; coord++ )
         {
         this->GetCoefAt(l, m, coord, coefs);
@@ -590,7 +590,7 @@ void SphericalHarmonicPolynomial<TDimension>::EvaluateDDDThetaThetaTheta
       this->EvaluateAt(l, m + 2, phi, theta, eval2);
       this->EvaluateAt(l, m + 3, phi, theta, eval3);
 
-      factor0 = sqrt(l + l * l - m * (m + 1) );
+      factor0 = sqrt(static_cast<double>(l + l * l - m * (m + 1)) );
       factor1 = l + l * l - (m + 1) * (m + 2);
       factor2 = l + l * l - (m + 2) * (m + 3);
       if( factor2 > 0 )
@@ -697,7 +697,7 @@ void SphericalHarmonicPolynomial<TDimension>::EvaluateDDDThetaThetaPhi
       this->EvaluateAt(l, m + 1, phi, theta, eval1);
       this->EvaluateAt(l, m + 2, phi, theta, eval2);
 
-      factor0 = sqrt(l + l * l - m * (m + 1) );
+      factor0 = sqrt(static_cast<double>(l + l * l - m * (m + 1)) );
       factor1 = l + l * l - (m + 1) * (m + 2);
       if( factor1 > 0 )
         {
@@ -777,7 +777,7 @@ void SphericalHarmonicPolynomial<TDimension>::EvaluateDDDThetaPhiPhi
       {
       this->EvaluateAt(l, m, phi, theta, eval0);
       this->EvaluateAt(l, m + 1, phi, theta, eval1);
-      factor = sqrt(l + l * l - m - m * m);
+      factor = sqrt(static_cast<double>(l + l * l - m - m * m) );
       for( coord = 0; coord < (int) TDimension; coord++ )
         {
         this->GetCoefAt(l, m, coord, coefs);
