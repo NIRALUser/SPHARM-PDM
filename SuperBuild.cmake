@@ -19,7 +19,6 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
 #If it is build as an extension
 #-----------------------------------------------------------------------------
 if( ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
-  set( VTK_VERSION_MAJOR ${VTK_VERSION_MAJOR} CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
   if( APPLE )
     set( CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,@loader_path/../../../../../ )
   endif()
@@ -286,7 +285,7 @@ ExternalProject_Add_Step(${proj} forcebuild
   )
 
 if( ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
-  unsetForSlicer( NAMES SlicerExecutionModel_DIR DCMTK_DIR ITK_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS zlib_DIR ZLIB_LIBRARY ZLIB_INCLUDE_DIR)
+  unsetForSlicer( NAMES VTK_DIR SlicerExecutionModel_DIR DCMTK_DIR ITK_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS zlib_DIR ZLIB_LIBRARY ZLIB_INCLUDE_DIR)
   # Create fake imported target to avoid importing Slicer target: See SlicerConfig.cmake:line 820
   add_library(SlicerBaseLogic SHARED IMPORTED)
   find_package(Slicer REQUIRED)
@@ -294,7 +293,7 @@ if( ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
   if(BUILD_TESTING)
     add_subdirectory(Testing)
   endif()
-  resetForSlicer( NAMES ITK_DIR SlicerExecutionModel_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS zlib_DIR ZLIB_LIBRARY ZLIB_INCLUDE_DIR)
+  resetForSlicer( NAMES VTK_DIR ITK_DIR SlicerExecutionModel_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS zlib_DIR ZLIB_LIBRARY ZLIB_INCLUDE_DIR)
   set( NOCLI_INSTALL_DIR ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}/../ExternalBin)
   set( EXTENSION_NO_CLI ImageMath )
   foreach( VAR ${EXTENSION_NO_CLI})
