@@ -42,7 +42,7 @@ set(external_projects_vars
   )
 
 
-option(COMPILE_ImageMath "Compile ImageMath." ON)
+option(COMPILE_ImageMath "Compile ImageMath." OFF)
 if(COMPILE_ImageMath)
   set(proj ImageMath)
   set(${proj}_CMAKE_OPTIONS
@@ -75,7 +75,9 @@ if(COMPILE_ImageMath)
     CMAKE_ARGS
       ${${proj}_CMAKE_OPTIONS}
       ${external_projects_vars}
+      -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/${proj}-install
   )
+  install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${proj}-install/bin/ImageMath DESTINATION ${CMAKE_INSTALL_PREFIX}/${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION})
 endif(COMPILE_ImageMath)
 
 option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
