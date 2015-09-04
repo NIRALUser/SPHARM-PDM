@@ -65,7 +65,7 @@ if( NOT SPHARM-PDM_BUILD_SLICER_EXTENSION )
    )
 else()
   set( NotCLIToolsList
-    MeshMath STL2Meta Meta2STL Meta2VTK VTK2Meta asc2vtk asc2meta BYU2VTK
+    MeshMath STL2Meta Meta2STL Meta2VTK VTK2Meta asc2vtk asc2meta BYU2VTK STL2VTK
      )
   INSTALL_EXECUTABLE( OUTPUT_DIR ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION} LIST_EXEC ${NotCLIToolsList} )
 endif()
