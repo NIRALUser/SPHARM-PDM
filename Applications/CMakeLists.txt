@@ -75,7 +75,6 @@ if(COMPILE_ImageMath)
     CMAKE_ARGS
       ${${proj}_CMAKE_OPTIONS}
       ${external_projects_vars}
-      INSTALL_COMMAND ""
   )
 endif(COMPILE_ImageMath)
 

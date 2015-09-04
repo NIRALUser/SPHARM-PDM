@@ -19,43 +19,10 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
 #If it is build as an extension
 #-----------------------------------------------------------------------------
 if( ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
-  set( USE_SYSTEM_VTK ON CACHE BOOL "Use system VTK" FORCE )
-  #VTK_VERSION_MAJOR is define but not a CACHE variable
   set( VTK_VERSION_MAJOR ${VTK_VERSION_MAJOR} CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
-  if( WIN32 )
-    set( USE_SYSTEM_ITK ON CACHE BOOL "Use system ITK" FORCE)
-    set( USE_SYSTEM_SlicerExecutionModel ON CACHE BOOL "Use system SlicerExecutionModel" FORCE)
-    set( ITK_DIR_unset ITK_DIR )
-    set( SlicerExecutionModel_DIR_unset SlicerExecutionModel_DIR )
-  else()
-    set( ITK_DIR_reset ITK_DIR )
-    set( SlicerExecutionModel_DIR_reset SlicerExecutionModel_DIR )
-  endif()
-  set(EXTENSION_SUPERBUILD_BINARY_DIR ${${EXTENSION_NAME}_BINARY_DIR} )
-  unsetForSlicer(NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER DCMTK_DIR ITK_DIR SlicerExecutionModel_DIR VTK_DIR QT_QMAKE_EXECUTABLE ITK_VERSION_MAJOR CMAKE_CXX_FLAGS CMAKE_C_FLAGS Teem_DIR)
-  find_package(Slicer REQUIRED)
-  include(${Slicer_USE_FILE})
-  unsetAllForSlicerBut( NAMES VTK_DIR QT_QMAKE_EXECUTABLE DCMTK_DIR Teem_DIR Slicer_HOME ${SlicerExecutionModel_DIR_unset} ${ITK_DIR_unset} )
-  resetForSlicer(NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS ITK_VERSION_MAJOR ${SlicerExecutionModel_DIR_reset} ${ITK_DIR_reset} )
   if( APPLE )
     set( CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,@loader_path/../../../../../ )
   endif()
-  #------------------------------------------------------------------------------
-  # For BatchMake Zlib usage
-  #------------------------------------------------------------------------------
-  # If SlicerExtension, Use BatchMake CURL_SPECIAL_LIBZ var to compile bmcurl with zlib
-  # from Slicer because tries to link with zlib from Slicer (names mangled for Slicer: slicer_zlib_... see SlicerBuildTree/zlib-install/include/zlib_mangle.h)
-  # Otherwise compiles with zlib from ITK (mangled itk_zlib_... see BatchMake/Utilities/Zip/itk_zlib_mangle.h) and try to link with zlib from Slicer => FAIL
-  find_library( PathToSlicerZlib
-    NAMES zlib
-    PATHS ${Slicer_HOME}/../zlib-install/lib # ${Slicer_HOME} is <topofbuildtree>/Slicer-build: defined in SlicerConfig.cmake
-    PATH_SUFFIXES Debug Release RelWithDebInfo MinSizeRel # For Windows, it can be any one of these
-    NO_DEFAULT_PATH
-    NO_SYSTEM_ENVIRONMENT_PATH
-  )
-  set( BatchMakeCURLCmakeArg -DCURL_SPECIAL_LIBZ:PATH=${PathToSlicerZlib} )
-else()
-  set( SUPERBUILD_NOT_EXTENSION TRUE )
 endif()
 
 #-----------------------------------------------------------------------------
@@ -192,7 +159,6 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   CMAKE_MODULE_LINKER_FLAGS:STRING
   CMAKE_GENERATOR:STRING
   CMAKE_EXTRA_GENERATOR:STRING
-  CMAKE_INSTALL_PREFIX:PATH
   CMAKE_LIBRARY_OUTPUT_DIRECTORY:PATH
   CMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH
   CMAKE_RUNTIME_OUTPUT_DIRECTORY:PATH
@@ -224,18 +190,10 @@ if(APPLE)
     -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
 endif()
 
-set(${LOCAL_PROJECT_NAME}_CLI_RUNTIME_DESTINATION  bin)
-set(${LOCAL_PROJECT_NAME}_CLI_LIBRARY_DESTINATION  lib)
-set(${LOCAL_PROJECT_NAME}_CLI_ARCHIVE_DESTINATION  lib)
-if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
-  set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION  ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION} )
-  set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_LIBRARY_DESTINATION  ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_LIBRARY_DESTINATION} )
-  set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_ARCHIVE_DESTINATION  ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_ARCHIVE_DESTINATION} )
-else()
-  set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION  bin)
-  set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_LIBRARY_DESTINATION  lib)
-  set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_ARCHIVE_DESTINATION  lib)
-endif()
+set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION  bin)
+set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_LIBRARY_DESTINATION  lib)
+set(${LOCAL_PROJECT_NAME}_CLI_INSTALL_ARCHIVE_DESTINATION  lib)
+
 #-----------------------------------------------------------------------------
 # Add external project CMake args
 #-----------------------------------------------------------------------------
@@ -266,9 +224,6 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   INSTALL_RUNTIME_DESTINATION:STRING
   INSTALL_LIBRARY_DESTINATION:STRING
   INSTALL_ARCHIVE_DESTINATION:STRING
-  ${LOCAL_PROJECT_NAME}_CLI_LIBRARY_DESTINATION:PATH
-  ${LOCAL_PROJECT_NAME}_CLI_ARCHIVE_DESTINATION:PATH
-  ${LOCAL_PROJECT_NAME}_CLI_RUNTIME_DESTINATION:PATH
   ${LOCAL_PROJECT_NAME}_CLI_INSTALL_LIBRARY_DESTINATION:PATH
   ${LOCAL_PROJECT_NAME}_CLI_INSTALL_ARCHIVE_DESTINATION:PATH
   ${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION:PATH
@@ -280,11 +235,7 @@ if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
     MIDAS_PACKAGE_EMAIL:STRING
     MIDAS_PACKAGE_URL:STRING
     Slicer_DIR:PATH
-    EXTENSION_SUPERBUILD_BINARY_DIR:PATH
-    )
-else()
-  list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
-    SUPERBUILD_NOT_EXTENSION:BOOL
+    SPHARM-PDM_BUILD_SLICER_EXTENSION:BOOL
     )
 endif()
 _expand_external_project_vars()
@@ -322,7 +273,7 @@ ExternalProject_Add(${proj}
     ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
     ${COMMON_EXTERNAL_PROJECT_ARGS}
     -D${LOCAL_PROJECT_NAME}_SUPERBUILD:BOOL=OFF
-  INSTALL_COMMAND ""
+    -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/${proj}-install
   )
 
 ## Force rebuilding of the main subproject every time building from super structure
@@ -334,4 +285,26 @@ ExternalProject_Add_Step(${proj} forcebuild
     ALWAYS 1
   )
 
-
+if( ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
+  unsetForSlicer( NAMES SlicerExecutionModel_DIR DCMTK_DIR ITK_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS zlib_DIR ZLIB_LIBRARY ZLIB_INCLUDE_DIR)
+  # Create fake imported target to avoid importing Slicer target: See SlicerConfig.cmake:line 820
+  add_library(SlicerBaseLogic SHARED IMPORTED)
+  find_package(Slicer REQUIRED)
+  include(${Slicer_USE_FILE})
+  if(BUILD_TESTING)
+    add_subdirectory(Testing)
+  endif()
+  resetForSlicer( NAMES ITK_DIR SlicerExecutionModel_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS zlib_DIR ZLIB_LIBRARY ZLIB_INCLUDE_DIR)
+  set( NOCLI_INSTALL_DIR ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}/../ExternalBin)
+  set( EXTENSION_NO_CLI ImageMath )
+  foreach( VAR ${EXTENSION_NO_CLI})
+    install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${proj}-install/${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${VAR} DESTINATION ${NOCLI_INSTALL_DIR} )
+  endforeach()
+  set( EXTENSION_CLI GenParaMeshCLP )
+  foreach( VAR ${EXTENSION_CLI})
+    install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${proj}-install/${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${VAR} DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION} )
+  endforeach()
+  install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bmm DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}/.. )
+  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
+  include(${Slicer_EXTENSION_CPACK})
+endif()

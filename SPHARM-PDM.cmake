@@ -1,11 +1,12 @@
 project(spharmpdm)
 
-if( EXTENSION_SUPERBUILD_BINARY_DIR )
-   set(RELATIVE_EXTENSION_PATH ..)
-  set(NOCLI_INSTALL_DIR ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${RELATIVE_EXTENSION_PATH})
+if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
   #-----------------------------------------------------------------------------
   # Program definitions for C++ interfacing
+  # Necessary at runtime
   #-----------------------------------------------------------------------------
+  set(RELATIVE_EXTENSION_PATH ..)
+  set(NOCLI_INSTALL_DIR ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${RELATIVE_EXTENSION_PATH})
   ADD_DEFINITIONS(-DSLICER_EXTENSION_PATH=${RELATIVE_EXTENSION_PATH})
 endif()
 
@@ -73,14 +74,6 @@ add_subdirectory(Applications)
 FILE( GLOB list_files ${CMAKE_CURRENT_SOURCE_DIR}/bmm/*.* )
 FILE( COPY ${list_files} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} )
 
-if( EXTENSION_SUPERBUILD_BINARY_DIR )
-  unsetForSlicer(NAMES CMAKE_C_COMPILER CMAKE_CXX_COMPILER ITK_DIR SlicerExecutionModel_DIR VTK_DIR CMAKE_CXX_FLAGS CMAKE_C_FLAGS ITK_LIBRARIES )
-  find_package(Slicer REQUIRED)
-  include(${Slicer_USE_FILE})
- #unsetAllForSlicerBut( NAMES VTK_DIR Slicer_HOME )
-  resetForSlicer(NAMES CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS  ITK_DIR SlicerExecutionModel_DIR ITK_LIBRARIES )
-endif()
-
 #-----------------------------------------------------------------------------
 # Testing
 #-----------------------------------------------------------------------------
@@ -89,14 +82,5 @@ IF(BUILD_TESTING)
   include(CTest)
   ADD_SUBDIRECTORY(Testing)
 ENDIF(BUILD_TESTING)
-
-
-
-
-if( EXTENSION_SUPERBUILD_BINARY_DIR )
-  install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bmm DESTINATION ${NOCLI_INSTALL_DIR} )
-  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
-  include(${Slicer_EXTENSION_CPACK})
-endif()
 
 

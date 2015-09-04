@@ -17,7 +17,7 @@ target_link_libraries(ShapeAnalysisModule
   ${BatchMake_LIBRARIES} )
 
 
-if( NOT EXTENSION_SUPERBUILD_BINARY_DIR )
+if( NOT SPHARM-PDM_BUILD_SLICER_EXTENSION )
   install(TARGETS
     ShapeAnalysisModule
     BUNDLE DESTINATION  bin

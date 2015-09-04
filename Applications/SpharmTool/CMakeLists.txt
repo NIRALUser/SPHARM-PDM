@@ -11,7 +11,7 @@ SpharmTool.cxx
 add_executable(${SPHARMTOOL} ${${SPHARMTOOL}_SOURCE})
 target_link_libraries(${SPHARMTOOL} ${ITK_LIBRARIES} ShapeIO SpatialObject ShapeAlgorithms SpatialObject)
 
-if( NOT EXTENSION_SUPERBUILD_BINARY_DIR )
+if( NOT SPHARM-PDM_BUILD_SLICER_EXTENSION )
  install(TARGETS
    SpharmTool
    BUNDLE DESTINATION  bin
