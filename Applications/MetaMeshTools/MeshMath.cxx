@@ -210,7 +210,7 @@ int main(int argc, const char * *argv)
     << std::endl;
     std::cout
     <<
-    " -alignMesh <Meshfile1> <Meshfile2>... Align all of the meshes to the inputmesh (== MeshFile0) using Procrustes alignment"
+    " -alignMesh <Meshfile1> <Meshfile2>... Align all of the meshes to the inputmesh (== MeshFile0) using Procrustes alignment [-scalingOn] "
     << endl;
     std::cout << " -BadTriangle <thresh value> [-correctMesh correctFilename] "  << std::endl;
     std::cout
@@ -492,6 +492,7 @@ int main(int argc, const char * *argv)
 
   bool                     meshValueOn =  ipExistsArgument(argv, "-meshValues");
   bool                     alignMeshOn =  ipExistsArgument(argv, "-alignMesh");
+  bool                     scalingOn = ipExistsArgument(argv, "-scalingOn");
   std::vector<std::string> AlignMeshFiles;
   std::vector<std::string> AlignMeshOutputFiles;
   if( alignMeshOn )
@@ -1484,7 +1485,14 @@ int main(int argc, const char * *argv)
     procrustesFilter->SetNumberOfInputs(numMeshes + 1);
     procrustesFilter->SetUseInitialAverageOff();
     procrustesFilter->SetUseNormalizationOff();
-    procrustesFilter->SetUseScalingOff();
+    if( scalingOn )
+    {
+      procrustesFilter->SetUseScalingOn();
+    }
+    else
+    {
+      procrustesFilter->SetUseScalingOff();
+    }
     procrustesFilter->SetUseSingleIterationOn();
     procrustesFilter->SetAlignRotationOn();
 
