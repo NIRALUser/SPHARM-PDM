@@ -83,6 +83,8 @@
 
 //#include "MeshMathImpl.cxx"
 
+#define MeshMathVersion "1.1.0"
+
 // itk typedefs
 typedef itk::DefaultDynamicMeshTraits<float, 3, 3, float, float> MeshTraitsType;
 typedef itk::Mesh<float, 3, MeshTraitsType>                      MeshType;
@@ -178,6 +180,11 @@ int compare(const void * a, const void * b)
 int main(int argc, const char * *argv)
 {
   // make sure the arguments are valid
+  if( ipExistsArgument(argv, "-version") )
+  {
+      std::cout << "MeshMath version:" << MeshMathVersion << " (" <<__DATE__<< ")" << std::endl ;
+      return 0 ;
+  }
   if( argc < 3 || ipExistsArgument(argv, "-usage") || ipExistsArgument(argv, "-help") )
     {
     std::cout << "Usage:" << std::endl;
@@ -301,7 +308,7 @@ int main(int argc, const char * *argv)
     // bp2009 KWMtoPolyData
     std::cout
     <<
-    " -KWMtoPolyData <txtFileIn> <nameScalarField>   Writes a KWM scalar field (1D) into a PolyData Field Data Scalar to visualize in Slicer3"
+    " -KWMtoPolyData <txtFileIn> <nameScalarField>   Writes a KWM scalar field (N Dimensions) into a PolyData Field Data Scalar to visualize in Slicer"
     << std::endl;
     // bp2009 KWMtoPolyData
     std::cout << " -significanceLevel <double> the min Pvalue for the Pval ColorMap " << std::endl;
@@ -4571,37 +4578,43 @@ int main(int argc, const char * *argv)
 
     input.getline(line, 70, '\n'); // read type line
 
-    vtkFloatArray *scalars = vtkFloatArray::New();
+    vtkSmartPointer <vtkFloatArray> scalars = vtkSmartPointer <vtkFloatArray>::New();
     scalars->SetNumberOfComponents(NDimension);
     scalars->SetName(files[1]);
 
-    int cont = 0;
     for( int i = 0; i < NPoints; i++ )
-      {
-          input.getline(line, 70, '\n');
-	  float value=0;
-	  if (NDimension == 1)
-          { 
-            value = atof(line);
-	    scalars->InsertNextValue(value);
-          }
-          else
-	  {
-            std::string proc_string = line;
-	    std::istringstream iss(proc_string);
-
-	    do{
-              std::string sub;
-              iss >> sub;
- 	      if (sub!= "")
-              {
-	        value = atof(sub.c_str());
-                scalars->InsertNextValue(value);
-	      }	
-	    }while (iss);
-          } 
-	  cont++;
-      }
+    {
+        input.getline(line, 70, '\n');
+        float value=0;
+        std::string proc_string = line;
+        std::istringstream iss(proc_string);
+        float *tuple = new float[NDimension];
+        int count = 0 ;
+        do
+        {
+            std::string sub ;
+            iss >> sub ;
+            if( sub !=  "" )
+            {
+                if( count >= NDimension )
+                {
+                    std::cerr << "Error in input file format: one line contains too many components" << std::endl ;
+                    return 1 ;
+                }
+                value = atof(sub.c_str());
+                tuple[ count ] = value ;
+                count++ ;
+            }
+        }while( iss ) ;
+        if( count != NDimension )
+        {
+            std::cerr << "Error in input file format: one line does not contain enough components" << std::endl ;
+            std::cerr << "Line: " << line << std::endl;
+            std::cerr << "Components found: " << count << std::endl ;
+            return 1 ;
+        }
+        scalars->InsertNextTuple( tuple ) ;
+    }
 
     input.close();
     // End reading the Input
