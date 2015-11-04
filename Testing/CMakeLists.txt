@@ -12,14 +12,9 @@ macro( BULD_AND_INSTALL_TESTS NAME TEST_FILE)
   set(${NAME}TestPATH $<TARGET_FILE:${NAME}Test>)
 endmacro()
 
-if( ${LOCAL_PROJECT_NAME}_SUPERBUILD )
-  set(GenParaMeshCLPTestPATH ${CMAKE_BINARY_DIR}/${proj}-install/${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/GenParaMeshCLPTest)
-  set(SegPostProcessCLPTestPATH ${CMAKE_BINARY_DIR}/${proj}-install/${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/SegPostProcessCLPTest)
-  set(GenParaMeshCLPPATH ${CMAKE_BINARY_DIR}/${proj}-install/${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/GenParaMeshCLP)
-else()
+if( NOT ${LOCAL_PROJECT_NAME}_SUPERBUILD )
   BULD_AND_INSTALL_TESTS( SegPostProcessCLP itkTest.cxx)
   BULD_AND_INSTALL_TESTS( GenParaMeshCLP vtkTest.cxx)
-  set(GenParaMeshCLPPATH $<TARGET_FILE:GenParaMeshCLP>)
 endif()
 
 
@@ -29,14 +24,14 @@ set(TestDataDirectory ${CMAKE_CURRENT_SOURCE_DIR}/Data)
 
 
 ## Test 1 : Segpostprocess
-#add_test(NAME SegPostProcessCLPHelp COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:SegPostProcessCLP> --help) # Should just display the Usage : ${CMAKE_CURRENT_BINARY_DIR} = DTIAtlasBuilder-build/Testing -> need to ../
+add_test(NAME SegPostProcessCLPHelp COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:SegPostProcessCLP> --help) # Should just display the Usage : ${CMAKE_CURRENT_BINARY_DIR} = DTIAtlasBuilder-build/Testing -> need to ../
 
 set(InputImage ${TestDataDirectory}/InputImageTest.nrrd )
 set(OutputImageSeg ${TestingBinarydirectory}/OutputImageSegPostProcessCLP.nrrd )
 set(ReferenceImage ${TestDataDirectory}/OutputImageTestToCompare.nrrd)
 
 ## Test 2 
-add_test(NAME SegPostProcessCLPTest COMMAND ${Slicer_LAUNCH_COMMAND} ${SegPostProcessCLPTestPATH}
+add_test(NAME SegPostProcessCLPTest COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:SegPostProcessCLPTest>
   --compare
     ${ReferenceImage}
     ${OutputImageSeg}
@@ -47,7 +42,7 @@ add_test(NAME SegPostProcessCLPTest COMMAND ${Slicer_LAUNCH_COMMAND} ${SegPostPr
   )
 
 ## Test 3 : GenParaMeshCLP
-add_test(NAME GenParaMeshCLPHelp COMMAND ${Slicer_LAUNCH_COMMAND} ${GenParaMeshCLPPATH} --help) # Should just display the Usage : ${CMAKE_CURRENT_BINARY_DIR} = DTIAtlasBuilder-build/Testing -> need to ../
+add_test(NAME GenParaMeshCLPHelp COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:GenParaMeshCLP> --help) # Should just display the Usage : ${CMAKE_CURRENT_BINARY_DIR} = DTIAtlasBuilder-build/Testing -> need to ../
 
 ## Test 4
 
@@ -57,7 +52,7 @@ set(OutputImageSurf ${TestingBinarydirectory}/OutputImageGenParaMeshCLP_surf.vtk
 set(InputImageForGen ${TestDataDirectory}/InputImageTestForGen.nrrd)
 
 if( NOT VTK_DEBUG_LEAKS )
-  add_test(NAME GenParaMeshCLPTest COMMAND ${Slicer_LAUNCH_COMMAND} ${GenParaMeshCLPTestPATH}
+  add_test(NAME GenParaMeshCLPTest COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:GenParaMeshCLPTest>
   --compare
     ${ReferenceImageGen}
     ${OutputImageSurf}
