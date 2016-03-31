@@ -83,7 +83,7 @@
 
 //#include "MeshMathImpl.cxx"
 
-#define MeshMathVersion "1.1.0"
+#define MeshMathVersion "1.1.1"
 
 // itk typedefs
 typedef itk::DefaultDynamicMeshTraits<float, 3, 3, float, float> MeshTraitsType;
@@ -311,6 +311,11 @@ int main(int argc, const char * *argv)
     " -KWMtoPolyData <txtFileIn> <nameScalarField>   Writes a KWM scalar field (N Dimensions) into a PolyData Field Data Scalar to visualize in Slicer"
     << std::endl;
     // bp2009 KWMtoPolyData
+    std::cout
+    <<
+    " -FSAscData <FreeSurferASCIIfile> <nameScalarField>   Extracts a curvature/thickness etc information from a FreeSurfer style scalar file and adds it as attribute to the vtk mesh for visualization. FS format is line-by-line, no header, with each line 'point-id vertex-x vertex-y vertex-z scalar-prop' "
+    << std::endl;
+    // styner2015 FSAscData
     std::cout << " -significanceLevel <double> the min Pvalue for the Pval ColorMap " << std::endl;
 
     // bp2009 ProcessROI
@@ -688,7 +693,7 @@ int main(int argc, const char * *argv)
 
   // bp2009 KWMtoPolyData
   bool PvalueColorMapOn = ipExistsArgument(argv, "-significanceLevel");
-// double PvalueColorMapNb;
+  // double PvalueColorMapNb;
   std::string PvalueColorMapNb_string;
   double      PvalueColorMapNb(0.0);
   if( PvalueColorMapOn )
@@ -709,14 +714,26 @@ int main(int argc, const char * *argv)
     }
   //std::cout << PvalueColorMapNb << std::endl;
 
-// bp2009 KWMtoPolyData
+  // bp2009 KWMtoPolyData
   bool KWMtoPolyDataOn = ipExistsArgument(argv, "-KWMtoPolyData");
   if( KWMtoPolyDataOn )
     {
     nbfile = ipGetStringMultipArgument(argv, "-KWMtoPolyData", files, maxNumFiles);
     if( nbfile != 2 )
       {
-      std::cerr << "Error: Incorrect number of arguments!" << std::endl;
+      std::cerr << "Error: Incorrect number of arguments! need a file and a label name" << std::endl;
+      exit(1);
+      }
+    }
+
+  // styner FSAscData
+  bool FSAscDataOn = ipExistsArgument(argv, "-FSAscData");
+  if( FSAscDataOn )
+    {
+    nbfile = ipGetStringMultipArgument(argv, "-FSAscData", files, maxNumFiles);
+    if( nbfile != 2 )
+      {
+      std::cerr << "Error: Incorrect number of arguments! need a file and a label name" << std::endl;
       exit(1);
       }
     }
@@ -4566,17 +4583,17 @@ int main(int argc, const char * *argv)
     char *   aux;
     input.open(files[0], ios::in);
 
-    input.getline(line, 70, '\n');
+    input.getline(line, 500, '\n');
     aux = strtok(line, " = ");
     aux = strtok(NULL, " = ");
     NPoints = atof(aux);
 
-    input.getline(line, 70, '\n');
+    input.getline(line, 500, '\n');
     aux = strtok(line, " = ");
     aux = strtok(NULL, " = ");
     NDimension = atof(aux);
 
-    input.getline(line, 70, '\n'); // read type line
+    input.getline(line, 500, '\n'); // read type line
 
     vtkSmartPointer <vtkFloatArray> scalars = vtkSmartPointer <vtkFloatArray>::New();
     scalars->SetNumberOfComponents(NDimension);
@@ -4584,7 +4601,7 @@ int main(int argc, const char * *argv)
 
     for( int i = 0; i < NPoints; i++ )
     {
-        input.getline(line, 70, '\n');
+        input.getline(line, 500, '\n');
         float value=0;
         std::string proc_string = line;
         std::istringstream iss(proc_string);
@@ -4624,6 +4641,90 @@ int main(int argc, const char * *argv)
         if( debug )
       {
       std::cout << "Scalar map added to the mesh" << std::endl;
+      }
+
+    // Writing the new mesh
+    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    #if VTK_MAJOR_VERSION > 5
+    SurfaceWriter->SetInputData(polydataAtt);
+    #else
+    SurfaceWriter->SetInput(polydataAtt);
+    #endif
+    SurfaceWriter->SetFileName(outputFilename);
+    SurfaceWriter->Update();
+    if( debug )
+      {
+      std::cout << "Writing new mesh " << outputFilename << std::endl;
+      }
+
+    scalars->Delete();
+    }
+  else if ( FSAscDataOn )
+    { // styner 2016
+    vtkPolyDataReader *polyIn = vtkPolyDataReader::New();
+    polyIn->SetFileName(inputFilename);
+    polyIn->Update();
+    vtkPolyData* polydataAtt = polyIn->GetOutput();
+
+    if( debug )
+      {
+      std::cout << "Input Mesh read ...  " << inputFilename << std::endl;
+      }
+
+    // *** START PARSING FreeSurfer file
+    char     line[70];
+    ifstream input;
+    int      NPoints;
+    input.open(files[0], ios::in);
+
+    vtkSmartPointer <vtkFloatArray> scalars = vtkSmartPointer <vtkFloatArray>::New();
+    scalars->SetNumberOfComponents(1);
+    scalars->SetName(files[1]);
+    
+    NPoints = polydataAtt->GetNumberOfPoints();
+
+    for( int i = 0; i < NPoints; i++ )
+    {
+        input.getline(line, 500, '\n');
+        float value=0;
+        std::string proc_string = line;
+        std::istringstream iss(proc_string);
+        float *tuple = new float[5];
+        int count = 0 ;
+        do
+        {
+            std::string sub ;
+            iss >> sub ;
+            if( sub !=  "" )
+            {
+                if( count >= 5 )
+                {
+		  std::cerr << "Error in input file format: more than 5 components per line, at line " << line << std::endl ;
+		  return 1 ;
+                }
+                value = atof(sub.c_str());
+                tuple[ count ] = value ;
+                count++ ;
+            }
+        }while( iss ) ;
+        if( count != 5 )
+        {
+	  std::cerr << "Error in input file format: less than 5 components per line, at line " << line << std::endl ;
+	  std::cerr << "Components found: " << count << std::endl ;
+	  return 1 ;
+        }
+	float * scalartuple = new float[1];
+	scalartuple[0] = tuple[4];
+        scalars->InsertNextTuple( scalartuple ) ;
+    }
+
+    input.close();
+    // End reading the Input
+
+    polydataAtt->GetPointData()->AddArray(scalars);
+    if( debug )
+      {
+	std::cout << "Scalar map added to the mesh " << NPoints  << std::endl;
       }
 
     // Writing the new mesh
