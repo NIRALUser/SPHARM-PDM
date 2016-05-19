@@ -4509,16 +4509,15 @@ int main(int argc, const char * *argv)
     }
   else if( filterNormalsOn ) // bp2009
     {
+	if (debug)
+	    std::cout << "Arguments " << " " << argv[0] << " " << inputFilename << " " << outputFilename << " " << argv[3] << " " << argv[4] << std::endl;
+	if (debug)
+	    std::cout << "Reading mesh " << " " << inputFilename << std::endl;
 
-    std::cout << "Arguments " << " " << argv[0] << " " << inputFilename << " " << argv[2] << " " << argv[3] << std::endl;
-
-    std::cout << "Reading mesh " << " " << argv[2] << std::endl;
     vtkPolyDataReader *meshin = vtkPolyDataReader::New();
-    meshin->SetFileName(argv[2]);
+    meshin->SetFileName(inputFilename);
     meshin->Update();
     vtkPolyData *polydata = meshin->GetOutput();
-    // unsigned int nPoints = polydata->GetNumberOfPoints();
-    // std::cout << nPoints << std::endl ;
 
     // generate normals
     vtkPolyDataNormals* normals = vtkPolyDataNormals::New();
@@ -4537,31 +4536,18 @@ int main(int argc, const char * *argv)
     polydata->Update();
     #endif
 
-/*
-  //optional settings
-  normalGenerator->SetFeatureAngle(0.1);
-  normalGenerator->SetSplitting(1);
-  normalGenerator->SetConsistency(0);
-  normalGenerator->SetAutoOrientNormals(0);
-  normalGenerator->SetComputePointNormals(1);
-  normalGenerator->SetComputeCellNormals(0);
-  normalGenerator->SetFlipNormals(0);
-  normalGenerator->SetNonManifoldTraversal(1);
-*/
-
      // Writing the new mesh, with the patched hole
     vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
-    // SurfaceWriter->SetInput(polyC->GetOutput());
-    // SurfaceWriter->SetInput(normals->GetOutput());
-    // SurfaceWriter->SetInput(patchTri->GetOutput());
     #if VTK_MAJOR_VERSION > 5
     SurfaceWriter->SetInputData(polydata);
     #else
     SurfaceWriter->SetInput(polydata);
     #endif
-    SurfaceWriter->SetFileName(argv[3]);
+    SurfaceWriter->SetFileName(outputFilename);
     SurfaceWriter->Update();
-    std::cout << "Writing new mesh " << argv[3] << std::endl;
+
+    if (debug)
+    	std::cout << "Writing new mesh " << outputFilename << std::endl;
 
     }
   else if( KWMtoPolyDataOn ) // bp2009
