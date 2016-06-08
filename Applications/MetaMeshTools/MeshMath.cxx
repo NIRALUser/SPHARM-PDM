@@ -1418,77 +1418,6 @@ int main(int argc, const char * *argv)
        std::cout << "Writing new mesh " << outputFilename << std::endl;
     }
 
-
-
-   /* MeshConverterType::Pointer converter = MeshConverterType::New();
-
-    // read input
-    if( debug )
-      {
-      std::cout << "Reading  mesh " << inputFilename << std::endl;
-      }
-    MeshSOType::Pointer SOMesh =
-      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer());
-    MeshType::Pointer                surfaceMesh = SOMesh->GetMesh();
-    MeshType::PointsContainerPointer avgPoints = surfaceMesh->GetPoints();
-
-    int numMeshes = AvgMeshFiles.size();
-    // for all meshes
-    for( int index = 0; index < numMeshes; index++ )
-      {
-      try
-        {
-        if( debug )
-          {
-          std::cout << "Reading  mesh " << AvgMeshFiles[index] << std::endl;
-          }
-        MeshSOType::Pointer inputMeshSO =
-          dynamic_cast<MeshSOType *>(converter->ReadMeta(AvgMeshFiles[index].c_str() ).GetPointer() );
-        MeshType::Pointer                inputMesh = inputMeshSO->GetMesh();
-        MeshType::PointsContainerPointer points = inputMesh->GetPoints();
-        MeshType::PointsContainerPointer pointsTmp = MeshType::PointsContainer::New();
-        for( unsigned int pointID = 0; pointID < points->Size(); pointID++ )
-          {
-          PointType curPoint =  points->GetElement(pointID);
-          PointType vert;
-          PointType curPointAvg =  avgPoints->GetElement(pointID);
-          for( unsigned int dim = 0; dim < 3; dim++ )
-            {
-            vert[dim] = curPoint[dim] + curPointAvg[dim];
-            }
-          pointsTmp->InsertElement(pointID, vert);
-          }
-
-        avgPoints = pointsTmp;
-        }
-      catch( itk::ExceptionObject ex )
-        {
-        std::cerr << "Error reading meshfile:  " << AvgMeshFiles[index] << std::endl << "ITK error: "
-                  << ex.GetDescription() << std::endl;
-        exit(-3);
-        }
-      }
-
-    MeshType::PointsContainerPointer pointsTmp = MeshType::PointsContainer::New();
-    for( unsigned int pointID = 0; pointID < avgPoints->Size(); pointID++ )
-      {
-      PointType curPoint =  avgPoints->GetElement(pointID);
-      PointType vert;
-      for( unsigned int dim = 0; dim < 3; dim++ )
-        {
-        vert[dim] = curPoint[dim] / (numMeshes + 1);
-        }
-      pointsTmp->InsertElement(pointID, vert);
-      }
-    avgPoints = pointsTmp;
-
-    surfaceMesh->SetPoints(avgPoints);
-    SOMesh->SetMesh(surfaceMesh);
-    MeshWriterType::Pointer writer = MeshWriterType::New();
-    writer->SetInput(SOMesh);
-    writer->SetFileName(outputFilename);
-    writer->Update();
-*/
     }
   else if( alignMeshOn )
     {
@@ -3808,11 +3737,11 @@ int main(int argc, const char * *argv)
     }
   else if( MC2OriginOn ) // cchou
     {
-    MeshConverterType::Pointer converter = MeshConverterType::New();
-    MeshSOType::Pointer        SOMesh =
-      dynamic_cast<MeshSOType *>(converter->ReadMeta(inputFilename).GetPointer());
-    MeshType::Pointer                surfaceMesh = SOMesh->GetMesh();
-    MeshType::PointsContainerPointer points = surfaceMesh->GetPoints();
+
+    vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+    meshin->SetFileName(inputFilename);
+    meshin->Update();
+    vtkPolyData* mesh = meshin->GetOutput();
 
     // Sum up Original Points
     double sum[3];
@@ -3820,45 +3749,57 @@ int main(int argc, const char * *argv)
     sum[1] = 0;
     sum[2] = 0;
 
-    for( unsigned int pointID = 0; pointID < points->Size(); pointID++ )
-      {
-      PointType curPoint = points->GetElement(pointID);
-      for( unsigned int dim = 0; dim < 3; dim++ )
+    for (int i = 0; i < mesh->GetNumberOfPoints(); i++) 
+    {
+	double curPoint[3];
+	mesh->GetPoint(i, curPoint);
+	for( unsigned int dim = 0; dim < 3; dim++ )
         {
-        sum[dim] += curPoint[dim];
+          sum[dim] += curPoint[dim];
         }
-      }
-    // Calculate the Center of Mass
+	
+    }
+
+    //Calculate MC
     double MC[3];
     for( unsigned int dim = 0; dim < 3; dim++ )
       {
-      MC[dim] = (double) sum[dim] / (points->Size() + 1);
+        MC[dim] = (double) sum[dim] / (mesh->GetNumberOfPoints() + 1);
       }
-   // if (debug) 
-    //  {
-        std::cout << "Mesh " << inputFilename << " MC " << MC[0] << " " << MC[1] << " " << MC[2] << std::endl;
-    //  }
-    // Create a New Point Set "newpts" with the Shifted Values
-    MeshType::PointsContainerPointer newpts = MeshType::PointsContainer::New();
-    for( unsigned int pointID = 0; pointID < points->Size(); pointID++ )
+
+    // Create a New Point Set "sftpoints" with the Shifted Values
+    vtkPoints * sftpoints = vtkPoints::New();
+    sftpoints = mesh->GetPoints();
+
+    for( int pointID = 0; pointID < mesh->GetNumberOfPoints(); pointID++ )
       {
-      PointType curPoint = points->GetElement(pointID);
-      PointType sftPoint;
+        double curPoint[3];
+	mesh->GetPoint(pointID, curPoint);
+        double sftPoint[3];
       for( unsigned int dim = 0; dim < 3; dim++ )
         {
         sftPoint[dim] = curPoint[dim] - MC[dim];
         }
-      newpts->InsertElement(pointID, sftPoint);
+      sftpoints->SetPoint(pointID, sftPoint);
       }
-    // Set the Shifted Points back to "points"
-    points = newpts;
-    surfaceMesh->SetPoints(points);
-    SOMesh->SetMesh(surfaceMesh);
-    MeshWriterType::Pointer writer = MeshWriterType::New();
-    writer->SetInput(SOMesh);
-    writer->SetFileName(outputFilename);
-    writer->Update();
+    // Set the Shifted Points back to original mesh
+    mesh->SetPoints(sftpoints);
 
+    // Writing the new mesh, with the points translated
+    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    // SurfaceWriter->SetInput(polyC->GetOutput());
+    #if VTK_MAJOR_VERSION > 5
+    SurfaceWriter->SetInputData(mesh);
+    #else
+    SurfaceWriter->SetInput(mesh);
+    #endif
+    // SurfaceWriter->SetInput(patchTri->GetOutput());
+    SurfaceWriter->SetFileName(outputFilename);
+    SurfaceWriter->Update();
+    if( debug )
+      {
+      std::cout << "Writing new mesh " << outputFilename << std::endl;
+      }
     }
   else if( testFillOn )  // bp2009
     {
