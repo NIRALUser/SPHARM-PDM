@@ -81,6 +81,10 @@
 #include <vtkDecimatePro.h>
 #include <sstream>
 
+#include <vtkIterativeClosestPointTransform.h>
+#include <vtkTransformPolyDataFilter.h>
+#include <vtkLandmarkTransform.h>
+
 //#include "MeshMathImpl.cxx"
 
 #define MeshMathVersion "1.1.1"
@@ -219,6 +223,12 @@ int main(int argc, const char * *argv)
     <<
     " -alignMesh <Meshfile1> <Meshfile2>... Align all of the meshes to the inputmesh (== MeshFile0) using Procrustes alignment [-scalingOn] "
     << endl;
+    //bp 2016
+    std::cout
+    <<
+    " -alignMeshICP <Meshfile1> <Meshfile2>... Align all of the meshes to the inputmesh (== MeshFile0) using IterativeClosestPoints (no correspondence required) "
+    << endl;
+    //bp 2016
     std::cout << " -BadTriangle <thresh value> [-correctMesh correctFilename] "  << std::endl;
     std::cout
     <<
@@ -521,6 +531,26 @@ int main(int argc, const char * *argv)
       {
       AlignMeshOutputFiles[i].erase( AlignMeshOutputFiles[i].size() - 5);
       AlignMeshOutputFiles[i].insert(AlignMeshOutputFiles[i].size(), "_align.meta");
+      }
+    }
+
+  bool                     alignMeshICPOn =  ipExistsArgument(argv, "-alignMeshICP");
+  std::vector<std::string> AlignMeshICPFiles;
+  std::vector<std::string> AlignMeshICPOutputFiles;
+  if( alignMeshICPOn )
+    {
+    nbfile = ipGetStringMultipArgument(argv, "-alignMeshICP", files, maxNumFiles);
+    for( int i = 0; i < nbfile; i++ )
+      {
+      AlignMeshICPFiles.push_back(files[i]);
+      }
+    AlignMeshICPOutputFiles.assign(AlignMeshICPFiles.begin(), AlignMeshICPFiles.end() );
+    std::vector<std::string>::iterator inputFile = AlignMeshICPOutputFiles.begin();
+    AlignMeshICPOutputFiles.insert(inputFile, inputFilename );
+    for( int i = 0; i < nbfile + 1; i++ )
+      {
+      AlignMeshICPOutputFiles[i].erase( AlignMeshICPOutputFiles[i].size() - 4);
+      AlignMeshICPOutputFiles[i].insert(AlignMeshICPOutputFiles[i].size(), "_alignICP.vtk");
       }
     }
 
@@ -1479,6 +1509,62 @@ int main(int argc, const char * *argv)
       writer->SetFileName(AlignMeshOutputFiles[index + 1].c_str() );
       writer->Update();
       }
+    }
+  else if( alignMeshICPOn )
+    {
+
+    // read input
+    vtkSmartPointer<vtkPolyData> target = vtkSmartPointer<vtkPolyData>::New();
+    vtkSmartPointer<vtkPolyDataReader> targetReader = vtkSmartPointer<vtkPolyDataReader>::New();
+    targetReader->SetFileName(inputFilename);
+    targetReader->Update();
+    target->ShallowCopy(targetReader->GetOutput());
+
+    int numMeshes = AlignMeshICPFiles.size();
+
+    // align every mesh to the first mesh
+    for (int i = 0 ; i < numMeshes ; i++)
+    {
+      //read the source  	
+      vtkSmartPointer<vtkPolyData> source = vtkSmartPointer<vtkPolyData>::New();
+      vtkSmartPointer<vtkPolyDataReader> sourceReader = vtkSmartPointer<vtkPolyDataReader>::New();
+      sourceReader->SetFileName(AlignMeshICPFiles[i].c_str());
+      sourceReader->Update();
+      source->ShallowCopy(sourceReader->GetOutput());
+
+      // Setup ICP transform and align source to target
+      vtkSmartPointer<vtkIterativeClosestPointTransform> icp = vtkSmartPointer<vtkIterativeClosestPointTransform>::New();
+      icp->SetSource(source);
+      icp->SetTarget(target);   
+      vtkSmartPointer<vtkLandmarkTransform> transform = icp->GetLandmarkTransform();
+      transform->SetModeToRigidBody();
+      icp->SetMaximumNumberOfIterations(20);
+      icp->StartByMatchingCentroidsOn();
+      icp->Modified();
+      icp->Update();
+
+      //Apply transform
+      vtkSmartPointer<vtkTransformPolyDataFilter> icpTransformFilter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+      #if VTK_MAJOR_VERSION <= 5
+  	icpTransformFilter->SetInput(source);
+      #else
+  	icpTransformFilter->SetInputData(source);
+      #endif
+      icpTransformFilter->SetTransform(icp);
+      icpTransformFilter->Update();
+
+      //Save source
+      vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+      vtkSmartPointer<vtkPolyDataWriter> sourceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
+      #if VTK_MAJOR_VERSION > 5
+  	  SurfaceWriter->SetInputData(icpTransformFilter->GetOutput());
+      #else
+	  SurfaceWriter->SetInput(icpTransformFilter->GetOutput());
+      #endif
+      SurfaceWriter->SetFileName(AlignMeshICPOutputFiles[i+1].c_str());
+      SurfaceWriter->Update();
+    }
+    
     }
   else if( badtriangleMeshOn )
     {
