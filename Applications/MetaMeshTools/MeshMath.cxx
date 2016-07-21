@@ -84,6 +84,7 @@
 #include <vtkIterativeClosestPointTransform.h>
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkLandmarkTransform.h>
+#include <vtkMassProperties.h>
 
 //#include "MeshMathImpl.cxx"
 
@@ -381,6 +382,8 @@ int main(int argc, const char * *argv)
     std::cout << " -translateMesh <tx_DimX> <tx_DimY> <tx_DimZ> ,  translates a mesh for a given amount " << std::endl;
     //bp2015
     std::cout << " -lookupPointData <csv_lookup> <scalar_field_name>,  substitutes scalar values in a given scalar field based on an input lookup " << std::endl;
+    //bp2016
+    std::cout << " -volumePolyData,  provides volume count for the PolyData through the std output. NOTE: Only in closed surfaces." << std::endl;
     
     std::cout << " -verbose                   Verbose output" << std::endl;
     return 0;
@@ -917,6 +920,8 @@ int main(int argc, const char * *argv)
         exit(1);
         }
       }
+
+  bool volumePolyDataOn = ipExistsArgument(argv, "-volumePolyData");
 
   // PROCESSING STARTS HERE
   // PROCESSING STARTS HERE
@@ -6274,6 +6279,33 @@ int main(int argc, const char * *argv)
     std::cout << "Writing new mesh " << outputFilename << std::endl;
     }
 
+  }
+   else if( volumePolyDataOn ) // bp2016
+  {
+    // read input
+    vtkSmartPointer<vtkPolyData> input = vtkSmartPointer<vtkPolyData>::New();
+    vtkSmartPointer<vtkPolyDataReader> inputReader = vtkSmartPointer<vtkPolyDataReader>::New();
+    inputReader->SetFileName(inputFilename);
+    inputReader->Update();
+    input->ShallowCopy(inputReader->GetOutput());
+
+    if( debug )
+    {
+    std::cout << "Input Mesh read ...  " << inputFilename << std::endl;
+    }
+
+    // Compute volume
+    vtkSmartPointer<vtkMassProperties> massProperties = vtkSmartPointer<vtkMassProperties>::New();
+    #if VTK_MAJOR_VERSION <= 5
+  	massProperties->SetInput(input);
+    #else
+  	massProperties->SetInputData(input);
+    #endif
+    massProperties->Update();
+
+    double vol = massProperties->GetVolume();
+    std::cout << inputFilename << "," << vol << std::endl;
+  
   }
    else {
 
