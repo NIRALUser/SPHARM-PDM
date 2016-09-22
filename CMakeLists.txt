@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 cmake_policy(VERSION 2.8.3)
 
 set(LOCAL_PROJECT_NAME SPHARM-PDM)
-
+project(${LOCAL_PROJECT_NAME})
 ## NOTE THERE SHOULD BE NO PROJECT STATEMENT HERE!
 ## This file acts as a simple switch to initiate
 ## two completely independant CMake build environments.
@@ -43,11 +43,11 @@ endif()
 # Superbuild script
 #-----------------------------------------------------------------------------
 if(${LOCAL_PROJECT_NAME}_SUPERBUILD)
-  project(SuperBuild_${LOCAL_PROJECT_NAME})
+  #project(SuperBuild_${LOCAL_PROJECT_NAME})
   include("${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild.cmake")
   return()
 else()
-  project(${LOCAL_PROJECT_NAME})
+  #project(${LOCAL_PROJECT_NAME})
   include("${CMAKE_CURRENT_SOURCE_DIR}/${LOCAL_PROJECT_NAME}.cmake")
   return()
 endif()
