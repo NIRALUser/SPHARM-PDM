@@ -1,24 +1,15 @@
-#project(ParticleModule)
 
-set(ParticleModule_SOURCE
-    ParticleModuleCLP.cxx
-    ParticleModuleParameters.cxx
-    ParticleModuleParameters.h
-    ParticleModuleComputation.cxx
-    ParticleModuleComputation.h   )
-
-GENERATECLP(ParticleModule_SOURCE ParticleModule.xml)
-add_executable(ParticleModule ${ParticleModule_SOURCE})
-
-target_link_libraries(ParticleModule
-  itksys
-  vtkIO
-  ${ITK_LIBRARIES}
-  ${BatchMake_LIBRARIES} )
-
-install(TARGETS
-  ParticleModule
-  BUNDLE DESTINATION  bin
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib/static  )
+SEMMacroBuildCLI(
+NAME ParticleModule
+EXECUTABLE_ONLY
+ADDITIONAL_SRCS ParticleModuleParameters.cxx ParticleModuleComputation.cxx
+TARGET_LIBRARIES  itksys vtkIO ${ITK_LIBRARIES} ${BatchMake_LIBRARIES}
+LINK_DIRECTORIES ""
+INCLUDE_DIRECTORIES ""
+RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+INSTALL_RUNTIME_DESTINATION ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}
+INSTALL_LIBRARY_DESTINATION ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_LIBRARY_DESTINATION}
+INSTALL_ARCHIVE_DESTINATION ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_ARCHIVE_DESTINATION}
+)
