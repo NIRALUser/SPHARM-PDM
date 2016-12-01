@@ -45,7 +45,7 @@ void Parameters::SetModulePath(char *path)
    }
    std::string pathToBinaries = string("PATH=") + currentPath + string(m_ModulePath) + "../ExternalBin" + separator + string(m_ModulePath) ;
    std::string pathToBatchMakeApplications = string("BatchmakeShapeAnalysisModule_Dir=") + string(m_ModulePath) + "../bmm/" ;
-   strcat(m_ModulePath, "../bmm/") ;
+   strcat(m_ModulePath, "../bin/") ;
    itksys::SystemTools::PutEnv(pathToBinaries.c_str()); 
    itksys::SystemTools::PutEnv(pathToBatchMakeApplications.c_str());
   #else 

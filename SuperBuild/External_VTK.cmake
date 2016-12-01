@@ -191,8 +191,8 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
     )
   ### --- End Project specific additions
 if(USE_VTKv6)
-  set(${proj}_GIT_TAG "v6.3.0")
-  set(${proj}_REPOSITORY ${git_protocol}://vtk.org/VTK.git)
+  set(${proj}_GIT_TAG "release-6.3")
+  set(${proj}_REPOSITORY ${git_protocol}://github.com/Kitware/VTK.git)
 else()
   set(${proj}_REPOSITORY ${git_protocol}://github.com/BRAINSia/VTK.git)
   set(${proj}_GIT_TAG "FixClangFailure_VTK5.10_release")
