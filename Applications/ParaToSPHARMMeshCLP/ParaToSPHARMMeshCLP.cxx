@@ -35,7 +35,9 @@
 #include "vtkPolyDataToitkMesh.h"
 #include "itkMeshTovtkPolyData.h"
 #include "vtkPolyDataReader.h"
+#include "vtkXMLPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
+#include "vtkDoubleArray.h"
 #include "vtkIterativeClosestPointTransform.h"
 #include "vtkLandmarkTransform.h"
 #include "vtkPointLocator.h"
@@ -48,6 +50,7 @@
 #include "ParaToSPHARMMeshCLPCLP.h"
 
 using namespace std;
+vtkPolyData* ReadPolyData(std::string filePath);
 
 int main( int argc, char * argv[] )
 {
@@ -84,7 +87,6 @@ int main( int argc, char * argv[] )
   const char * base_string;
   base_string = outbase.c_str();
 
-  vtkPolyDataReader *VTKreader = vtkPolyDataReader::New();
   vtkPolyData *      convSurfaceMesh = vtkPolyData::New();
 
   MeshType::Pointer surfaceMesh = MeshType::New();
@@ -97,12 +99,10 @@ int main( int argc, char * argv[] )
 
   try
     {
-    VTKreader->SetFileName(inSurfFile.c_str() );
-    VTKreader->Update();
-    convSurfaceMesh = VTKreader->GetOutput();
+    convSurfaceMesh = ReadPolyData( inSurfFile.c_str() );
 
     vtkPolyDataToitkMesh* VTKITKConverter = new vtkPolyDataToitkMesh;
-    VTKITKConverter->SetInput(VTKreader->GetOutput() );
+    VTKITKConverter->SetInput( convSurfaceMesh );
     surfaceMesh = VTKITKConverter->GetOutput();
 //     cout<<"test3"<<endl;
 // delete (VTKITKConverter);
@@ -116,12 +116,13 @@ int main( int argc, char * argv[] )
 
   try
     {
-    VTKreader->SetFileName(inParaFile.c_str() );
-    VTKreader->Update();
+    vtkPolyData * convParaMesh = vtkPolyData::New();
+    convParaMesh = ReadPolyData( inParaFile.c_str() );
 
     vtkPolyDataToitkMesh* VTKITKConverter2 = new vtkPolyDataToitkMesh;
-    VTKITKConverter2->SetInput(VTKreader->GetOutput() );
+    VTKITKConverter2->SetInput( convParaMesh );
     paraMesh = VTKITKConverter2->GetOutput();
+
     // delete (VTKITKConverter2);
     }
   catch( itk::ExceptionObject ex )
@@ -170,15 +171,11 @@ int main( int argc, char * argv[] )
           std::cout << "Reading in regTemplateMesh" << std::endl;
           }
 
-        VTKreader->SetFileName(regParaTemplateFile.c_str() );
-
-        VTKreader->Update();
-
-        vtkPolyData *convTemplateMesh = vtkPolyData::New();
-        convTemplateMesh = VTKreader->GetOutput();
+        vtkPolyData *convRegParaTemplateMesh = vtkPolyData::New();
+        convRegParaTemplateMesh = ReadPolyData( regParaTemplateFile.c_str() );
 
         vtkPolyDataToitkMesh* VTKITKConverter4 = new vtkPolyDataToitkMesh;
-        VTKITKConverter4->SetInput(convTemplateMesh);
+        VTKITKConverter4->SetInput(convRegParaTemplateMesh);
         regParaTemplateMesh = VTKITKConverter4->GetOutput();
         regParaTemplateMesh->Update();
 
@@ -188,7 +185,7 @@ int main( int argc, char * argv[] )
         vtkIterativeClosestPointTransform * ICPTransform = vtkIterativeClosestPointTransform::New();
         vtkLandmarkTransform *              LT = ICPTransform->GetLandmarkTransform();
         LT->SetModeToRigidBody();
-        ICPTransform->SetSource(convTemplateMesh);
+        ICPTransform->SetSource(convRegParaTemplateMesh);
         ICPTransform->SetTarget(convSurfaceMesh);
         ICPTransform->SetMaximumNumberOfIterations(50);
 
@@ -503,24 +500,8 @@ int main( int argc, char * argv[] )
 
     MeshType* meshSH;
     meshSH = meshsrc->GetOutput();
+    vtkPolyDataWriter *vtkwriter = vtkPolyDataWriter::New();
 
-    itkMeshTovtkPolyData * ITKVTKConverter = new itkMeshTovtkPolyData;
-    ITKVTKConverter->SetInput( meshSH );
-
-    vtkPolyDataWriter *vtkwriter;
-    vtkwriter = vtkPolyDataWriter::New();
-    #if VTK_MAJOR_VERSION > 5
-    vtkwriter->SetInputData(ITKVTKConverter->GetOutput() );
-    #else
-    vtkwriter->SetInput(ITKVTKConverter->GetOutput() );
-    #endif
-    outFileName.erase();
-    outFileName.append(base_string);
-    outFileName.append("SPHARM.vtk");
-
-    vtkwriter->SetFileName(outFileName.c_str() );
-    vtkwriter->Write();
-	 
 	 if(debug)
 		 std::cout<<"saving medial axis mesh source"<<std::endl;
 
@@ -646,6 +627,7 @@ int main( int argc, char * argv[] )
 		outfile_pr.close();
 
 		// END Add scalars for visualization
+
     #if VTK_MAJOR_VERSION > 5
 		vtkwriter->SetInputData(polydataAtt);
     #else
@@ -661,17 +643,7 @@ int main( int argc, char * argv[] )
 	 
 	 vtkSmartPointer<vtkPolyData> medialAxis;
 	 medialAxis = medialmeshsrc->GetOutputMedialAxis();
-   #if VTK_MAJOR_VERSION > 5
-	 vtkwriter->SetInputData(medialAxis );
-   #else
-	 vtkwriter->SetInput(medialAxis );
-   #endif
-	 outFileName.erase();
-	 outFileName.append(base_string);
-	 outFileName.append("SPHARMMedialAxis.vtk");
-	 
-	 vtkwriter->SetFileName(outFileName.c_str() );
-	 vtkwriter->Write();
+
 	 
 	 double* Theta;
 	 double* Radius;
@@ -686,25 +658,224 @@ int main( int argc, char * argv[] )
 	 
 	 std::ofstream ScalarFile(outFileName.c_str());
 	 ScalarFile<<"Theta,Radius,Area"<<std::endl;
+         vtkSmartPointer<vtkDoubleArray> theta = vtkSmartPointer<vtkDoubleArray>::New();
+         theta->SetName("_theta");
+         vtkSmartPointer<vtkDoubleArray> radius = vtkSmartPointer<vtkDoubleArray>::New();
+         radius->SetName("_radius");
+         vtkSmartPointer<vtkDoubleArray> area = vtkSmartPointer<vtkDoubleArray>::New();
+         area->SetName("_area");
+
 	 for(int i=0; i<thetaIteration; i++)
-	   ScalarFile<<Theta[i]<<","<<Radius[i]<<","<<Area[i]<<std::endl;
-	 ScalarFile.close();
-	 
-    if( debug )
-      {
-      std::cout << "saving par aligned coefs" << std::endl;
-      }
+         {
+             ScalarFile<<Theta[i]<<","<<Radius[i]<<","<<Area[i]<<std::endl;
+             theta->InsertNextValue(Theta[i]);
+             radius->InsertNextValue(Radius[i]);
+             area->InsertNextValue(Area[i]);
+             medialAxis->GetPointData()->AddArray(theta);
+             medialAxis->GetPointData()->AddArray(radius);
+             medialAxis->GetPointData()->AddArray(area);
+         }
+         ScalarFile.close();
 
-    // save coefficients too
-    outFileName.erase();
-    outFileName.append(base_string);
-    outFileName.append("SPHARM.coef");
-    typedef neurolib::SphericalHarmonicCoefficientFileWriter CoefWriterType;
-    CoefWriterType::Pointer coefwriter = CoefWriterType::New();
+#if VTK_MAJOR_VERSION > 5
+         vtkwriter->SetInputData(medialAxis );
+#else
+         vtkwriter->SetInput(medialAxis );
+#endif
+         outFileName.erase();
+         outFileName.append(base_string);
+         outFileName.append("SPHARMMedialAxis.vtk");
 
-    coefwriter->SetFileName(outFileName.c_str() );
-    coefwriter->SetInput(coeflist);
-    coefwriter->Update();
+         vtkwriter->SetFileName(outFileName.c_str() );
+         vtkwriter->Write();
+
+         //
+         itkMeshTovtkPolyData * ITKVTKConverter = new itkMeshTovtkPolyData;
+         ITKVTKConverter->SetInput( meshSH );
+
+         if( writePara )
+         {
+           if( debug )
+           {
+             std::cout << "writing para mesh data" << std::endl;
+           }
+           MeshType *             _paraMesh = meshsrc->GetOutputParaMesh();
+           PointsContainerPointer paraPoints = _paraMesh->GetPoints();
+
+           outFileName.erase();
+           outFileName.append(base_string);
+           outFileName.append("_para.vtk");
+
+           itkMeshTovtkPolyData * ITKVTKConverter4 = new itkMeshTovtkPolyData;
+           ITKVTKConverter4->SetInput(_paraMesh);
+           #if VTK_MAJOR_VERSION > 5
+           vtkwriter->SetInputData(ITKVTKConverter4->GetOutput() );
+           #else
+           vtkwriter->SetInput(ITKVTKConverter4->GetOutput() );
+           #endif
+           vtkwriter->SetFileName(outFileName.c_str() );
+           vtkwriter->Write();
+
+           // DIMENSION = 1 ; NUMBER_OF_POINTS ; TYPE = Scalar
+           {
+               // write phi
+               outFileName.erase();
+               outFileName.append(base_string);
+               outFileName.append("_paraPhi.txt");
+               std::ofstream efile(outFileName.c_str(), std::ios::out);
+               if( !efile )
+               {
+                   std::cerr << "Error: open of file \"" << outFileName  << "\" failed." << std::endl;
+                   exit(-1);
+               }
+               efile.precision(10);
+               int nvert = paraPoints->Size();
+               efile << "NUMBER_OF_POINTS = " << nvert << std::endl;
+               efile << "DIMENSION = 1" << std::endl;
+               efile << "TYPE = Scalar" << std::endl;
+               vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+               array->SetName("_paraPhi");
+
+               for( int i = 0; i < nvert; i++ )
+               {
+                   PointType curPoint =  paraPoints->GetElement(i);
+                   double    phi = atan2(curPoint[1], curPoint[0]) + M_PI; // 0 .. 2 * M_PI
+                   efile << phi << endl;
+                   // if (i != nvert - 1) efile << " ";
+                   array->InsertNextValue(phi);
+               }
+               efile.close();
+               ITKVTKConverter->GetOutput()->GetPointData()->AddArray(array);
+           }
+           {
+               // write phi half
+               outFileName.erase();
+               outFileName.append(base_string);
+               outFileName.append("_paraPhiHalf.txt");
+               std::ofstream efile(outFileName.c_str(), std::ios::out);
+               if( !efile )
+               {
+                   std::cerr << "Error: open of file \"" << outFileName  << "\" failed." << std::endl;
+                   exit(-1);
+               }
+               efile.precision(10);
+
+               int nvert = paraPoints->Size();
+               efile << "NUMBER_OF_POINTS = " << nvert << std::endl;
+               efile << "DIMENSION = 1" << std::endl;
+               efile << "TYPE = Scalar" << std::endl;
+               vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+               array->SetName("_paraPhiHalf");
+               for( int i = 0; i < nvert; i++ )
+               {
+                   PointType curPoint =  paraPoints->GetElement(i);
+                   double    phi = atan2(curPoint[1], curPoint[0]) + M_PI;
+                   if( phi > M_PI )
+                   {
+                       phi = 2 * M_PI - phi;       // 0 .. M_PI ..0
+                   }
+                   efile << phi << endl;
+                   // if (i != nvert - 1) efile << " ";
+                   array->InsertNextValue(phi);
+               }
+               efile.close();
+               ITKVTKConverter->GetOutput()->GetPointData()->AddArray(array);
+           }
+           {
+               // write theta
+               outFileName.erase();
+               outFileName.append(base_string);
+               outFileName.append("_paraTheta.txt");
+               std::ofstream efile(outFileName.c_str(), std::ios::out);
+               if( !efile )
+                 {
+                 std::cerr << "Error: open of file \"" << outFileName << "\" failed." << std::endl;
+                 exit(-1);
+                 }
+               efile.precision(10);
+               int nvert = paraPoints->Size();
+               efile << "NUMBER_OF_POINTS = " << nvert << std::endl;
+               efile << "DIMENSION = 1" << std::endl;
+               efile << "TYPE = Scalar" << std::endl;
+               vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+               array->SetName("_paraTheta");
+               for( int i = 0; i < nvert; i++ )
+               {
+                   PointType curPoint =  paraPoints->GetElement(i);
+                   double    theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                   //0 .. M_PI
+                   efile << theta << endl;
+                   // if (i != nvert - 1) efile << " ";
+                   array->InsertNextValue(theta);
+               }
+               efile.close();
+               ITKVTKConverter->GetOutput()->GetPointData()->AddArray(array);
+           }
+           {
+               // write theta/M_PI * (phi/M_PI/2 + 1)
+               outFileName.erase();
+               outFileName.append(base_string);
+               outFileName.append("_paraMix.txt");
+               std::ofstream efile(outFileName.c_str(), std::ios::out);
+               if( !efile )
+               {
+                   std::cerr << "Error: open of file \"" << outFileName << "\" failed." << std::endl;
+                   exit(-1);
+               }
+               efile.precision(10);
+
+               int nvert = paraPoints->Size();
+               efile << "NUMBER_OF_POINTS = " << nvert << std::endl;
+               efile << "DIMENSION = 1" << std::endl;
+               efile << "TYPE = Scalar" << std::endl;
+               vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+               array->SetName("_paraMix");
+               for( int i = 0; i < nvert; i++ )
+               {
+                   PointType curPoint =  paraPoints->GetElement(i);
+                   double    phi = atan2(curPoint[1], curPoint[0]) + M_PI;
+                   if( phi > M_PI )
+                   {
+                       phi = 2 * M_PI - phi;            // 0 .. M_PI ..0
+                   }
+                   double theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                   // 0 .. M_PI
+                   efile << theta / M_PI * ( phi / M_PI + 1) << endl;
+                   // if (i != nvert - 1) efile << " ";
+                   array->InsertNextValue(theta/ M_PI * ( phi / M_PI + 1));
+               }
+               efile.close();
+               ITKVTKConverter->GetOutput()->GetPointData()->AddArray(array);
+           }
+         }
+         outFileName.erase();
+         outFileName.append(base_string);
+         outFileName.append("SPHARM.vtk");
+         vtkwriter->SetFileName(outFileName.c_str() );
+
+         #if VTK_MAJOR_VERSION > 5
+         vtkwriter->SetInputData(ITKVTKConverter->GetOutput());
+         #else
+         vtkwriter->SetInput(ITKVTKConverter->GetOutput());
+         #endif
+         vtkwriter->SetFileName(outFileName.c_str());
+         vtkwriter->Write();
+
+         if( debug )
+           {
+           std::cout << "saving par aligned coefs" << std::endl;
+           }
+
+         // save coefficients too
+         outFileName.erase();
+         outFileName.append(base_string);
+         outFileName.append("SPHARM.coef");
+         typedef neurolib::SphericalHarmonicCoefficientFileWriter CoefWriterType;
+         CoefWriterType::Pointer coefwriter = CoefWriterType::New();
+
+         coefwriter->SetFileName(outFileName.c_str() );
+         coefwriter->SetInput(coeflist);
+         coefwriter->Update();
 
     if( !NoParaAlignFlag )
       {
@@ -728,6 +899,78 @@ int main( int argc, char * argv[] )
 
       itkMeshTovtkPolyData * ITKVTKConverter2 = new itkMeshTovtkPolyData;
       ITKVTKConverter2->SetInput(ellipseMesh);
+
+      if( writePara )
+      {
+          MeshType *             _paraMesh = meshsrc->GetOutputParaMesh();
+          PointsContainerPointer paraPoints = _paraMesh->GetPoints();
+          // DIMENSION = 1 ; NUMBER_OF_POINTS ; TYPE = Scalar
+            {
+              // write phi
+              int nvert = paraPoints->Size();
+              vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+              array->SetName("_paraPhi");
+
+              for( int i = 0; i < nvert; i++ )
+              {
+                  PointType curPoint =  paraPoints->GetElement(i);
+                  double    phi = atan2(curPoint[1], curPoint[0]) + M_PI; // 0 .. 2 * M_PI
+                  array->InsertNextValue(phi);
+              }
+              ITKVTKConverter2->GetOutput()->GetPointData()->AddArray(array);
+            }
+            {
+              // write phi half
+                int nvert = paraPoints->Size();
+                vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+                array->SetName("_paraPhiHalf");
+                for( int i = 0; i < nvert; i++ )
+                {
+                  PointType curPoint =  paraPoints->GetElement(i);
+                  double    phi = atan2(curPoint[1], curPoint[0]) + M_PI;
+                  if( phi > M_PI )
+                  {
+                    phi = 2 * M_PI - phi;       // 0 .. M_PI ..0
+                  }
+                  array->InsertNextValue(phi);
+                }
+                ITKVTKConverter2->GetOutput()->GetPointData()->AddArray(array);
+            }
+            {
+                // write theta
+                int nvert = paraPoints->Size();
+                vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+                array->SetName("_paraTheta");
+                for( int i = 0; i < nvert; i++ )
+                {
+                  PointType curPoint =  paraPoints->GetElement(i);
+                  double    theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                  //0 .. M_PI
+                  array->InsertNextValue(theta);
+                }
+                ITKVTKConverter2->GetOutput()->GetPointData()->AddArray(array);
+            }
+            {
+                // write theta/M_PI * (phi/M_PI/2 + 1)
+                int nvert = paraPoints->Size();
+                vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+                array->SetName("_paraMix");
+                for( int i = 0; i < nvert; i++ )
+                {
+                  PointType curPoint =  paraPoints->GetElement(i);
+                  double    phi = atan2(curPoint[1], curPoint[0]) + M_PI;
+                  if( phi > M_PI )
+                    {
+                    phi = 2 * M_PI - phi;            // 0 .. M_PI ..0
+                    }
+                  double theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                  // 0 .. M_PI
+                  array->InsertNextValue(theta/ M_PI * ( phi / M_PI + 1));
+                }
+                ITKVTKConverter2->GetOutput()->GetPointData()->AddArray(array);
+            }
+      }
+
       #if VTK_MAJOR_VERSION > 5
       vtkwriter->SetInputData(ITKVTKConverter2->GetOutput() );
       #else
@@ -758,11 +1001,11 @@ int main( int argc, char * argv[] )
 
       if( regTemplateFileOn )
         {
-        VTKreader->SetFileName(regTemplateFile.c_str() );
-        VTKreader->Update();
+        vtkPolyData *convRegTemplateMesh = vtkPolyData::New();
+        convRegTemplateMesh = ReadPolyData( regTemplateFile.c_str() );
 
         vtkPolyDataToitkMesh* VTKITKConverter3 = new vtkPolyDataToitkMesh;
-        VTKITKConverter3->SetInput(VTKreader->GetOutput() );
+        VTKITKConverter3->SetInput( convRegTemplateMesh );
         RegTemplateMesh = VTKITKConverter3->GetOutput();
 
         }
@@ -773,6 +1016,7 @@ int main( int argc, char * argv[] )
         {
         procrustesFilter->SetInput(0, RegTemplateMesh);
         }
+
       if( regParaTemplateFileOn )
         {
         procrustesFilter->SetInput(0, regParaTemplateMesh);
@@ -828,147 +1072,6 @@ int main( int argc, char * argv[] )
       vtkwriter->Write();
 
       }
-
-    if( writePara )
-      {
-      if( debug )
-        {
-        std::cout << "writing para mesh data" << std::endl;
-        }
-      MeshType *             _paraMesh = meshsrc->GetOutputParaMesh();
-      PointsContainerPointer paraPoints = _paraMesh->GetPoints();
-
-      outFileName.erase();
-      outFileName.append(base_string);
-      outFileName.append("_para.vtk");
-
-      itkMeshTovtkPolyData * ITKVTKConverter4 = new itkMeshTovtkPolyData;
-      ITKVTKConverter4->SetInput(_paraMesh);
-      #if VTK_MAJOR_VERSION > 5
-      vtkwriter->SetInputData(ITKVTKConverter4->GetOutput() );
-      #else
-      vtkwriter->SetInput(ITKVTKConverter4->GetOutput() );
-      #endif
-      vtkwriter->SetFileName(outFileName.c_str() );
-      vtkwriter->Write();
-
-      // DIMENSION = 1 ; NUMBER_OF_POINTS ; TYPE = Scalar
-      // write phi
-        {
-        outFileName.erase();
-        outFileName.append(base_string);
-        outFileName.append("_paraPhi.txt");
-        std::ofstream efile(outFileName.c_str(), std::ios::out);
-        if( !efile )
-          {
-          std::cerr << "Error: open of file \"" << outFileName  << "\" failed." << std::endl;
-          exit(-1);
-          }
-        efile.precision(10);
-
-        int nvert = paraPoints->Size();
-        efile << "NUMBER_OF_POINTS = " << nvert << std::endl;
-        efile << "DIMENSION = 1" << std::endl;
-        efile << "TYPE = Scalar" << std::endl;
-        for( int i = 0; i < nvert; i++ )
-          {
-          PointType curPoint =  paraPoints->GetElement(i);
-          double    phi = atan2(curPoint[1], curPoint[0]) + M_PI; // 0 .. 2 * M_PI
-          efile << phi << endl;
-          // if (i != nvert - 1) efile << " ";
-          }
-        efile.close();
-        }
-        {
-        outFileName.erase();
-        outFileName.append(base_string);
-        outFileName.append("_paraPhiHalf.txt");
-        std::ofstream efile(outFileName.c_str(), std::ios::out);
-        if( !efile )
-          {
-          std::cerr << "Error: open of file \"" << outFileName  << "\" failed." << std::endl;
-          exit(-1);
-          }
-        efile.precision(10);
-
-        int nvert = paraPoints->Size();
-        efile << "NUMBER_OF_POINTS = " << nvert << std::endl;
-        efile << "DIMENSION = 1" << std::endl;
-        efile << "TYPE = Scalar" << std::endl;
-        for( int i = 0; i < nvert; i++ )
-          {
-          PointType curPoint =  paraPoints->GetElement(i);
-          double    phi = atan2(curPoint[1], curPoint[0]) + M_PI;
-          if( phi > M_PI )
-            {
-            phi = 2 * M_PI - phi;       // 0 .. M_PI ..0
-            }
-          efile << phi << endl;
-          // if (i != nvert - 1) efile << " ";
-          }
-        efile.close();
-        }
-        {
-        // write theta
-        outFileName.erase();
-        outFileName.append(base_string);
-        outFileName.append("_paraTheta.txt");
-        std::ofstream efile(outFileName.c_str(), std::ios::out);
-        if( !efile )
-          {
-          std::cerr << "Error: open of file \"" << outFileName << "\" failed." << std::endl;
-          exit(-1);
-          }
-        efile.precision(10);
-
-        int nvert = paraPoints->Size();
-        efile << "NUMBER_OF_POINTS = " << nvert << std::endl;
-        efile << "DIMENSION = 1" << std::endl;
-        efile << "TYPE = Scalar" << std::endl;
-        for( int i = 0; i < nvert; i++ )
-          {
-          PointType curPoint =  paraPoints->GetElement(i);
-          double    theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
-          //0 .. M_PI
-          efile << theta << endl;
-          // if (i != nvert - 1) efile << " ";
-          }
-        efile.close();
-        }
-        {
-        // write theta/M_PI * (phi/M_PI/2 + 1)
-        outFileName.erase();
-        outFileName.append(base_string);
-        outFileName.append("_paraMix.txt");
-        std::ofstream efile(outFileName.c_str(), std::ios::out);
-        if( !efile )
-          {
-          std::cerr << "Error: open of file \"" << outFileName << "\" failed." << std::endl;
-          exit(-1);
-          }
-        efile.precision(10);
-
-        int nvert = paraPoints->Size();
-        efile << "NUMBER_OF_POINTS = " << nvert << std::endl;
-        efile << "DIMENSION = 1" << std::endl;
-        efile << "TYPE = Scalar" << std::endl;
-        for( int i = 0; i < nvert; i++ )
-          {
-          PointType curPoint =  paraPoints->GetElement(i);
-          double    phi = atan2(curPoint[1], curPoint[0]) + M_PI;
-          if( phi > M_PI )
-            {
-            phi = 2 * M_PI - phi;            // 0 .. M_PI ..0
-            }
-          double theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
-          // 0 .. M_PI
-          efile << theta / M_PI * ( phi / M_PI + 1) << endl;
-          // if (i != nvert - 1) efile << " ";
-          }
-        efile.close();
-        }
-      }
-
     }
 
   catch( itk::ExceptionObject e )
@@ -979,4 +1082,25 @@ int main( int argc, char * argv[] )
 
   return EXIT_SUCCESS;
 
+}
+
+vtkPolyData* ReadPolyData(std::string filePath)
+{
+    size_t found = filePath.rfind(".vtp");
+    if (found != std::string::npos)
+    {
+        vtkXMLPolyDataReader* VTPreader = vtkXMLPolyDataReader::New();
+        VTPreader->SetFileName(filePath.c_str());
+        VTPreader->Update();
+        return VTPreader->GetOutput();
+    }
+    found = filePath.rfind(".vtk");
+    if ( found != std::string::npos )
+    {
+        vtkPolyDataReader* VTKreader = vtkPolyDataReader::New();
+        VTKreader->SetFileName(filePath.c_str());
+        VTKreader->Update();
+        return VTKreader->GetOutput();
+    }
+    return NULL;
 }
