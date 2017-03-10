@@ -16,7 +16,7 @@ Spherical Parametrization : The output is two meshes, one for the surface and on
       <index>0</index>
       <description>Input volume to be filtered</description>
     </image>
-    <geometry>
+    <geometry fileExtensions=".vtk">
       <name>outParaName</name>
       <default>_para</default>
       <label>Output Para Mesh</label>
@@ -24,7 +24,7 @@ Spherical Parametrization : The output is two meshes, one for the surface and on
       <index>1</index>
       <description>Output Para Mesh</description>
     </geometry>
-    <geometry>
+    <geometry fileExtensions=".vtk">
       <name>outSurfName</name>
       <default>_surf</default>
       <label>Output Surface Mesh</label>
