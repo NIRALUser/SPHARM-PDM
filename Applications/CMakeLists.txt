@@ -105,11 +105,6 @@ if(COMPILE_ParaToSPHARMMeshCLP)
   add_subdirectory(ParaToSPHARMMeshCLP)
 endif(COMPILE_ParaToSPHARMMeshCLP)
 
-option(COMPILE_ShapeAnalysisModule "Compile ShapeAnalysisModule." ON)
-if(COMPILE_ShapeAnalysisModule)
-  add_subdirectory(ShapeAnalysisModule)
-endif(COMPILE_ShapeAnalysisModule)
-
 option(COMPILE_SpharmTool "Compile SpharmTool." ON)
 if(COMPILE_SpharmTool)
   add_subdirectory(SpharmTool)

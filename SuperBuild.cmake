@@ -74,7 +74,6 @@ option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
 option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
 option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
 option(USE_SYSTEM_zlib "Build using external zlib" ON)
-option(USE_SYSTEM_BatchMake "Build using an externally defined version of BatchMake" OFF)
 option(USE_SYSTEM_CLAPACK "Build using an externally defined version of CLAPACK" OFF)
 option(BUILD_SHARED_LIBS "Use shared libraries" OFF) #to give the user the option to configure their builds as they want
 
@@ -91,14 +90,13 @@ option(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
 option(COMPILE_RadiusToMesh "Compile RadiusToMesh." ON)
 option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
 option(COMPILE_SpharmTool "Compile SpharmTool." ON)
-option(COMPILE_ShapeAnalysisModule "Compile ShapeAnalysisModule." ON)
 option(COMPILE_ParticleModule "Compile ParticleModule." OFF)
 
 #------------------------------------------------------------------------------
 # ${LOCAL_PROJECT_NAME} dependency list
 #------------------------------------------------------------------------------
 
-set(${LOCAL_PROJECT_NAME}_DEPENDENCIES ITKv4 SlicerExecutionModel VTK BatchMake CLAPACK)
+set(${LOCAL_PROJECT_NAME}_DEPENDENCIES ITKv4 SlicerExecutionModel VTK CLAPACK)
 
 if(BUILD_STYLE_UTILS)
   list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDENCIES Cppcheck KWStyle Uncrustify)
@@ -206,7 +204,6 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   GenerateCLP_DIR:PATH
   SlicerExecutionModel_DIR:PATH
   CLAPACK_DIR:PATH
-  BatchMake_DIR:PATH
   BOOST_INCLUDE_DIR:PATH
   BOOST_ROOT:PATH
   COMPILE_StatNonParamTestPDM:BOOL

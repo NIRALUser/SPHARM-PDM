@@ -32,8 +32,6 @@ include(${SlicerExecutionModel_USE_FILE})
 #include(${SlicerExecutionModel_CMAKE_DIR}/SEMMacroBuildCLI.cmake)
 #-----------------------------------------------------------------------------
 message(STATUS ddd${ITK_DIR})
-find_package(BatchMake REQUIRED)
-include(${BatchMake_USE_FILE})
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
@@ -71,9 +69,6 @@ if(BUILD_LIBRARIES)
   add_subdirectory(Libraries)
 endif()
 add_subdirectory(Applications)
-
-FILE( GLOB list_files ${CMAKE_CURRENT_SOURCE_DIR}/bmm/*.* )
-FILE( COPY ${list_files} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} )
 
 #-----------------------------------------------------------------------------
 # Testing
