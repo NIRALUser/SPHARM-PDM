@@ -41,6 +41,7 @@
 #include "vtkIterativeClosestPointTransform.h"
 #include "vtkLandmarkTransform.h"
 #include "vtkPointLocator.h"
+#include <vtkSmartPointer.h>
 #include <vtkVersion.h>
 #include <itkAffineTransform.h>
 #include <itkTransformFileWriter.h>
@@ -50,7 +51,7 @@
 #include "ParaToSPHARMMeshCLPCLP.h"
 
 using namespace std;
-vtkPolyData* ReadPolyData(std::string filePath);
+vtkSmartPointer<vtkPolyData> ReadPolyData(std::string filePath);
 
 int main( int argc, char * argv[] )
 {
@@ -87,7 +88,7 @@ int main( int argc, char * argv[] )
   const char * base_string;
   base_string = outbase.c_str();
 
-  vtkPolyData *      convSurfaceMesh = vtkPolyData::New();
+  vtkSmartPointer<vtkPolyData>      convSurfaceMesh = vtkSmartPointer<vtkPolyData>::New();
 
   MeshType::Pointer surfaceMesh = MeshType::New();
   MeshType::Pointer paraMesh = MeshType::New();
@@ -101,9 +102,9 @@ int main( int argc, char * argv[] )
     {
     convSurfaceMesh = ReadPolyData( inSurfFile.c_str() );
 
-    vtkPolyDataToitkMesh* VTKITKConverter = new vtkPolyDataToitkMesh;
-    VTKITKConverter->SetInput( convSurfaceMesh );
-    surfaceMesh = VTKITKConverter->GetOutput();
+    vtkPolyDataToitkMesh VTKITKConverter;
+    VTKITKConverter.SetInput( convSurfaceMesh );
+    surfaceMesh = VTKITKConverter.GetOutput();
 //     cout<<"test3"<<endl;
 // delete (VTKITKConverter);
 //     cout<<"test9"<<endl;
@@ -116,12 +117,12 @@ int main( int argc, char * argv[] )
 
   try
     {
-    vtkPolyData * convParaMesh = vtkPolyData::New();
+    vtkSmartPointer<vtkPolyData> convParaMesh = vtkSmartPointer<vtkPolyData>::New();
     convParaMesh = ReadPolyData( inParaFile.c_str() );
 
-    vtkPolyDataToitkMesh* VTKITKConverter2 = new vtkPolyDataToitkMesh;
-    VTKITKConverter2->SetInput( convParaMesh );
-    paraMesh = VTKITKConverter2->GetOutput();
+    vtkPolyDataToitkMesh VTKITKConverter2;
+    VTKITKConverter2.SetInput( convParaMesh );
+    paraMesh = VTKITKConverter2.GetOutput();
 
     // delete (VTKITKConverter2);
     }
@@ -171,19 +172,19 @@ int main( int argc, char * argv[] )
           std::cout << "Reading in regTemplateMesh" << std::endl;
           }
 
-        vtkPolyData *convRegParaTemplateMesh = vtkPolyData::New();
+        vtkSmartPointer<vtkPolyData> convRegParaTemplateMesh = vtkSmartPointer<vtkPolyData>::New();
         convRegParaTemplateMesh = ReadPolyData( regParaTemplateFile.c_str() );
 
-        vtkPolyDataToitkMesh* VTKITKConverter4 = new vtkPolyDataToitkMesh;
-        VTKITKConverter4->SetInput(convRegParaTemplateMesh);
-        regParaTemplateMesh = VTKITKConverter4->GetOutput();
+        vtkPolyDataToitkMesh VTKITKConverter4;
+        VTKITKConverter4.SetInput(convRegParaTemplateMesh);
+        regParaTemplateMesh = VTKITKConverter4.GetOutput();
         regParaTemplateMesh->Update();
 
-        delete (VTKITKConverter4);
+        // delete (VTKITKConverter4);
 
         // 2. use ICP VTK filter -> T
-        vtkIterativeClosestPointTransform * ICPTransform = vtkIterativeClosestPointTransform::New();
-        vtkLandmarkTransform *              LT = ICPTransform->GetLandmarkTransform();
+        vtkSmartPointer<vtkIterativeClosestPointTransform> ICPTransform = vtkSmartPointer<vtkIterativeClosestPointTransform>::New();
+        vtkSmartPointer<vtkLandmarkTransform>              LT = ICPTransform->GetLandmarkTransform();
         LT->SetModeToRigidBody();
         ICPTransform->SetSource(convRegParaTemplateMesh);
         ICPTransform->SetTarget(convSurfaceMesh);
@@ -249,7 +250,7 @@ int main( int argc, char * argv[] )
           {
           std::cout << "Calculating parameter rotation" << std::endl;
           }
-        vtkPointLocator * ptLoc = vtkPointLocator::New();
+        vtkSmartPointer<vtkPointLocator> ptLoc = vtkSmartPointer<vtkPointLocator>::New();
         ptLoc->SetDataSet(convSurfaceMesh);
         // Find the id of the transformed points
         long int id[3];
@@ -500,7 +501,7 @@ int main( int argc, char * argv[] )
 
     MeshType* meshSH;
     meshSH = meshsrc->GetOutput();
-    vtkPolyDataWriter *vtkwriter = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> vtkwriter = vtkSmartPointer<vtkPolyDataWriter>::New();
 
 	 if(debug)
 		 std::cout<<"saving medial axis mesh source"<<std::endl;
@@ -516,15 +517,15 @@ int main( int argc, char * argv[] )
 		MeshType* medialmeshSH;
 		medialmeshSH = medialmeshsrc->GetOutput();
 		
-		itkMeshTovtkPolyData * ITKVTKConverter5 = new itkMeshTovtkPolyData;
-		ITKVTKConverter5->SetInput( medialmeshSH );
+        itkMeshTovtkPolyData ITKVTKConverter5;
+        ITKVTKConverter5.SetInput( medialmeshSH );
 		
-		vtkPolyData* polydataAtt = ITKVTKConverter5->GetOutput();
+        vtkSmartPointer<vtkPolyData> polydataAtt = ITKVTKConverter5.GetOutput();
 		// START Add scalars for visualization
 		double* Radius;
 		Radius=medialmeshsrc->GetRadius();
 
-		vtkFloatArray *scalars_radius = vtkFloatArray::New();
+        vtkSmartPointer<vtkFloatArray> scalars_radius = vtkSmartPointer<vtkFloatArray>::New();
 		scalars_radius->SetNumberOfComponents(1);
 		scalars_radius->SetName("radius");
 
@@ -552,7 +553,7 @@ int main( int argc, char * argv[] )
 		double* Area;
 		Area=medialmeshsrc->GetArea();
 
-		vtkFloatArray *scalars_area = vtkFloatArray::New();
+        vtkSmartPointer<vtkFloatArray> scalars_area = vtkSmartPointer<vtkFloatArray>::New();
 		scalars_area->SetNumberOfComponents(1);
 		scalars_area->SetName("area");
 
@@ -579,7 +580,7 @@ int main( int argc, char * argv[] )
 		double* partialArea;
 		partialArea=medialmeshsrc->GetPartialArea();
 
-		vtkFloatArray *scalars_partialArea = vtkFloatArray::New();
+        vtkSmartPointer<vtkFloatArray> scalars_partialArea = vtkSmartPointer<vtkFloatArray>::New();
 		scalars_partialArea->SetNumberOfComponents(1);
 		scalars_partialArea->SetName("partial_area");
 
@@ -604,7 +605,7 @@ int main( int argc, char * argv[] )
 		double* partialRadius;
 		partialRadius=medialmeshsrc->GetPartialRadius();
 
-		vtkFloatArray *scalars_partialRadius = vtkFloatArray::New();
+        vtkSmartPointer<vtkFloatArray> scalars_partialRadius = vtkSmartPointer<vtkFloatArray>::New();
 		scalars_partialRadius->SetNumberOfComponents(1);
 		scalars_partialRadius->SetName("partial_radius");
 
@@ -641,7 +642,7 @@ int main( int argc, char * argv[] )
 		vtkwriter->Write();
 	 }
 	 
-	 vtkSmartPointer<vtkPolyData> medialAxis;
+     vtkSmartPointer<vtkPolyData> medialAxis = vtkSmartPointer<vtkPolyData>::New();
 	 medialAxis = medialmeshsrc->GetOutputMedialAxis();
 
 	 
@@ -658,12 +659,12 @@ int main( int argc, char * argv[] )
 	 
 	 std::ofstream ScalarFile(outFileName.c_str());
 	 ScalarFile<<"Theta,Radius,Area"<<std::endl;
-         vtkSmartPointer<vtkDoubleArray> theta = vtkSmartPointer<vtkDoubleArray>::New();
-         theta->SetName("_theta");
-         vtkSmartPointer<vtkDoubleArray> radius = vtkSmartPointer<vtkDoubleArray>::New();
-         radius->SetName("_radius");
-         vtkSmartPointer<vtkDoubleArray> area = vtkSmartPointer<vtkDoubleArray>::New();
-         area->SetName("_area");
+     vtkSmartPointer<vtkDoubleArray> theta = vtkSmartPointer<vtkDoubleArray>::New();
+     theta->SetName("_theta");
+     vtkSmartPointer<vtkDoubleArray> radius = vtkSmartPointer<vtkDoubleArray>::New();
+     radius->SetName("_radius");
+     vtkSmartPointer<vtkDoubleArray> area = vtkSmartPointer<vtkDoubleArray>::New();
+     area->SetName("_area");
 
 	 for(int i=0; i<thetaIteration; i++)
          {
@@ -690,8 +691,8 @@ int main( int argc, char * argv[] )
          vtkwriter->Write();
 
          //
-         itkMeshTovtkPolyData * ITKVTKConverter = new itkMeshTovtkPolyData;
-         ITKVTKConverter->SetInput( meshSH );
+         itkMeshTovtkPolyData ITKVTKConverter;
+         ITKVTKConverter.SetInput( meshSH );
 
          if( writePara )
          {
@@ -706,12 +707,12 @@ int main( int argc, char * argv[] )
            outFileName.append(base_string);
            outFileName.append("_para.vtk");
 
-           itkMeshTovtkPolyData * ITKVTKConverter4 = new itkMeshTovtkPolyData;
-           ITKVTKConverter4->SetInput(_paraMesh);
+           itkMeshTovtkPolyData ITKVTKConverter4;
+           ITKVTKConverter4.SetInput(_paraMesh);
            #if VTK_MAJOR_VERSION > 5
-           vtkwriter->SetInputData(ITKVTKConverter4->GetOutput() );
+           vtkwriter->SetInputData(ITKVTKConverter4.GetOutput() );
            #else
-           vtkwriter->SetInput(ITKVTKConverter4->GetOutput() );
+           vtkwriter->SetInput(ITKVTKConverter4.GetOutput() );
            #endif
            vtkwriter->SetFileName(outFileName.c_str() );
            vtkwriter->Write();
@@ -745,7 +746,7 @@ int main( int argc, char * argv[] )
                    array->InsertNextValue(phi);
                }
                efile.close();
-               ITKVTKConverter->GetOutput()->GetPointData()->AddArray(array);
+               ITKVTKConverter.GetOutput()->GetPointData()->AddArray(array);
            }
            {
                // write phi half
@@ -779,7 +780,7 @@ int main( int argc, char * argv[] )
                    array->InsertNextValue(phi);
                }
                efile.close();
-               ITKVTKConverter->GetOutput()->GetPointData()->AddArray(array);
+               ITKVTKConverter.GetOutput()->GetPointData()->AddArray(array);
            }
            {
                // write theta
@@ -809,7 +810,7 @@ int main( int argc, char * argv[] )
                    array->InsertNextValue(theta);
                }
                efile.close();
-               ITKVTKConverter->GetOutput()->GetPointData()->AddArray(array);
+               ITKVTKConverter.GetOutput()->GetPointData()->AddArray(array);
            }
            {
                // write theta/M_PI * (phi/M_PI/2 + 1)
@@ -845,7 +846,7 @@ int main( int argc, char * argv[] )
                    array->InsertNextValue(theta/ M_PI * ( phi / M_PI + 1));
                }
                efile.close();
-               ITKVTKConverter->GetOutput()->GetPointData()->AddArray(array);
+               ITKVTKConverter.GetOutput()->GetPointData()->AddArray(array);
            }
          }
          outFileName.erase();
@@ -854,9 +855,9 @@ int main( int argc, char * argv[] )
          vtkwriter->SetFileName(outFileName.c_str() );
 
          #if VTK_MAJOR_VERSION > 5
-         vtkwriter->SetInputData(ITKVTKConverter->GetOutput());
+         vtkwriter->SetInputData(ITKVTKConverter.GetOutput());
          #else
-         vtkwriter->SetInput(ITKVTKConverter->GetOutput());
+         vtkwriter->SetInput(ITKVTKConverter.GetOutput());
          #endif
          vtkwriter->SetFileName(outFileName.c_str());
          vtkwriter->Write();
@@ -897,8 +898,8 @@ int main( int argc, char * argv[] )
       meshEllisrc->Update();
       MeshType * ellipseMesh = meshEllisrc->GetOutput();
 
-      itkMeshTovtkPolyData * ITKVTKConverter2 = new itkMeshTovtkPolyData;
-      ITKVTKConverter2->SetInput(ellipseMesh);
+      itkMeshTovtkPolyData ITKVTKConverter2;
+      ITKVTKConverter2.SetInput(ellipseMesh);
 
       if( writePara )
       {
@@ -917,7 +918,7 @@ int main( int argc, char * argv[] )
                   double    phi = atan2(curPoint[1], curPoint[0]) + M_PI; // 0 .. 2 * M_PI
                   array->InsertNextValue(phi);
               }
-              ITKVTKConverter2->GetOutput()->GetPointData()->AddArray(array);
+              ITKVTKConverter2.GetOutput()->GetPointData()->AddArray(array);
             }
             {
               // write phi half
@@ -934,7 +935,7 @@ int main( int argc, char * argv[] )
                   }
                   array->InsertNextValue(phi);
                 }
-                ITKVTKConverter2->GetOutput()->GetPointData()->AddArray(array);
+                ITKVTKConverter2.GetOutput()->GetPointData()->AddArray(array);
             }
             {
                 // write theta
@@ -948,7 +949,7 @@ int main( int argc, char * argv[] )
                   //0 .. M_PI
                   array->InsertNextValue(theta);
                 }
-                ITKVTKConverter2->GetOutput()->GetPointData()->AddArray(array);
+                ITKVTKConverter2.GetOutput()->GetPointData()->AddArray(array);
             }
             {
                 // write theta/M_PI * (phi/M_PI/2 + 1)
@@ -967,14 +968,14 @@ int main( int argc, char * argv[] )
                   // 0 .. M_PI
                   array->InsertNextValue(theta/ M_PI * ( phi / M_PI + 1));
                 }
-                ITKVTKConverter2->GetOutput()->GetPointData()->AddArray(array);
+                ITKVTKConverter2.GetOutput()->GetPointData()->AddArray(array);
             }
       }
 
       #if VTK_MAJOR_VERSION > 5
-      vtkwriter->SetInputData(ITKVTKConverter2->GetOutput() );
+      vtkwriter->SetInputData(ITKVTKConverter2.GetOutput() );
       #else
-      vtkwriter->SetInput(ITKVTKConverter2->GetOutput() );
+      vtkwriter->SetInput(ITKVTKConverter2.GetOutput() );
       #endif
       outFileName.erase();
       outFileName.append(base_string);
@@ -992,6 +993,9 @@ int main( int argc, char * argv[] )
 
     if( regTemplateFileOn || regParaTemplateFileOn )
       {
+        std::cout<<"regTemplateFileOn: "<<regTemplateFileOn<<std::endl;
+        std::cout<<"regParaTemplateFileOn: "<<regParaTemplateFileOn<<std::endl;
+
       if( debug )
         {
         std::cout << "writing proc aligned data" << std::endl;
@@ -1001,12 +1005,12 @@ int main( int argc, char * argv[] )
 
       if( regTemplateFileOn )
         {
-        vtkPolyData *convRegTemplateMesh = vtkPolyData::New();
+        vtkSmartPointer<vtkPolyData> convRegTemplateMesh = vtkSmartPointer<vtkPolyData>::New();
         convRegTemplateMesh = ReadPolyData( regTemplateFile.c_str() );
 
-        vtkPolyDataToitkMesh* VTKITKConverter3 = new vtkPolyDataToitkMesh;
-        VTKITKConverter3->SetInput( convRegTemplateMesh );
-        RegTemplateMesh = VTKITKConverter3->GetOutput();
+        vtkPolyDataToitkMesh VTKITKConverter3;
+        VTKITKConverter3.SetInput( convRegTemplateMesh );
+        RegTemplateMesh = VTKITKConverter3.GetOutput();
 
         }
 
@@ -1061,12 +1065,12 @@ int main( int argc, char * argv[] )
       outFileName.append(base_string);
       outFileName.append("SPHARM_procalign.vtk");
       std::cout << "procalign" << std::endl;
-      itkMeshTovtkPolyData * ITKVTKConverter3 = new itkMeshTovtkPolyData;
-      ITKVTKConverter3->SetInput(RegisteredMesh);
+      itkMeshTovtkPolyData ITKVTKConverter3;
+      ITKVTKConverter3.SetInput(RegisteredMesh);
       #if VTK_MAJOR_VERSION > 5
-      vtkwriter->SetInputData(ITKVTKConverter3->GetOutput() );
+      vtkwriter->SetInputData(ITKVTKConverter3.GetOutput() );
       #else
-      vtkwriter->SetInput(ITKVTKConverter3->GetOutput() );
+      vtkwriter->SetInput(ITKVTKConverter3.GetOutput() );
       #endif
       vtkwriter->SetFileName(outFileName.c_str() );
       vtkwriter->Write();
@@ -1084,12 +1088,12 @@ int main( int argc, char * argv[] )
 
 }
 
-vtkPolyData* ReadPolyData(std::string filePath)
+vtkSmartPointer<vtkPolyData> ReadPolyData(std::string filePath)
 {
     size_t found = filePath.rfind(".vtp");
     if (found != std::string::npos)
     {
-        vtkXMLPolyDataReader* VTPreader = vtkXMLPolyDataReader::New();
+        vtkSmartPointer<vtkXMLPolyDataReader> VTPreader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
         VTPreader->SetFileName(filePath.c_str());
         VTPreader->Update();
         return VTPreader->GetOutput();
@@ -1097,7 +1101,7 @@ vtkPolyData* ReadPolyData(std::string filePath)
     found = filePath.rfind(".vtk");
     if ( found != std::string::npos )
     {
-        vtkPolyDataReader* VTKreader = vtkPolyDataReader::New();
+        vtkSmartPointer<vtkPolyDataReader> VTKreader = vtkSmartPointer<vtkPolyDataReader>::New();
         VTKreader->SetFileName(filePath.c_str());
         VTKreader->Update();
         return VTKreader->GetOutput();

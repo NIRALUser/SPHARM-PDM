@@ -23,6 +23,8 @@
 #include "itkMeshTovtkPolyData.h"
 #include "vtkPolyDataWriter.h"
 #include <vtkVersion.h>
+#include <vtkSmartPointer.h>
+
 
 using namespace std;
 void WriteEulerFile( std::string outEulerName, int Eulernum);
@@ -119,15 +121,14 @@ int main( int argc, char * argv[] )
    if (meshsrc->GetEulerNum() == 2 )
    {
 
-    vtkPolyDataWriter *writer;
-    writer = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
 
       {
       // convert surfaces to VTK
-      itkMeshTovtkPolyData * ITKVTKConverter = new itkMeshTovtkPolyData;
-      ITKVTKConverter->SetInput( mesh);
-      vtkPolyData *SurfMesh;
-      SurfMesh = ITKVTKConverter->GetOutput();
+      itkMeshTovtkPolyData ITKVTKConverter;
+      ITKVTKConverter.SetInput( mesh);
+      vtkSmartPointer<vtkPolyData> SurfMesh = vtkSmartPointer<vtkPolyData>::New();
+      SurfMesh = ITKVTKConverter.GetOutput();
 
       // Writing the file
       #if VTK_MAJOR_VERSION > 5
@@ -136,7 +137,6 @@ int main( int argc, char * argv[] )
       writer->SetInput(SurfMesh);
       #endif
       writer->SetFileName(outSurfName.c_str() );
-
       writer->Write();
 
       }
@@ -151,10 +151,10 @@ int main( int argc, char * argv[] )
     // Create the mesh Spatial Object
       {
       // convert surfaces to VTK
-      itkMeshTovtkPolyData * ITKVTKConverter2 = new itkMeshTovtkPolyData;
-      ITKVTKConverter2->SetInput( parmesh );
-      vtkPolyData *ParaMesh;
-      ParaMesh = ITKVTKConverter2->GetOutput();
+      itkMeshTovtkPolyData ITKVTKConverter2;
+      ITKVTKConverter2.SetInput( parmesh );
+      vtkSmartPointer<vtkPolyData> ParaMesh = vtkSmartPointer<vtkPolyData>::New();
+      ParaMesh = ITKVTKConverter2.GetOutput();
       // delete (ITKVTKConverter2);
 
       // Writing the file

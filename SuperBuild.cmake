@@ -1,4 +1,3 @@
-
 #-----------------------------------------------------------------------------
 set(verbose FALSE)
 #-----------------------------------------------------------------------------
@@ -84,10 +83,10 @@ option(BUILD_SHARED_LIBS "Use shared libraries" OFF) #to give the user the optio
 option(COMPILE_StatNonParamTestPDM "Compile StatNonParam and ShapeMancova" OFF)
 option(COMPILE_shapeworks "Compile shapeworks." OFF)
 option(COMPILE_ImageMath "Compile ImageMath." OFF)
-option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
+option(COMPILE_MetaMeshTools "Compile MetaMeshTools." OFF)
 option(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
 option(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
-option(COMPILE_RadiusToMesh "Compile RadiusToMesh." ON)
+option(COMPILE_RadiusToMesh "Compile RadiusToMesh." OFF)
 option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
 option(COMPILE_SpharmTool "Compile SpharmTool." ON)
 option(COMPILE_ParticleModule "Compile ParticleModule." OFF)
@@ -96,13 +95,15 @@ option(COMPILE_ParticleModule "Compile ParticleModule." OFF)
 # ${LOCAL_PROJECT_NAME} dependency list
 #------------------------------------------------------------------------------
 
-set(${LOCAL_PROJECT_NAME}_DEPENDENCIES ITKv4 SlicerExecutionModel VTK CLAPACK)
 
+if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
+  set(${LOCAL_PROJECT_NAME}_DEPENDENCIES CLAPACK)
+else()
+    set(${LOCAL_PROJECT_NAME}_DEPENDENCIES ITKv4 SlicerExecutionModel VTK CLAPACK)
+endif()
 if(BUILD_STYLE_UTILS)
   list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDENCIES Cppcheck KWStyle Uncrustify)
 endif()
-
-
 #-----------------------------------------------------------------------------
 # Define Superbuild global variables
 #-----------------------------------------------------------------------------
@@ -169,11 +170,11 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   GIT_EXECUTABLE:FILEPATH
   )
 
-
 _expand_external_project_vars()
 set(COMMON_EXTERNAL_PROJECT_ARGS ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS})
 set(extProjName ${LOCAL_PROJECT_NAME})
 set(proj        ${LOCAL_PROJECT_NAME})
+
 SlicerMacroCheckExternalProjectDependency(${proj})
 
 #-----------------------------------------------------------------------------
@@ -224,16 +225,21 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   ${LOCAL_PROJECT_NAME}_CLI_INSTALL_ARCHIVE_DESTINATION:PATH
   ${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION:PATH
   )
+#-----------------------------------------------------------------------------
+# Add external project CMake args
+#-----------------------------------------------------------------------------
 
-if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
+if( ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
   list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
     MIDAS_PACKAGE_API_KEY:STRING
     MIDAS_PACKAGE_EMAIL:STRING
     MIDAS_PACKAGE_URL:STRING
     Slicer_DIR:PATH
+    Slicer_USE_FILE:PATH
     SPHARM-PDM_BUILD_SLICER_EXTENSION:BOOL
     )
 endif()
+
 _expand_external_project_vars()
 set(COMMON_EXTERNAL_PROJECT_ARGS ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS})
 
@@ -253,12 +259,12 @@ if(verbose)
   endforeach()
 endif()
 
-
 #------------------------------------------------------------------------------
 # Configure and build
 #------------------------------------------------------------------------------
 set(proj ${LOCAL_PROJECT_NAME})
-ExternalProject_Add(${proj}
+ExternalProject_Add(
+  ${proj}
   DEPENDS ${${LOCAL_PROJECT_NAME}_DEPENDENCIES}
   DOWNLOAD_COMMAND ""
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}

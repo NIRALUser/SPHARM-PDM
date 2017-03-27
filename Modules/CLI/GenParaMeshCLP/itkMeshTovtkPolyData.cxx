@@ -5,19 +5,13 @@
 #define vtkDoubleType double
 #endif
 
-#ifndef vtkFloatingPointType
-#define vtkFloatingPointType vtkFloatingPointType
-typedef float vtkFloatingPointType;
-#endif
-
 itkMeshTovtkPolyData
 ::itkMeshTovtkPolyData()
 {
-
-  m_itkTriangleMesh = TriangleMeshType::New();
-  m_Points = vtkPoints::New();
-  m_PolyData = vtkPolyData::New();
-  m_Polys = vtkCellArray::New();
+    m_itkTriangleMesh = TriangleMeshType::New();
+    m_Points = vtkSmartPointer<vtkPoints>::New();
+    m_PolyData = vtkSmartPointer<vtkPolyData>::New();
+    m_Polys = vtkSmartPointer<vtkCellArray>::New();
 }
 
 itkMeshTovtkPolyData
@@ -34,7 +28,7 @@ itkMeshTovtkPolyData
   this->ConvertitkTovtk();
 }
 
-vtkPolyData *
+vtkSmartPointer<vtkPolyData>
 itkMeshTovtkPolyData
 ::GetOutput()
 {
@@ -45,6 +39,8 @@ void
 itkMeshTovtkPolyData
 ::ConvertitkTovtk()
 {
+
+
   int numPoints =  m_itkTriangleMesh->GetNumberOfPoints();
 
   InputPointsContainerPointer  myPoints = m_itkTriangleMesh->GetPoints();
@@ -72,7 +68,6 @@ itkMeshTovtkPolyData
     }
 
   m_PolyData->SetPoints(m_Points);
-  m_Points->Delete();
 
   CellsContainerPointer  cells = m_itkTriangleMesh->GetCells();
   CellsContainerIterator cellIt = cells->Begin();
@@ -81,7 +76,6 @@ itkMeshTovtkPolyData
     {
     CellType *                nextCell = cellIt->Value();
     CellType::PointIdIterator pointIt = nextCell->PointIdsBegin();
-    PointType                 p;
     int                       i;
 
     switch( nextCell->GetType() )
@@ -105,8 +99,5 @@ itkMeshTovtkPolyData
     cellIt++;
 
     }
-
   m_PolyData->SetPolys(m_Polys);
-  m_Polys->Delete();
-
 }

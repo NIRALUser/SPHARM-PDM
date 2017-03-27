@@ -8,6 +8,7 @@
 #include "itkMesh.h"
 #include "itkTriangleCell.h"
 #include "itkPoint.h"
+#include <vtkSmartPointer.h>
 
 /**
   \class itkMeshTovtkPolyData
@@ -39,15 +40,15 @@ public:
   */
   void SetInput(TriangleMeshType::Pointer mesh);
 
-  vtkPolyData * GetOutput();
+  vtkSmartPointer<vtkPolyData> GetOutput();
 
   void ConvertitkTovtk();
 
   TriangleMeshType::Pointer m_itkTriangleMesh;
 
-  vtkPoints *    m_Points;
-  vtkPolyData *  m_PolyData;
-  vtkCellArray * m_Polys;
+  vtkSmartPointer<vtkPoints>    m_Points;
+  vtkSmartPointer<vtkPolyData>  m_PolyData;
+  vtkSmartPointer<vtkCellArray> m_Polys;
 
 };
 

@@ -1,10 +1,11 @@
 project(spharmpdm)
 
+
 if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
-  #-----------------------------------------------------------------------------
-  # Program definitions for C++ interfacing
-  # Necessary at runtime
-  #-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+#   Program definitions for C++ interfacing
+#   Necessary at runtime
+#-----------------------------------------------------------------------------
   set(RELATIVE_EXTENSION_PATH ..)
   set(NOCLI_INSTALL_DIR ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${RELATIVE_EXTENSION_PATH})
   ADD_DEFINITIONS(-DSLICER_EXTENSION_PATH=${RELATIVE_EXTENSION_PATH})
@@ -37,7 +38,6 @@ message(STATUS ddd${ITK_DIR})
 #-----------------------------------------------------------------------------
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
-
 #-----------------------------------------------------------------------------
 
 set(CLAPACK_LIBRARY_DIRECTORIES
@@ -68,7 +68,7 @@ mark_as_advanced(BUILD_LIBRARIES)
 if(BUILD_LIBRARIES)
   add_subdirectory(Libraries)
 endif()
-add_subdirectory(Applications)
+add_subdirectory(Modules)
 
 #-----------------------------------------------------------------------------
 # Testing
