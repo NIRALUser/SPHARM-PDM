@@ -799,7 +799,7 @@
    <item>
     <widget class="QPushButton" name="applyButton">
      <property name="text">
-      <string>Apply</string>
+      <string>Run ShapeAnalysisModule</string>
      </property>
     </widget>
    </item>
@@ -847,6 +847,9 @@
       <enum>QFrame::StyledPanel</enum>
      </property>
     </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="progress_layout"/>
    </item>
   </layout>
  </widget>
