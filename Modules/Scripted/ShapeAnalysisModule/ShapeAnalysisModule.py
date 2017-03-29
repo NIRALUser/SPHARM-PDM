@@ -6,6 +6,7 @@ import logging
 import csv
 from slicer.util import VTKObservationMixin
 import platform
+import time
 
 #
 # ShapeAnalysisModule
@@ -202,7 +203,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
                              self.onLogicModified)
 
       self.Logic.Node.SetStatus(self.Logic.Node.Scheduled)
-      # self.Logic.allCaseStartTime = time.time()
+      self.Logic.allCaseStartTime = time.time()
 
       self.Logic.clearFlipOptionsTable()
 
@@ -303,6 +304,7 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     self.interface = interface
     self.InputCases = list()
     self.option_pipeline = None
+    self.allCaseStartTime = 0
 
     # Dictionaries
     self.pipeline = {}
@@ -370,8 +372,8 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
       self.removeObserver(pipeline_node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
                           self.onPipelineModified)
       # Report time taken to get to the non-busy state for the pipeline
-      # logging.info('Case %d (%s) took %d sec to run', pipeline_id, current_pipeline.CaseDir,
-      #              current_pipeline.getPipelineComputationTime())
+      logging.info('Case %d (%s) took %d sec to run', pipeline_id, current_pipeline.CaseInput,
+                    current_pipeline.getPipelineComputationTime())
       statusForNode = None
       # If canceled, stop everything
       if pipeline_node.GetStatusString() == 'Cancelled':
@@ -386,7 +388,7 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
         self.completed[pipeline_id] = True
         # If there is no anymore case
         if self.areAllPipelineCompleted():
-          # logging.info('All pipelines took: %d sec to run', time.time() - self.allCaseStartTime)
+          logging.info('All pipelines took: %d sec to run', time.time() - self.allCaseStartTime)
           statusForNode = pipeline_node.GetStatus()
           self.fillTableForFlipOptions()
 
@@ -479,7 +481,6 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
     table.verticalHeader().setVisible(False)
 
-
 #
 # ShapeAnalysisModuleMRMLUtility
 #
@@ -540,6 +541,10 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     self.skip_genParaMesh = False
     self.skip_paraToSPHARMMesh = False
 
+    # Pipeline computation time
+    self.pipelineStartTime = 0
+    self.pipelineEndTime = 0
+
     # Status
     self.StatusModifiedEvent = slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent
     self.Node = slicer.vtkMRMLCommandLineModuleNode()
@@ -550,6 +555,10 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     self.ProgressBar.setCommandLineModuleNode(self.Node)
     self.ProgressBar.setNameVisibility(slicer.qSlicerCLIProgressBar.AlwaysVisible)
     self.ErrorMessage = 'Unexpected error'
+
+  # Return pipeline computation time
+  def getPipelineComputationTime(self):
+    return (self.pipelineEndTime - self.pipelineStartTime)
 
   def setupSkipCLIs(self):
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
@@ -791,7 +800,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
   def runFirstCLIModule(self):
     if len(self.slicerModule) > 0:
       self.ID = 0
-      # self.pipelineStartTime = time.time()
+      self.pipelineStartTime = time.time()
       self.runCLIModule()
     else:
       logging.info('Slicer Module queue is empty, nothing to do')
@@ -834,6 +843,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       else:
         self.saveNodes()
         self.deleteNodes()
+        self.pipelineEndTime = time.time()
         self.Node.SetStatus(statusForNode)
 
   def saveNodes(self):
