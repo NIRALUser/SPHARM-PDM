@@ -224,7 +224,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
       self.Logic.removeObserver(logic_node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
                                 self.onLogicModified)
       # Create Error Message
-      if status == 'Completed with errors':
+      if status == 'Completed with errors' or status == 'Cancelled':
         logging.error(self.Logic.ErrorMessage)
         qt.QMessageBox.critical(slicer.util.mainWindow(),
                                 'ShapeAnalysisModule',
@@ -238,17 +238,15 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
       self.ApplyButton.setEnabled(True)
       self.ApplyButton.setText("Run ShapeAnalysisModule")
       self.CLIProgressBars.setParent(None)
-      self.Logic.ProgressBar.show()
 
     # if running, create toolbars
     elif status == 'Running':
       self.CLIProgressBars = qt.QWidget()
       progressbars_layout = qt.QVBoxLayout(self.CLIProgressBars)
       self.progress_layout.addWidget(self.CLIProgressBars)
-      self.Logic.ProgressBar.hide()
+      self.Logic.ProgressBar.show()
       for i in range(len(self.Logic.pipeline)):
         progressbars_layout.addWidget(self.Logic.pipeline[i].ProgressBar)
-
   #
   #   Flip Options
   #
@@ -316,14 +314,13 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     self.Node.SetName("ShapeAnalysisModule")
     self.ProgressBar = slicer.qSlicerCLIProgressBar()
     self.ProgressBar.setCommandLineModuleNode(self.Node)
+    self.ProgressBar.setNameVisibility(slicer.qSlicerCLIProgressBar.AlwaysVisible)
     self.ErrorMessage = 'Unexpected error'
 
   def ShapeAnalysisCases(self):
 
-    self.InputCases = list()
-    self.pipeline = {}
-
     # Search cases
+    self.InputCases = list()
     inputDirectory = self.interface.GroupProjectInputDirectory.directory.encode('utf-8')
     for file in os.listdir(inputDirectory):
       if file.endswith(".gipl") or file.endswith(".gipl.gz"):
@@ -332,10 +329,12 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     # No cases
     if not len(self.InputCases) > 0:
       slicer.util.errorDisplay("No cases found in " + inputDirectory)
+      self.Node.SetStatus(self.Node.CompletedWithErrors)
       return -1
 
     # Create pipelines
     else:
+      logging.info('%d case(s) found', len(self.InputCases))
       # Init
       for i in range(len(self.InputCases)):
         self.completed[i] = False
@@ -343,6 +342,7 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
 
         self.addObserver(self.pipeline[i].Node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
                        self.onPipelineModified)
+
       # Logic ready
       self.Node.SetStatus(self.Node.Running)
       # Launch Workflow
@@ -353,6 +353,11 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     self.pipeline[id].setup()
     self.pipeline[id].Node.SetStatus(self.Node.Scheduled)
     self.pipeline[id].runFirstCLIModule()
+
+  def Cancel(self):
+    self.Node.SetStatus(self.Node.Cancelling)
+    for i in range(len(self.pipeline)):
+      self.pipeline[i].Cancel()
 
   def onPipelineModified(self, pipeline_node, event):
     pipeline_id = None
@@ -377,6 +382,8 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
       statusForNode = None
       # If canceled, stop everything
       if pipeline_node.GetStatusString() == 'Cancelled':
+        self.ErrorMessage = current_pipeline.ErrorMessage
+        logging.error(current_pipeline.ErrorMessage)
         statusForNode = pipeline_node.GetStatus()
         # If completed, with errors or not
       else:
@@ -384,13 +391,15 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
         if pipeline_node.GetStatusString() == 'Completed with errors':
           self.ErrorMessage = current_pipeline.ErrorMessage
           logging.error(current_pipeline.ErrorMessage)
+
         # Then starts next case if it exists
         self.completed[pipeline_id] = True
         # If there is no anymore case
         if self.areAllPipelineCompleted():
           logging.info('All pipelines took: %d sec to run', time.time() - self.allCaseStartTime)
           statusForNode = pipeline_node.GetStatus()
-          self.fillTableForFlipOptions()
+          if not self.option_pipeline == 'changeFlip':
+            self.fillTableForFlipOptions()
 
       # Remove nodes from scene depending if we are
       #  in multicase, and if we want to keep intermediate files
@@ -408,11 +417,6 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
       if not self.completed[i]:
         return False
     return True
-
-  def Cancel(self):
-    self.Node.SetStatus(self.Node.Cancelling)
-    for i in range(len(self.pipeline)):
-      self.pipeline[i].Cancel()
 
   # Function to fill the table of the flip options for all the SPHARM mesh output
   #    - Column 0: filename of the SPHARM mesh output vtk file
@@ -537,9 +541,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     self.strPipelineID = "_" + str(self.pipelineID)
     self.CaseInput = CaseInput
     self.option_pipeline = option_pipeline
-    self.skip_segPostProcess = False
-    self.skip_genParaMesh = False
-    self.skip_paraToSPHARMMesh = False
+    self.slicerModule = {}
 
     # Pipeline computation time
     self.pipelineStartTime = 0
@@ -561,11 +563,15 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     return (self.pipelineEndTime - self.pipelineStartTime)
 
   def setupSkipCLIs(self):
+
+    self.skip_segPostProcess = False
+    self.skip_genParaMesh = False
+    self.skip_paraToSPHARMMesh = False
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
 
     # Skip SegPostProcess ?
     if self.option_pipeline == None:
-      if not self.interface.OverwriteGenParaMesh.checkState():
+      if not self.interface.OverwriteSegPostProcess.checkState():
         PostProcessDirectory = outputDirectory + "/PostProcess"
         PostProcessOutputFilepath = PostProcessDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_pp.gipl"
         if os.path.exists(PostProcessOutputFilepath):
@@ -580,11 +586,11 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
           self.skip_genParaMesh = True
 
       # Skip ParaToSPHARMMesh ?
-      SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
-      SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0]
-      SPHARMMeshDirectory = os.path.dirname(SPHARMMeshFilepath)
-      SPHARMMeshBasename = os.path.basename(SPHARMMeshFilepath)
       if not self.interface.OverwriteParaToSPHARMMesh.checkState():
+        SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
+        SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0]
+        SPHARMMeshDirectory = os.path.dirname(SPHARMMeshFilepath)
+        SPHARMMeshBasename = os.path.basename(SPHARMMeshFilepath)
         if os.path.exists(SPHARMMeshDirectory):
           for file in os.listdir(SPHARMMeshDirectory):
             if not file.find(SPHARMMeshBasename) == -1:
@@ -625,7 +631,6 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
     ## Post Processed Segmentation
     cli_nodes = list() # list of the nodes used in the Post Processed Segmentation step
-
     cli_filepaths = list() # list of the node filepaths used in the Post Processed Segmentation step
     PostProcessDirectory = outputDirectory + "/PostProcess"
     PostProcessOutputFilepath = PostProcessDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_pp.gipl"
@@ -673,15 +678,14 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       # Setup of the nodes which will be use by the next CLI
       pp_output_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(PostProcessOutputFilepath, 'LabelMapVolumeFile')
 
-      cli_filepaths.append(PostProcessOutputFilepath)
       cli_nodes.append(pp_output_node)
+      cli_filepaths.append(PostProcessOutputFilepath)
 
       self.setupNode(1, cli_nodes, cli_filepaths, [False], [True])
 
 
     ## Generate Mesh Parameters
     cli_nodes = list() # list of the nodes used in the Generate Mesh Parameters step
-
     cli_filepaths = list() # list of the node filepaths used in the Generate Mesh Parameters step
     GenParaMeshOutputDirectory = outputDirectory + "/MeshParameters"
     ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_para.vtk"
@@ -689,7 +693,6 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
     if not self.skip_genParaMesh:
       # Setup of the parameters od the CLI
-
       self.ID += 1
 
       cli_parameters = {}
@@ -706,7 +709,6 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
         cli_parameters["debug"] = True
 
       self.setupModule(slicer.modules.genparameshclp, cli_parameters)
-
 
       # Setup of the nodes created by the CLI
       #    Creation of a folder in the output folder : GenerateMeshParameters
@@ -733,12 +735,11 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
       self.setupNode(2, cli_nodes, cli_filepaths, [False, False], [True, True])
 
-
     ##  Parameters to SPHARM Mesh
     SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
     SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0]
-    if not self.skip_paraToSPHARMMesh:
 
+    if not self.skip_paraToSPHARMMesh:
       # Setup of the parameters od the CLI
       self.ID += 1
 
@@ -803,22 +804,17 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       self.pipelineStartTime = time.time()
       self.runCLIModule()
     else:
+      self.deleteNodes()
       logging.info('Slicer Module queue is empty, nothing to do')
       self.Node.SetStatus(self.Node.Completed)
-
-  def createCLINode(self, module):
-    cli_node = slicer.cli.createNode(module)
-    cli_node_name = "Case " + str(self.pipelineID) + ": " + os.path.splitext(self.CaseInput)[0] + " - step " + str(self.ID) + ": " + module.title
-    cli_node.SetName(cli_node_name)
-    return cli_node
 
   def onCLIModuleModified(self, cli_node, event):
     logging.info('-- %s : %s', cli_node.GetStatusString(), cli_node.GetName())
     if not cli_node.IsBusy():
       if platform.system() != 'Windows':
-        self.removeObserver(cli_node, self.StatusModifiedEvent,
-                            self.onCLIModuleModified)
+        self.removeObserver(cli_node, self.StatusModifiedEvent, self.onCLIModuleModified)
         statusForNode =  None
+
       if cli_node.GetStatusString() == 'Completed':
         if self.ID == len(self.slicerModule) - 1:
           cli_node_name = "Case " + str(self.pipelineID) + ": " + os.path.splitext(self.CaseInput)[0]
@@ -827,7 +823,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
           statusForNode = cli_node.GetStatus()
 
       elif cli_node.GetStatusString() == 'Cancelled':
-        self.ErrorMessage = cli_node.GetName() + " Cancelled (" + self.CaseInput + "), cancelling the pipeline"
+        self.ErrorMessage = cli_node.GetName() + " Cancelled: cancelling the pipeline"
         #Interrupt pipeline
         statusForNode = cli_node.GetStatus()
 
@@ -845,6 +841,12 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
         self.deleteNodes()
         self.pipelineEndTime = time.time()
         self.Node.SetStatus(statusForNode)
+
+  def createCLINode(self, module):
+    cli_node = slicer.cli.createNode(module)
+    cli_node_name = "Case " + str(self.pipelineID) + ": " + os.path.splitext(self.CaseInput)[0] + " - step " + str(self.ID) + ": " + module.title
+    cli_node.SetName(cli_node_name)
+    return cli_node
 
   def saveNodes(self):
     for id in self.nodeDictionary.keys():
