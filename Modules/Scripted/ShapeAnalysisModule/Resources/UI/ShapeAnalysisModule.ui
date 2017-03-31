@@ -635,7 +635,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QGroupBox" name="groupBox_2">
+       <widget class="QGroupBox" name="groupBox_RegTemplateOptions">
         <property name="title">
          <string>Registration Template Options</string>
         </property>
@@ -681,7 +681,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_3">
+       <widget class="QGroupBox" name="groupBox_FlipTemplateOptions">
         <property name="title">
          <string>Flip Template Options</string>
         </property>
@@ -727,47 +727,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_4">
-        <property name="title">
-         <string>Template Options</string>
-        </property>
-        <layout class="QFormLayout" name="formLayout_10">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_MTemplate">
-           <property name="text">
-            <string>Use Mean as the Template</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QCheckBox" name="checkBox_MTemplate">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_ParaOut1Template">
-           <property name="text">
-            <string>ParaOut (template)</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QCheckBox" name="checkBox_ParaOut1Template">
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="groupBox">
+       <widget class="QGroupBox" name="groupBox_FlipOptions">
         <property name="title">
          <string>Flip Options</string>
         </property>
@@ -827,6 +787,11 @@
              <string>Flip Along Axis of z</string>
             </property>
            </item>
+           <item>
+            <property name="text">
+             <string>All</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item row="3" column="1">
@@ -837,7 +802,7 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QCheckBox" name="checkBox">
+          <widget class="QCheckBox" name="checkBox_sameFlipForAll">
            <property name="text">
             <string>Same Flip for all the outputs</string>
            </property>
@@ -875,23 +840,22 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
-       <widget class="ctkCheckableComboBox" name="CheckableComboBox"/>
+       <widget class="ctkCheckableComboBox" name="CheckableComboBox_visualization"/>
       </item>
       <item>
-       <widget class="QTableWidget" name="tableWidget"/>
+       <widget class="QTableWidget" name="tableWidget_visualization"/>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_visualizationOfFlipInSPV">
+       <widget class="QPushButton" name="pushButton_visualizationInSPV">
         <property name="text">
          <string>Shape Population Viewer</string>
         </property>
        </widget>
       </item>
      </layout>
-     <zorder>pushButton_visualizationOfFlipInSPV</zorder>
-     <zorder>pushButton_visualizationOfFlipInSPV</zorder>
-     <zorder>tableWidget</zorder>
-     <zorder>CheckableComboBox</zorder>
+     <zorder>pushButton_visualizationInSPV</zorder>
+     <zorder>tableWidget_visualization</zorder>
+     <zorder>CheckableComboBox_visualization</zorder>
     </widget>
    </item>
    <item>

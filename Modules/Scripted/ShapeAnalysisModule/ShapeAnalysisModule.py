@@ -108,15 +108,14 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.regTemplate = self.getWidget('PathLineEdit_regTemplate')
     self.useFlipTemplate = self.getWidget('checkBox_useFlipTemplate')
     self.flipTemplate = self.getWidget('PathLineEdit_flipTemplate')
-    self.MTemplate = self.getWidget('checkBox_MTemplate')
-    self.ParaOut1Template = self.getWidget('checkBox_ParaOut1Template')
     self.choiceOfFlip = self.getWidget('comboBox_choiceOfFlip')
-    #   Flip Options
-    self.CollapsibleButton_FlipOptions = self.getWidget('CollapsibleButton_FlipOptions')
+    self.sameFlipForAll = self.getWidget('checkBox_sameFlipForAll')
     self.tableWidget_ChoiceOfFlip = self.getWidget('tableWidget_ChoiceOfFlip')
-    self.visualizationOfFlipInSPV = self.getWidget('pushButton_visualizationOfFlipInSPV')
     #   Visualization
     self.CollapsibleButton_Visualization = self.getWidget('CollapsibleButton_Visualization')
+    self.visualizationInSPV = self.getWidget('pushButton_visualizationInSPV')
+    self.CheckableComboBox_visualization = self.getWidget('CheckableComboBox_Visualization')
+    self.tableWidget_visualization = self.getWidget('tableWidget_visualization')
     #   Apply CLIs
     self.ApplyButton = self.getWidget('applyButton')
     self.progress_layout = self.getWidget('progress_layout')
@@ -126,6 +125,9 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.CollapsibleButton_GroupProjectIO.connect('clicked()',
                                                    lambda: self.onSelectedCollapsibleButtonOpen(
                                                      self.CollapsibleButton_GroupProjectIO))
+    self.GroupProjectInputDirectory.connect('directoryChanged(const QString &)', self.onInputDirectoryChanged)
+
+
     #   Post Processed Segmentation
     self.CollapsibleButton_SegPostProcess.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
@@ -149,11 +151,13 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.CollapsibleButton_AdvancedParametersToSPHARMMesh.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_AdvancedParametersToSPHARMMesh))
+    self.sameFlipForAll.connect('clicked(bool)', self.onEnableFlipChoices)
+
     #   Visualization
     self.CollapsibleButton_Visualization.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_Visualization))
-    self.visualizationOfFlipInSPV.connect('clicked(bool)', self.onPreviewFlips)
+    self.visualizationInSPV.connect('clicked(bool)', self.onPreviewFlips)
 
     #   Apply CLIs
     self.ApplyButton.connect('clicked(bool)', self.onApplyButton)
@@ -161,7 +165,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     # Widget Configuration
     #     Table for the Flip Options
     self.tableWidget_ChoiceOfFlip.setColumnCount(2)
-    self.tableWidget_ChoiceOfFlip.setHorizontalHeaderLabels([' Files ', ' Choice of Flip '])
+    self.tableWidget_ChoiceOfFlip.setHorizontalHeaderLabels([' Input Files ', ' Choice of Flip '])
     self.tableWidget_ChoiceOfFlip.setColumnWidth(0, 400)
     horizontalHeader = self.tableWidget_ChoiceOfFlip.horizontalHeader()
     horizontalHeader.setStretchLastSection(False)
@@ -208,6 +212,17 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 
 
   #
+  #   Group Project IO
+  #
+  def onInputDirectoryChanged(self):
+    # Search cases
+    self.Logic.InputCases = list()
+    inputDirectory = self.GroupProjectInputDirectory.directory.encode('utf-8')
+    for file in os.listdir(inputDirectory):
+      if file.endswith(".gipl") or file.endswith(".gipl.gz"):
+        self.Logic.InputCases.append(file)
+
+  #
   #   Post Processed Segmentation
   #
   def onSelectSpacing(self):
@@ -234,6 +249,15 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.VarianceZ.enabled = self.GaussianFiltering.checkState()
 
   #
+  #   Advanced Parameters to SPHARM Mesh
+  #
+  def onEnableFlipChoices(self):
+    self.choiceOfFlip.enabled = self.sameFlipForAll.checkState()
+    self.tableWidget_ChoiceOfFlip.enabled = not self.sameFlipForAll.checkState()
+    if not self.sameFlipForAll.checkState():
+      self.Logic.fillTableForFlipOptions()
+
+  #
   #   Apply CLIs
   #
   def onApplyButton(self):
@@ -247,8 +271,6 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 
       self.Logic.Node.SetStatus(self.Logic.Node.Scheduled)
       self.Logic.allCaseStartTime = time.time()
-
-      self.Logic.clearFlipOptionsTable()
 
       self.Logic.ShapeAnalysisCases()
 
@@ -290,9 +312,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
       self.Logic.ProgressBar.show()
       for i in range(len(self.Logic.pipeline)):
         progressbars_layout.addWidget(self.Logic.pipeline[i].ProgressBar)
-  #
-  #   Flip Options
-  #
+
   def onPreviewFlips(self):
     # Creation of a CSV file to load the vtk files in ShapePopulationViewer
     filePathCSV = slicer.app.temporaryPath + '/' + 'PreviewFlips.csv'
@@ -304,31 +324,9 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     launcherSPV = slicer.modules.launcher
     slicer.cli.run(launcherSPV, None, parameters, wait_for_completion=True)
 
-  def onChangeFlips(self):
-    # Run workflow
-    if not self.Logic.Node.IsBusy():
-      logging.info('Widget: Running ParaToSPHARMMesh to Change Flips')
-      self.changeFlips.setText("Cancel")
-
-      self.Logic.addObserver(self.Logic.Node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
-                             self.onLogicModified)
-
-      self.Logic.Node.SetStatus(self.Logic.Node.Scheduled)
-      # self.Logic.allCaseStartTime = time.time()
-
-      self.Logic.option_pipeline = 'changeFlip'
-      self.Logic.ShapeAnalysisCases()
-
-    # Cancel Workflow
-    else:
-      logging.info("Widget: Cancelling ParaToSPHARMMesh to Change Flips")
-      self.changeFlips.setEnabled(False)
-      self.Logic.Cancel()
-
 #
 # ShapeAnalysisModuleLogic
 #
-
 class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin):
   """This class should implement all the actual
   computation done by your module.  The interface
@@ -344,7 +342,6 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
 
     self.interface = interface
     self.InputCases = list()
-    self.option_pipeline = None
     self.allCaseStartTime = 0
 
     # Dictionaries
@@ -362,13 +359,6 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
 
   def ShapeAnalysisCases(self):
 
-    # Search cases
-    self.InputCases = list()
-    inputDirectory = self.interface.GroupProjectInputDirectory.directory.encode('utf-8')
-    for file in os.listdir(inputDirectory):
-      if file.endswith(".gipl") or file.endswith(".gipl.gz"):
-        self.InputCases.append(file)
-
     # No cases
     if not len(self.InputCases) > 0:
       slicer.util.errorDisplay("No cases found in " + inputDirectory)
@@ -381,7 +371,7 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
       # Init
       for i in range(len(self.InputCases)):
         self.completed[i] = False
-        self.pipeline[i] = ShapeAnalysisModulePipeline(i, self.InputCases[i], self.option_pipeline, self.interface)
+        self.pipeline[i] = ShapeAnalysisModulePipeline(i, self.InputCases[i], self.interface)
 
         self.addObserver(self.pipeline[i].Node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
                        self.onPipelineModified)
@@ -441,8 +431,6 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
         if self.areAllPipelineCompleted():
           logging.info('All pipelines took: %d sec to run', time.time() - self.allCaseStartTime)
           statusForNode = pipeline_node.GetStatus()
-          if not self.option_pipeline == 'changeFlip':
-            self.fillTableForFlipOptions()
 
       # Remove nodes from scene depending if we are
       #  in multicase, and if we want to keep intermediate files
@@ -468,38 +456,35 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     table = self.interface.tableWidget_ChoiceOfFlip
     row = 0
 
-    outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
-    SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh/"
     for basename in self.InputCases:
-      filepath = SPHARMMeshOutputDirectory + os.path.splitext(basename)[0] + "SPHARM.vtk"
-      if os.path.exists(filepath):
-        table.setRowCount(row + 1)
-        # Column 0:
-        filename = os.path.splitext(os.path.basename(filepath))[0]
-        labelVTKFile = qt.QLabel(filename)
-        labelVTKFile.setAlignment(0x84)
-        table.setCellWidget(row, 0, labelVTKFile)
+      table.setRowCount(row + 1)
+      # Column 0:
+      filename = os.path.splitext(basename)[0]
+      labelVTKFile = qt.QLabel(filename)
+      labelVTKFile.setAlignment(0x84)
+      table.setCellWidget(row, 0, labelVTKFile)
 
-        # Column 1:
-        widget = qt.QWidget()
-        layout = qt.QHBoxLayout(widget)
-        comboBox = qt.QComboBox()
-        comboBox.addItems(['No Flip',
-                           'Flip Along Axis of x and y',
-                           'Flip Along Axis of y and z',
-                           'Flip Along Axis of x and z',
-                           'Flip Along Axis of x',
-                           'Flip Along Axis of y',
-                           'Flip Along Axis of x, y and z',
-                           'Flip Along Axis of z'])
-        comboBox.setCurrentIndex(self.interface.choiceOfFlip.currentIndex)
-        layout.addWidget(comboBox)
-        layout.setAlignment(0x84)
-        layout.setContentsMargins(0, 0, 0, 0)
-        widget.setLayout(layout)
-        table.setCellWidget(row, 1, widget)
+      # Column 1:
+      widget = qt.QWidget()
+      layout = qt.QHBoxLayout(widget)
+      comboBox = qt.QComboBox()
+      comboBox.addItems(['No Flip',
+                         'Flip Along Axis of x and y',
+                         'Flip Along Axis of y and z',
+                         'Flip Along Axis of x and z',
+                         'Flip Along Axis of x',
+                         'Flip Along Axis of y',
+                         'Flip Along Axis of x, y and z',
+                         'Flip Along Axis of z',
+                         'All'])
+      comboBox.setCurrentIndex(self.interface.choiceOfFlip.currentIndex)
+      layout.addWidget(comboBox)
+      layout.setAlignment(0x84)
+      layout.setContentsMargins(0, 0, 0, 0)
+      widget.setLayout(layout)
+      table.setCellWidget(row, 1, widget)
 
-        row = row + 1
+      row = row + 1
 
   # Function to create a CSV file containing all the SPHARM mesh output files
   # that the user wants to display in ShapePopultaionViewer in order to check the flip
@@ -574,7 +559,7 @@ class ShapeAnalysisModuleNode(object):
 # ShapeAnalysisModulePipeline
 #
 class ShapeAnalysisModulePipeline(VTKObservationMixin):
-  def __init__(self, pipelineID, CaseInput, option_pipeline, interface):
+  def __init__(self, pipelineID, CaseInput, interface):
 
     VTKObservationMixin.__init__(self)
 
@@ -583,7 +568,6 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     self.pipelineID = pipelineID
     self.strPipelineID = "_" + str(self.pipelineID)
     self.CaseInput = CaseInput
-    self.option_pipeline = option_pipeline
     self.slicerModule = {}
 
     # Pipeline computation time
@@ -613,36 +597,30 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
 
     # Skip SegPostProcess ?
-    if self.option_pipeline == None:
-      if not self.interface.OverwriteSegPostProcess.checkState():
-        PostProcessDirectory = outputDirectory + "/PostProcess"
-        PostProcessOutputFilepath = PostProcessDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_pp.gipl"
-        if os.path.exists(PostProcessOutputFilepath):
-          self.skip_segPostProcess = True
+    if not self.interface.OverwriteSegPostProcess.checkState():
+      PostProcessDirectory = outputDirectory + "/PostProcess"
+      PostProcessOutputFilepath = PostProcessDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_pp.gipl"
+      if os.path.exists(PostProcessOutputFilepath):
+        self.skip_segPostProcess = True
 
-      # Skip GenParaMesh ?
-      if not self.interface.OverwriteGenParaMesh.checkState():
-        GenParaMeshOutputDirectory = outputDirectory + "/MeshParameters"
-        ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_para.vtk"
-        SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_surf.vtk"
-        if os.path.exists(ParaOutputFilepath) and os.path.exists(SurfOutputFilepath):
-          self.skip_genParaMesh = True
+    # Skip GenParaMesh ?
+    if not self.interface.OverwriteGenParaMesh.checkState():
+      GenParaMeshOutputDirectory = outputDirectory + "/MeshParameters"
+      ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_para.vtk"
+      SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_surf.vtk"
+      if os.path.exists(ParaOutputFilepath) and os.path.exists(SurfOutputFilepath):
+        self.skip_genParaMesh = True
 
-      # Skip ParaToSPHARMMesh ?
-      if not self.interface.OverwriteParaToSPHARMMesh.checkState():
-        SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
-        SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0]
-        SPHARMMeshDirectory = os.path.dirname(SPHARMMeshFilepath)
-        SPHARMMeshBasename = os.path.basename(SPHARMMeshFilepath)
-        if os.path.exists(SPHARMMeshDirectory):
-          for file in os.listdir(SPHARMMeshDirectory):
-            if not file.find(SPHARMMeshBasename) == -1:
-                self.skip_paraToSPHARMMesh = True
-
-    elif self.option_pipeline == 'changeFlip':
-      self.skip_segPostProcess = True
-      self.skip_genParaMesh = True
-      self.skip_paraToSPHARMMesh = False
+    # Skip ParaToSPHARMMesh ?
+    if not self.interface.OverwriteParaToSPHARMMesh.checkState():
+      SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
+      SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0]
+      SPHARMMeshDirectory = os.path.dirname(SPHARMMeshFilepath)
+      SPHARMMeshBasename = os.path.basename(SPHARMMeshFilepath)
+      if os.path.exists(SPHARMMeshDirectory):
+        for file in os.listdir(SPHARMMeshDirectory):
+          if not file.find(SPHARMMeshBasename) == -1:
+              self.skip_paraToSPHARMMesh = True
 
   def setupGlobalVariables(self):
     # Modules
@@ -807,7 +785,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
         cli_parameters["debug"] = True
 
       #   Advanced parameters
-      if self.option_pipeline == 'changeFlip':
+      if not self.interface.sameFlipForAll.checkState():
         # Recovery of the flip choisen by the user
         row = self.pipelineID
         widget = self.interface.tableWidget_ChoiceOfFlip.cellWidget(row, 1)
@@ -816,14 +794,14 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
         comboBox = tuple[1]
         cli_parameters["finalFlipIndex"] = comboBox.currentIndex
       else:
-        cli_parameters["finalFlipIndex"] = self.interface.choiceOfFlip.currentIndex  # 1 = flip along axes of x &amp; y,
-        # 2 = flip along y &amp; z,
-        # 3 = flip along x &amp; z
-        # 4 = flip along x,
-        # 5 = flip along y,
-        # 6 = flip along x &amp; y &amp; z,
-        # 7 = flip along z  where y is the smallest, x is the second smallest and z is the long axis of the ellipsoid
-
+        cli_parameters["finalFlipIndex"] = self.interface.choiceOfFlip.currentIndex # 1 = flip along axes of x &amp; y,
+                                                                                    # 2 = flip along y &amp; z,
+                                                                                    # 3 = flip along x &amp; z
+                                                                                    # 4 = flip along x,
+                                                                                    # 5 = flip along y,
+                                                                                    # 6 = flip along x &amp; y &amp; z,
+                                                                                    # 7 = flip along z  where y is the smallest, x is the second smallest and z is the long axis of the ellipsoid
+                                                                                    # 8 = All the flip
       self.setupModule(slicer.modules.paratospharmmeshclp, cli_parameters)
 
   # Run the CLI for the current module
