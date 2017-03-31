@@ -64,10 +64,12 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 
     # Global variables of the Interface
     #   Group Project IO
+    self.CollapsibleButton_GroupProjectIO = self.getWidget('CollapsibleButton_GroupProjectIO')
     self.GroupProjectInputDirectory = self.getWidget('DirectoryButton_GroupProjectInputDirectory')
     self.GroupProjectOutputDirectory = self.getWidget('DirectoryButton_GroupProjectOutputDirectory')
     self.Debug = self.getWidget('checkBox_Debug')
     #   Post Processed Segmentation
+    self.CollapsibleButton_SegPostProcess = self.getWidget('CollapsibleButton_SegPostProcess')
     self.OverwriteSegPostProcess = self.getWidget('checkBox_OverwriteSegPostProcess')
     self.RescaleSegPostProcess = self.getWidget('checkBox_RescaleSegPostProcess')
     self.sx = self.getWidget('SliderWidget_sx')
@@ -80,9 +82,11 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.label_ValueLabelNumber = self.getWidget('label_ValueLabelNumber')
     self.ValueLabelNumber = self.getWidget('SliderWidget_ValueLabelNumber')
     #   Generate Mesh Parameters
+    self.CollapsibleButton_GenParaMesh = self.getWidget('CollapsibleButton_GenParaMesh')
     self.OverwriteGenParaMesh = self.getWidget('checkBox_OverwriteGenParaMesh')
     self.NumberofIterations = self.getWidget('SliderWidget_NumberofIterations')
     #   Parameters to SPHARM Mesh
+    self.CollapsibleButton_ParaToSPHARMMesh = self.getWidget('CollapsibleButton_ParaToSPHARMMesh')
     self.OverwriteParaToSPHARMMesh = self.getWidget('checkBox_OverwriteParaToSPHARMMesh')
     self.SubdivLevelValue = self.getWidget('SliderWidget_SubdivLevelValue')
     self.SPHARMDegreeValue = self.getWidget('SliderWidget_SPHARMDegreeValue')
@@ -90,6 +94,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.phiIterationValue = self.getWidget('spinBox_phiIterationValue')
     self.medialMesh = self.getWidget('checkBox_medialMesh')
     #   Advanced Post Processed Segmentation
+    self.CollapsibleButton_AdvancedPostProcessedSegmentation = self.getWidget('CollapsibleButton_AdvancedPostProcessedSegmentation')
     self.GaussianFiltering = self.getWidget('checkBox_GaussianFiltering')
     self.label_VarianceX = self.getWidget('label_VarianceX')
     self.VarianceX = self.getWidget('SliderWidget_VarianceX')
@@ -98,6 +103,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.label_VarianceZ = self.getWidget('label_VarianceZ')
     self.VarianceZ = self.getWidget('SliderWidget_VarianceZ')
     #   Advanced Parameters to SPHARM Mesh
+    self.CollapsibleButton_AdvancedParametersToSPHARMMesh = self.getWidget('CollapsibleButton_AdvancedParametersToSPHARMMesh')
     self.useRegTemplate = self.getWidget('checkBox_useRegTemplate')
     self.regTemplate = self.getWidget('PathLineEdit_regTemplate')
     self.useFlipTemplate = self.getWidget('checkBox_useFlipTemplate')
@@ -106,28 +112,49 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.ParaOut1Template = self.getWidget('checkBox_ParaOut1Template')
     self.choiceOfFlip = self.getWidget('comboBox_choiceOfFlip')
     #   Flip Options
+    self.CollapsibleButton_FlipOptions = self.getWidget('CollapsibleButton_FlipOptions')
     self.tableWidget_ChoiceOfFlip = self.getWidget('tableWidget_ChoiceOfFlip')
-    self.changeFlips = self.getWidget('pushButton_changeFlips')
     self.visualizationOfFlipInSPV = self.getWidget('pushButton_visualizationOfFlipInSPV')
     #   Visualization
+    self.CollapsibleButton_Visualization = self.getWidget('CollapsibleButton_Visualization')
     #   Apply CLIs
     self.ApplyButton = self.getWidget('applyButton')
     self.progress_layout = self.getWidget('progress_layout')
 
     # Connections
     #   Group Project IO
+    self.CollapsibleButton_GroupProjectIO.connect('clicked()',
+                                                   lambda: self.onSelectedCollapsibleButtonOpen(
+                                                     self.CollapsibleButton_GroupProjectIO))
     #   Post Processed Segmentation
+    self.CollapsibleButton_SegPostProcess.connect('clicked()',
+                                                  lambda: self.onSelectedCollapsibleButtonOpen(
+                                                    self.CollapsibleButton_SegPostProcess))
     self.RescaleSegPostProcess.connect('clicked(bool)', self.onSelectSpacing)
     self.LabelState.connect('clicked(bool)', self.onSelectValueLabelNumber)
     #   Generate Mesh Parameters
+    self.CollapsibleButton_GenParaMesh.connect('clicked()',
+                                                  lambda: self.onSelectedCollapsibleButtonOpen(
+                                                    self.CollapsibleButton_GenParaMesh))
     #   Parameters to SPHARM Mesh
+    self.CollapsibleButton_ParaToSPHARMMesh.connect('clicked()',
+                                                  lambda: self.onSelectedCollapsibleButtonOpen(
+                                                    self.CollapsibleButton_ParaToSPHARMMesh))
     #   Advanced Post Processed Segmentation
+    self.CollapsibleButton_AdvancedPostProcessedSegmentation.connect('clicked()',
+                                                  lambda: self.onSelectedCollapsibleButtonOpen(
+                                                    self.CollapsibleButton_AdvancedPostProcessedSegmentation))
     self.GaussianFiltering.connect('clicked(bool)', self.onSelectGaussianVariance)
     #   Advanced Parameters to SPHARM Mesh
-    #   Flip Options
-    self.changeFlips.connect('clicked(bool)', self.onChangeFlips)
-    self.visualizationOfFlipInSPV.connect('clicked(bool)', self.onPreviewFlips)
+    self.CollapsibleButton_AdvancedParametersToSPHARMMesh.connect('clicked()',
+                                                  lambda: self.onSelectedCollapsibleButtonOpen(
+                                                    self.CollapsibleButton_AdvancedParametersToSPHARMMesh))
     #   Visualization
+    self.CollapsibleButton_Visualization.connect('clicked()',
+                                                  lambda: self.onSelectedCollapsibleButtonOpen(
+                                                    self.CollapsibleButton_Visualization))
+    self.visualizationOfFlipInSPV.connect('clicked(bool)', self.onPreviewFlips)
+
     #   Apply CLIs
     self.ApplyButton.connect('clicked(bool)', self.onApplyButton)
 
@@ -163,6 +190,22 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
         if resulting_widget:
           return resulting_widget
     return None
+
+  # Only one tab can be display at the same time:
+  #   When one tab is opened all the other tabs are closed
+  def onSelectedCollapsibleButtonOpen(self, selectedCollapsibleButton):
+    if selectedCollapsibleButton.isChecked():
+      collapsibleButtonList = [self.CollapsibleButton_GroupProjectIO,
+                               self.CollapsibleButton_SegPostProcess,
+                               self.CollapsibleButton_GenParaMesh,
+                               self.CollapsibleButton_ParaToSPHARMMesh,
+                               self.CollapsibleButton_AdvancedPostProcessedSegmentation,
+                               self.CollapsibleButton_AdvancedParametersToSPHARMMesh,
+                               self.CollapsibleButton_Visualization]
+      for collapsibleButton in collapsibleButtonList:
+        collapsibleButton.setChecked(False)
+      selectedCollapsibleButton.setChecked(True)
+
 
   #
   #   Post Processed Segmentation
