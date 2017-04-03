@@ -105,8 +105,10 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     #   Advanced Parameters to SPHARM Mesh
     self.CollapsibleButton_AdvancedParametersToSPHARMMesh = self.getWidget('CollapsibleButton_AdvancedParametersToSPHARMMesh')
     self.useRegTemplate = self.getWidget('checkBox_useRegTemplate')
+    self.label_regTemplate = self.getWidget('label_regTemplate')
     self.regTemplate = self.getWidget('PathLineEdit_regTemplate')
     self.useFlipTemplate = self.getWidget('checkBox_useFlipTemplate')
+    self.label_flipTemplate = self.getWidget('label_flipTemplate')
     self.flipTemplate = self.getWidget('PathLineEdit_flipTemplate')
     self.choiceOfFlip = self.getWidget('comboBox_choiceOfFlip')
     self.sameFlipForAll = self.getWidget('checkBox_sameFlipForAll')
@@ -155,6 +157,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.CollapsibleButton_AdvancedParametersToSPHARMMesh.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_AdvancedParametersToSPHARMMesh))
+    self.useRegTemplate.connect('clicked(bool)', self.onEnableRegTemplate)
+    self.useFlipTemplate.connect('clicked(bool)', self.onEnableFlipTemplate)
     self.sameFlipForAll.connect('clicked(bool)', self.onEnableFlipChoices)
 
     #   Visualization
@@ -283,7 +287,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
   def onSelectGaussianVariance(self):
     self.label_VarianceX.enabled = self.GaussianFiltering.checkState()
     self.VarianceX.enabled = self.GaussianFiltering.checkState()
-    self.label_VarianceY.enabled= self.GaussianFiltering.checkState()
+    self.label_VarianceY.enabled = self.GaussianFiltering.checkState()
     self.VarianceY.enabled = self.GaussianFiltering.checkState()
     self.label_VarianceZ.enabled = self.GaussianFiltering.checkState()
     self.VarianceZ.enabled = self.GaussianFiltering.checkState()
@@ -297,12 +301,33 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     if not self.sameFlipForAll.checkState():
       self.Logic.fillTableForFlipOptions()
 
+  def onEnableRegTemplate(self):
+    self.label_regTemplate.enabled = self.useRegTemplate.checkState()
+    self.regTemplate.enabled = self.useRegTemplate.checkState()
+
+  def onEnableFlipTemplate(self):
+    self.label_flipTemplate.enabled = self.useFlipTemplate.checkState()
+    self.flipTemplate.enabled = self.useFlipTemplate.checkState()
+
   #
   #   Apply CLIs
   #
   def onApplyButton(self):
     # Run workflow
     if not self.Logic.Node.IsBusy():
+
+      # Check the registration template file
+      if self.useRegTemplate.checkState():
+        if not os.path.exists(self.regTemplate.currentPath) or not self.Logic.checkExtension(self.regTemplate.currentPath, ".vtk"):
+          slicer.util.errorDisplay("Invalid registration template file in Advanced Parameters to SPHARM Mesh Tab")
+          return
+
+      # Check the flip template file
+      if self.useFlipTemplate.checkState():
+        if not os.path.exists(self.flipTemplate.currentPath) or not self.Logic.checkExtension(self.flipTemplate.currentPath, ".coef"):
+          slicer.util.errorDisplay("Invalid flip template file in Advanced Parameters to SPHARM Mesh Tab")
+          return
+
       logging.info('Widget: Running ShapeAnalysisModule')
       self.ApplyButton.setText("Cancel")
 
@@ -397,10 +422,16 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     self.ProgressBar.setNameVisibility(slicer.qSlicerCLIProgressBar.AlwaysVisible)
     self.ErrorMessage = 'Unexpected error'
 
+  def checkExtension(self, filename, extension):
+    if os.path.splitext(os.path.basename(filename))[1] == extension:
+      return True
+    return False
+
   def ShapeAnalysisCases(self):
 
     # No cases
     if not len(self.InputCases) > 0:
+      inputDirectory = self.interface.GroupProjectInputDirectory.directory.encode('utf-8')
       slicer.util.errorDisplay("No cases found in " + inputDirectory)
       self.Node.SetStatus(self.Node.CompletedWithErrors)
       return -1
@@ -825,6 +856,12 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
         cli_parameters["debug"] = True
 
       #   Advanced parameters
+      if self.interface.useRegTemplate.checkState():
+        cli_parameters["regTemplateFileOn"] = True
+        cli_parameters["regTemplateFile"] = self.interface.regTemplate.currentPath
+      if self.interface.useFlipTemplate.checkState():
+        cli_parameters["flipTemplateFileOn"] = True
+        cli_parameters["flipTemplateFile"] = self.interface.flipTemplate.currentPath
       if not self.interface.sameFlipForAll.checkState():
         # Recovery of the flip choisen by the user
         row = self.pipelineID

@@ -662,6 +662,9 @@
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_regTemplate">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Set a registration template&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
@@ -672,6 +675,9 @@
          </item>
          <item row="1" column="1">
           <widget class="ctkPathLineEdit" name="PathLineEdit_regTemplate">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Set a registration template&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
@@ -708,6 +714,9 @@
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_flipTemplate">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;This flipTemplate is used to test all possible flips of the parametrization along the first order ellipsoid axis and select the one whose reconstruction has minimal distance to the flip-template.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
@@ -718,6 +727,9 @@
          </item>
          <item row="1" column="1">
           <widget class="ctkPathLineEdit" name="PathLineEdit_flipTemplate">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;This flipTemplate is used to test all possible flips of the parametrization along the first order ellipsoid axis and select the one whose reconstruction has minimal distance to the flip-template.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
