@@ -132,16 +132,20 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.CollapsibleButton_SegPostProcess.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_SegPostProcess))
+    self.OverwriteSegPostProcess.connect('clicked(bool)', self.onOverwriteFilesSegPostProcess)
     self.RescaleSegPostProcess.connect('clicked(bool)', self.onSelectSpacing)
     self.LabelState.connect('clicked(bool)', self.onSelectValueLabelNumber)
     #   Generate Mesh Parameters
     self.CollapsibleButton_GenParaMesh.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_GenParaMesh))
+
+    self.OverwriteGenParaMesh.connect('clicked(bool)', self.onOverwriteFilesGenParaMesh)
     #   Parameters to SPHARM Mesh
     self.CollapsibleButton_ParaToSPHARMMesh.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_ParaToSPHARMMesh))
+    self.OverwriteParaToSPHARMMesh.connect('clicked(bool)', self.onOverwriteFilesParaToSPHARMMesh)
     #   Advanced Post Processed Segmentation
     self.CollapsibleButton_AdvancedPostProcessedSegmentation.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
@@ -236,6 +240,42 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
   def onSelectValueLabelNumber(self):
     self.label_ValueLabelNumber.enabled = self.LabelState.checkState()
     self.ValueLabelNumber.enabled = self.LabelState.checkState()
+
+  def onOverwriteFilesSegPostProcess(self):
+    if self.OverwriteSegPostProcess.checkState():
+      slicer.util.errorDisplay("If the overwrite option is apply to Post Processed Segmentation step, then the overwrite will be applied to the next steps")
+      # slicer.util.errorDisplay("By seting the overwrite option at this step, it will automatically be applied to the next step")
+      self.OverwriteGenParaMesh.blockSignals(True)
+      self.OverwriteGenParaMesh.setCheckState(qt.Qt.Checked)
+      self.OverwriteParaToSPHARMMesh.setCheckState(qt.Qt.Checked)
+      self.OverwriteGenParaMesh.blockSignals(False)
+
+  #
+  #   Generate Mesh Parameters
+  #
+  def onOverwriteFilesGenParaMesh(self):
+    if not self.OverwriteGenParaMesh.checkState():
+      if self.OverwriteSegPostProcess.checkState():
+        self.OverwriteGenParaMesh.blockSignals(True)
+        self.OverwriteGenParaMesh.setCheckState(qt.Qt.Checked)
+        slicer.util.errorDisplay("The overwrite option need to be applied to this step as it is set for the previous step")
+        self.OverwriteGenParaMesh.blockSignals(False)
+    else:
+      slicer.util.errorDisplay("If the overwrite option is apply to Generate Mesh Parameters step, then the overwrite will be applied to the next step")
+      self.OverwriteParaToSPHARMMesh.setCheckState(qt.Qt.Checked)
+
+  #
+  #   Parameters to SPHARM Mesh
+  #
+  def onOverwriteFilesParaToSPHARMMesh(self):
+    if not self.OverwriteParaToSPHARMMesh.checkState():
+      if self.OverwriteSegPostProcess.checkState() or self.OverwriteGenParaMesh.checkState():
+        self.OverwriteSegPostProcess.blockSignals(True)
+        self.OverwriteGenParaMesh.blockSignals(True)
+        slicer.util.errorDisplay("The overwrite option need to be applied to this step as it is set for the previous step")
+        self.OverwriteParaToSPHARMMesh.setCheckState(qt.Qt.Checked)
+        self.OverwriteSegPostProcess.blockSignals(False)
+        self.OverwriteGenParaMesh.blockSignals(False)
 
   #
   #   Advanced Post Processed Segmentation
