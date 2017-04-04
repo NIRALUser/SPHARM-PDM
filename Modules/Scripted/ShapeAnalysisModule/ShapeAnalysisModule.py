@@ -328,6 +328,9 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
           slicer.util.errorDisplay("Invalid flip template file in Advanced Parameters to SPHARM Mesh Tab")
           return
 
+      # Empty the output folders if the options overwrite is checked
+      self.Logic.cleanOutputFolders()
+
       logging.info('Widget: Running ShapeAnalysisModule')
       self.ApplyButton.setText("Cancel")
 
@@ -520,6 +523,29 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
         return False
     return True
 
+  # Empty the output folder if the overwrite option is checked
+  def cleanOutputFolders(self):
+    outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
+
+    if self.interface.OverwriteSegPostProcess.checkState():
+      PostProcessDirectory = outputDirectory + "/PostProcess"
+      if os.path.exists(PostProcessDirectory):
+        for filename in os.listdir(PostProcessDirectory):
+          print filename
+          os.remove(os.path.join(PostProcessDirectory, filename))
+
+    if self.interface.OverwriteGenParaMesh.checkState():
+      GenParaMeshOutputDirectory = outputDirectory + "/MeshParameters"
+      if os.path.exists(GenParaMeshOutputDirectory):
+        for filename in os.listdir(GenParaMeshOutputDirectory):
+          os.remove(os.path.join(GenParaMeshOutputDirectory, filename))
+
+    if self.interface.OverwriteParaToSPHARMMesh.checkState():
+      SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
+      if os.path.exists(SPHARMMeshOutputDirectory):
+        for filename in os.listdir(SPHARMMeshOutputDirectory):
+          os.remove(os.path.join(SPHARMMeshOutputDirectory, filename))
+
   # Function to fill the table of the flip options for all the SPHARM mesh output
   #    - Column 0: filename of the SPHARM mesh output vtk file
   #    - Column 1: combobox with the flip corresponding to the output file
@@ -674,6 +700,10 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       if os.path.exists(PostProcessOutputFilepath):
         self.skip_segPostProcess = True
 
+    # If SegPostProcess is not skip, do not skip the next CLIs: GenParaMesh and ParaToSPHARMMesh
+    if self.skip_segPostProcess == False:
+        return
+
     # Skip GenParaMesh ?
     if not self.interface.OverwriteGenParaMesh.checkState():
       GenParaMeshOutputDirectory = outputDirectory + "/MeshParameters"
@@ -681,6 +711,10 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_surf.vtk"
       if os.path.exists(ParaOutputFilepath) and os.path.exists(SurfOutputFilepath):
         self.skip_genParaMesh = True
+
+    # If GenParaMesh is not skip, do not skip the next CLI: ParaToSPHARMMesh
+    if self.skip_genParaMesh == False:
+      return
 
     # Skip ParaToSPHARMMesh ?
     if not self.interface.OverwriteParaToSPHARMMesh.checkState():
