@@ -829,57 +829,81 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
     ##  Parameters to SPHARM Mesh
     SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
-    SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0]
-
     if not self.skip_paraToSPHARMMesh:
-      # Setup of the parameters od the CLI
-      self.ID += 1
 
-      cli_parameters = {}
-
-      cli_parameters["inParaFile"] = para_output_model
-
-      cli_parameters["inSurfFile"] = surfmesh_output_model
-
-      #    Creation of a folder in the output folder : SPHARMMesh
-      if not os.path.exists(SPHARMMeshOutputDirectory):
-        os.makedirs(SPHARMMeshOutputDirectory)
-      cli_parameters["outbase"] = SPHARMMeshFilepath
-
-      cli_parameters["subdivLevel"] = self.interface.SubdivLevelValue.value
-      cli_parameters["spharmDegree"] = self.interface.SPHARMDegreeValue.value
-      cli_parameters["thetaIteration"] = self.interface.thetaIterationValue.value
-      cli_parameters["phiIteration"] = self.interface.phiIterationValue.value
-      if self.interface.medialMesh.checkState():
-        cli_parameters["medialMesh"] = True
-      if self.interface.Debug.checkState():
-        cli_parameters["debug"] = True
-
-      #   Advanced parameters
-      if self.interface.useRegTemplate.checkState():
-        cli_parameters["regTemplateFileOn"] = True
-        cli_parameters["regTemplateFile"] = self.interface.regTemplate.currentPath
-      if self.interface.useFlipTemplate.checkState():
-        cli_parameters["flipTemplateFileOn"] = True
-        cli_parameters["flipTemplateFile"] = self.interface.flipTemplate.currentPath
+      # Search of the flip to apply:
+      #       1 = flip along axes of x &amp; y,
+      #       2 = flip along y &amp; z,
+      #       3 = flip along x &amp; z
+      #       4 = flip along x,
+      #       5 = flip along y,
+      #       6 = flip along x &amp; y &amp; z,
+      #       7 = flip along z  where y is the smallest, x is the second smallest and z is the long axis of the ellipsoid
+      #       8 = All the flips
       if not self.interface.sameFlipForAll.checkState():
-        # Recovery of the flip choisen by the user
+        # Recovery of the flip chosen by the user
         row = self.pipelineID
         widget = self.interface.tableWidget_ChoiceOfFlip.cellWidget(row, 1)
         tuple = widget.children()
         comboBox = qt.QComboBox()
         comboBox = tuple[1]
-        cli_parameters["finalFlipIndex"] = comboBox.currentIndex
+        flipIndexToApply = comboBox.currentIndex
       else:
-        cli_parameters["finalFlipIndex"] = self.interface.choiceOfFlip.currentIndex # 1 = flip along axes of x &amp; y,
-                                                                                    # 2 = flip along y &amp; z,
-                                                                                    # 3 = flip along x &amp; z
-                                                                                    # 4 = flip along x,
-                                                                                    # 5 = flip along y,
-                                                                                    # 6 = flip along x &amp; y &amp; z,
-                                                                                    # 7 = flip along z  where y is the smallest, x is the second smallest and z is the long axis of the ellipsoid
-                                                                                    # 8 = All the flip
-      self.setupModule(slicer.modules.paratospharmmeshclp, cli_parameters)
+        flipIndexToApply = self.interface.choiceOfFlip.currentIndex
+
+      # Only one flip to apply
+      if flipIndexToApply < 8:
+        L = [1]
+      # All the flip to apply
+      else:
+        L = range(1,8)
+
+      for i in L:
+
+        # Setup of the parameters od the CLI
+        self.ID += 1
+
+        cli_parameters = {}
+
+        cli_parameters["inParaFile"] = para_output_model
+
+        cli_parameters["inSurfFile"] = surfmesh_output_model
+
+        #    Creation of a folder in the output folder : SPHARMMesh
+        if not os.path.exists(SPHARMMeshOutputDirectory):
+          os.makedirs(SPHARMMeshOutputDirectory)
+        if flipIndexToApply < 8:
+          SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0]
+          cli_parameters["outbase"] = SPHARMMeshFilepath
+        #   For each flip creation of a output filename
+        else:
+          flipName = ['AlongXY', 'AlongYZ', 'AlongXZ', 'AlongX', 'AlongY', 'AlongXYZ', 'AlongZ']
+          SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_flip" + flipName[i - 1]
+          cli_parameters["outbase"] = SPHARMMeshFilepath
+
+        cli_parameters["subdivLevel"] = self.interface.SubdivLevelValue.value
+        cli_parameters["spharmDegree"] = self.interface.SPHARMDegreeValue.value
+        cli_parameters["thetaIteration"] = self.interface.thetaIterationValue.value
+        cli_parameters["phiIteration"] = self.interface.phiIterationValue.value
+        if self.interface.medialMesh.checkState():
+          cli_parameters["medialMesh"] = True
+        if self.interface.Debug.checkState():
+          cli_parameters["debug"] = True
+
+        #   Advanced parameters
+        if self.interface.useRegTemplate.checkState():
+          cli_parameters["regTemplateFileOn"] = True
+          cli_parameters["regTemplateFile"] = self.interface.regTemplate.currentPath
+        if self.interface.useFlipTemplate.checkState():
+          cli_parameters["flipTemplateFileOn"] = True
+          cli_parameters["flipTemplateFile"] = self.interface.flipTemplate.currentPath
+
+        if flipIndexToApply < 8 :
+            cli_parameters["finalFlipIndex"] = flipIndexToApply
+        else:
+          cli_parameters["finalFlipIndex"] = i
+
+        self.setupModule(slicer.modules.paratospharmmeshclp, cli_parameters)
 
   # Run the CLI for the current module
   def runCLIModule(self):
