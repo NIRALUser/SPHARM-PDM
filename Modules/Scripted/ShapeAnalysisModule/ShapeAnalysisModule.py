@@ -432,7 +432,7 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     # No cases
     if not len(self.InputCases) > 0:
       inputDirectory = self.interface.GroupProjectInputDirectory.directory.encode('utf-8')
-      slicer.util.errorDisplay("No cases found in " + inputDirectory)
+      self.ErrorMessage = "No cases found in " + inputDirectory
       self.Node.SetStatus(self.Node.CompletedWithErrors)
       return -1
 
