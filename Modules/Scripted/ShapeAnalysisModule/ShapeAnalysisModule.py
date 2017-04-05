@@ -46,6 +46,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     #   Global variables
     #
     self.Logic = ShapeAnalysisModuleLogic(self)
+    self.progressbars_layout = None
 
     #
     #  Interface
@@ -183,8 +184,6 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 
     #     Progress Bar
     self.progress_layout.addWidget(self.Logic.ProgressBar)
-    self.CLIProgressBars = qt.QWidget()
-    self.progress_layout.addWidget(self.CLIProgressBars)
 
   def cleanup(self):
     pass
@@ -370,16 +369,18 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
       # Change buttons and ProgressBars
       self.ApplyButton.setEnabled(True)
       self.ApplyButton.setText("Run ShapeAnalysisModule")
-      self.CLIProgressBars.setParent(None)
 
     # if running, create toolbars
     elif status == 'Running':
-      self.CLIProgressBars = qt.QWidget()
-      progressbars_layout = qt.QVBoxLayout(self.CLIProgressBars)
-      self.progress_layout.addWidget(self.CLIProgressBars)
       self.Logic.ProgressBar.show()
+      if self.progressbars_layout:
+        self.CLIProgressBars.hide()
+      self.CLIProgressBars = ctk.ctkCollapsibleGroupBox()
+      self.CLIProgressBars.setTitle('Detail')
+      self.progress_layout.addWidget(self.CLIProgressBars)
+      self.progressbars_layout = qt.QVBoxLayout(self.CLIProgressBars)
       for i in range(len(self.Logic.pipeline)):
-        progressbars_layout.addWidget(self.Logic.pipeline[i].ProgressBar)
+        self.progressbars_layout.addWidget(self.Logic.pipeline[i].ProgressBar)
 
   def onPreviewFlips(self):
     # Creation of a CSV file to load the vtk files in ShapePopulationViewer
