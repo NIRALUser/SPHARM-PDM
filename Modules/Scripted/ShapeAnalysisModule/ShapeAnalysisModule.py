@@ -117,7 +117,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     #   Visualization
     self.CollapsibleButton_Visualization = self.getWidget('CollapsibleButton_Visualization')
     self.visualizationInSPV = self.getWidget('pushButton_visualizationInSPV')
-    self.CheckableComboBox_visualization = self.getWidget('CheckableComboBox_Visualization')
+    self.CheckableComboBox_visualization = self.getWidget('CheckableComboBox_visualization')
     self.tableWidget_visualization = self.getWidget('tableWidget_visualization')
     #   Apply CLIs
     self.ApplyButton = self.getWidget('applyButton')
@@ -166,6 +166,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.CollapsibleButton_Visualization.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_Visualization))
+    self.CheckableComboBox_visualization.connect('checkedIndexesChanged()', self.onCheckableComboBoxValueChanged)
     self.visualizationInSPV.connect('clicked(bool)', self.onPreviewFlips)
 
     #   Apply CLIs
@@ -184,6 +185,17 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 
     #     Progress Bar
     self.progress_layout.addWidget(self.Logic.ProgressBar)
+
+    #     Table for the visualization in SPV
+    self.tableWidget_visualization.setColumnCount(2)
+    self.tableWidget_visualization.setHorizontalHeaderLabels([' VTK Files ', ' Visualization '])
+    self.tableWidget_visualization.setColumnWidth(0, 400)
+    horizontalHeader = self.tableWidget_visualization.horizontalHeader()
+    horizontalHeader.setStretchLastSection(False)
+    horizontalHeader.setResizeMode(0, qt.QHeaderView.Stretch)
+    horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
+    self.tableWidget_visualization.verticalHeader().setVisible(False)
+
 
   def cleanup(self):
     pass
@@ -382,9 +394,175 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
       for i in range(len(self.Logic.pipeline)):
         self.progressbars_layout.addWidget(self.Logic.pipeline[i].ProgressBar)
 
+  def onCheckableComboBoxValueChanged(self):
+    currentText = self.CheckableComboBox_visualization.currentText
+    currentIndex = self.CheckableComboBox_visualization.currentIndex
+    currentItem = self.CheckableComboBox_visualization.model().item(currentIndex, 0)
+
+    # Update the CheckableComboBox
+    self.CheckableComboBox_visualization.blockSignals(True)
+    list = self.CheckableComboBox_visualization.model()
+    AllItem = list.item(0, 0)
+    AllSPHARMItem = list.item(1, 0)
+    AllSPHARMEllalignItem = list.item(2, 0)
+    c = True
+
+    if currentText == "All Models":
+      for i in range(list.rowCount()):
+        item = list.item(i, 0)
+        item.setCheckState(currentItem.checkState())
+
+    elif currentText == "All SPHARM Models":
+      for i in range(3,list.rowCount(),2):
+        item = list.item(i, 0)
+        item.setCheckState(currentItem.checkState())
+      if AllSPHARMEllalignItem.checkState():
+        AllItem.setCheckState(currentItem.checkState())
+
+    elif currentText == "All SPHARM Ellipse Aligned Models":
+      for i in range(4,list.rowCount(),2):
+        item = list.item(i, 0)
+        item.setCheckState(currentItem.checkState())
+      if AllSPHARMItem.checkState():
+        AllItem.setCheckState(currentItem.checkState())
+
+    elif not currentText.find("SPHARM Ellipse Aligned Models") == -1:
+      if not currentItem.checkState():
+        AllSPHARMEllalignItem.setCheckState(qt.Qt.Unchecked)
+        AllItem.setCheckState(qt.Qt.Unchecked)
+      else:
+        for i in range(4,list.rowCount(),2):
+          item = list.item(i, 0)
+          if not item.checkState():
+            c = False
+        if c:
+          AllSPHARMEllalignItem.setCheckState(qt.Qt.Checked)
+          if AllSPHARMItem.checkState():
+            AllItem.setCheckState(qt.Qt.Checked)
+    elif not currentText.find("SPHARM Models") == -1:
+      if not currentItem.checkState():
+        AllSPHARMItem.setCheckState(qt.Qt.Unchecked)
+        AllItem.setCheckState(qt.Qt.Unchecked)
+      else:
+        for i in range(3,list.rowCount(),2):
+          item = list.item(i, 0)
+          if not item.checkState():
+            c = False
+        if c:
+          AllSPHARMItem.setCheckState(qt.Qt.Checked)
+          if AllSPHARMEllalignItem.checkState():
+            AllItem.setCheckState(qt.Qt.Checked)
+
+    self.CheckableComboBox_visualization.blockSignals(False)
+
+    # Update the checkboxes in the table
+    for row in range(0, self.tableWidget_visualization.rowCount):
+      actionOnCheckBox = False
+      label = self.tableWidget_visualization.cellWidget(row, 0)
+      outputBasename = label.text
+      if currentText == "All Models":
+        actionOnCheckBox = True
+
+      elif currentText == "All SPHARM Models":
+        if not outputBasename.find("SPHARM") == -1 and outputBasename.find("SPHARM_ellalign") == -1:
+          actionOnCheckBox = True
+
+      elif currentText == "All SPHARM Ellipse Aligned Models":
+        if not outputBasename.find("SPHARM_ellalign") == -1:
+          actionOnCheckBox = True
+
+      else:
+        for inputFilename in self.Logic.InputCases:
+          inputBasename = os.path.splitext(inputFilename)[0]
+          if not currentText.find(inputBasename) == -1:
+            if not currentText.find("SPHARM Models") == -1:
+              if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARM") == -1 and outputBasename.find(inputBasename + "SPHARM_ellalign") == -1:
+                actionOnCheckBox = True
+            elif not currentText.find("SPHARM Ellipse Aligned Models") == -1:
+              if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARM_ellalign") == -1:
+                actionOnCheckBox = True
+
+      # check/uncheck the checkBox in (row,1)
+      if actionOnCheckBox:
+          widget = self.tableWidget_visualization.cellWidget(row, 1)
+          tuple = widget.children()
+          checkBox = tuple[1]
+          checkBox.blockSignals(True)
+          item = self.CheckableComboBox_visualization.model().item(currentIndex, 0)
+          if item.checkState():
+            checkBox.setChecked(True)
+          else:
+            checkBox.setChecked(False)
+          checkBox.blockSignals(False)
+
+  # Function to manage the checkbox in the table of visualization
+  def onCheckBoxTableValueChanged(self):
+    self.CheckableComboBox_visualization.blockSignals(True)
+    list = self.CheckableComboBox_visualization.model()
+    table = self.tableWidget_visualization
+    allSPHARM = True
+    allSPHARMEllalign = True
+
+    for i in range(len(self.Logic.InputCases)):
+      allSPHARMCheck = True
+      allSPHARMEllalignCheck = True
+      inputBasename = os.path.splitext(self.Logic.InputCases[i])[0]
+      for row in range(0,table.rowCount):
+        label = table.cellWidget(row, 0)
+        outputBasename = label.text
+        if not outputBasename.find(inputBasename) == -1:
+          widget = table.cellWidget(row, 1)
+          tuple = widget.children()
+          checkBox = tuple[1]
+          if not checkBox.checkState():
+            if not outputBasename.find("SPHARM_ellalign") == -1:
+              allSPHARMEllalignCheck = False
+              allSPHARMEllalign = False
+              item = list.item(i*2 + 4,0)
+              if item.checkState():
+                item.setCheckState(qt.Qt.Unchecked)
+              item = list.item(2,0)
+              if item.checkState():
+                item.setCheckState(qt.Qt.Unchecked)
+              list.item(0, 0).setCheckState(qt.Qt.Unchecked)
+
+            if not outputBasename.find("SPHARM") == -1 and outputBasename.find("SPHARM_ellalign") == -1:
+              allSPHARMCheck = False
+              allSPHARM = False
+              item = list.item(i*2 + 3,0)
+              if item.checkState():
+                item.setCheckState(qt.Qt.Unchecked)
+              item = list.item(1,0)
+              if item.checkState():
+                item.setCheckState(qt.Qt.Unchecked)
+              list.item(0, 0).setCheckState(qt.Qt.Unchecked)
+
+      if allSPHARMCheck:
+        item = list.item(i*2 + 3, 0)
+        if not item.checkState():
+          item.setCheckState(qt.Qt.Checked)
+      if allSPHARMEllalignCheck:
+        item = list.item(i*2 + 4, 0)
+        if not item.checkState():
+          item.setCheckState(qt.Qt.Checked)
+
+    if allSPHARM:
+      item = list.item(1, 0)
+      if not item.checkState():
+        item.setCheckState(qt.Qt.Checked)
+    if allSPHARMEllalign:
+      item = list.item(2, 0)
+      if not item.checkState():
+        item.setCheckState(qt.Qt.Checked)
+
+    if list.item(1, 0).checkState() and list.item(2, 0).checkState():
+      list.item(0, 0).setCheckState(qt.Qt.Checked)
+
+    self.CheckableComboBox_visualization.blockSignals(False)
+
   def onPreviewFlips(self):
     # Creation of a CSV file to load the vtk files in ShapePopulationViewer
-    filePathCSV = slicer.app.temporaryPath + '/' + 'PreviewFlips.csv'
+    filePathCSV = slicer.app.temporaryPath + '/' + 'PreviewForVisualizationInSPV.csv'
     self.Logic.creationCSVFileForSPV(filePathCSV)
 
     # Launch the CLI ShapePopulationViewer
@@ -506,11 +684,8 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
         if self.areAllPipelineCompleted():
           logging.info('All pipelines took: %d sec to run', time.time() - self.allCaseStartTime)
           statusForNode = pipeline_node.GetStatus()
+          self.configurationVisualization()
 
-      # Remove nodes from scene depending if we are
-      #  in multicase, and if we want to keep intermediate files
-      # self.pipeline[pipeline_id].cleanup()
-      # gc.collect()
 
       if statusForNode is None:
         # Run next pipeline
@@ -584,20 +759,67 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
 
       row = row + 1
 
-  # Function to create a CSV file containing all the SPHARM mesh output files
-  # that the user wants to display in ShapePopultaionViewer in order to check the flip
-  def creationCSVFileForSPV(self, filepathCVS):
-    # Creation a CSV file with a header 'VTK Files'
-    file = open(filepathCVS, 'w')
-    cw = csv.writer(file, delimiter=',')
-    cw.writerow(['VTK Files'])
-    # Add the path of the SPHARM mesh output files
+  def configurationVisualization(self):
+    # Configuration of the checkable comboBox
+    checkableComboBox = self.interface.CheckableComboBox_visualization
+    for i in range(len(self.InputCases)):
+      checkableComboBox.addItem("Case " + str(i) + ": " + os.path.splitext(self.InputCases[i])[0] + " - SPHARM Models")
+      checkableComboBox.addItem("Case " + str(i) + ": " + os.path.splitext(self.InputCases[i])[0] + " - SPHARM Ellipse Aligned Models")
+    # Configuration of the table
+    table = self.interface.tableWidget_visualization
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
     SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh/"
-    for basename in self.InputCases:
-      filepath = SPHARMMeshOutputDirectory + os.path.splitext(basename)[0] + "SPHARM.vtk"
-      if os.path.exists(filepath):
-        cw.writerow([filepath])
+    row = 0
+
+    for filename in os.listdir(SPHARMMeshOutputDirectory):
+      if filename.endswith(".vtk") and not filename.endswith("_para.vtk") and not filename.endswith("SPHARMMedialAxis.vtk"):
+        table.setRowCount(row + 1)
+        # Column 0:
+        labelVTKFile = qt.QLabel(os.path.splitext(filename)[0])
+        labelVTKFile.setAlignment(0x84)
+        table.setCellWidget(row, 0, labelVTKFile)
+
+        # Column 1:
+        widget = qt.QWidget()
+        layout = qt.QHBoxLayout(widget)
+        checkBox = qt.QCheckBox()
+        layout.addWidget(checkBox)
+        layout.setAlignment(0x84)
+        layout.setContentsMargins(0, 0, 0, 0)
+        widget.setLayout(layout)
+        table.setCellWidget(row, 1, widget)
+        checkBox.connect('stateChanged(int)', self.interface.onCheckBoxTableValueChanged)
+
+        row = row + 1
+
+  # Function to create a CSV file containing all the SPHARM mesh output files
+  # that the user wants to display in ShapePopultaionViewer in order to check the flip
+  def creationCSVFileForSPV(self, filepathCSV):
+    table = self.interface.tableWidget_visualization
+
+    # Creation a CSV file with a header 'VTK Files'
+    file = open(filepathCSV, 'w')
+    cw = csv.writer(file, delimiter=',')
+    cw.writerow(['VTK Files'])
+
+    # Add the filepath of the vtk file checked in the table
+    outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
+    SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh/"
+
+    # Add the path of the vtk files if the users selected it
+    for row in range(0, table.rowCount):
+      # check the checkBox
+      widget = table.cellWidget(row, 1)
+      tuple = widget.children()
+      checkBox = tuple[1]
+      if checkBox.isChecked():
+        # Recovery of the vtk filename
+        qlabel = table.cellWidget(row, 0)
+        vtkBasename = qlabel.text
+        VTKfilepath = SPHARMMeshOutputDirectory + vtkBasename + ".vtk"
+        if os.path.exists(VTKfilepath):
+          cw.writerow([VTKfilepath])
+    file.close()
 
   def clearFlipOptionsTable(self):
     table = self.interface.tableWidget_ChoiceOfFlip
