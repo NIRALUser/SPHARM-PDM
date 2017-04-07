@@ -329,13 +329,13 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 
       # Check the registration template file
       if self.useRegTemplate.checkState():
-        if not os.path.exists(self.regTemplate.currentPath) or not self.Logic.checkExtension(self.regTemplate.currentPath, ".vtk"):
+        if not os.path.exists(self.regTemplate.currentPath) or not self.regTemplate.currentPath.endswith(".vtk"):
           slicer.util.errorDisplay("Invalid registration template file in Advanced Parameters to SPHARM Mesh Tab")
           return
 
       # Check the flip template file
       if self.useFlipTemplate.checkState():
-        if not os.path.exists(self.flipTemplate.currentPath) or not self.Logic.checkExtension(self.flipTemplate.currentPath, ".coef"):
+        if not os.path.exists(self.flipTemplate.currentPath) or not self.flipTemplate.currentPath.endswith(".coef"):
           slicer.util.errorDisplay("Invalid flip template file in Advanced Parameters to SPHARM Mesh Tab")
           return
 
@@ -603,11 +603,6 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     self.ProgressBar.setCommandLineModuleNode(self.Node)
     self.ProgressBar.setNameVisibility(slicer.qSlicerCLIProgressBar.AlwaysVisible)
     self.ErrorMessage = 'Unexpected error'
-
-  def checkExtension(self, filename, extension):
-    if os.path.splitext(os.path.basename(filename))[1] == extension:
-      return True
-    return False
 
   def ShapeAnalysisCases(self):
 
