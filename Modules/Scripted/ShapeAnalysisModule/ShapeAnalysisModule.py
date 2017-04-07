@@ -262,8 +262,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 
   def onOverwriteFilesSegPostProcess(self):
     if self.OverwriteSegPostProcess.checkState():
-      slicer.util.errorDisplay("If the overwrite option is apply to Post Processed Segmentation step, then the overwrite will be applied to the next steps")
-      # slicer.util.errorDisplay("By seting the overwrite option at this step, it will automatically be applied to the next step")
+      slicer.util.errorDisplay("Applying the overwrite option to Post Processed Segmentation step will also apply to the next steps")
       self.OverwriteGenParaMesh.blockSignals(True)
       self.OverwriteGenParaMesh.setCheckState(qt.Qt.Checked)
       self.OverwriteParaToSPHARMMesh.setCheckState(qt.Qt.Checked)
@@ -280,7 +279,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
         slicer.util.errorDisplay("The overwrite option need to be applied to this step as it is set for the previous step")
         self.OverwriteGenParaMesh.blockSignals(False)
     else:
-      slicer.util.errorDisplay("If the overwrite option is apply to Generate Mesh Parameters step, then the overwrite will be applied to the next step")
+      slicer.util.errorDisplay("Applying the overwrite option to Generate Mesh Parameters step will also apply to the next steps")
       self.OverwriteParaToSPHARMMesh.setCheckState(qt.Qt.Checked)
 
   #
