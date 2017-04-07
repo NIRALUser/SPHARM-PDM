@@ -238,8 +238,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.Logic.InputCases = list()
     inputDirectory = self.GroupProjectInputDirectory.directory.encode('utf-8')
     for file in os.listdir(inputDirectory):
-      if file.endswith(".gipl") or file.endswith(".gipl.gz"):
-        self.Logic.InputCases.append(file)
+      self.Logic.InputCases.append(file)
 
   #
   #   Post Processed Segmentation
@@ -914,7 +913,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     # Skip SegPostProcess ?
     if not self.interface.OverwriteSegPostProcess.checkState():
       PostProcessDirectory = outputDirectory + "/PostProcess"
-      PostProcessOutputFilepath = PostProcessDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_pp.gipl"
+      PostProcessOutputFilepath = PostProcessDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_pp" + os.path.splitext(self.CaseInput)[1]
       if os.path.exists(PostProcessOutputFilepath):
         self.skip_segPostProcess = True
 
@@ -977,7 +976,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     cli_nodes = list() # list of the nodes used in the Post Processed Segmentation step
     cli_filepaths = list() # list of the node filepaths used in the Post Processed Segmentation step
     PostProcessDirectory = outputDirectory + "/PostProcess"
-    PostProcessOutputFilepath = PostProcessDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_pp.gipl"
+    PostProcessOutputFilepath = PostProcessDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_pp" + os.path.splitext(self.CaseInput)[1]
 
     if not self.skip_segPostProcess:
       # Setup of the parameters od the CLI
