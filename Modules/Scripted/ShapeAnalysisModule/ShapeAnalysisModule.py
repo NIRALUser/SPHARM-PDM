@@ -72,6 +72,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     #   Post Processed Segmentation
     self.CollapsibleButton_SegPostProcess = self.getWidget('CollapsibleButton_SegPostProcess')
     self.OverwriteSegPostProcess = self.getWidget('checkBox_OverwriteSegPostProcess')
+    self.label_RescaleSegPostProcess = self.getWidget('label_RescaleSegPostProcess')
     self.RescaleSegPostProcess = self.getWidget('checkBox_RescaleSegPostProcess')
     self.sx = self.getWidget('SliderWidget_sx')
     self.sy = self.getWidget('SliderWidget_sy')
@@ -136,7 +137,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_SegPostProcess))
     self.OverwriteSegPostProcess.connect('clicked(bool)', self.onOverwriteFilesSegPostProcess)
-    self.RescaleSegPostProcess.connect('clicked(bool)', self.onSelectSpacing)
+    self.RescaleSegPostProcess.connect('stateChanged(int)', self.onSelectSpacing)
     self.LabelState.connect('clicked(bool)', self.onSelectValueLabelNumber)
     #   Generate Mesh Parameters
     self.CollapsibleButton_GenParaMesh.connect('clicked()',
@@ -239,6 +240,10 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     inputDirectory = self.GroupProjectInputDirectory.directory.encode('utf-8')
     for file in os.listdir(inputDirectory):
       self.Logic.InputCases.append(file)
+      if file.endswith(".nii") or file.endswith(".nii.gz"):
+        self.RescaleSegPostProcess.setCheckState(qt.Qt.Unchecked)
+        self.label_RescaleSegPostProcess.enabled = False
+        self.RescaleSegPostProcess.enabled = False
 
   #
   #   Post Processed Segmentation
