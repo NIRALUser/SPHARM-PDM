@@ -760,6 +760,13 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
   def configurationVisualization(self):
     # Configuration of the checkable comboBox
     checkableComboBox = self.interface.CheckableComboBox_visualization
+    #   clean the checkable comboBox
+    list = checkableComboBox.model()
+    list.clear()
+    checkableComboBox.addItem("All Models")
+    checkableComboBox.addItem("All SPHARM Models")
+    checkableComboBox.addItem("All SPHARM Ellipse Aligned Models")
+    #   Fill the checkable comboBox
     for i in range(len(self.InputCases)):
       checkableComboBox.addItem("Case " + str(i) + ": " + os.path.splitext(self.InputCases[i])[0] + " - SPHARM Models")
       checkableComboBox.addItem("Case " + str(i) + ": " + os.path.splitext(self.InputCases[i])[0] + " - SPHARM Ellipse Aligned Models")
