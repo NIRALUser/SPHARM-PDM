@@ -1083,6 +1083,8 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       self.setupNode(2, cli_nodes, cli_filepaths, [False, False], [True, True])
 
     ##  Parameters to SPHARM Mesh
+    cli_nodes = list()  # list of the nodes used in the Generate Mesh Parameters step
+    cli_filepaths = list()  # list of the node filepaths used in the Generate Mesh Parameters step
     SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
     if not self.skip_paraToSPHARMMesh:
 
@@ -1148,7 +1150,14 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
         #   Advanced parameters
         if self.interface.useRegTemplate.checkState():
           cli_parameters["regTemplateFileOn"] = True
-          cli_parameters["regTemplateFile"] = self.interface.regTemplate.currentPath
+          regtemplate_filepath = self.interface.regTemplate.currentPath
+          regtemplate_model = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(regtemplate_filepath, 'ModelFile')
+          cli_parameters["regTemplateFile"] = regtemplate_model
+
+          cli_nodes.append(regtemplate_model)
+          cli_filepaths.append(regtemplate_filepath)
+
+          self.setupNode(i + 2, cli_nodes, cli_filepaths, [False], [True])
         if self.interface.useFlipTemplate.checkState():
           cli_parameters["flipTemplateFileOn"] = True
           cli_parameters["flipTemplateFile"] = self.interface.flipTemplate.currentPath
@@ -1227,18 +1236,18 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
   def saveNodes(self):
     for id in self.nodeDictionary.keys():
+      save = self.nodeDictionary[id].save
+      node = self.nodeDictionary[id].nodes
       for i in range(len(self.nodeDictionary[id].save)):
-        save = self.nodeDictionary[id].save
-        node = self.nodeDictionary[id].nodes
         filepaths = self.nodeDictionary[id].filepaths
         if save[i] == True:
           ShapeAnalysisModuleMRMLUtility.saveMRMLNode( node[i], filepaths[i] )
 
   def deleteNodes(self):
     for id in self.nodeDictionary.keys():
-      for i in range(len(self.nodeDictionary[id].save)):
-        delete = self.nodeDictionary[id].delete
-        node = self.nodeDictionary[id].nodes
+      delete = self.nodeDictionary[id].delete
+      node = self.nodeDictionary[id].nodes
+      for i in range(len(self.nodeDictionary[id].delete)):
         if delete[i] == True:
           ShapeAnalysisModuleMRMLUtility.removeMRMLNode( node[i] )
 
