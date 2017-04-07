@@ -479,7 +479,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
           inputBasename = os.path.splitext(inputFilename)[0]
           if not currentText.find(inputBasename) == -1:
             if not currentText.find("SPHARM Models") == -1:
-              if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARM") == -1 and outputBasename.find(inputBasename + "SPHARM_ellalign") == -1:
+              if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARM") == -1 and outputBasename.find("SPHARM_ellalign") == -1:
                 actionOnCheckBox = True
             elif not currentText.find("SPHARM Ellipse Aligned Models") == -1:
               if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARM_ellalign") == -1:
