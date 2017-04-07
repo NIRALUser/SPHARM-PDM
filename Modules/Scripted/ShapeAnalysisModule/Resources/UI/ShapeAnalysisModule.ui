@@ -336,8 +336,11 @@
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Number of Iterations&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
+        <property name="singleStep">
+         <double>50.000000000000000</double>
+        </property>
         <property name="pageStep">
-         <double>100.000000000000000</double>
+         <double>50.000000000000000</double>
         </property>
         <property name="maximum">
          <double>10000.000000000000000</double>
@@ -400,6 +403,9 @@
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Set the subdivision level for the icosahedron subdivision&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
+        <property name="singleStep">
+         <double>10.000000000000000</double>
+        </property>
         <property name="maximum">
          <double>100.000000000000000</double>
         </property>
@@ -422,6 +428,9 @@
        <widget class="ctkSliderWidget" name="SliderWidget_SPHARMDegreeValue">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Set the maximal degree for the SPHARM computation&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="singleStep">
+         <double>10.000000000000000</double>
         </property>
         <property name="maximum">
          <double>100.000000000000000</double>
