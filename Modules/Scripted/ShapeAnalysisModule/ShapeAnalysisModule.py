@@ -476,7 +476,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 
       else:
         for inputFilename in self.Logic.InputCases:
-          inputBasename = os.path.splitext(inputFilename)[0]
+          inputBasename = inputFilename.split('/')[-1].split('.')[0]
           if not currentText.find(inputBasename) == -1:
             if not currentText.find("SPHARM Models") == -1:
               if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARM") == -1 and outputBasename.find("SPHARM_ellalign") == -1:
@@ -509,7 +509,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     for i in range(len(self.Logic.InputCases)):
       allSPHARMCheck = True
       allSPHARMEllalignCheck = True
-      inputBasename = os.path.splitext(self.Logic.InputCases[i])[0]
+      inputBasename = self.Logic.InputCases[i].split('/')[-1].split('.')[0]
       for row in range(0,table.rowCount):
         label = table.cellWidget(row, 0)
         outputBasename = label.text
@@ -705,7 +705,6 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
       PostProcessDirectory = outputDirectory + "/PostProcess"
       if os.path.exists(PostProcessDirectory):
         for filename in os.listdir(PostProcessDirectory):
-          print filename
           os.remove(os.path.join(PostProcessDirectory, filename))
 
     if self.interface.OverwriteGenParaMesh.checkState():
@@ -730,7 +729,7 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     for basename in self.InputCases:
       table.setRowCount(row + 1)
       # Column 0:
-      filename = os.path.splitext(basename)[0]
+      filename = basename.split('/')[-1].split('.')[0]
       labelVTKFile = qt.QLabel(filename)
       labelVTKFile.setAlignment(0x84)
       table.setCellWidget(row, 0, labelVTKFile)
@@ -768,8 +767,8 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     checkableComboBox.addItem("All SPHARM Ellipse Aligned Models")
     #   Fill the checkable comboBox
     for i in range(len(self.InputCases)):
-      checkableComboBox.addItem("Case " + str(i) + ": " + os.path.splitext(self.InputCases[i])[0] + " - SPHARM Models")
-      checkableComboBox.addItem("Case " + str(i) + ": " + os.path.splitext(self.InputCases[i])[0] + " - SPHARM Ellipse Aligned Models")
+      checkableComboBox.addItem("Case " + str(i) + ": " + self.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Models")
+      checkableComboBox.addItem("Case " + str(i) + ": " + self.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Ellipse Aligned Models")
     # Configuration of the table
     table = self.interface.tableWidget_visualization
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
@@ -893,7 +892,6 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     self.pipelineID = pipelineID
     self.strPipelineID = "_" + str(self.pipelineID)
     self.CaseInput = CaseInput
-    self.slicerModule = {}
 
     # Pipeline computation time
     self.pipelineStartTime = 0
@@ -924,7 +922,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     # Skip SegPostProcess ?
     if not self.interface.OverwriteSegPostProcess.checkState():
       PostProcessDirectory = outputDirectory + "/PostProcess"
-      PostProcessOutputFilepath = PostProcessDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_pp" + os.path.splitext(self.CaseInput)[1]
+      PostProcessOutputFilepath = PostProcessDirectory + "/" + self.inputFilename + "_pp." + self.inputExtension
       if os.path.exists(PostProcessOutputFilepath):
         self.skip_segPostProcess = True
 
@@ -935,8 +933,8 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     # Skip GenParaMesh ?
     if not self.interface.OverwriteGenParaMesh.checkState():
       GenParaMeshOutputDirectory = outputDirectory + "/MeshParameters"
-      ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_para.vtk"
-      SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_surf.vtk"
+      ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_para.vtk"
+      SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_surf.vtk"
       if os.path.exists(ParaOutputFilepath) and os.path.exists(SurfOutputFilepath):
         self.skip_genParaMesh = True
 
@@ -947,7 +945,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     # Skip ParaToSPHARMMesh ?
     if not self.interface.OverwriteParaToSPHARMMesh.checkState():
       SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
-      SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0]
+      SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + self.inputFilename
       SPHARMMeshDirectory = os.path.dirname(SPHARMMeshFilepath)
       SPHARMMeshBasename = os.path.basename(SPHARMMeshFilepath)
       if os.path.exists(SPHARMMeshDirectory):
@@ -963,6 +961,13 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
     # Nodes
     self.nodeDictionary = {}
+
+    # Input filename and extension
+    filepathSplit = self.CaseInput.split('/')[-1].split('.')
+    self.inputFilename = filepathSplit[0]
+    self.inputExtension = filepathSplit[1]
+    if len(filepathSplit) == 3:
+      self.inputExtension = self.inputExtension + "." + filepathSplit[2]
 
   def setupModule(self, module, cli_parameters):
     self.slicerModule[self.ID] = module
@@ -987,7 +992,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     cli_nodes = list() # list of the nodes used in the Post Processed Segmentation step
     cli_filepaths = list() # list of the node filepaths used in the Post Processed Segmentation step
     PostProcessDirectory = outputDirectory + "/PostProcess"
-    PostProcessOutputFilepath = PostProcessDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_pp" + os.path.splitext(self.CaseInput)[1]
+    PostProcessOutputFilepath = PostProcessDirectory + "/" + self.inputFilename + "_pp." + self.inputExtension
 
     if not self.skip_segPostProcess:
       # Setup of the parameters od the CLI
@@ -1042,8 +1047,8 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     cli_nodes = list() # list of the nodes used in the Generate Mesh Parameters step
     cli_filepaths = list() # list of the node filepaths used in the Generate Mesh Parameters step
     GenParaMeshOutputDirectory = outputDirectory + "/MeshParameters"
-    ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_para.vtk"
-    SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_surf.vtk"
+    ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_para.vtk"
+    SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_surf.vtk"
 
     if not self.skip_genParaMesh:
       # Setup of the parameters od the CLI
@@ -1137,12 +1142,12 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
         if not os.path.exists(SPHARMMeshOutputDirectory):
           os.makedirs(SPHARMMeshOutputDirectory)
         if flipIndexToApply < 8:
-          SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0]
+          SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + self.inputFilename
           cli_parameters["outbase"] = SPHARMMeshFilepath
         #   For each flip creation of a output filename
         else:
           flipName = ['AlongXY', 'AlongYZ', 'AlongXZ', 'AlongX', 'AlongY', 'AlongXYZ', 'AlongZ']
-          SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + os.path.splitext(self.CaseInput)[0] + "_flip" + flipName[i - 1]
+          SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + self.inputFilename + "_flip" + flipName[i - 1]
           cli_parameters["outbase"] = SPHARMMeshFilepath
 
         cli_parameters["subdivLevel"] = self.interface.SubdivLevelValue.value
@@ -1210,7 +1215,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
       if cli_node.GetStatusString() == 'Completed':
         if self.ID == len(self.slicerModule) - 1:
-          cli_node_name = "Case " + str(self.pipelineID) + ": " + os.path.splitext(self.CaseInput)[0]
+          cli_node_name = "Case " + str(self.pipelineID) + ": " + self.inputFilename
           cli_node.SetName(cli_node_name)
           self.setCurrentCLINode(cli_node)
           statusForNode = cli_node.GetStatus()
@@ -1237,7 +1242,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
   def createCLINode(self, module):
     cli_node = slicer.cli.createNode(module)
-    cli_node_name = "Case " + str(self.pipelineID) + ": " + os.path.splitext(self.CaseInput)[0] + " - step " + str(self.ID) + ": " + module.title
+    cli_node_name = "Case " + str(self.pipelineID) + ": " + self.inputFilename + " - step " + str(self.ID) + ": " + module.title
     cli_node.SetName(cli_node_name)
     return cli_node
 
