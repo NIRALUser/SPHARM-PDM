@@ -38,7 +38,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="label_GroupProjectInputDirectory">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Input Directory&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Input Directory &lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Possible Label map data : -GIPL (.gipl and .gipl.gz) -NifTI (.nii and .nii.gz) -NRRD (.nrrd) -MGh (.mgh and .mgh.gz) -MetaImage (.mhd) -Analyze (.hdr)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Possible model data: -VTK (.vtk) and -VTP (.vtp)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>Input Directory</string>
@@ -48,7 +48,7 @@
       <item row="3" column="1">
        <widget class="ctkDirectoryButton" name="DirectoryButton_GroupProjectInputDirectory">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Input Directory&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Input Directory &lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Possible Label map data : -GIPL (.gipl and .gipl.gz) -NifTI (.nii and .nii.gz) -NRRD (.nrrd) -MGh (.mgh and .mgh.gz) -MetaImage (.mhd) -Analyze (.hdr)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Possible model data: -VTK (.vtk) and -VTP (.vtp)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>

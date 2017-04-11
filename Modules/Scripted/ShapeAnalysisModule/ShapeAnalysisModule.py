@@ -230,20 +230,24 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
         collapsibleButton.setChecked(False)
       selectedCollapsibleButton.setChecked(True)
 
-
   #
   #   Group Project IO
   #
   def onInputDirectoryChanged(self):
+    #  Possible extension
+    exts = [".gipl", ".gipl.gz", ".mgh", ".mgh,gz", ".nii", ".nii.gz",".nrrd", "vtk", "vtp" "hdr", "mhd"]
+
     # Search cases
-    self.Logic.InputCases = list()
+    self.Logic.InputCases = []
     inputDirectory = self.GroupProjectInputDirectory.directory.encode('utf-8')
     for file in os.listdir(inputDirectory):
-      self.Logic.InputCases.append(file)
-      if file.endswith(".nii") or file.endswith(".nii.gz"):
-        self.RescaleSegPostProcess.setCheckState(qt.Qt.Unchecked)
-        self.label_RescaleSegPostProcess.enabled = False
-        self.RescaleSegPostProcess.enabled = False
+      for ext in exts:
+        if file.endswith(ext):
+          self.Logic.InputCases.append(file)
+          if file.endswith(".nii") or file.endswith(".nii.gz"):
+            self.RescaleSegPostProcess.setCheckState(qt.Qt.Unchecked)
+            self.label_RescaleSegPostProcess.enabled = False
+            self.RescaleSegPostProcess.enabled = False
 
   #
   #   Post Processed Segmentation
@@ -1117,12 +1121,43 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
   def getPipelineComputationTime(self):
     return (self.pipelineEndTime - self.pipelineStartTime)
 
+  def setupGlobalVariables(self):
+    # Modules
+    self.ID = -1
+    self.slicerModule = {}
+    self.moduleParameters = {}
+
+    # Nodes
+    self.nodeDictionary = {}
+
+    # Input filename and extension
+    filepathSplit = self.CaseInput.split('/')[-1].split('.')
+    self.inputFilename = filepathSplit[0]
+    self.inputExtension = filepathSplit[1]
+    if len(filepathSplit) == 3:
+      self.inputExtension = self.inputExtension + "." + filepathSplit[2]
+
   def setupSkipCLIs(self):
 
+    self.skip_meshToLabelMap = False
     self.skip_segPostProcess = False
     self.skip_genParaMesh = False
     self.skip_paraToSPHARMMesh = False
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
+
+    # Skip MeshToLabelMap?
+    if not self.inputExtension == "vtk" and not self.inputExtension == "vtp":
+      self.skip_meshToLabelMap = True
+    else:
+      LabelMapDirectory = outputDirectory + "/LabelMap"
+      LabelMapOutputFilepath = LabelMapDirectory + "/" + self.inputFilename + ".nrrd"
+      if os.path.exists(LabelMapOutputFilepath):
+        self.inputExtension = "nrrd"
+        self.skip_meshToLabelMap = True
+
+    # If MeshToLabelMap is not skip, do not skip the next CLIs: SegPostProcess, GenParaMesh and ParaToSPHARMMesh
+    if self.skip_meshToLabelMap == False:
+      return
 
     # Skip SegPostProcess ?
     if not self.interface.OverwriteSegPostProcess.checkState():
@@ -1133,7 +1168,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
     # If SegPostProcess is not skip, do not skip the next CLIs: GenParaMesh and ParaToSPHARMMesh
     if self.skip_segPostProcess == False:
-        return
+      return
 
     # Skip GenParaMesh ?
     if not self.interface.OverwriteGenParaMesh.checkState():
@@ -1158,22 +1193,6 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
           if not file.find(SPHARMMeshBasename) == -1:
               self.skip_paraToSPHARMMesh = True
 
-  def setupGlobalVariables(self):
-    # Modules
-    self.ID = -1
-    self.slicerModule = {}
-    self.moduleParameters = {}
-
-    # Nodes
-    self.nodeDictionary = {}
-
-    # Input filename and extension
-    filepathSplit = self.CaseInput.split('/')[-1].split('.')
-    self.inputFilename = filepathSplit[0]
-    self.inputExtension = filepathSplit[1]
-    if len(filepathSplit) == 3:
-      self.inputExtension = self.inputExtension + "." + filepathSplit[2]
-
   def setupModule(self, module, cli_parameters):
     self.slicerModule[self.ID] = module
     self.moduleParameters[self.ID] = cli_parameters
@@ -1193,6 +1212,52 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     inputDirectory = self.interface.GroupProjectInputDirectory.directory.encode('utf-8')
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
 
+    ## Mesh To Label Map: Transform input model in label map
+    cli_nodes = list() # list of the nodes used in the Mesh to Label Map step
+    cli_filepaths = list() # list of the node filepaths used in the Mesh to Label Map step
+    LabelMapDirectory = outputDirectory + "/LabelMap"
+    LabelMapOutputFilepath = LabelMapDirectory + "/" + self.inputFilename + ".nrrd"
+    if not self.skip_meshToLabelMap:
+      # Setup of the parameters od the CLI
+      self.ID += 1
+
+      cli_parameters = {}
+
+      inputFilepath = inputDirectory + '/' + self.CaseInput
+      model_input_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(inputFilepath, 'ModelFile')
+
+      cli_parameters["mesh"] = model_input_node
+
+      meshtolabelmap_output_node = ShapeAnalysisModuleMRMLUtility.addnewMRMLNode("output_MeshToLabelMap", slicer.vtkMRMLLabelMapVolumeNode())
+      cli_parameters["labelMap"] = meshtolabelmap_output_node
+
+      cli_parameters["spacingVec"] = "0.1,0.1,0.1"
+
+      self.inputExtension = "nrrd"
+
+      self.setupModule(slicer.modules.meshtolabelmap, cli_parameters)
+
+      # Setup of the nodes created by the CLI
+      #    Creation of a folder in the output folder : LabelMap
+      if not os.path.exists(LabelMapDirectory):
+        os.makedirs(LabelMapDirectory)
+
+      cli_nodes.append(model_input_node)
+      cli_nodes.append(meshtolabelmap_output_node)
+      cli_filepaths.append(inputFilepath)
+      cli_filepaths.append(LabelMapOutputFilepath)
+
+      self.setupNode(0, cli_nodes, cli_filepaths, [False, True], [True, True])
+    else:
+      if os.path.exists(LabelMapOutputFilepath):
+        # Setup of the nodes which will be use by the next CLI
+        meshtolabelmap_output_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(LabelMapOutputFilepath, 'LabelMapVolumeFile')
+
+        cli_nodes.append(meshtolabelmap_output_node)
+        cli_filepaths.append(LabelMapOutputFilepath)
+
+        self.setupNode(0, cli_nodes, cli_filepaths, [False], [True])
+
     ## Post Processed Segmentation
     cli_nodes = list() # list of the nodes used in the Post Processed Segmentation step
     cli_filepaths = list() # list of the node filepaths used in the Post Processed Segmentation step
@@ -1200,14 +1265,19 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     PostProcessOutputFilepath = PostProcessDirectory + "/" + self.inputFilename + "_pp." + self.inputExtension
 
     if not self.skip_segPostProcess:
-      # Setup of the parameters od the CLI
+      # Setup of the parameters of the CLI
       self.ID += 1
 
       cli_parameters = {}
-      inputFilepath = inputDirectory + '/' + self.CaseInput
 
-      input_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(inputFilepath, 'LabelMapVolumeFile')
-      cli_parameters["fileName"] = input_node
+      if self.skip_meshToLabelMap: # IF the input given was already a label map
+        inputFilepath = inputDirectory + '/' + self.CaseInput
+        labelmap_input_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(inputFilepath, 'LabelMapVolumeFile')
+      else:                        # ELSE the input given was a model which has been transformed by MeshToLabelMap and store in the folder LabelMap
+        labelmap_input_node = meshtolabelmap_output_node
+        inputFilepath = LabelMapOutputFilepath
+
+      cli_parameters["fileName"] = labelmap_input_node
 
       pp_output_node = ShapeAnalysisModuleMRMLUtility.addnewMRMLNode("output_PostProcess", slicer.vtkMRMLLabelMapVolumeNode())
       cli_parameters["outfileName"] = pp_output_node.GetID()
@@ -1231,7 +1301,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       if not os.path.exists(PostProcessDirectory):
         os.makedirs(PostProcessDirectory)
 
-      cli_nodes.append(input_node)
+      cli_nodes.append(labelmap_input_node)
       cli_nodes.append(pp_output_node)
       cli_filepaths.append(inputFilepath)
       cli_filepaths.append(PostProcessOutputFilepath)
@@ -1256,7 +1326,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_surf.vtk"
 
     if not self.skip_genParaMesh:
-      # Setup of the parameters od the CLI
+      # Setup of the parameters of the CLI
       self.ID += 1
 
       cli_parameters = {}
@@ -1300,8 +1370,8 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       self.setupNode(2, cli_nodes, cli_filepaths, [False, False], [True, True])
 
     ##  Parameters to SPHARM Mesh
-    cli_nodes = list()  # list of the nodes used in the Generate Mesh Parameters step
-    cli_filepaths = list()  # list of the node filepaths used in the Generate Mesh Parameters step
+    cli_nodes = list()  # list of the nodes used in the Parameters To SPHARM Mesh step
+    cli_filepaths = list()  # list of the node filepaths used in the Parameters To SPHARM Mesh step
     SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
     if not self.skip_paraToSPHARMMesh:
 
@@ -1334,7 +1404,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
       for i in L:
 
-        # Setup of the parameters od the CLI
+        # Setup of the parameters of the CLI
         self.ID += 1
 
         cli_parameters = {}
