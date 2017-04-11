@@ -95,11 +95,6 @@ if(COMPILE_GenParaMeshCLP)
   add_subdirectory(GenParaMeshCLP)
 endif(COMPILE_GenParaMeshCLP)
 
-option(COMPILE_RadiusToMesh "Compile RadiusToMesh." ON)
-if(COMPILE_RadiusToMesh)
-  add_subdirectory(RadiusToMesh)
-endif(COMPILE_RadiusToMesh)
-
 option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
 if(COMPILE_ParaToSPHARMMeshCLP)
   add_subdirectory(ParaToSPHARMMeshCLP)
