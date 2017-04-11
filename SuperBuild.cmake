@@ -89,7 +89,6 @@ option(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
 option(COMPILE_RadiusToMesh "Compile RadiusToMesh." OFF)
 option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
 option(COMPILE_SpharmTool "Compile SpharmTool." ON)
-option(COMPILE_ParticleModule "Compile ParticleModule." OFF)
 
 #------------------------------------------------------------------------------
 # ${LOCAL_PROJECT_NAME} dependency list

@@ -153,11 +153,3 @@ if(COMPILE_shapeworks)
       INSTALL_COMMAND ""
   )
 endif(COMPILE_shapeworks)
-
-option(COMPILE_ParticleModule "Compile ParticleModule." OFF)
-if(COMPILE_ParticleModule)
-  add_subdirectory(ParticleModule)
-endif(COMPILE_ParticleModule)
-
-
-
