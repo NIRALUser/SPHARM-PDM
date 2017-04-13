@@ -1130,12 +1130,13 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
       cli_parameters = {}
 
-      if self.skip_meshToLabelMap: # IF the input given was already a label map
+      if self.skip_meshToLabelMap and not os.path.exists(LabelMapOutputFilepath): # IF Mesh To Label Map has been skipped AND the input given was already a label map
         inputFilepath = inputDirectory + '/' + self.CaseInput
         labelmap_input_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(inputFilepath, 'LabelMapVolumeFile')
       else:                        # ELSE the input given was a model which has been transformed by MeshToLabelMap and store in the folder LabelMap
         labelmap_input_node = meshtolabelmap_output_node
         inputFilepath = LabelMapOutputFilepath
+
 
       cli_parameters["fileName"] = labelmap_input_node
 
