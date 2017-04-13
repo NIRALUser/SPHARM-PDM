@@ -26,6 +26,7 @@
 #include "vtkPolyDataReader.h"
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
+#include <vtkSmartPointer.h>
 #include "vtkCellArray.h"
 #include <vtkVersion.h>
 
@@ -62,13 +63,13 @@ int main(int argc, const char * *argv)
   string outputFilename = argv[2];
 
   // load the stl file
-  vtkSTLReader *reader = vtkSTLReader::New();
+  vtkSmartPointer<vtkSTLReader> reader = vtkSmartPointer<vtkSTLReader>::New();
   reader->SetFileName(inputFilename.c_str() );
   std::cout << "Reading input" << endl;
   reader->Update();
 
   std::cout << "Converting mesh" << endl;
-  vtkPolyData *polyData = reader->GetOutput();
+  vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput();
 
   MeshType::Pointer mesh = MeshType::New();
 
@@ -76,7 +77,7 @@ int main(int argc, const char * *argv)
   //
   const unsigned int numberOfPoints = polyData->GetNumberOfPoints();
 
-  vtkPoints * vtkpoints = polyData->GetPoints();
+  vtkSmartPointer<vtkPoints> vtkpoints = polyData->GetPoints();
 
   mesh->GetPoints()->Reserve( numberOfPoints );
   for( unsigned int p = 0; p < numberOfPoints; p++ )
@@ -84,7 +85,7 @@ int main(int argc, const char * *argv)
     #if VTK_MAJOR_VERSION > 5
     double * apoint = vtkpoints->GetPoint( p );
     #else
-    vtkFloatingPointType * apoint = vtkpoints->GetPoint( p );
+    vtkSmartPointer<vtkFloatingPointType> apoint = vtkpoints->GetPoint( p );
     #endif
 
     mesh->SetPoint( p, MeshType::PointType( apoint ) );
@@ -94,7 +95,7 @@ int main(int argc, const char * *argv)
   //
   // Transfer the cells from the vtkPolyData into the itk::Mesh
   //
-  vtkCellArray * triangleStrips = polyData->GetStrips();
+  vtkSmartPointer<vtkCellArray> triangleStrips = polyData->GetStrips();
 
   vtkIdType * cellPoints;
   vtkIdType   numberOfCellPoints;
@@ -111,7 +112,7 @@ int main(int argc, const char * *argv)
     numberOfTriangles += numberOfCellPoints - 2;
     }
 
-  vtkCellArray * polygons = polyData->GetPolys();
+  vtkSmartPointer<vtkCellArray> polygons = polyData->GetPolys();
 
   polygons->InitTraversal();
 
@@ -191,9 +192,6 @@ int main(int argc, const char * *argv)
   itkConverter->WriteMeta(meshSO, outputFilename.c_str() );
 
   std::cout << "Conversion Completed" << endl;
-
-  // clean up memory
-  reader->Delete();
 
   return 0;
 }

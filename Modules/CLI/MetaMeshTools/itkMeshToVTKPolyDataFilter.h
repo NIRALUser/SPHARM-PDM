@@ -16,6 +16,7 @@ MN, 09/21/05, marc@bwh.harvard.edu
 #include "itkPolygonCell.h"
 #include "itkTetrahedronCell.h"
 #include "vtkCellArray.h"
+#include <vtkSmartPointer.h>
 
 namespace itk
 {
@@ -55,7 +56,7 @@ public:
   */
   class VistVTKCellsClass
   {
-    vtkCellArray* m_Cells;
+    vtkSmartPointer<vtkCellArray> m_Cells;
     int*          m_LastCell;
     int*          m_TypeArray;
 public:
@@ -71,7 +72,7 @@ public:
 
     /*! Set the vtkCellArray that will be constructed
     */
-    void SetCellArray(vtkCellArray* a)
+    void SetCellArray(vtkSmartPointer<vtkCellArray> a)
     {
       m_Cells = a;
     }
@@ -243,7 +244,7 @@ public:
                                                   VistVTKCellsClass> TriangleVisitor;
 
   /** Get the output in the form of vtkPolyData **/
-  const vtkPolyData *  GetOutput() const;
+  const vtkSmartPointer<vtkPolyData>  GetOutput() const;
 
   /** Set the input in the form of an itk mesh */
   void SetInput( MeshType * );
@@ -260,8 +261,8 @@ private:
   MeshToVTKPolyDataFilter(const Self &); // purposely not implemented
   void operator=(const Self &);          // purposely not implemented
 
-  MeshType::Pointer m_mesh;
-  vtkPolyData*      m_polyData;
+  MeshType::Pointer            m_mesh;
+  vtkSmartPointer<vtkPolyData> m_polyData;
 
 };
 

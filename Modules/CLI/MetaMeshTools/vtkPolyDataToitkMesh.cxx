@@ -14,24 +14,20 @@ typedef float vtkFloatingPointType;
 vtkPolyDataToitkMesh
 ::vtkPolyDataToitkMesh()
 {
-
   m_itkMesh = TriangleMeshType::New();
-  m_PolyData = vtkPolyData::New();
+  m_PolyData = vtkSmartPointer<vtkPolyData>::New();
 
 }
 
 vtkPolyDataToitkMesh
 ::~vtkPolyDataToitkMesh()
 {
-  if( m_PolyData )
-    {
-    m_PolyData->Delete();
-    }
+
 }
 
 void
 vtkPolyDataToitkMesh
-::SetInput(vtkPolyData * polydata)
+::SetInput(vtkSmartPointer<vtkPolyData> polydata)
 {
   m_PolyData = polydata;
   this->ConvertvtkToitk();
@@ -52,7 +48,7 @@ vtkPolyDataToitkMesh
   // Transfer the points from the vtkPolyData into the itk::Mesh
   //
   const unsigned int numberOfPoints = m_PolyData->GetNumberOfPoints();
-  vtkPoints *        vtkpoints =  m_PolyData->GetPoints();
+  vtkSmartPointer<vtkPoints>        vtkpoints =  m_PolyData->GetPoints();
 
   m_itkMesh->GetPoints()->Reserve( numberOfPoints );
   for( unsigned int p = 0; p < numberOfPoints; p++ )
@@ -60,7 +56,7 @@ vtkPolyDataToitkMesh
     #if VTK_MAJOR_VERSION > 5
     double * apoint = vtkpoints->GetPoint( p );
     #else
-    vtkFloatingPointType * apoint = vtkpoints->GetPoint( p );
+    vtkFloatingPointType* apoint = vtkpoints->GetPoint( p );
     #endif
     m_itkMesh->SetPoint( p, TriangleMeshType::PointType( apoint ) );
 
@@ -76,9 +72,9 @@ vtkPolyDataToitkMesh
   //
   // Transfer the cells from the vtkPolyData into the itk::Mesh
   //
-  vtkCellArray * triangleStrips = m_PolyData->GetStrips();
+  vtkSmartPointer<vtkCellArray> triangleStrips = m_PolyData->GetStrips();
 
-  vtkIdType * cellPoints;
+  vtkIdType*  cellPoints;
   vtkIdType   numberOfCellPoints;
 
   //
@@ -92,7 +88,7 @@ vtkPolyDataToitkMesh
     numberOfTriangles += numberOfCellPoints - 2;
     }
 
-  vtkCellArray * polygons = m_PolyData->GetPolys();
+  vtkSmartPointer<vtkCellArray> polygons = m_PolyData->GetPolys();
 
   polygons->InitTraversal();
 
@@ -159,5 +155,4 @@ vtkPolyDataToitkMesh
     m_itkMesh->SetCell( cellId, c );
     cellId++;
     }
-
 }

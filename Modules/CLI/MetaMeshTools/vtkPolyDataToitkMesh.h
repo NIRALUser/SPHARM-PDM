@@ -8,6 +8,7 @@
 #include "itkMesh.h"
 #include "itkTriangleCell.h"
 #include <vtkVersion.h>
+#include <vtkSmartPointer.h>
 
 /**
   \class vtkPolyDataToitkMesh
@@ -30,7 +31,7 @@ public:
   /**
   The SetInput method provides pointer to the vtkPolyData
   */
-  void SetInput( vtkPolyData * polydata);
+  void SetInput( vtkSmartPointer<vtkPolyData> polydata);
 
   TriangleMeshType * GetOutput();
 
@@ -38,7 +39,7 @@ public:
 
   TriangleMeshType::Pointer m_itkMesh;
 
-  vtkPolyData * m_PolyData;
+  vtkSmartPointer<vtkPolyData> m_PolyData;
 
 };
 

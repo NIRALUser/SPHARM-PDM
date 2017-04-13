@@ -83,10 +83,9 @@ option(BUILD_SHARED_LIBS "Use shared libraries" OFF) #to give the user the optio
 option(COMPILE_StatNonParamTestPDM "Compile StatNonParam and ShapeMancova" OFF)
 option(COMPILE_shapeworks "Compile shapeworks." OFF)
 option(COMPILE_ImageMath "Compile ImageMath." OFF)
-option(COMPILE_MetaMeshTools "Compile MetaMeshTools." OFF)
+option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
 option(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
 option(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
-option(COMPILE_RadiusToMesh "Compile RadiusToMesh." OFF)
 option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
 option(COMPILE_SpharmTool "Compile SpharmTool." ON)
 

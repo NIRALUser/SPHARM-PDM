@@ -12,6 +12,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkPolyDataReader.h"
+#include <vtkSmartPointer.h>
 
 #include <fstream>
 #include <iostream>
@@ -43,14 +44,14 @@ int main(int argc, const char * *argv)
   typedef itk::MetaMeshConverter<3, double, MeshTraitsType>           MeshConverterType;
 
   // read in the vtk polydata file
-  vtkPolyDataReader *reader = vtkPolyDataReader::New();
+  vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
   reader->SetFileName( infile );
   reader->Update();
-  vtkPolyData *polydata = reader->GetOutput();
+  vtkSmartPointer<vtkPolyData> polydata = reader->GetOutput();
 
   // convert to itk mesh data structure
-  vtkPolyDataToitkMesh *vtkItkConverter = new vtkPolyDataToitkMesh();
-  vtkItkConverter->SetInput( polydata );
+  vtkPolyDataToitkMesh vtkItkConverter;
+  vtkItkConverter.SetInput( polydata );
 
   if (debug) {
     std::cout << "converting mesh " << infile <<std::endl;
@@ -58,12 +59,9 @@ int main(int argc, const char * *argv)
 
   // write out the itk meta mesh file
   itkMeshSOType::Pointer meshSO = itkMeshSOType::New();
-  meshSO->SetMesh( vtkItkConverter->GetOutput() );
+  meshSO->SetMesh( vtkItkConverter.GetOutput() );
   MeshConverterType::Pointer itkConverter = MeshConverterType::New();
   itkConverter->WriteMeta( meshSO, outfile );
-
-  // cleanup memory
-  reader->Delete();
 
   return 0;
 }

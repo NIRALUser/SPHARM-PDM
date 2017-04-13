@@ -36,6 +36,8 @@
 #include <vtkSTLReader.h>
 #include <vtkSTLWriter.h>
 #include <vtkVersion.h>
+#include <vtkSmartPointer.h>
+
 
 using namespace std;
 
@@ -64,21 +66,20 @@ int main(int argc, const char * *argv)
   itkMeshType::Pointer   mesh = meshSO->GetMesh();
 
   // convert to vtk format
-  itkMeshTovtkPolyData * ITKVTKConverter = new itkMeshTovtkPolyData;
-  ITKVTKConverter->SetInput( mesh );
+  itkMeshTovtkPolyData ITKVTKConverter;
+  ITKVTKConverter.SetInput( mesh );
 
   // 2. write vtk mesh as STL
-  vtkSTLWriter * STLFileWriter = vtkSTLWriter::New();
+  vtkSmartPointer<vtkSTLWriter> STLFileWriter = vtkSmartPointer<vtkSTLWriter>::New();
   // Gets and writes each Label-mesh in a different .stl file
   STLFileWriter->SetFileName(outputFilename.c_str() );
   #if VTK_MAJOR_VERSION > 5
-  STLFileWriter->SetInputData( ITKVTKConverter->GetOutput() );
+  STLFileWriter->SetInputData( ITKVTKConverter.GetOutput() );
   #else
-  STLFileWriter->SetInput( ITKVTKConverter->GetOutput() );
+  STLFileWriter->SetInput( ITKVTKConverter.GetOutput() );
   #endif
   STLFileWriter->SetFileName( outputFilename.c_str() );
   STLFileWriter->Update();
 
-  // writer->Delete () ;
   //  STLFileWriter->Write();
 }

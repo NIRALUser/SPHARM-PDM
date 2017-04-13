@@ -11,6 +11,7 @@
 #include "vtkIdList.h"
 #include "vtkCellArray.h"
 #include <vtkVersion.h>
+#include <vtkSmartPointer.h>
 
 #include <fstream>
 #include <iostream>
@@ -52,8 +53,8 @@ int main(int argc, const char **argv)
     }
 
   // create the polydata
-  vtkPolyData *polydata = vtkPolyData::New () ;
-  vtkPoints *points = vtkPoints::New () ;
+  vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New () ;
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New () ;
   points->SetNumberOfPoints ( nPts ) ;
 
   // read the vertices
@@ -73,9 +74,9 @@ int main(int argc, const char **argv)
   if ( debug ) 
     std::cout << "Reading triangles. " << std::endl ;
   int a, b, c ;
-  vtkIdList *ids = vtkIdList::New () ;
+  vtkSmartPointer<vtkIdList> ids = vtkSmartPointer<vtkIdList>::New () ;
   ids->SetNumberOfIds ( 3 ) ;
-  vtkCellArray *cells = vtkCellArray::New () ;
+  vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New () ;
   for ( int i = 0 ; i < nTris ; i++ )
     {
       in >> a >> b >> c ;
@@ -90,7 +91,7 @@ int main(int argc, const char **argv)
     std:: cout << "Finished reading triangles. Writing polydata to file. " << std::endl ;
 
   // write out the vtk mesh
-  vtkPolyDataWriter *writer = vtkPolyDataWriter::New () ;
+  vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New () ;
   #if VTK_MAJOR_VERSION > 5
   writer->SetInputData ( polydata ) ;
   #else

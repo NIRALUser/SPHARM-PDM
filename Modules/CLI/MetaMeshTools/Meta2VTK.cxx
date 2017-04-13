@@ -12,6 +12,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkPolyDataReader.h"
+#include <vtkSmartPointer.h>
 #include <vtkVersion.h>
 #include <fstream>
 #include <iostream>
@@ -49,21 +50,18 @@ int main(int argc, const char * *argv)
   itkMeshType::Pointer   mesh = meshSO->GetMesh();
 
   // convert to vtk format
-  itkMeshTovtkPolyData * ITKVTKConverter = new itkMeshTovtkPolyData;
-  ITKVTKConverter->SetInput( mesh );
+  itkMeshTovtkPolyData ITKVTKConverter;
+  ITKVTKConverter.SetInput( mesh );
 
   // write out the vtk mesh
-  vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
+  vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
   #if VTK_MAJOR_VERSION > 5
-  writer->SetInputData( ITKVTKConverter->GetOutput() );
+  writer->SetInputData( ITKVTKConverter.GetOutput() );
   #else
-  writer->SetInput( ITKVTKConverter->GetOutput() );
+  writer->SetInput( ITKVTKConverter.GetOutput() );
   #endif
   writer->SetFileName( outfile );
   writer->Update();
-
-  writer->Delete();
-  delete (ITKVTKConverter);
 
   return 0;
 }

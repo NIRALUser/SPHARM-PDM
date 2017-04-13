@@ -21,6 +21,7 @@
 #include <vtkSTLReader.h>
 #include "vtkPolyDataWriter.h"
 #include "vtkPolyData.h"
+#include <vtkSmartPointer.h>
 
 #ifndef vtkFloatingPointType
 #define vtkFloatingPointType float
@@ -38,16 +39,15 @@ int main(int argc, const char **argv)
   std::string outputFilename = argv[2] ;
 
   // load the stl file
-  vtkSTLReader *reader ;
-  reader = vtkSTLReader::New() ;
+  vtkSmartPointer<vtkSTLReader> reader = vtkSmartPointer<vtkSTLReader>::New();
   reader->SetFileName (inputFilename.c_str()) ;
   std::cout << "Reading input" << endl ;
   reader->Update() ;
   
   std::cout << "Converting mesh" << endl ;
-  vtkPolyData *polyData = reader->GetOutput() ;
+  vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput() ;
 
-  vtkPolyDataWriter *writer = vtkPolyDataWriter::New () ;
+  vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New () ;
   writer->SetFileName ( outputFilename.c_str () ) ;
   #if VTK_MAJOR_VERSION > 5
   writer->SetInputData ( polyData ) ;
@@ -58,9 +58,5 @@ int main(int argc, const char **argv)
   
   std::cout << "Conversion Completed" << endl ;
 
-  // clean up memory
-  reader->Delete();
-  writer->Delete () ;
-  
   return 0 ;
 }

@@ -18,7 +18,7 @@ MeshToVTKPolyDataFilter
 ::MeshToVTKPolyDataFilter()
 {
 
-  m_polyData = vtkPolyData::New();
+  m_polyData = vtkSmartPointer<vtkPolyData>::New();
 
 }
 
@@ -28,11 +28,7 @@ MeshToVTKPolyDataFilter
 MeshToVTKPolyDataFilter
 ::~MeshToVTKPolyDataFilter()
 {
-  if( m_polyData )
-    {
-    m_polyData->Delete();
-    m_polyData = 0;
-    }
+
 }
 
 /**
@@ -63,9 +59,7 @@ MeshToVTKPolyDataFilter
 /**
  * Get polyData as output
  */
-const vtkPolyData *
-MeshToVTKPolyDataFilter
-::GetOutput() const
+const vtkSmartPointer<vtkPolyData> MeshToVTKPolyDataFilter::GetOutput() const
 {
   return m_polyData;
 }
@@ -100,7 +94,7 @@ MeshToVTKPolyDataFilter
     }
 
   // Create the vtkPoints object and set the number of points
-  vtkPoints* vpoints = vtkPoints::New();
+  vtkSmartPointer<vtkPoints> vpoints = vtkPoints::New();
   vpoints->SetNumberOfPoints(numPoints);
 
   // iterate over all the points in the itk mesh filling in
@@ -133,7 +127,7 @@ MeshToVTKPolyDataFilter
   int  numCells = m_mesh->GetNumberOfCells();
   int *types = new int[numCells];  // type array for vtk
   // create vtk cells and estimate the size
-  vtkCellArray* cells = vtkCellArray::New();
+  vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
   // cells->EstimateSize(numCells, 4);
   cells->EstimateSize(numCells, 3);
 
@@ -200,11 +194,6 @@ MeshToVTKPolyDataFilter
 
   // Now set the cells on the vtk polydata
   m_polyData->SetPolys(cells);
-
-  // Clean up vtk objects (no vtkSmartPointer ... )
-  cells->Delete();
-  vpoints->Delete();
-
 }
 
 } // end namespace itk

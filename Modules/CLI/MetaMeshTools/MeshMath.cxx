@@ -1073,11 +1073,11 @@ int main(int argc, const char * *argv)
 
     else // =>vtk file
       {
-      vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+      vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
       meshin->SetFileName(inputFilename);
       meshin->Update();
       double      x[3];
-      vtkPoints * PointVTK = vtkPoints::New();
+      vtkSmartPointer<vtkPoints>  PointVTK = vtkSmartPointer<vtkPoints>::New();
       PointVTK = meshin->GetOutput()->GetPoints();
 
       for( int PointId = 0; PointId < (meshin->GetOutput()->GetNumberOfPoints() ); PointId++ )
@@ -1090,7 +1090,7 @@ int main(int argc, const char * *argv)
           }
         PointVTK->SetPoint(PointId, vert);
         }
-      vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+      vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
       #if VTK_MAJOR_VERSION > 5
       SurfaceWriter->SetInputData(meshin->GetOutput() );
       #else
@@ -1375,11 +1375,11 @@ int main(int argc, const char * *argv)
 		std::cout << "Reading mesh " << " " << argv[2] << std::endl;
     	}
 
-	vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+        vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
 	meshin->SetFileName(inputFilename);
 	meshin->Update();
-	vtkPolyData *polydata = meshin->GetOutput();
-	vtkPoints *avgPoints = vtkPoints::New();
+        vtkSmartPointer<vtkPolyData> polydata = meshin->GetOutput();
+        vtkSmartPointer<vtkPoints> avgPoints = vtkSmartPointer<vtkPoints>::New();
 	avgPoints=meshin->GetOutput()->GetPoints();
 
 	int numMeshes = AvgMeshFiles.size();
@@ -1392,13 +1392,13 @@ int main(int argc, const char * *argv)
 	          {
 		        std::cout << "Reading  mesh " << AvgMeshFiles[index] << std::endl;
 		  }
-		  vtkPolyDataReader *meshin2 = vtkPolyDataReader::New();
+                  vtkSmartPointer<vtkPolyDataReader> meshin2 = vtkSmartPointer<vtkPolyDataReader>::New();
 		  meshin2->SetFileName((char*)AvgMeshFiles[index].c_str());
 		  meshin2->Update();
 
-		  vtkPoints *meshPoints = vtkPoints::New();
+                  vtkSmartPointer<vtkPoints> meshPoints = vtkSmartPointer<vtkPoints>::New();
 		  meshPoints=meshin2->GetOutput()->GetPoints();
-		  vtkPoints *tmpPoints = vtkPoints::New();
+                  vtkSmartPointer<vtkPoints> tmpPoints = vtkSmartPointer<vtkPoints>::New();
 		  for( unsigned int pointID = 0; pointID < meshPoints->GetNumberOfPoints(); pointID++ )
                   {
 		    double curPoint[3];
@@ -1424,7 +1424,7 @@ int main(int argc, const char * *argv)
 		
 	 }
 
-	vtkPoints *tmpPoints = vtkPoints::New();
+        vtkSmartPointer<vtkPoints> tmpPoints = vtkSmartPointer<vtkPoints>::New();
     	for( unsigned int pointID = 0; pointID < avgPoints->GetNumberOfPoints(); pointID++ )
   	{
 	      double avgPoint[3];
@@ -1440,7 +1440,7 @@ int main(int argc, const char * *argv)
 
     polydata->SetPoints(avgPoints);
 //    polydata->Update();//no more Update() function for vtkPolyData: http://www.vtk.org/Wiki/VTK/VTK_6_Migration/Removal_of_Update
-    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
     #if VTK_MAJOR_VERSION > 5
     SurfaceWriter->SetInputData(polydata);
     #else
@@ -1559,7 +1559,7 @@ int main(int argc, const char * *argv)
       icpTransformFilter->Update();
 
       //Save source
-      vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+      vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
       vtkSmartPointer<vtkPolyDataWriter> sourceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
       #if VTK_MAJOR_VERSION > 5
   	  SurfaceWriter->SetInputData(icpTransformFilter->GetOutput());
@@ -3316,11 +3316,11 @@ int main(int argc, const char * *argv)
      dynamic_cast<TriangleMeshSOType *>(Triangleconverter->ReadMeta(inputFilename).GetPointer());
     TriangleMeshType::Pointer   inputTriangleMesh = inputTriangleMeshSO->GetMesh();
 
-    itkMeshTovtkPolyData *convertMeshToVTK = new itkMeshTovtkPolyData();
-    convertMeshToVTK->SetInput(inputTriangleMesh);
+    itkMeshTovtkPolyData convertMeshToVTK;
+    convertMeshToVTK.SetInput(inputTriangleMesh);
 
-    vtkPolyData *       vtkMesh = convertMeshToVTK->GetOutput();
-    vtkPolyDataNormals *MeshNormals = vtkPolyDataNormals::New();
+    vtkSmartPointer<vtkPolyData>        vtkMesh = convertMeshToVTK.GetOutput();
+    vtkSmartPointer<vtkPolyDataNormals> MeshNormals = vtkSmartPointer<vtkPolyDataNormals>::New();
 
     MeshNormals->SetComputePointNormals(1);
     MeshNormals->SetComputeCellNormals(0);
@@ -3331,12 +3331,12 @@ int main(int argc, const char * *argv)
     MeshNormals->SetInput(vtkMesh);
     MeshNormals->Update();//no more Update() function for vtkPolyData: http://www.vtk.org/Wiki/VTK/VTK_6_Migration/Removal_of_Update
     #endif
-    vtkPolyData * vtkMeshNormals = MeshNormals->GetOutput();
+    vtkSmartPointer<vtkPolyData> vtkMeshNormals = MeshNormals->GetOutput();
     #if VTK_MAJOR_VERSION <= 5
     vtkMeshNormals->Update();
     #endif
-    vtkPointData * NormalPoints = vtkMeshNormals->GetPointData();
-    vtkDataArray * ArrayNormal = NormalPoints->GetNormals();
+    vtkSmartPointer<vtkPointData> NormalPoints = vtkMeshNormals->GetPointData();
+    vtkSmartPointer<vtkDataArray> ArrayNormal = NormalPoints->GetNormals();
 
     char   output[512];
     float *AverageX = new float[NbOfPoint];
@@ -3504,12 +3504,12 @@ int main(int argc, const char * *argv)
      dynamic_cast<TriangleMeshSOType *>(Triangleconverter->ReadMeta(inputFilename).GetPointer());
     TriangleMeshType::Pointer   inputTriangleMesh = inputTriangleMeshSO->GetMesh();
 
-    itkMeshTovtkPolyData *convertMeshToVTK = new itkMeshTovtkPolyData();
-    convertMeshToVTK->SetInput(inputTriangleMesh);
+    itkMeshTovtkPolyData convertMeshToVTK;
+    convertMeshToVTK.SetInput(inputTriangleMesh);
 
     // compute the normal
-    vtkPolyData *       vtkMesh = convertMeshToVTK->GetOutput();
-    vtkPolyDataNormals *MeshNormals = vtkPolyDataNormals::New();
+    vtkSmartPointer<vtkPolyData> vtkMesh = convertMeshToVTK.GetOutput();
+    vtkSmartPointer<vtkPolyDataNormals> MeshNormals =  vtkSmartPointer<vtkPolyDataNormals>::New();
 
     MeshNormals->SetComputePointNormals(1);
     MeshNormals->SetComputeCellNormals(0);
@@ -3520,12 +3520,12 @@ int main(int argc, const char * *argv)
     MeshNormals->SetInput(vtkMesh);
     #endif
     MeshNormals->Update();
-    vtkPolyData * vtkMeshNormals = MeshNormals->GetOutput();
+    vtkSmartPointer<vtkPolyData> vtkMeshNormals = MeshNormals->GetOutput();
     #if VTK_MAJOR_VERSION <= 5
     vtkMeshNormals->Update();
     #endif
-    vtkPointData * NormalPoints = vtkMeshNormals->GetPointData();
-    vtkDataArray * ArrayNormal = NormalPoints->GetNormals();
+    vtkSmartPointer<vtkPointData> NormalPoints = vtkMeshNormals->GetPointData();
+    vtkSmartPointer<vtkDataArray> ArrayNormal = NormalPoints->GetNormals();
     double *       MagList = new double[NbOfPoint];
 
     // Read the vector field file
@@ -3612,12 +3612,12 @@ int main(int argc, const char * *argv)
       dynamic_cast<TriangleMeshSOType *>(Triangleconverter->ReadMeta(inputFilename).GetPointer());
     TriangleMeshType::Pointer   inputTriangleMesh = inputTriangleMeshSO->GetMesh();
 
-    itkMeshTovtkPolyData *convertMeshToVTK = new itkMeshTovtkPolyData();
-    convertMeshToVTK->SetInput(inputTriangleMesh);
+    itkMeshTovtkPolyData convertMeshToVTK;
+    convertMeshToVTK.SetInput(inputTriangleMesh);
 
     // compute the normal
-    vtkPolyData *       vtkMesh = convertMeshToVTK->GetOutput();
-    vtkPolyDataNormals *MeshNormals = vtkPolyDataNormals::New();
+    vtkSmartPointer<vtkPolyData>        vtkMesh = convertMeshToVTK.GetOutput();
+    vtkSmartPointer<vtkPolyDataNormals> MeshNormals = vtkSmartPointer<vtkPolyDataNormals>::New();
 
     MeshNormals->SetComputePointNormals(1);
     MeshNormals->SetComputeCellNormals(0);
@@ -3628,13 +3628,13 @@ int main(int argc, const char * *argv)
     MeshNormals->SetInput(vtkMesh);
     #endif
     MeshNormals->Update();
-    vtkPolyData * vtkMeshNormals = MeshNormals->GetOutput();
+    vtkSmartPointer<vtkPolyData> vtkMeshNormals = MeshNormals->GetOutput();
     #if VTK_MAJOR_VERSION <= 5
     vtkMeshNormals->Update();
     #endif
 
-    vtkPointData * NormalPoints = vtkMeshNormals->GetPointData();
-    vtkDataArray * ArrayNormal = NormalPoints->GetNormals();
+    vtkSmartPointer<vtkPointData> NormalPoints = vtkMeshNormals->GetPointData();
+    vtkSmartPointer<vtkDataArray> ArrayNormal = NormalPoints->GetNormals();
     double *       MagList = new double[NbOfPoint];
 
     // Read the vector field file
@@ -3811,28 +3811,28 @@ int main(int argc, const char * *argv)
       }
 
     // Convert the outputTriangleMesh to a vtk poly data.
-    itkMeshTovtkPolyData *convertMeshToVTK = new itkMeshTovtkPolyData();
-    convertMeshToVTK->SetInput(outputTriangleMesh);
-    vtkPolyData * vtkPolyData = convertMeshToVTK->GetOutput();
+    itkMeshTovtkPolyData convertMeshToVTK;
+    convertMeshToVTK.SetInput(outputTriangleMesh);
+    vtkSmartPointer<vtkPolyData> vtkPolyData = convertMeshToVTK.GetOutput();
 
     // Convert the vtk poly data to itk mesh data structure
-    vtkPolyDataToitkMesh *vtkItkConverter = new vtkPolyDataToitkMesh();
-    vtkItkConverter->SetInput(vtkPolyData);
+    vtkPolyDataToitkMesh vtkItkConverter;
+    vtkItkConverter.SetInput(vtkPolyData);
 
     // Convert the itk mesh data in Spatial Object mesh
     // write out the itk spatial object meta mesh file
     TriangleMeshSOType::Pointer meshSO = TriangleMeshSOType::New();
-    meshSO->SetMesh(vtkItkConverter->GetOutput() );
+    meshSO->SetMesh(vtkItkConverter.GetOutput() );
     Triangleconverter->WriteMeta(meshSO, outputFilename);
 
     }
   else if( MC2OriginOn ) // cchou
     {
 
-    vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
     meshin->SetFileName(inputFilename);
     meshin->Update();
-    vtkPolyData* mesh = meshin->GetOutput();
+    vtkSmartPointer<vtkPolyData> mesh = meshin->GetOutput();
 
     // Sum up Original Points
     double sum[3];
@@ -3859,7 +3859,7 @@ int main(int argc, const char * *argv)
       }
 
     // Create a New Point Set "sftpoints" with the Shifted Values
-    vtkPoints * sftpoints = vtkPoints::New();
+    vtkSmartPointer<vtkPoints> sftpoints = vtkSmartPointer<vtkPoints>::New();
     sftpoints = mesh->GetPoints();
 
     for( int pointID = 0; pointID < mesh->GetNumberOfPoints(); pointID++ )
@@ -3877,7 +3877,7 @@ int main(int argc, const char * *argv)
     mesh->SetPoints(sftpoints);
 
     // Writing the new mesh, with the points translated
-    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
     // SurfaceWriter->SetInput(polyC->GetOutput());
     #if VTK_MAJOR_VERSION > 5
     SurfaceWriter->SetInputData(mesh);
@@ -3896,7 +3896,7 @@ int main(int argc, const char * *argv)
     {
     int NBorders;
 
-    vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
     meshin->SetFileName(inputFilename);
     meshin->Update();
 
@@ -3905,7 +3905,7 @@ int main(int argc, const char * *argv)
       std::cout << "Number of points before cleaning...  " << meshin->GetOutput()->GetNumberOfPoints() << std::endl;
       }
 
-    vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+    vtkSmartPointer<vtkCleanPolyData> meshinC = vtkSmartPointer<vtkCleanPolyData>::New();
     #if VTK_MAJOR_VERSION > 5
     meshinC->SetInputData(meshin->GetOutput() );
     #else
@@ -3919,7 +3919,7 @@ int main(int argc, const char * *argv)
       }
 
     // detect borders
-    vtkFeatureEdges *boundaryEdges = vtkFeatureEdges::New();
+    vtkSmartPointer<vtkFeatureEdges> boundaryEdges = vtkSmartPointer<vtkFeatureEdges>::New();
     #if VTK_MAJOR_VERSION > 5
     boundaryEdges->SetInputData(meshinC->GetOutput() );
     #else
@@ -3939,15 +3939,15 @@ int main(int argc, const char * *argv)
       std::cout << "Number of Border Edges...  " << NBorders << std::endl;
       }
 
-    vtkStripper *patchSkel = vtkStripper::New();
+    vtkSmartPointer<vtkStripper> patchSkel = vtkSmartPointer<vtkStripper>::New();
     #if VTK_MAJOR_VERSION > 5
     patchSkel->SetInputData(boundaryEdges->GetOutput() );
     #else
     patchSkel->SetInput(boundaryEdges->GetOutput() );
     #endif
 
-    vtkPolyData *      patchPoly = vtkPolyData::New();
-    vtkTriangleFilter *patchTri = vtkTriangleFilter::New();
+    vtkSmartPointer<vtkPolyData>       patchPoly = vtkSmartPointer<vtkPolyData>::New();
+    vtkSmartPointer<vtkTriangleFilter> patchTri = vtkSmartPointer<vtkTriangleFilter>::New();
 
     // ORIGINAL
     patchPoly->Initialize();
@@ -3957,7 +3957,7 @@ int main(int argc, const char * *argv)
     patchTri->SetInput(patchPoly);
     #endif
 
-    vtkAppendPolyData *meshAppend = vtkAppendPolyData::New();
+    vtkSmartPointer<vtkAppendPolyData> meshAppend = vtkSmartPointer<vtkAppendPolyData>::New();
     #if VTK_MAJOR_VERSION > 5
     meshAppend->AddInputConnection(patchTri->GetOutputPort() );
     meshAppend->AddInputConnection(meshinC->GetOutputPort() );
@@ -3965,7 +3965,7 @@ int main(int argc, const char * *argv)
     meshAppend->AddInput(patchTri->GetOutput() );
     meshAppend->AddInput(meshinC->GetOutput() );
     #endif
-    vtkCleanPolyData *poly = vtkCleanPolyData::New();
+    vtkSmartPointer<vtkCleanPolyData> poly = vtkSmartPointer<vtkCleanPolyData>::New();
     #if VTK_MAJOR_VERSION > 5
     poly->SetInputData(meshAppend->GetOutput() );
     #else
@@ -3994,7 +3994,7 @@ int main(int argc, const char * *argv)
     // Update the new mesh, including the patches
     poly->Update();
 
-    vtkCleanPolyData *polyC = vtkCleanPolyData::New();
+    vtkSmartPointer<vtkCleanPolyData> polyC = vtkSmartPointer<vtkCleanPolyData>::New();
     #if VTK_MAJOR_VERSION > 5
     polyC->SetInputData(poly->GetOutput() );
     #else
@@ -4026,7 +4026,7 @@ int main(int argc, const char * *argv)
       }
 
     // project week update Arnaud Gelas
-    vtkPolyDataNormals* normals = vtkPolyDataNormals::New();
+    vtkSmartPointer<vtkPolyDataNormals> normals = vtkSmartPointer<vtkPolyDataNormals>::New();
     #if VTK_MAJOR_VERSION > 5
     normals->SetInputData( polyC->GetOutput() );
     #else
@@ -4038,7 +4038,7 @@ int main(int argc, const char * *argv)
     normals->Update();
 
     // Writing the new mesh, with the patched hole
-    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
     // SurfaceWriter->SetInput(polyC->GetOutput());
     #if VTK_MAJOR_VERSION > 5
     SurfaceWriter->SetInputData(normals->GetOutput() );
@@ -4059,11 +4059,11 @@ int main(int argc, const char * *argv)
     int NBorders;
     int TOTALBorders;
 
-    vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
     meshin->SetFileName(inputFilename);
     meshin->Update();
 
-    vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+    vtkSmartPointer<vtkCleanPolyData> meshinC = vtkSmartPointer<vtkCleanPolyData>::New();
     #if VTK_MAJOR_VERSION > 5
     meshinC->SetInputData(meshin->GetOutput() );
     #else
@@ -4072,7 +4072,7 @@ int main(int argc, const char * *argv)
     meshinC->Update();
 
     // detect borders
-    vtkFeatureEdges *boundaryEdges = vtkFeatureEdges::New();
+    vtkSmartPointer<vtkFeatureEdges> boundaryEdges = vtkSmartPointer<vtkFeatureEdges>::New();
     #if VTK_MAJOR_VERSION > 5
     boundaryEdges->SetInputData(meshinC->GetOutput() );
     #else
@@ -4094,7 +4094,7 @@ int main(int argc, const char * *argv)
       }
 
     // Writing the new mesh, only detected borders
-    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
     #if VTK_MAJOR_VERSION > 5
     SurfaceWriter->SetInputData(boundaryEdges->GetOutput() );
     #else
@@ -4112,11 +4112,11 @@ int main(int argc, const char * *argv)
     {
     int NBorders;
 
-    vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
     meshin->SetFileName(inputFilename);
     meshin->Update();
 
-    vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+    vtkSmartPointer<vtkCleanPolyData> meshinC = vtkSmartPointer<vtkCleanPolyData>::New();
     #if VTK_MAJOR_VERSION > 5
     meshinC->SetInputData(meshin->GetOutput() );
     #else
@@ -4125,7 +4125,7 @@ int main(int argc, const char * *argv)
     meshinC->Update();
 
     // detect borders
-    vtkFeatureEdges *boundaryEdges = vtkFeatureEdges::New();
+    vtkSmartPointer<vtkFeatureEdges> boundaryEdges = vtkSmartPointer<vtkFeatureEdges>::New();
     #if VTK_MAJOR_VERSION > 5
     boundaryEdges->SetInputData(meshinC->GetOutput() );
     #else
@@ -4396,11 +4396,11 @@ int main(int argc, const char * *argv)
     }
   else if( cleanMeshOn ) // bp2009
     {
-    vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
     meshin->SetFileName(inputFilename);
     meshin->Update();
 
-    vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+    vtkSmartPointer<vtkCleanPolyData> meshinC = vtkSmartPointer<vtkCleanPolyData>::New();
     #if VTK_MAJOR_VERSION > 5
     meshinC->SetInputData(meshin->GetOutput() );
     #else
@@ -4409,7 +4409,7 @@ int main(int argc, const char * *argv)
     meshinC->Update();
 
     // Writing the new mesh, with not degenerated triangles
-    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
     #if VTK_MAJOR_VERSION > 5
     SurfaceWriter->SetInputData(meshinC->GetOutput() );
     #else
@@ -4426,11 +4426,11 @@ int main(int argc, const char * *argv)
     }
   else if( smoothMeshOn ) // bp2009
     {
-    vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
     meshin->SetFileName(inputFilename);
     meshin->Update();
 
-    vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+    vtkSmartPointer<vtkCleanPolyData> meshinC = vtkSmartPointer<vtkCleanPolyData>::New();
     #if VTK_MAJOR_VERSION > 5
     meshinC->SetInputData(meshin->GetOutput() );
     #else
@@ -4438,12 +4438,12 @@ int main(int argc, const char * *argv)
     #endif
     meshinC->Update();
 
-    vtkSmoothPolyDataFilter *smoother = vtkSmoothPolyDataFilter::New();
+    vtkSmartPointer<vtkSmoothPolyDataFilter> smoother = vtkSmartPointer<vtkSmoothPolyDataFilter>::New();
     smoother->SetInputConnection(meshinC->GetOutputPort() );
     smoother->SetNumberOfIterations(smoothIterationNb);
 
     // Writing the new mesh, with not degenerated triangles
-    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
     #if VTK_MAJOR_VERSION > 5
     SurfaceWriter->SetInputData(smoother->GetOutput() );
     #else
@@ -4546,13 +4546,13 @@ int main(int argc, const char * *argv)
 	if (debug)
 	    std::cout << "Reading mesh " << " " << inputFilename << std::endl;
 
-    vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
     meshin->SetFileName(inputFilename);
     meshin->Update();
-    vtkPolyData *polydata = meshin->GetOutput();
+    vtkSmartPointer<vtkPolyData> polydata = meshin->GetOutput();
 
     // generate normals
-    vtkPolyDataNormals* normals = vtkPolyDataNormals::New();
+    vtkSmartPointer<vtkPolyDataNormals> normals = vtkSmartPointer<vtkPolyDataNormals>::New();
     #if VTK_MAJOR_VERSION > 5
     normals->SetInputData( polydata );
     #else
@@ -4569,7 +4569,7 @@ int main(int argc, const char * *argv)
     #endif
 
      // Writing the new mesh, with the patched hole
-    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
     #if VTK_MAJOR_VERSION > 5
     SurfaceWriter->SetInputData(polydata);
     #else
@@ -4584,10 +4584,10 @@ int main(int argc, const char * *argv)
     }
   else if( KWMtoPolyDataOn ) // bp2009
     {
-    vtkPolyDataReader *polyIn = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> polyIn = vtkSmartPointer<vtkPolyDataReader>::New();
     polyIn->SetFileName(inputFilename);
     polyIn->Update();
-    vtkPolyData* polydataAtt = polyIn->GetOutput();
+    vtkSmartPointer<vtkPolyData> polydataAtt = polyIn->GetOutput();
 
     if( debug )
       {
@@ -4613,7 +4613,7 @@ int main(int argc, const char * *argv)
 
     input.getline(line, 500, '\n'); // read type line
 
-    vtkSmartPointer <vtkFloatArray> scalars = vtkSmartPointer <vtkFloatArray>::New();
+    vtkSmartPointer<vtkFloatArray> scalars = vtkSmartPointer<vtkFloatArray>::New();
     scalars->SetNumberOfComponents(NDimension);
     scalars->SetName(files[1]);
 
@@ -4662,7 +4662,7 @@ int main(int argc, const char * *argv)
       }
 
     // Writing the new mesh
-    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
     #if VTK_MAJOR_VERSION > 5
     SurfaceWriter->SetInputData(polydataAtt);
     #else
@@ -4679,10 +4679,10 @@ int main(int argc, const char * *argv)
     }
   else if ( FSAscDataOn )
     { // styner 2016
-    vtkPolyDataReader *polyIn = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> polyIn = vtkSmartPointer<vtkPolyDataReader>::New();
     polyIn->SetFileName(inputFilename);
     polyIn->Update();
-    vtkPolyData* polydataAtt = polyIn->GetOutput();
+    vtkSmartPointer<vtkPolyData> polydataAtt = polyIn->GetOutput();
 
     if( debug )
       {
@@ -4695,7 +4695,7 @@ int main(int argc, const char * *argv)
     int      NPoints;
     input.open(files[0], ios::in);
 
-    vtkSmartPointer <vtkFloatArray> scalars = vtkSmartPointer <vtkFloatArray>::New();
+    vtkSmartPointer<vtkFloatArray> scalars = vtkSmartPointer<vtkFloatArray>::New();
     scalars->SetNumberOfComponents(1);
     scalars->SetName(files[1]);
     
@@ -4746,7 +4746,7 @@ int main(int argc, const char * *argv)
       }
 
     // Writing the new mesh
-    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
     #if VTK_MAJOR_VERSION > 5
     SurfaceWriter->SetInputData(polydataAtt);
     #else
@@ -4990,12 +4990,12 @@ int main(int argc, const char * *argv)
               << argv[4] << std::endl;
 
     // Read PolyData info
-    vtkPolyDataReader *polyIn = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> polyIn = vtkSmartPointer<vtkPolyDataReader>::New();
     polyIn->SetFileName(inputFilename); polyIn->Update();
-    vtkPolyData* polydata = polyIn->GetOutput();
+    vtkSmartPointer<vtkPolyData> polydata = polyIn->GetOutput();
 
     // Calculate Curvedness and Shape Index
-    vtkCurvatures* curveMax = vtkCurvatures::New();
+    vtkSmartPointer<vtkCurvatures> curveMax = vtkSmartPointer<vtkCurvatures>::New();
     #if VTK_MAJOR_VERSION > 5
     curveMax->SetInputData(polydata);
     #else
@@ -5003,11 +5003,11 @@ int main(int argc, const char * *argv)
     #endif
     curveMax->SetCurvatureTypeToMaximum();
     curveMax->Update();
-    vtkPolyData* polydataCurvMax = curveMax->GetOutput();
+    vtkSmartPointer<vtkPolyData> polydataCurvMax = curveMax->GetOutput();
     #if VTK_MAJOR_VERSION <= 5
     polydataCurvMax->Update();
     #endif
-    vtkCurvatures* curveMin = vtkCurvatures::New();
+    vtkSmartPointer<vtkCurvatures> curveMin = vtkSmartPointer<vtkCurvatures>::New();
     #if VTK_MAJOR_VERSION > 5
     curveMin->SetInputData(polydata);
     #else
@@ -5015,7 +5015,7 @@ int main(int argc, const char * *argv)
     #endif
     curveMin->SetCurvatureTypeToMinimum();
     curveMin->Update();
-    vtkPolyData* polydataCurvMin = curveMin->GetOutput();
+    vtkSmartPointer<vtkPolyData> polydataCurvMin = curveMin->GetOutput();
     #if VTK_MAJOR_VERSION <= 5
     polydataCurvMin->Update();
     #endif
@@ -5026,8 +5026,8 @@ int main(int argc, const char * *argv)
     std::ofstream mean( argv[6] );
 
     unsigned int    nPoints = polydataCurvMax->GetNumberOfPoints();
-    vtkDoubleArray *ArrayCurvMax = vtkDoubleArray::SafeDownCast(polydataCurvMax->GetPointData()->GetScalars() );
-    vtkDoubleArray *ArrayCurvMin = vtkDoubleArray::SafeDownCast(polydataCurvMin->GetPointData()->GetScalars() );
+    vtkSmartPointer<vtkDoubleArray> ArrayCurvMax = vtkDoubleArray::SafeDownCast(polydataCurvMax->GetPointData()->GetScalars() );
+    vtkSmartPointer<vtkDoubleArray> ArrayCurvMin = vtkDoubleArray::SafeDownCast(polydataCurvMin->GetPointData()->GetScalars() );
 
     curvedness << "NUMBER_OF_POINTS=" << nPoints << std::endl;
     curvedness << "DIMENSION=1" << std::endl << "TYPE=Scalar" << std::endl;
@@ -5086,10 +5086,10 @@ int main(int argc, const char * *argv)
     {
     // Reading the first mesh (template)
     // std::cout << "Reading template mesh " << inputFilename << std::endl;
-    vtkPolyDataReader *inputTemplate = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> inputTemplate = vtkSmartPointer<vtkPolyDataReader>::New();
     inputTemplate->SetFileName(inputFilename);
     inputTemplate->Update();
-    vtkPolyData* polydata = inputTemplate->GetOutput();
+    vtkSmartPointer<vtkPolyData> polydata = inputTemplate->GetOutput();
 
     // Reading the point to create the directionality vectors
     vtkIdType numPoints = polydata->GetNumberOfPoints();
@@ -5102,7 +5102,7 @@ int main(int argc, const char * *argv)
     vectorz[0] = 0; vectorz[1] = 0; vectorz[2] = 1;
 
     // Computing the normals in the original mesh
-    vtkPolyDataNormals *meshNormals = vtkPolyDataNormals::New();
+    vtkSmartPointer<vtkPolyDataNormals> meshNormals = vtkSmartPointer<vtkPolyDataNormals>::New();
     meshNormals->SetComputePointNormals(1);
     meshNormals->SetComputeCellNormals(0);
     meshNormals->SetSplitting(0);
@@ -5112,13 +5112,13 @@ int main(int argc, const char * *argv)
     meshNormals->SetInput(inputTemplate->GetOutput() );
     #endif
     meshNormals->Update();
-    vtkPolyData * vtkMeshNormals = meshNormals->GetOutput();
+    vtkSmartPointer<vtkPolyData> vtkMeshNormals = meshNormals->GetOutput();
     #if VTK_MAJOR_VERSION <= 5
     vtkMeshNormals->Update();
     #endif
 
     // Write normals out
-    vtkDataArray *Array = vtkDataArray::SafeDownCast(vtkMeshNormals->GetPointData()->GetNormals() );
+    vtkSmartPointer<vtkDataArray> Array = vtkDataArray::SafeDownCast(vtkMeshNormals->GetPointData()->GetNormals() );
 
     // Creating feature vectors
     std::ofstream outfileVecX;
@@ -5165,15 +5165,15 @@ int main(int argc, const char * *argv)
 
     // Reading the first mesh (template)
     std::cout << "Reading template mesh " << TestMeshFiles[0].c_str() << std::endl;
-    vtkPolyDataReader *inputTemplate = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> inputTemplate = vtkSmartPointer<vtkPolyDataReader>::New();
     inputTemplate->SetFileName(TestMeshFiles[0].c_str() );
     inputTemplate->Update();
 
     // Computing the normals in the original mesh
-    vtkDataArray *ArrayTemplate;
+    vtkSmartPointer<vtkDataArray> ArrayTemplate;
     {
-    vtkPolyData *vtkMeshNormals;
-    vtkPolyDataNormals *meshNormals = vtkPolyDataNormals::New();
+    vtkSmartPointer<vtkPolyData> vtkMeshNormals;
+    vtkSmartPointer<vtkPolyDataNormals> meshNormals = vtkSmartPointer<vtkPolyDataNormals>::New();
     meshNormals->SetComputePointNormals(1);
     meshNormals->SetComputeCellNormals(0);
     meshNormals->SetSplitting(0);
@@ -5193,12 +5193,12 @@ int main(int argc, const char * *argv)
     ArrayTemplate = vtkDataArray::SafeDownCast(vtkMeshNormals->GetPointData()->GetNormals() );
     }
     // Creating the point locator to compute the closest point to
-    vtkPointLocator *pointLocatorT = vtkPointLocator::New();
+    vtkSmartPointer<vtkPointLocator> pointLocatorT = vtkSmartPointer<vtkPointLocator>::New();
     pointLocatorT->SetDataSet(inputTemplate->GetOutput() );
     pointLocatorT->BuildLocator();
 
     int             counter = 0; unsigned int ptID;
-    vtkDoubleArray *particlesT = vtkDoubleArray::New();
+    vtkSmartPointer<vtkDoubleArray> particlesT = vtkSmartPointer<vtkDoubleArray>::New();
     particlesT->SetNumberOfComponents( 3 );
 
     std::ifstream in( TestMeshFiles[1].c_str() );
@@ -5209,14 +5209,14 @@ int main(int argc, const char * *argv)
       // ptID=pointLocatorT->FindClosestPoint(pt[0],pt[1],pt[2]);
       ptID = pointLocatorT->FindClosestPoint(pt);
       ArrayTemplate->GetTuple(ptID, normal);
-      particlesT->InsertTupleValue( counter, normal );
+      particlesT->InsertTuple( counter, normal );
       counter++;
       }
 
     std::cout << particlesT->GetNumberOfTuples() << " particles read from " << TestMeshFiles[1] << std::endl;
     in.close();
 
-    vtkIntArray *flags = vtkIntArray::New();
+    vtkSmartPointer<vtkIntArray> flags = vtkSmartPointer<vtkIntArray>::New();
     flags->SetNumberOfComponents(1);
     flags->SetNumberOfValues(counter);
     for( int i = 0; i < counter; i++ )
@@ -5228,14 +5228,14 @@ int main(int argc, const char * *argv)
       {
 
       std::cout << "Reading  mesh " << TestMeshFiles[index] << std::endl;
-      vtkPolyDataReader *input = vtkPolyDataReader::New();
+      vtkSmartPointer<vtkPolyDataReader> input = vtkSmartPointer<vtkPolyDataReader>::New();
       input->SetFileName(TestMeshFiles[index].c_str() );
       input->Update();
 
       // **** START STEP 1 -> Computing the normals in the new mesh
-      vtkPolyData * vtkMeshNormals;
+      vtkSmartPointer<vtkPolyData> vtkMeshNormals;
       {
-      vtkPolyDataNormals *meshNormals = vtkPolyDataNormals::New();
+      vtkSmartPointer<vtkPolyDataNormals> meshNormals = vtkSmartPointer<vtkPolyDataNormals>::New();
       meshNormals->SetComputePointNormals(1);
       meshNormals->SetComputeCellNormals(0);
       meshNormals->SetSplitting(0);
@@ -5254,16 +5254,16 @@ int main(int argc, const char * *argv)
       // Write normals out
       unsigned int nPoints = vtkMeshNormals->GetNumberOfPoints();
       std::cout << nPoints << std::endl;
-      vtkDataArray *Array = vtkDataArray::SafeDownCast(vtkMeshNormals->GetPointData()->GetNormals() );
+      vtkSmartPointer<vtkDataArray> Array = vtkDataArray::SafeDownCast(vtkMeshNormals->GetPointData()->GetNormals() );
       // **** END STEP 1
 
       // *** START STEP 2 -> PARSING particle file
-      vtkPointLocator *pointLocator = vtkPointLocator::New();
+      vtkSmartPointer<vtkPointLocator> pointLocator = vtkSmartPointer<vtkPointLocator>::New();
       pointLocator->SetDataSet(input->GetOutput() );
       pointLocator->BuildLocator();
 
       int             _counter = 0;
-      vtkDoubleArray *particles = vtkDoubleArray::New();
+      vtkSmartPointer<vtkDoubleArray> particles = vtkSmartPointer<vtkDoubleArray>::New();
       particles->SetNumberOfComponents( 3 );
       double ptT[3];
 
@@ -5275,7 +5275,7 @@ int main(int argc, const char * *argv)
         // _ptID=pointLocator->FindClosestPoint(pt[0],pt[1],pt[2]);
         unsigned int _ptID = pointLocator->FindClosestPoint(pt);
         Array->GetTuple(_ptID, normal);
-        particles->InsertTupleValue( _counter, normal );
+        particles->InsertTuple( _counter, normal );
         _counter++;
         }
 
@@ -5286,8 +5286,8 @@ int main(int argc, const char * *argv)
         {
         double pt[3];
         // Retrieve the particle normal from template and mesh
-        particlesT->GetTupleValue(i, ptT);
-        particles->GetTupleValue(i, pt);
+        particlesT->GetTuple(i, ptT);
+        particles->GetTuple(i, pt);
 
         double dotprod = pt[0] * ptT[0] + pt[1] * ptT[1] + pt[2] * ptT[2];;
 
@@ -5345,20 +5345,20 @@ int main(int argc, const char * *argv)
       {
       std::cout << "Reading input mesh 1..." << std::endl;
       }
-    vtkPolyDataReader *meshReader1 = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> meshReader1 = vtkSmartPointer<vtkPolyDataReader>::New();
     meshReader1->SetFileName(inputFilename);
     meshReader1->Update();
-    vtkPolyData *mesh1 = meshReader1->GetOutput();
+    vtkSmartPointer<vtkPolyData> mesh1 = meshReader1->GetOutput();
 
     // Reading input mesh 2
     if( debug )
       {
       std::cout << "Reading input mesh 2..." << std::endl;
       }
-    vtkPolyDataReader *meshReader2 = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> meshReader2 = vtkSmartPointer<vtkPolyDataReader>::New();
     meshReader2->SetFileName(closestPointFiles[1].c_str() );
     meshReader2->Update();
-    vtkPolyData *mesh2 = meshReader2->GetOutput();
+    vtkSmartPointer<vtkPolyData> mesh2 = meshReader2->GetOutput();
 
     // Reading attribute file
     if( debug )
@@ -5436,10 +5436,10 @@ int main(int argc, const char * *argv)
       {
       std::cout << "Reading input mesh 1..." << std::endl;
       }
-    vtkPolyDataReader *meshReader = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> meshReader = vtkSmartPointer<vtkPolyDataReader>::New();
     meshReader->SetFileName(inputFilename);
     meshReader->Update();
-    vtkPolyData *mesh = meshReader->GetOutput();
+    vtkSmartPointer<vtkPolyData> mesh = meshReader->GetOutput();
 
     std::ofstream outfile0, outfile1, outfile2;
 
@@ -5668,22 +5668,22 @@ int main(int argc, const char * *argv)
       // std::cout<<inputFilename << "  " << outputFilename << "   " << vtkPointFile.c_str() << std::endl;
 
       // Reading input mesh 1
-      vtkPolyDataReader *meshReader1 = vtkPolyDataReader::New();
+      vtkSmartPointer<vtkPolyDataReader> meshReader1 = vtkSmartPointer<vtkPolyDataReader>::New();
       meshReader1->SetFileName(inputFilename);
       meshReader1->Update();
-      vtkPolyData *mesh1 = meshReader1->GetOutput();
+      vtkSmartPointer<vtkPolyData> mesh1 = meshReader1->GetOutput();
 
       // Reading input mesh 2 that contains the point list
-      vtkPolyDataReader *meshReader2 = vtkPolyDataReader::New();
+      vtkSmartPointer<vtkPolyDataReader> meshReader2 = vtkSmartPointer<vtkPolyDataReader>::New();
       meshReader2->SetFileName(vtkPointFile.c_str());
       meshReader2->Update();
-      vtkPolyData *mesh2 = meshReader2->GetOutput();
+      vtkSmartPointer<vtkPolyData> mesh2 = meshReader2->GetOutput();
 
-      vtkPointLocator* pointLocator = vtkPointLocator::New();
+      vtkSmartPointer<vtkPointLocator> pointLocator = vtkSmartPointer<vtkPointLocator>::New();
       pointLocator->SetDataSet(mesh1);
       pointLocator->BuildLocator();
 
-      vtkPoints* pointList = mesh2->GetPoints();
+      vtkSmartPointer<vtkPoints> pointList = mesh2->GetPoints();
       mesh1->BuildLinks(); // BuildLinks needs to be called before GetPointCells
 
       double currLandmark[3], closestPoint[3];
@@ -5698,7 +5698,7 @@ int main(int argc, const char * *argv)
 	mesh1->GetPoint(id, closestPoint);
 	//std::cout << "Closest vertex: " << closestPoint[0] << "  "  << closestPoint[1] << "  "  << closestPoint[2] << ", ";
 
-	vtkIdList* cellIds = vtkIdList::New();
+        vtkSmartPointer<vtkIdList> cellIds = vtkSmartPointer<vtkIdList>::New();
 	mesh1->GetPointCells(id, cellIds);
     
 	/**
@@ -5716,7 +5716,7 @@ int main(int argc, const char * *argv)
 	int minJ = cellIds->GetId(0);
 	for (int j = 0; j < cellIds->GetNumberOfIds(); j++) {
 
-	  vtkCell* cell = mesh1->GetCell(cellIds->GetId(j));
+          vtkSmartPointer<vtkCell> cell = mesh1->GetCell(cellIds->GetId(j));
 
 	  double t1[3], t2[3], t3[3], normal[3];
 	  cell->GetPoints()->GetPoint(0, t1); //std::cout<< t1[0] << " " << t1[1] << " " << t1[2] << ", ";
@@ -5745,7 +5745,7 @@ int main(int argc, const char * *argv)
 	mesh2->GetPoints()->SetPoint(i, trueClosestPoint);
 
 	std::cout <<"Closest point: " << trueClosestPoint[0] << "  "  << trueClosestPoint[1] << "  "  << trueClosestPoint[2] << "; Cell id: " << minJ << std::endl;
-	vtkCell* closestCell = mesh1->GetCell(minJ);
+        vtkSmartPointer<vtkCell> closestCell = mesh1->GetCell(minJ);
 	double t1[3], t2[3], t3[3], t1_2d[2], t2_2d[2], t3_2d[2], trueClosestPt_2d[2], bcoords[3];
 	closestCell->GetPoints()->GetPoint(0, t1);
 	closestCell->GetPoints()->GetPoint(1, t2);
@@ -5759,13 +5759,13 @@ int main(int argc, const char * *argv)
 	vtkTriangle::BarycentricCoords(trueClosestPt_2d, t1_2d, t2_2d, t3_2d, bcoords);
 	std::cout<< "Barycentric coordinates: " << bcoords[0] << " " << bcoords[1] << " " << bcoords[2] << std::endl;
 
-	vtkIdList * closestCellIds = closestCell->GetPointIds();
+        vtkSmartPointer<vtkIdList> closestCellIds = closestCell->GetPointIds();
 	outfile << minJ << " " << closestCellIds->GetId(0) << " " << closestCellIds->GetId(1) << " " <<  closestCellIds->GetId(2) << " " << bcoords[0] << " "  << bcoords[1] << " " << bcoords[2] << std::endl;
       }
 
       outfile.close();
 
-      vtkPolyDataWriter *meshWriter = vtkPolyDataWriter::New();
+      vtkSmartPointer<vtkPolyDataWriter> meshWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
     	#if VTK_MAJOR_VERSION > 5
       meshWriter->SetInputData(mesh2);
       #else
@@ -5987,7 +5987,7 @@ int main(int argc, const char * *argv)
 
 	if(nbPoints ==0)
 	{
-		vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+                vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
 		meshin->SetFileName(inputFilename);
 		meshin->Update();
 		nbPoints=meshin->GetOutput()->GetNumberOfPoints();
@@ -5995,11 +5995,11 @@ int main(int argc, const char * *argv)
 
 	std::ofstream lptsfile(outputFilename, std::ios::out | std::ios::trunc);
 
-	vtkPolyDataReader *vtkreader = vtkPolyDataReader::New();
+        vtkSmartPointer<vtkPolyDataReader> vtkreader = vtkSmartPointer<vtkPolyDataReader>::New();
 	vtkreader->SetFileName(inputFilename);
 	vtkreader->Update();
 	double x[3];
-	vtkPoints * PointVTK = vtkPoints::New();
+        vtkSmartPointer<vtkPoints> PointVTK = vtkSmartPointer<vtkPoints>::New();
 	PointVTK=vtkreader->GetOutput()->GetPoints();
 	for (int PointId = 0; PointId < (vtkreader->GetOutput()->GetNumberOfPoints()); PointId++)
 	{
@@ -6010,11 +6010,11 @@ int main(int argc, const char * *argv)
 	
    } else if(relaxPolygonsOn) //bp2012
   {
-	vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+        vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
 	meshin->SetFileName(inputFilename);
 	meshin->Update();
 
-	vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+        vtkSmartPointer<vtkCleanPolyData> meshinC = vtkSmartPointer<vtkCleanPolyData>::New();
 	#if VTK_MAJOR_VERSION > 5
 	meshinC->SetInputData(meshin->GetOutput());
   #else
@@ -6022,7 +6022,7 @@ int main(int argc, const char * *argv)
   #endif
 	meshinC->Update();
 
-	vtkWindowedSincPolyDataFilter *smoother = vtkWindowedSincPolyDataFilter::New();
+        vtkSmartPointer<vtkWindowedSincPolyDataFilter> smoother = vtkSmartPointer<vtkWindowedSincPolyDataFilter>::New();
 	smoother->SetInputConnection(meshinC->GetOutputPort());
 	smoother->SetNumberOfIterations(relaxPolygonsNb);
 	smoother->BoundarySmoothingOff();
@@ -6035,7 +6035,7 @@ int main(int argc, const char * *argv)
 
 
  	//Writing the new mesh, with not degenerated triangles
-	vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+        vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
 	#if VTK_MAJOR_VERSION > 5
 	SurfaceWriter->SetInputData(smoother->GetOutput());
   #else
@@ -6047,11 +6047,11 @@ int main(int argc, const char * *argv)
 	if (debug) std::cout << "Writing new mesh " << outputFilename << std::endl;
   } else if(decimateMeshOn) //bp2012
   {
-	vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+        vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
 	meshin->SetFileName(inputFilename);
 	meshin->Update();
 
-	vtkCleanPolyData *meshinC = vtkCleanPolyData::New();
+        vtkSmartPointer<vtkCleanPolyData> meshinC = vtkSmartPointer<vtkCleanPolyData>::New();
 	#if VTK_MAJOR_VERSION > 5
 	meshinC->SetInputData(meshin->GetOutput());
   #else
@@ -6075,7 +6075,7 @@ int main(int argc, const char * *argv)
   	decimated->ShallowCopy(decimate->GetOutput());
 
  	//Writing the new mesh, with not degenerated triangles
-	vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+        vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
   #if VTK_MAJOR_VERSION > 5
 	SurfaceWriter->SetInputData(decimate->GetOutput());  
   #else
@@ -6088,11 +6088,11 @@ int main(int argc, const char * *argv)
   } else if (listPointDataOn) //ms2013
   {
     // Read PolyData info
-    vtkPolyDataReader *polyIn = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> polyIn = vtkSmartPointer<vtkPolyDataReader>::New();
     if (debug) std::cout << "Reading vtk mesh " << inputFilename << std::endl;
     polyIn->SetFileName(inputFilename); 
     polyIn->Update();
-    vtkPolyData* polydata = polyIn->GetOutput();
+    vtkSmartPointer<vtkPolyData> polydata = polyIn->GetOutput();
     unsigned int    nPoints = polydata->GetNumberOfPoints();;
 
     unsigned int numberOfArrays = polydata->GetPointData()->GetNumberOfArrays();
@@ -6103,7 +6103,7 @@ int main(int argc, const char * *argv)
 	std::cout << "  name " << j << ": " << polydata->GetPointData()->GetArrayName(j) <<std::endl;
 
 	polydata->GetPointData()->SetActiveScalars(polydata->GetPointData()->GetArrayName(j));
-	vtkDoubleArray *scalarData = (vtkDoubleArray *) polydata->GetPointData()->GetArray(j);
+        vtkDoubleArray* scalarData = (vtkDoubleArray*) polydata->GetPointData()->GetArray(j);
 
 	if (scalarData) 
 	  {
@@ -6123,11 +6123,11 @@ int main(int argc, const char * *argv)
   {
     
     // Read PolyData info
-    vtkPolyDataReader *polyIn = vtkPolyDataReader::New();
+    vtkSmartPointer<vtkPolyDataReader> polyIn = vtkSmartPointer<vtkPolyDataReader>::New();
     if (debug) std::cout << "Reading vtk mesh " << inputFilename << std::endl;
     polyIn->SetFileName(inputFilename); 
     polyIn->Update();
-    vtkPolyData* polydata = polyIn->GetOutput();
+    vtkSmartPointer<vtkPolyData> polydata = polyIn->GetOutput();
     unsigned int    nPoints = polydata->GetNumberOfPoints();;
 
     unsigned int numberOfArrays = polydata->GetPointData()->GetNumberOfArrays();
@@ -6135,7 +6135,7 @@ int main(int argc, const char * *argv)
 
     const char * name = pointDataOpCmd[0].c_str();
     polydata->GetPointData()->SetActiveScalars(name);
-    vtkDoubleArray *scalarData = (vtkDoubleArray *) polydata->GetPointData()->GetArray(name);
+    vtkDoubleArray *scalarData = (vtkDoubleArray*) polydata->GetPointData()->GetArray(name);
     if (scalarData) 
       {
 	double opValue = atof(pointDataOpCmd[2].c_str());
@@ -6162,7 +6162,7 @@ int main(int argc, const char * *argv)
       }
     if (debug)  std::cout << "saving modified vtk in " << outputFilename  << std::endl;
      
-    vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+    vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
     #if VTK_MAJOR_VERSION > 5
     SurfaceWriter->SetInputData(polydata);
     #else
@@ -6176,11 +6176,11 @@ int main(int argc, const char * *argv)
 
      std::cout << "Displacing mesh by " << TranslateParams[0] << " - "  << TranslateParams[1] << " - " << TranslateParams[2] << std::endl;
 
-     vtkPolyDataReader *meshin = vtkPolyDataReader::New();
+     vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
      meshin->SetFileName(inputFilename);
      meshin->Update();
      double x[3];
-     vtkPoints * PointsVTK = vtkPoints::New();
+     vtkSmartPointer<vtkPoints> PointsVTK = vtkSmartPointer<vtkPoints>::New();
      PointsVTK = meshin->GetOutput()->GetPoints();
 
      for( int PointId = 0; PointId < (meshin->GetOutput()->GetNumberOfPoints() ); PointId++ )
@@ -6194,7 +6194,7 @@ int main(int argc, const char * *argv)
         PointsVTK->SetPoint(PointId, vert);
         }
 
-     vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+     vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
      #if VTK_MAJOR_VERSION > 5
      SurfaceWriter->SetInputData(meshin->GetOutput() );
      #else
@@ -6206,10 +6206,10 @@ int main(int argc, const char * *argv)
     }
     else if( lookupPointOn ) // bp2009
   {
-  vtkPolyDataReader *polyRead = vtkPolyDataReader::New();
+  vtkSmartPointer<vtkPolyDataReader> polyRead = vtkSmartPointer<vtkPolyDataReader>::New();
   polyRead->SetFileName(inputFilename);
   polyRead->Update();
-  vtkPolyData* polyOut = polyRead->GetOutput();
+  vtkSmartPointer<vtkPolyData> polyOut = polyRead->GetOutput();
 
   if( debug )
     {
@@ -6231,7 +6231,7 @@ int main(int argc, const char * *argv)
   CSVreader->Update();
   vtkSmartPointer<vtkTable> table = CSVreader->GetOutput();
 
-  vtkDoubleArray* outputScalars = (vtkDoubleArray *) polyOut->GetPointData()->GetArray(files[1]);
+  vtkDoubleArray* outputScalars = (vtkDoubleArray*) polyOut->GetPointData()->GetArray(files[1]);
 
   if (outputScalars)
   {
@@ -6266,7 +6266,7 @@ int main(int argc, const char * *argv)
 
 
   // Writing the new mesh
-  vtkPolyDataWriter *SurfaceWriter = vtkPolyDataWriter::New();
+  vtkSmartPointer<vtkPolyDataWriter> SurfaceWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
   #if VTK_MAJOR_VERSION > 5
   SurfaceWriter->SetInputData(polyOut);
   #else
