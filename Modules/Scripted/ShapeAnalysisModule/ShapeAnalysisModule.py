@@ -201,7 +201,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
   def cleanup(self):
     pass
 
-  # Functions to recovery the widget in the .ui file
+  # Functions to recover the widget in the .ui file
   def getWidget(self, objectName):
     return self.findWidget(self.widget, objectName)
 
@@ -215,7 +215,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
           return resulting_widget
     return None
 
-  # Only one tab can be display at the same time:
+  # Only one tab can be displayed at the same time:
   #   When one tab is opened all the other tabs are closed
   def onSelectedCollapsibleButtonOpen(self, selectedCollapsibleButton):
     if selectedCollapsibleButton.isChecked():
@@ -1013,7 +1013,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
         self.inputExtension = "nrrd"
         self.skip_meshToLabelMap = True
 
-    # If MeshToLabelMap is not skip, do not skip the next CLIs: SegPostProcess, GenParaMesh and ParaToSPHARMMesh
+    # If MeshToLabelMap is not skipped, do not skip the next CLIs: SegPostProcess, GenParaMesh and ParaToSPHARMMesh
     if self.skip_meshToLabelMap == False:
       return
 
@@ -1036,7 +1036,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       if os.path.exists(ParaOutputFilepath) and os.path.exists(SurfOutputFilepath):
         self.skip_genParaMesh = True
 
-    # If GenParaMesh is not skip, do not skip the next CLI: ParaToSPHARMMesh
+    # If GenParaMesh is not skipped, do not skip the next CLI: ParaToSPHARMMesh
     if self.skip_genParaMesh == False:
       return
 
@@ -1070,13 +1070,13 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     inputDirectory = self.interface.GroupProjectInputDirectory.directory.encode('utf-8')
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
 
-    ## Mesh To Label Map: Transform input model in label map
+    ## Mesh To Label Map: Transform model in label map
     cli_nodes = list() # list of the nodes used in the Mesh to Label Map step
     cli_filepaths = list() # list of the node filepaths used in the Mesh to Label Map step
     LabelMapDirectory = outputDirectory + "/LabelMap"
     LabelMapOutputFilepath = LabelMapDirectory + "/" + self.inputFilename + ".nrrd"
     if not self.skip_meshToLabelMap:
-      # Setup of the parameters od the CLI
+      # Setup of the parameters of the CLI
       self.ID += 1
 
       cli_parameters = {}
@@ -1108,7 +1108,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       self.setupNode(0, cli_nodes, cli_filepaths, [False, True], [True, True])
     else:
       if os.path.exists(LabelMapOutputFilepath):
-        # Setup of the nodes which will be use by the next CLI
+        # Setup of the nodes which will be used by the next CLI
         meshtolabelmap_output_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(LabelMapOutputFilepath, 'LabelMapVolumeFile')
 
         cli_nodes.append(meshtolabelmap_output_node)
@@ -1167,7 +1167,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       self.setupNode(1, cli_nodes, cli_filepaths, [False,True], [True,True])
 
     else:
-      # Setup of the nodes which will be use by the next CLI
+      # Setup of the nodes which will be used by the next CLI
       pp_output_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(PostProcessOutputFilepath, 'LabelMapVolumeFile')
 
       cli_nodes.append(pp_output_node)
@@ -1216,7 +1216,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
 
     else:
-      # Setup of the nodes which will be use by the next CLI
+      # Setup of the nodes which will be used by the next CLI
       para_output_model = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(ParaOutputFilepath, 'ModelFile')
       surfmesh_output_model = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(SurfOutputFilepath, 'ModelFile')
 
@@ -1256,7 +1256,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       # Only one flip to apply
       if flipIndexToApply < 8:
         L = [1]
-      # All the flip to apply
+      # All the flips to apply
       else:
         L = range(1,8)
 
@@ -1277,7 +1277,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
         if flipIndexToApply < 8:
           SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + self.inputFilename
           cli_parameters["outbase"] = SPHARMMeshFilepath
-        #   For each flip creation of a output filename
+        #   For each flip creation of an output filename
         else:
           flipName = ['AlongXY', 'AlongYZ', 'AlongXZ', 'AlongX', 'AlongY', 'AlongXYZ', 'AlongZ']
           SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + self.inputFilename + "_flip" + flipName[i - 1]
