@@ -20,15 +20,17 @@ class ShapeAnalysisModule(ScriptedLoadableModule):
   def __init__(self, parent):
     ScriptedLoadableModule.__init__(self, parent)
     self.parent.title = "Shape Analysis Module"
-    self.parent.categories = ["Examples"]
+    self.parent.categories = ["Shape Analysis"]
     self.parent.dependencies = []
-    self.parent.contributors = ["Laura Pascal (Kitware Inc.)"]
+    self.parent.contributors = ["Laura Pascal (Kitware Inc.), Beatriz Paniagua (Kitware Inc.), Hina Shah (Kitware Inc.)"]
     self.parent.helpText = """
+      SPHARM-PDM is a tool that computes point-based models using a parametric
+      boundary description for the computing of Shape Analysis.
     """
     self.parent.acknowledgementText = """
-    This file was originally developed by Jean-Christophe Fillion-Robin, Kitware Inc.
-    and Steve Pieper, Isomics, Inc. and was partially funded by NIH grant 3P41RR013218-12S1.
-    """ # replace with organization, grant and thanks.
+      This work was supported by NIH NIBIB R01EB021391
+      (Shape Analysis Toolbox for Medical Image Computing Projects).
+    """
 
 #
 # ShapeAnalysisModuleWidget
