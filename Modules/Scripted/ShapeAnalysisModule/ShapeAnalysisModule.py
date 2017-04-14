@@ -422,6 +422,9 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     elif currentText == "All SPHARM Medial Meshes":
       self.Logic.checkedItems("SPHARM Medial Meshes", currentItem.checkState())
 
+    elif currentText == "All SPHARM Procrustes Affine Models":
+      self.Logic.checkedItems("SPHARM Procrustes Affine Models", currentItem.checkState())
+
     #     Check/Uncheck the "All [..]" checkboxes in the checkacle comboBox
     self.Logic.checkedAllItems()
 
