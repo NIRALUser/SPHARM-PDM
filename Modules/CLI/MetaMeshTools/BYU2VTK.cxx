@@ -99,11 +99,6 @@ int main(int argc, const char **argv)
   #endif
   writer->SetFileName ( outfile ) ;
   writer->Update () ;
-  writer->Delete () ;
-  ids->Delete () ;
-  cells->Delete () ;
-  points->Delete () ;
-  polydata->Delete () ;
   if ( debug ) 
     std::cout << "Success." << std::endl ;
 

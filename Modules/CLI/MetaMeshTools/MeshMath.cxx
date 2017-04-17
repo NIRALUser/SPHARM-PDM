@@ -4579,7 +4579,7 @@ int main(int argc, const char * *argv)
     SurfaceWriter->Update();
 
     if (debug)
-    	std::cout << "Writing new mesh " << outputFilename << std::endl;
+       std::cout << "Writing new mesh " << outputFilename << std::endl;
 
     }
   else if( KWMtoPolyDataOn ) // bp2009
@@ -4674,8 +4674,6 @@ int main(int argc, const char * *argv)
       {
       std::cout << "Writing new mesh " << outputFilename << std::endl;
       }
-
-    scalars->Delete();
     }
   else if ( FSAscDataOn )
     { // styner 2016
@@ -4758,8 +4756,6 @@ int main(int argc, const char * *argv)
       {
       std::cout << "Writing new mesh " << outputFilename << std::endl;
       }
-
-    scalars->Delete();
     }
   else if( surfaceAreaOn )
     {
@@ -6044,7 +6040,7 @@ int main(int argc, const char * *argv)
 	SurfaceWriter->SetFileName(outputFilename);
 	SurfaceWriter->Update();
 
-	if (debug) std::cout << "Writing new mesh " << outputFilename << std::endl;
+       if (debug) std::cout << "Writing new mesh " << outputFilename << std::endl;
   } else if(decimateMeshOn) //bp2012
   {
         vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
@@ -6084,7 +6080,7 @@ int main(int argc, const char * *argv)
 	SurfaceWriter->SetFileName(outputFilename);
 	SurfaceWriter->Update();
 
-	if (debug) std::cout << "Writing new mesh " << outputFilename << std::endl;
+       if (debug) std::cout << "Writing new mesh " << outputFilename << std::endl;
   } else if (listPointDataOn) //ms2013
   {
     // Read PolyData info
