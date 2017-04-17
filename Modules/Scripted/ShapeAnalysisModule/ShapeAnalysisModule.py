@@ -237,7 +237,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
   #
   def onInputDirectoryChanged(self):
     #  Possible extension
-    exts = [".gipl", ".gipl.gz", ".mgh", ".mgh,gz", ".nii", ".nii.gz",".nrrd", "vtk", "vtp" "hdr", "mhd"]
+    exts = [".gipl", ".gipl.gz", ".mgh", ".mgh,gz", ".nii", ".nii.gz",".nrrd", ".vtk", ".vtp", ".hdr", ".mhd"]
 
     # Search cases
     self.Logic.InputCases = []
