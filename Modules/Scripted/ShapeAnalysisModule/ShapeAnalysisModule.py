@@ -7,6 +7,7 @@ import csv
 from slicer.util import VTKObservationMixin
 import platform
 import time
+import urllib
 
 #
 # ShapeAnalysisModule
@@ -1410,20 +1411,298 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     if self.currentCLINode:
       self.currentCLINode.Cancel()
 
-class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest):
+class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
   """
   This is the test case for your scripted module.
   Uses ScriptedLoadableModuleTest base class, available at:
   https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
   """
+  def __init__(self):
+    VTKObservationMixin.__init__(self)
 
   def setUp(self):
-    """ Do whatever is needed to reset the state - typically a scene clear will be enough.
-    """
     slicer.mrmlScene.Clear(0)
 
   def runTest(self):
-    """Run as few or as many tests as needed here.
-    """
     self.setUp()
-    self.delayDisplay(' Tests Passed! ')
+    self.delayDisplay('Starting the tests')
+    self.test_ShapeAnalysisModule_completedWithoutErrors()
+
+  def test_ShapeAnalysisModule_completedWithoutErrors(self):
+    self.delayDisplay('Test 1: Run Shape Analysis Module')
+
+    #   Creation of input folder
+    inputDirectoryPath =  slicer.app.temporaryPath + '/InputShapeAnalysisModule'
+    if not os.path.exists(inputDirectoryPath):
+      os.makedirs(inputDirectoryPath)
+    else:
+        for filename in os.listdir(inputDirectoryPath):
+          os.remove(os.path.join(inputDirectoryPath, filename))
+    #   Download the label map in the input folder
+    input_downloads = (
+      ('https://data.kitware.com/api/v1/file/58f4f9078d777f16d095feaf/download', 'groupA_01_hippo.nrrd'),
+    )
+    self.download_files(inputDirectoryPath, input_downloads)
+
+    #   Creation of output folder
+    outputDirectoryPath =  slicer.app.temporaryPath + '/OutputShapeAnalysisModule'
+    if not os.path.exists(outputDirectoryPath):
+      os.makedirs(outputDirectoryPath)
+    else:
+      SegPostProcessOutputDirectoryPath = outputDirectoryPath + '/PostProcess'
+      for filename in os.listdir(SegPostProcessOutputDirectoryPath):
+          os.remove(os.path.join(SegPostProcessOutputDirectoryPath, filename))
+      GenParaMeshOutputDirectoryPath = outputDirectoryPath + '/MeshParameters'
+      for filename in os.listdir(GenParaMeshOutputDirectoryPath):
+          os.remove(os.path.join(GenParaMeshOutputDirectoryPath, filename))
+      ParaToSPHARMMeshOutputDirectoryPath = outputDirectoryPath + '/SPHARMMesh'
+      for filename in os.listdir(ParaToSPHARMMeshOutputDirectoryPath):
+          os.remove(os.path.join(ParaToSPHARMMeshOutputDirectoryPath, filename))
+
+    # Creation of a template folder
+    templateDirectoryPath =  slicer.app.temporaryPath + '/TemplateShapeAnalysisModule'
+    if not os.path.exists(templateDirectoryPath):
+      os.makedirs(templateDirectoryPath)
+    else:
+        for filename in os.listdir(templateDirectoryPath):
+          os.remove(os.path.join(templateDirectoryPath, filename))
+    template_downloads = (
+      ('https://data.kitware.com/api/v1/file/58f618e78d777f16d095fec3/download', 'registrationTemplate.vtk'),
+    )
+    self.download_files(templateDirectoryPath, template_downloads)
+
+
+    moduleWidget = slicer.modules.ShapeAnalysisModuleWidget
+
+    #
+    #  Inputs of Shape Analysis Module
+    #
+    moduleWidget.GroupProjectInputDirectory.directory = inputDirectoryPath
+    moduleWidget.GroupProjectOutputDirectory.directory = outputDirectoryPath
+    moduleWidget.NumberofIterations.setValue(5)
+    moduleWidget.medialMesh.click()
+    moduleWidget.useRegTemplate.click()
+    regTemplateFilePath = templateDirectoryPath + '/registrationTemplate.vtk'
+    moduleWidget.regTemplate.setCurrentPath(regTemplateFilePath)
+
+    self.addObserver(moduleWidget.Logic.Node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
+                           self.onLogicModifiedForTests)
+
+    self.delayDisplay('Run Shape Analysis Module')
+    moduleWidget.ApplyButton.click()
+
+  def onLogicModifiedForTests(self, logic_node, event):
+    status = logic_node.GetStatusString()
+    if not logic_node.IsBusy():
+      if status == 'Completed with errors' or status == 'Cancelled':
+        self.removeObserver(logic_node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
+                            self.onLogicModifiedForTests)
+        self.delayDisplay('Tests Failed!')
+      elif status == 'Completed':
+        self.removeObserver(logic_node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
+                            self.onLogicModifiedForTests)
+
+        # If Shape Analysis Module is completed without errors, then run some other tests on the generated outputs
+        self.assertTrue(self.test_ShapeAnalysisModule_comparisonOfOutputsSegPostProcess())
+        slicer.mrmlScene.Clear(0)
+        self.assertTrue(self.test_ShapeAnalysisModule_comparisonOfOutputsGenParaMesh())
+        slicer.mrmlScene.Clear(0)
+        self.assertTrue(self.test_ShapeAnalysisModule_comparisonOfOutputsParaToSPHARMMesh())
+        slicer.mrmlScene.Clear(0)
+        self.delayDisplay('Tests Passed!')
+
+  def test_ShapeAnalysisModule_comparisonOfOutputsSegPostProcess(self):
+    self.delayDisplay('Test 2: Comparison of the outputs generated by SegPostProcess CLI')
+
+    # Checking the existence of the output directory MeshParameters
+    outputDirectoryPath = slicer.app.temporaryPath + '/OutputShapeAnalysisModule'
+    SegPostProcessOutputDirectoryPath = outputDirectoryPath + '/PostProcess'
+    if not os.path.exists(SegPostProcessOutputDirectoryPath):
+      return False
+
+    # Downloading output data to compare with the ones generated by Shape Analysis Module during the tests
+    output_downloads = (
+      ('https://data.kitware.com/api/v1/file/58f66b148d777f16d095ff0e/download', 'groupA_01_hippo_pp_comparison.nrrd'),
+    )
+    self.download_files(SegPostProcessOutputDirectoryPath, output_downloads)
+
+    #   Comparison of the SPHARM Mesh Outputs
+    self.delayDisplay('Comparison of the Post Process Outputs')
+    output_filenames = ['groupA_01_hippo_pp.nrrd']
+    for i in range(len(output_filenames)):
+      volume_filepath2 = os.path.join(SegPostProcessOutputDirectoryPath, output_filenames[i])
+      #   Checking the existence of the output files in the folder SPHARMMesh
+      if not os.path.exists(volume_filepath2):
+        return False
+
+      # Loading the 2 models for comparison
+      volume_filepath1 = os.path.join(SegPostProcessOutputDirectoryPath, output_downloads[i][1])
+      volume1 = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(volume_filepath1, 'LabelMapVolumeFile')
+      volume2 = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(volume_filepath2, 'LabelMapVolumeFile')
+
+      #   Comparison
+      if not self.volume_comparison(volume1, volume2):
+        return False
+
+    return True
+
+  def test_ShapeAnalysisModule_comparisonOfOutputsGenParaMesh(self):
+    self.delayDisplay('Test 3: Comparison of the outputs generated by GenParaMesh CLI')
+
+    # Checking the existence of the output directory MeshParameters
+    outputDirectoryPath = slicer.app.temporaryPath + '/OutputShapeAnalysisModule'
+    GenParaMeshOutputDirectoryPath = outputDirectoryPath + '/MeshParameters'
+    if not os.path.exists(GenParaMeshOutputDirectoryPath):
+      return False
+
+    # Downloading output data to compare with the ones generated by Shape Analysis Module during the tests
+    output_downloads = (
+      ('https://data.kitware.com/api/v1/file/58f62af38d777f16d095fec9/download', 'groupA_01_hippo_para_comparison.vtk'),
+      ('https://data.kitware.com/api/v1/file/58f62af48d777f16d095fecc/download', 'groupA_01_hippo_surf_comparison.vtk'),
+    )
+    self.download_files(GenParaMeshOutputDirectoryPath, output_downloads)
+
+    #   Comparison of the SPHARM Mesh Outputs
+    self.delayDisplay('Comparison of the Parameters Mesh Outputs')
+    output_filenames = ['groupA_01_hippo_para.vtk', 'groupA_01_hippo_surf.vtk']
+    for i in range(len(output_filenames)):
+      model_filepath2 = os.path.join(GenParaMeshOutputDirectoryPath, output_filenames[i])
+      #   Checking the existence of the output files in the folder SPHARMMesh
+      if not os.path.exists(model_filepath2):
+        return False
+
+      # Loading the 2 models for comparison
+      model_filepath1 = os.path.join(GenParaMeshOutputDirectoryPath, output_downloads[i][1])
+      model1 = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(model_filepath1, 'ModelFile')
+      model2 = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(model_filepath2, 'ModelFile')
+
+      #   Comparison
+      if not self.polydata_comparison(model1, model2):
+        return False
+
+    return True
+
+  def test_ShapeAnalysisModule_comparisonOfOutputsParaToSPHARMMesh(self):
+    self.delayDisplay('Test 4: Comparison of the outputs generated by ParaToSPHARMMesh CLI')
+
+    # Checking the existence of the output directory SPHARMMesh
+    outputDirectoryPath =  slicer.app.temporaryPath + '/OutputShapeAnalysisModule'
+    ParaToSPHARMMeshOutputDirectoryPath = outputDirectoryPath + '/SPHARMMesh'
+    if not os.path.exists(ParaToSPHARMMeshOutputDirectoryPath):
+      return False
+
+    # Downloading output data to compare with the ones generated by Shape Analysis Module during the tests
+    output_downloads = (
+      ('https://data.kitware.com/api/v1/file/58f618e78d777f16d095fec3/download', 'groupA_01_hippoSPHARM_comparison.vtk'),
+      ('https://data.kitware.com/api/v1/file/58f626578d777f16d095fec6/download', 'groupA_01_hippoSPHARM_ellalign_comparison.vtk'),
+      ('https://data.kitware.com/api/v1/file/58f66e1a8d777f16d095ff11/download', 'groupA_01_hippoSPHARMMedialMesh_comparison.vtk'),
+      ('https://data.kitware.com/api/v1/file/58f66e1a8d777f16d095ff14/download', 'groupA_01_hippoSPHARM_procalign_comparison.vtk'),
+    )
+    self.download_files(ParaToSPHARMMeshOutputDirectoryPath, output_downloads)
+
+    #   Comparison of the SPHARM Mesh Outputs
+    self.delayDisplay('Comparison of the SPHARM Mesh Outputs')
+    output_filenames = ['groupA_01_hippoSPHARM.vtk', 'groupA_01_hippoSPHARM_ellalign.vtk', 'groupA_01_hippoSPHARMMedialMesh.vtk', 'groupA_01_hippoSPHARM_procalign.vtk']
+    for i in range(len(output_filenames)):
+      model_filepath2 = os.path.join(ParaToSPHARMMeshOutputDirectoryPath, output_filenames[i])
+      #   Checking the existence of the output files in the folder SPHARMMesh
+      if not os.path.exists(model_filepath2):
+        return False
+
+      #   Loading the 2 models for comparison
+      model_filepath1 = os.path.join(ParaToSPHARMMeshOutputDirectoryPath, output_downloads[i][1])
+      model1 = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(model_filepath1, 'ModelFile')
+      model2 = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(model_filepath2, 'ModelFile')
+
+      #   Comparison
+      if not self.polydata_comparison(model1, model2):
+        return False
+
+    return True
+
+  def volume_comparison(self, volume1, volume2):
+    imageData1 = volume1.GetImageData()
+    imageData2 = volume2.GetImageData()
+
+    nbPoints1 = imageData1.GetNumberOfPoints()
+    nbPoints2 = imageData2.GetNumberOfPoints()
+    if not nbPoints1 == nbPoints2:
+      return False
+
+    dimension1 = imageData1.GetDimensions()
+    dimension2 = imageData2.GetDimensions()
+    if not dimension1 == dimension2:
+      return False
+
+    for i in range(dimension1[0]):
+      for j in range(dimension1[1]):
+        for k in range(dimension1[2]):
+          if not imageData1.GetScalarComponentAsDouble(i,j,k,0) == imageData2.GetScalarComponentAsDouble(i,j,k,0):
+            return False
+
+    return True
+
+  def polydata_comparison(self, model1, model2):
+    polydata1 = model1.GetPolyData()
+    polydata2 = model2.GetPolyData()
+
+    # Number of points
+    nbPoints1 = polydata1.GetNumberOfPoints()
+    nbPoints2 = polydata2.GetNumberOfPoints()
+    if not nbPoints1 == nbPoints2:
+      return False
+
+    # Polydata
+    data1 = polydata1.GetPoints().GetData()
+    data2 = polydata2.GetPoints().GetData()
+
+    #   Number of Components
+    nbComponents1 = data1.GetNumberOfComponents()
+    nbComponents2 = data2.GetNumberOfComponents()
+    if not nbComponents1 == nbComponents2:
+      return False
+
+    #   Points value
+    for i in range(nbPoints1):
+      for j in range(nbComponents1):
+        if not data1.GetTuple(i)[j] == data2.GetTuple(i)[j]:
+          return False
+
+    # Area
+    nbAreas1 = polydata1.GetPointData().GetNumberOfArrays()
+    nbAreas2 = polydata2.GetPointData().GetNumberOfArrays()
+    if not nbAreas1 == nbAreas2:
+      return False
+
+    for l in range(nbAreas1):
+      area1 = polydata1.GetPointData().GetArray(l)
+      area2 = polydata2.GetPointData().GetArray(l)
+
+      #   Name of the area
+      nameArea1 = area1.GetName()
+      nameArea2 = area2.GetName()
+      if not nameArea1 == nameArea2:
+        return False
+
+      # Number of Components of the area
+      nbComponents1 = area1.GetNumberOfComponents()
+      nbComponents2 = area2.GetNumberOfComponents()
+      if not nbComponents1 == nbComponents2:
+        return False
+
+      # Points value in the area
+      for i in range(nbPoints1):
+        for j in range(nbComponents1):
+          if not data1.GetTuple(i)[j] == data2.GetTuple(i)[j]:
+            return False
+
+    return True
+
+  def download_files(self, directoryPath, downloads):
+    self.delayDisplay('Starting download')
+    for url, name in downloads:
+      filePath = os.path.join(directoryPath, name)
+      if not os.path.exists(filePath) or os.stat(filePath).st_size == 0:
+        print 'Requesting download %s from %s...\n' % (name, url)
+        urllib.urlretrieve(url, filePath)
+    self.delayDisplay('Finished with download')
