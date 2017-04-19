@@ -176,6 +176,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     #   Apply CLIs
     self.ApplyButton.connect('clicked(bool)', self.onApplyButton)
 
+    slicer.mrmlScene.AddObserver(slicer.mrmlScene.EndCloseEvent, self.onCloseScene)
+
     # Widget Configuration
     #     Table for the Flip Options
     self.tableWidget_ChoiceOfFlip.setColumnCount(2)
@@ -203,6 +205,85 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 
   def cleanup(self):
     pass
+
+  def onCloseScene(self, obj, event):
+    #   Group Project IO
+    self.CollapsibleButton_GroupProjectIO.setChecked(True)
+    self.Logic.InputCases = []
+    self.GroupProjectInputDirectory.directory = slicer.app.slicerHome
+    self.GroupProjectOutputDirectory.directory = slicer.app.slicerHome
+    self.Debug.setChecked(False)
+
+    #   Post Processed Segmentation
+    self.CollapsibleButton_SegPostProcess.setChecked(False)
+    self.OverwriteSegPostProcess.setChecked(False)
+    self.RescaleSegPostProcess.setChecked(True)
+    self.sx.setValue(0.5)
+    self.sy.setValue(0.5)
+    self.sz.setValue(0.5)
+    self.LabelState.setChecked(False)
+    self.ValueLabelNumber.setValue(0)
+
+    #   Generate Mesh Parameters
+    self.CollapsibleButton_GenParaMesh.setChecked(False)
+    self.OverwriteGenParaMesh.setChecked(False)
+    self.NumberofIterations.setValue(1000)
+
+    #   Parameters to SPHARM Mesh
+    self.CollapsibleButton_ParaToSPHARMMesh.setChecked(False)
+    self.OverwriteParaToSPHARMMesh.setChecked(False)
+    self.SubdivLevelValue.setValue(10)
+    self.SPHARMDegreeValue.setValue(15)
+    self.thetaIterationValue.setValue(100)
+    self.phiIterationValue.setValue(100)
+    self.medialMesh.setChecked(False)
+
+    #   Advanced Post Processed Segmentation
+    self.CollapsibleButton_AdvancedPostProcessedSegmentation.setChecked(False)
+    self.GaussianFiltering.setChecked(False)
+    self.VarianceX.setValue(10)
+    self.VarianceY.setValue(10)
+    self.VarianceZ.setValue(10)
+
+    #   Advanced Parameters to SPHARM Mesh
+    self.CollapsibleButton_AdvancedParametersToSPHARMMesh.setChecked(False)
+    self.useRegTemplate.setChecked(False)
+    self.regTemplate.setCurrentPath(" ")
+    self.useFlipTemplate.setChecked(False)
+    self.flipTemplate.setCurrentPath(" ")
+    self.choiceOfFlip.setCurrentIndex(0)
+    self.choiceOfFlip.enabled = True
+    self.sameFlipForAll.setChecked(True)
+    self.tableWidget_ChoiceOfFlip.enabled = False
+    self.tableWidget_ChoiceOfFlip.clear()
+    self.tableWidget_ChoiceOfFlip.setColumnCount(2)
+    self.tableWidget_ChoiceOfFlip.setHorizontalHeaderLabels([' Input Files ', ' Choice of Flip '])
+    self.tableWidget_ChoiceOfFlip.setColumnWidth(0, 400)
+    horizontalHeader = self.tableWidget_ChoiceOfFlip.horizontalHeader()
+    horizontalHeader.setStretchLastSection(False)
+    horizontalHeader.setResizeMode(0, qt.QHeaderView.Stretch)
+    horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
+    self.tableWidget_ChoiceOfFlip.verticalHeader().setVisible(False)
+
+    #   Visualization
+    self.CollapsibleButton_Visualization.setChecked(False)
+    self.CheckableComboBox_visualization.model().clear()
+    self.tableWidget_visualization.clear()
+    self.tableWidget_visualization.setColumnCount(2)
+    self.tableWidget_visualization.setHorizontalHeaderLabels([' VTK Files ', ' Visualization '])
+    self.tableWidget_visualization.setColumnWidth(0, 400)
+    horizontalHeader = self.tableWidget_visualization.horizontalHeader()
+    horizontalHeader.setStretchLastSection(False)
+    horizontalHeader.setResizeMode(0, qt.QHeaderView.Stretch)
+    horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
+    self.tableWidget_visualization.verticalHeader().setVisible(False)
+
+    # Apply
+    if self.ApplyButton.text == "Cancel":
+      self.ApplyButton.click()
+    self.Logic.ProgressBar.hide()
+    if self.progressbars_layout:
+      self.CLIProgressBars.hide()
 
   # Functions to recover the widget in the .ui file
   def getWidget(self, objectName):
