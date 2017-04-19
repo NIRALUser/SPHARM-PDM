@@ -202,7 +202,6 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
     self.tableWidget_visualization.verticalHeader().setVisible(False)
 
-
   def cleanup(self):
     pass
 
@@ -1553,24 +1552,24 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
     self.download_files(templateDirectoryPath, template_downloads)
 
 
-    moduleWidget = slicer.modules.ShapeAnalysisModuleWidget
+    self.moduleWidget = slicer.modules.ShapeAnalysisModuleWidget
 
     #
     #  Inputs of Shape Analysis Module
     #
-    moduleWidget.GroupProjectInputDirectory.directory = inputDirectoryPath
-    moduleWidget.GroupProjectOutputDirectory.directory = outputDirectoryPath
-    moduleWidget.NumberofIterations.setValue(5)
-    moduleWidget.medialMesh.click()
-    moduleWidget.useRegTemplate.click()
+    self.moduleWidget.GroupProjectInputDirectory.directory = inputDirectoryPath
+    self.moduleWidget.GroupProjectOutputDirectory.directory = outputDirectoryPath
+    self.moduleWidget.NumberofIterations.setValue(5)
+    self.moduleWidget.medialMesh.click()
+    self.moduleWidget.useRegTemplate.click()
     regTemplateFilePath = templateDirectoryPath + '/registrationTemplate.vtk'
-    moduleWidget.regTemplate.setCurrentPath(regTemplateFilePath)
+    self.moduleWidget.regTemplate.setCurrentPath(regTemplateFilePath)
 
-    self.addObserver(moduleWidget.Logic.Node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
+    self.addObserver(self.moduleWidget.Logic.Node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
                            self.onLogicModifiedForTests)
 
     self.delayDisplay('Run Shape Analysis Module')
-    moduleWidget.ApplyButton.click()
+    self.moduleWidget.ApplyButton.click()
 
   def onLogicModifiedForTests(self, logic_node, event):
     status = logic_node.GetStatusString()
@@ -1578,16 +1577,19 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
       if status == 'Completed with errors' or status == 'Cancelled':
         self.removeObserver(logic_node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
                             self.onLogicModifiedForTests)
+        self.moduleWidget.ApplyButton.setText("Run ShapeAnalysisModule")
+
+        slicer.mrmlScene.Clear(0)
         self.delayDisplay('Tests Failed!')
       elif status == 'Completed':
         self.removeObserver(logic_node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
                             self.onLogicModifiedForTests)
 
+        self.moduleWidget.ApplyButton.setText("Run ShapeAnalysisModule")
+
         # If Shape Analysis Module is completed without errors, then run some other tests on the generated outputs
         self.assertTrue(self.test_ShapeAnalysisModule_comparisonOfOutputsSegPostProcess())
-        slicer.mrmlScene.Clear(0)
         self.assertTrue(self.test_ShapeAnalysisModule_comparisonOfOutputsGenParaMesh())
-        slicer.mrmlScene.Clear(0)
         self.assertTrue(self.test_ShapeAnalysisModule_comparisonOfOutputsParaToSPHARMMesh())
         slicer.mrmlScene.Clear(0)
         self.delayDisplay('Tests Passed!')
