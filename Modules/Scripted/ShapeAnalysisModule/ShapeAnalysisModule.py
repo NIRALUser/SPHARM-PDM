@@ -423,8 +423,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     elif currentText == "All SPHARM Medial Meshes":
       self.Logic.checkedItems("SPHARM Medial Meshes", currentItem.checkState())
 
-    elif currentText == "All SPHARM Procrustes Affine Models":
-      self.Logic.checkedItems("SPHARM Procrustes Affine Models", currentItem.checkState())
+    elif currentText == "All SPHARM Procrustes Aligned Models":
+      self.Logic.checkedItems("SPHARM Procrustes Aligned Models", currentItem.checkState())
 
     #     Check/Uncheck the "All [..]" checkboxes in the checkacle comboBox
     self.Logic.checkedAllItems()
@@ -451,7 +451,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
         if not outputBasename.find("SPHARMMedialMesh") == -1:
           actionOnCheckBox = True
 
-      elif currentText == "All SPHARM Procrustes Affine Models":
+      elif currentText == "All SPHARM Procrustes Aligned Models":
         if not outputBasename.find("SPHARM_procalign") == -1:
           actionOnCheckBox = True
 
@@ -468,7 +468,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
             elif not currentText.find("SPHARM Medial Meshes") == -1:
               if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARMMedialMesh") == -1:
                 actionOnCheckBox = True
-            elif not currentText.find("SPHARM Procrustes Affine Models") == -1:
+            elif not currentText.find("SPHARM Procrustes Aligned Models") == -1:
               if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARM_procalign") == -1:
                 actionOnCheckBox = True
 
@@ -492,13 +492,13 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     table = self.tableWidget_visualization
 
     allSPHARMMesdialMeshesIndex = self.CheckableComboBox_visualization.findText("All SPHARM Medial Meshes") # If == -1 "All SPHARM Medial Meshes" checkBox doesn't exist
-    allSPHARMProcrustesAffineModelsIndex = self.CheckableComboBox_visualization.findText("All SPHARM Procrustes Affine Models") # If == -1 "All SPHARM Procrustes Affine Models" checkBox doesn't exist
+    allSPHARMProcrustesAlignedModelsIndex = self.CheckableComboBox_visualization.findText("All SPHARM Procrustes Aligned Models") # If == -1 "All SPHARM Procrustes Aligned Models" checkBox doesn't exist
 
     for i in range(len(self.Logic.InputCases)):
       allCaseSPHARMModelsChecked = True
       allCaseSPHARMEllalignModelsChecked = True
       allCaseSPHARMMedialMeshesChecked = True
-      allCaseSPHARMProcrustesAffineModelsChecked = True
+      allCaseSPHARMProcrustesAlignedModelsChecked = True
 
       inputBasename = self.Logic.InputCases[i].split('/')[-1].split('.')[0]
       for row in range(0,table.rowCount):
@@ -519,9 +519,9 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
               if not outputBasename.find("SPHARMMedialMesh") == -1:
                 allCaseSPHARMMedialMeshesChecked = False
 
-            if not allSPHARMProcrustesAffineModelsIndex == -1:
+            if not allSPHARMProcrustesAlignedModelsIndex == -1:
               if not outputBasename.find("SPHARM_procalign") == -1:
-                allCaseSPHARMProcrustesAffineModelsChecked = False
+                allCaseSPHARMProcrustesAlignedModelsChecked = False
 
       # Check/uncheck checbox case according of the checkbox in the table
       text = "Case " + str(i) + ": " + inputBasename + " - SPHARM Models"
@@ -534,9 +534,9 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
         text = "Case " + str(i) + ": " + inputBasename + " - SPHARM Medial Meshes"
         self.Logic.checkedCaseItem(text, allCaseSPHARMMedialMeshesChecked)
 
-      if not allSPHARMProcrustesAffineModelsIndex == -1:
-        text = "Case " + str(i) + ": " + inputBasename + " - SPHARM Procrustes Affine Models"
-        self.Logic.checkedCaseItem(text, allCaseSPHARMProcrustesAffineModelsChecked)
+      if not allSPHARMProcrustesAlignedModelsIndex == -1:
+        text = "Case " + str(i) + ": " + inputBasename + " - SPHARM Procrustes Aligned Models"
+        self.Logic.checkedCaseItem(text, allCaseSPHARMProcrustesAlignedModelsChecked)
 
     # Check/Uncheck the "All [..]" checkboxes in the checkacle comboBox
     self.Logic.checkedAllItems()
@@ -748,7 +748,7 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     if self.interface.medialMesh.checkState():
       checkableComboBox.addItem("All SPHARM Medial Meshes")
     if self.interface.useRegTemplate.checkState():
-      checkableComboBox.addItem("All SPHARM Procrustes Affine Models")
+      checkableComboBox.addItem("All SPHARM Procrustes Aligned Models")
     #   Fill the checkable comboBox
     for i in range(len(self.InputCases)):
       checkableComboBox.addItem("Case " + str(i) + ": " + self.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Models")
@@ -756,7 +756,7 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
       if self.interface.medialMesh.checkState():
         checkableComboBox.addItem("Case " + str(i) + ": " + self.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Medial Meshes")
       if self.interface.useRegTemplate.checkState():
-        checkableComboBox.addItem("Case " + str(i) + ": " + self.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Procrustes Affine Models")
+        checkableComboBox.addItem("Case " + str(i) + ": " + self.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Procrustes Aligned Models")
 
     # Configuration of the table
     table = self.interface.tableWidget_visualization
@@ -807,9 +807,9 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     allSPHARMMesdialMeshesIndex = self.interface.CheckableComboBox_visualization.findText("All SPHARM Medial Meshes")
     if not allSPHARMMesdialMeshesIndex == -1:
       allSPHARMMesdialMeshesItem = list.item(allSPHARMMesdialMeshesIndex, 0)
-    allSPHARMProcrustesAffineModelsIndex = self.interface.CheckableComboBox_visualization.findText("All SPHARM Procrustes Affine Models")
-    if not allSPHARMProcrustesAffineModelsIndex == -1:
-      allSPHARMProcrustesAffineModelsItem = list.item(allSPHARMProcrustesAffineModelsIndex, 0)
+    allSPHARMProcrustesAlignedModelsIndex = self.interface.CheckableComboBox_visualization.findText("All SPHARM Procrustes Aligned Models")
+    if not allSPHARMProcrustesAlignedModelsIndex == -1:
+      allSPHARMProcrustesAlignedModelsItem = list.item(allSPHARMProcrustesAlignedModelsIndex, 0)
 
     # Check/Uncheck "All SPHARM Models" checkBox
     self.checkedAllItem("- SPHARM Models", allSPHARMItem)
@@ -818,25 +818,25 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     # Check/Uncheck "All SPHARM Medial Mesh" checkBox
     if not allSPHARMMesdialMeshesIndex == -1:
       self.checkedAllItem("- SPHARM Medial Meshes", allSPHARMMesdialMeshesItem)
-    # Check/Uncheck "All SPHARM Procrustes Affine Models" checkBox
-    if not allSPHARMProcrustesAffineModelsIndex == -1:
-      self.checkedAllItem("- SPHARM Procrustes Affine Models", allSPHARMProcrustesAffineModelsItem)
+    # Check/Uncheck "All SPHARM Procrustes Aligned Models" checkBox
+    if not allSPHARMProcrustesAlignedModelsIndex == -1:
+      self.checkedAllItem("- SPHARM Procrustes Aligned Models", allSPHARMProcrustesAlignedModelsItem)
 
     # Check/Uncheck "All Models" checkBox
     if allSPHARMEllalignItem.checkState() and allSPHARMItem.checkState():
-      if allSPHARMMesdialMeshesIndex == -1 and allSPHARMProcrustesAffineModelsIndex == -1:
+      if allSPHARMMesdialMeshesIndex == -1 and allSPHARMProcrustesAlignedModelsIndex == -1:
           allItem.setCheckState(qt.Qt.Checked)
           return
-      elif not allSPHARMMesdialMeshesIndex == -1 and not allSPHARMProcrustesAffineModelsIndex == -1:
-        if allSPHARMMesdialMeshesItem.checkState() and allSPHARMProcrustesAffineModelsItem.checkState():
+      elif not allSPHARMMesdialMeshesIndex == -1 and not allSPHARMProcrustesAlignedModelsIndex == -1:
+        if allSPHARMMesdialMeshesItem.checkState() and allSPHARMProcrustesAlignedModelsItem.checkState():
           allItem.setCheckState(qt.Qt.Checked)
           return
-      elif not allSPHARMMesdialMeshesIndex == -1 and allSPHARMProcrustesAffineModelsIndex == -1:
+      elif not allSPHARMMesdialMeshesIndex == -1 and allSPHARMProcrustesAlignedModelsIndex == -1:
         if allSPHARMMesdialMeshesItem.checkState():
           allItem.setCheckState(qt.Qt.Checked)
           return
-      elif allSPHARMMesdialMeshesIndex == -1 and not allSPHARMProcrustesAffineModelsIndex == -1:
-        if allSPHARMProcrustesAffineModelsItem.checkState():
+      elif allSPHARMMesdialMeshesIndex == -1 and not allSPHARMProcrustesAlignedModelsIndex == -1:
+        if allSPHARMProcrustesAlignedModelsItem.checkState():
           allItem.setCheckState(qt.Qt.Checked)
           return
 
