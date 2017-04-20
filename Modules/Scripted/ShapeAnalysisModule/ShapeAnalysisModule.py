@@ -335,6 +335,19 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
   #
   #   Post Processed Segmentation
   #
+  def onOverwriteFilesSegPostProcess(self):
+    if self.OverwriteSegPostProcess.checkState():
+      #   Message for the user
+      messageBox = ctk.ctkMessageBox()
+      messageBox.setWindowTitle(' /!\ WARNING /!\ ')
+      messageBox.setIcon(messageBox.Warning)
+      messageBox.setText("<p align='center'>Applying the overwrite option to Post Processed Segmentation step will also apply to the next steps</p>")
+      messageBox.setStandardButtons(messageBox.Ok)
+      messageBox.exec_()
+      #   Check the overwrite option for the next steps
+      self.OverwriteGenParaMesh.setCheckState(qt.Qt.Checked)
+      self.OverwriteParaToSPHARMMesh.setCheckState(qt.Qt.Checked)
+
   def onSelectSpacing(self):
     self.label_sx.enabled = self.RescaleSegPostProcess.checkState()
     self.label_sy.enabled = self.RescaleSegPostProcess.checkState()
@@ -347,40 +360,50 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.label_ValueLabelNumber.enabled = self.LabelState.checkState()
     self.ValueLabelNumber.enabled = self.LabelState.checkState()
 
-  def onOverwriteFilesSegPostProcess(self):
-    if self.OverwriteSegPostProcess.checkState():
-      slicer.util.errorDisplay("Applying the overwrite option to Post Processed Segmentation step will also apply to the next steps")
-      self.OverwriteGenParaMesh.blockSignals(True)
-      self.OverwriteGenParaMesh.setCheckState(qt.Qt.Checked)
-      self.OverwriteParaToSPHARMMesh.setCheckState(qt.Qt.Checked)
-      self.OverwriteGenParaMesh.blockSignals(False)
-
   #
   #   Generate Mesh Parameters
   #
   def onOverwriteFilesGenParaMesh(self):
+    # If the overwrite option for GenParaMesh is unchecked
     if not self.OverwriteGenParaMesh.checkState():
+      #   If the overwrite option for the previous step is checked, the overwrite option need to be checked for this step too
       if self.OverwriteSegPostProcess.checkState():
-        self.OverwriteGenParaMesh.blockSignals(True)
         self.OverwriteGenParaMesh.setCheckState(qt.Qt.Checked)
-        slicer.util.errorDisplay("The overwrite option need to be applied to this step as it is set for the previous step")
-        self.OverwriteGenParaMesh.blockSignals(False)
+        #   Message for the user
+        messageBox = ctk.ctkMessageBox()
+        messageBox.setWindowTitle(' /!\ WARNING /!\ ')
+        messageBox.setIcon(messageBox.Warning)
+        messageBox.setText("<p align='center'>The overwrite option need to be applied to this step as it is set for the previous step</p>")
+        messageBox.setStandardButtons(messageBox.Ok)
+        messageBox.exec_()
+    # If the overwrite option for GenParaMesh is checked
     else:
-      slicer.util.errorDisplay("Applying the overwrite option to Generate Mesh Parameters step will also apply to the next steps")
+      #   Message for the user
+      messageBox = ctk.ctkMessageBox()
+      messageBox.setWindowTitle(' /!\ WARNING /!\ ')
+      messageBox.setIcon(messageBox.Warning)
+      messageBox.setText("<p align='center'>Applying the overwrite option to Generate Mesh Parameters step will also apply to the next steps</p>")
+      messageBox.setStandardButtons(messageBox.Ok)
+      messageBox.exec_()
+      #   Check the overwrite option for the next step
       self.OverwriteParaToSPHARMMesh.setCheckState(qt.Qt.Checked)
 
   #
   #   Parameters to SPHARM Mesh
   #
   def onOverwriteFilesParaToSPHARMMesh(self):
+    # If the overwrite option for ParaToSPHARMMesh is unchecked
     if not self.OverwriteParaToSPHARMMesh.checkState():
+      #   If the overwrite option for a previous step is checked, the overwrite option need to be checked for this step too
       if self.OverwriteSegPostProcess.checkState() or self.OverwriteGenParaMesh.checkState():
-        self.OverwriteSegPostProcess.blockSignals(True)
-        self.OverwriteGenParaMesh.blockSignals(True)
-        slicer.util.errorDisplay("The overwrite option need to be applied to this step as it is set for the previous step")
         self.OverwriteParaToSPHARMMesh.setCheckState(qt.Qt.Checked)
-        self.OverwriteSegPostProcess.blockSignals(False)
-        self.OverwriteGenParaMesh.blockSignals(False)
+        #   Message for the user
+        messageBox = ctk.ctkMessageBox()
+        messageBox.setWindowTitle(' /!\ WARNING /!\ ')
+        messageBox.setIcon(messageBox.Warning)
+        messageBox.setText("<p align='center'>The overwrite option need to be applied to this step as it is set for the previous step</p>")
+        messageBox.setStandardButtons(messageBox.Ok)
+        messageBox.exec_()
 
   #
   #   Advanced Post Processed Segmentation
