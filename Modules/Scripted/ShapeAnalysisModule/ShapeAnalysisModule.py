@@ -1340,7 +1340,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       surfmesh_output_model = ShapeAnalysisModuleMRMLUtility.addnewMRMLNode("output_surfmesh", slicer.vtkMRMLModelNode())
       cli_parameters["outSurfName"] = surfmesh_output_model
 
-      cli_parameters["numIterations"] = 5 #self.interface.NumberofIterations.value
+      cli_parameters["numIterations"] = self.interface.NumberofIterations.value
       if self.interface.Debug.checkState():
         cli_parameters["debug"] = True
 
