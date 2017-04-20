@@ -171,7 +171,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_Visualization))
     self.CheckableComboBox_visualization.connect('checkedIndexesChanged()', self.onCheckableComboBoxValueChanged)
-    self.visualizationInSPV.connect('clicked(bool)', self.onPreviewFlips)
+    self.visualizationInSPV.connect('clicked(bool)', self.onSPHARMMeshesVisualizationInSPV)
 
     #   Apply CLIs
     self.ApplyButton.connect('clicked(bool)', self.onApplyButton)
@@ -317,10 +317,10 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
   #   Group Project IO
   #
   def onInputDirectoryChanged(self):
-    #  Possible extension
+    #  Possible extensions
     exts = [".gipl", ".gipl.gz", ".mgh", ".mgh,gz", ".nii", ".nii.gz",".nrrd", ".vtk", ".vtp", ".hdr", ".mhd"]
 
-    # Search cases
+    # Search cases and add the filename to a list
     self.Logic.InputCases = []
     inputDirectory = self.GroupProjectInputDirectory.directory.encode('utf-8')
     for file in os.listdir(inputDirectory):
@@ -452,9 +452,10 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
           slicer.util.errorDisplay("Invalid flip template file in Advanced Parameters to SPHARM Mesh Tab")
           return
 
-      # Empty the output folders if the options overwrite is checked
+      # Empty the output folders if the overwrite options  are checked
       self.Logic.cleanOutputFolders()
 
+      # Change the apply buttons
       logging.info('Widget: Running ShapeAnalysisModule')
       self.ApplyButton.setText("Cancel")
 
@@ -491,11 +492,11 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
       self.Logic.pipeline = {}
       self.Logic.completed = {}
 
-      # Change buttons and ProgressBars
+      # Change the apply buttons
       self.ApplyButton.setEnabled(True)
       self.ApplyButton.setText("Run ShapeAnalysisModule")
 
-    # if running, create toolbars
+    # if running, create some progress bars for each cases
     elif status == 'Running':
       self.Logic.ProgressBar.show()
       if self.progressbars_layout:
@@ -507,6 +508,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
       for i in range(len(self.Logic.pipeline)):
         self.progressbars_layout.addWidget(self.Logic.pipeline[i].ProgressBar)
 
+  # Function to update the checkable comboBox and the table's checkBoxes in the visualization tab according of the check of one checkBox in the checkable comboBox
   def onCheckableComboBoxValueChanged(self):
     currentText = self.CheckableComboBox_visualization.currentText
     currentIndex = self.CheckableComboBox_visualization.currentIndex
@@ -575,7 +577,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
               if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARM_procalign") == -1:
                 actionOnCheckBox = True
 
-      # check/uncheck the checkBox in (row,1)
+      # check/uncheck the checkBox at (row,1)
       if actionOnCheckBox:
           widget = self.tableWidget_visualization.cellWidget(row, 1)
           tuple = widget.children()
@@ -588,7 +590,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
             checkBox.setChecked(False)
           checkBox.blockSignals(False)
 
-  # Function to manage the checkbox in the table of visualization
+  # Function to update the checkboxes in the checkbable comboBox in the visualization tab according of the check of a checBox in the visualization tab
   def onCheckBoxTableValueChanged(self):
     self.CheckableComboBox_visualization.blockSignals(True)
     list = self.CheckableComboBox_visualization.model()
@@ -646,28 +648,15 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 
     self.CheckableComboBox_visualization.blockSignals(False)
 
-  def onPreviewFlips(self):
-    # Creation of a CSV file to load the vtk files in ShapePopulationViewer
-    filePathCSV = slicer.app.temporaryPath + '/' + 'PreviewForVisualizationInSPV.csv'
-    self.Logic.creationCSVFileForSPV(filePathCSV)
+  # Visualization of the SPHARM Mesh outputs in Shape Population Viewer
+  def onSPHARMMeshesVisualizationInSPV(self):
 
-    # Launch the CLI ShapePopulationViewer
-    parameters = {}
-    parameters["CSVFile"] = filePathCSV
-    #   If a binary of SPV has been installed
-    if hasattr(slicer.modules, 'shapepopulationviewer'):
-      SPV = slicer.modules.shapepopulationviewer
-      slicer.cli.run(SPV, None, parameters, wait_for_completion=True)
-    #   If SPV has been installed via the Extension Manager
-    elif hasattr(slicer.modules, 'launcher'):
-      SPV = slicer.modules.launcher
-      slicer.cli.run(SPV, None, parameters, wait_for_completion=True)
-    #   Any SPV has been installed
-    else:
+    #   IF SPV isn't installed
+    if not hasattr(slicer.modules, 'shapepopulationviewer') and not hasattr(slicer.modules, 'launcher'):
       messageBox = ctk.ctkMessageBox()
       messageBox.setWindowTitle(' /!\ WARNING /!\ ')
       messageBox.setIcon(messageBox.Warning)
-      messageBox.setText("You don't have a Shape Population Viewer installed!")
+      messageBox.setText("Shape Population Viewer is not installed!")
       messageBox.setInformativeText("To install Shape Population Viewer you can:\n"
                                     "Solution 1: \n"
                                     "    - Install it via the Extensions Managers\n"
@@ -678,16 +667,30 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
                                     "    - Restart 3DSlicer")
       messageBox.setStandardButtons(messageBox.Ok)
       messageBox.exec_()
+    else:
+      # Creation of a CSV file to load the vtk files in ShapePopulationViewer
+      filePathCSV = slicer.app.temporaryPath + '/' + 'PreviewForVisualizationInSPV.csv'
+      self.Logic.creationCSVFileForSPV(filePathCSV)
+
+      # Creation of the parameters of SPV
+      parameters = {}
+      parameters["CSVFile"] = filePathCSV
+
+      #   If a binary of SPV has been installed
+      if hasattr(slicer.modules, 'shapepopulationviewer'):
+        SPV = slicer.modules.shapepopulationviewer
+      #   If SPV has been installed via the Extension Manager
+      elif hasattr(slicer.modules, 'launcher'):
+        SPV = slicer.modules.launcher
+      # Launch SPV
+      slicer.cli.run(SPV, None, parameters, wait_for_completion=True)
+
 
 #
 # ShapeAnalysisModuleLogic
 #
 class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin):
-  """This class should implement all the actual
-  computation done by your module.  The interface
-  should be such that other python code can import
-  this class and make use of the functionality without
-  requiring an instance of the Widget.
+  """
   Uses ScriptedLoadableModuleLogic base class, available at:
   https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
   """
@@ -789,7 +792,6 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
           statusForNode = pipeline_node.GetStatus()
           self.configurationVisualization()
 
-
       if statusForNode is None:
         # Run next pipeline
         self.startPipeline(pipeline_id + 1)
@@ -802,7 +804,7 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
         return False
     return True
 
-  # Empty the output folder if the overwrite option is checked
+  # Empty the output folders if the overwrite option is checked
   def cleanOutputFolders(self):
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
 
@@ -824,9 +826,9 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
         for filename in os.listdir(SPHARMMeshOutputDirectory):
           os.remove(os.path.join(SPHARMMeshOutputDirectory, filename))
 
-  # Function to fill the table of the flip options for all the SPHARM mesh output
-  #    - Column 0: filename of the SPHARM mesh output vtk file
-  #    - Column 1: combobox with the flip corresponding to the output file
+  # Function to fill the flip options table for all the SPHARM mesh outputs
+  #    - Column 0: filename of the input files
+  #    - Column 1: comboBox with the flip corresponding to the output file
   def fillTableForFlipOptions(self):
     table = self.interface.tableWidget_ChoiceOfFlip
     row = 0
@@ -861,12 +863,14 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
 
       row = row + 1
 
+  # Function to configure the checkable comboBox and the table of the visualization tab
   def configurationVisualization(self):
     # Configuration of the checkable comboBox
     checkableComboBox = self.interface.CheckableComboBox_visualization
     #   clean the checkable comboBox
     list = checkableComboBox.model()
     list.clear()
+    #   add items according of the SPHARM Mesh computed by ParaToSPHARMMesh
     checkableComboBox.addItem("All Models")
     checkableComboBox.addItem("All SPHARM Models")
     checkableComboBox.addItem("All SPHARM Ellipse Aligned Models")
@@ -884,6 +888,8 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
         checkableComboBox.addItem("Case " + str(i) + ": " + self.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Procrustes Aligned Models")
 
     # Configuration of the table
+    #   column 0: filename of the SPHARM Meshes generated by ParaToSPHARMMesh
+    #   column 1: checkbox that allows to the user to select what output he wants to display in Shape Population Viewer
     table = self.interface.tableWidget_visualization
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
     SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh/"
@@ -910,7 +916,7 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
 
         row = row + 1
 
-  # Functions to manage the checkable comboBox in the visualization tab
+  # Functions to update the checkable comboBox in the visualization tab
   #     Check/Uncheck checkBoxes with the label 'text'
   def checkedItems(self, text, checkState):
     list = self.interface.CheckableComboBox_visualization.model()
@@ -995,11 +1001,11 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     return isChecked
 
   # Function to create a CSV file containing all the SPHARM mesh output files
-  # that the user wants to display in ShapePopultaionViewer in order to check the flip
+  # that the user wants to display in ShapePopultaionViewer
   def creationCSVFileForSPV(self, filepathCSV):
     table = self.interface.tableWidget_visualization
 
-    # Creation a CSV file with a header 'VTK Files'
+    # Creation of a CSV file with a header 'VTK Files'
     file = open(filepathCSV, 'w')
     cw = csv.writer(file, delimiter=',')
     cw.writerow(['VTK Files'])
@@ -1259,10 +1265,12 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
       cli_parameters = {}
 
-      if self.skip_meshToLabelMap and not os.path.exists(LabelMapOutputFilepath): # IF Mesh To Label Map has been skipped AND the input given was already a label map
+      #     IF Mesh To Label Map has been skipped AND the input given was already a label map
+      if self.skip_meshToLabelMap and not os.path.exists(LabelMapOutputFilepath):
         inputFilepath = inputDirectory + '/' + self.CaseInput
         labelmap_input_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(inputFilepath, 'LabelMapVolumeFile')
-      else:                        # ELSE the input given was a model which has been transformed by MeshToLabelMap and store in the folder LabelMap
+      #     ELSE the input given was a model which has been transformed by MeshToLabelMap and store in the folder LabelMap
+      else:
         labelmap_input_node = meshtolabelmap_output_node
         inputFilepath = LabelMapOutputFilepath
 
@@ -1591,6 +1599,7 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
     else:
         for filename in os.listdir(templateDirectoryPath):
           os.remove(os.path.join(templateDirectoryPath, filename))
+    #   Download the registration template in the template folder
     template_downloads = (
       ('https://data.kitware.com/api/v1/file/58f618e78d777f16d095fec3/download', 'registrationTemplate.vtk'),
     )
