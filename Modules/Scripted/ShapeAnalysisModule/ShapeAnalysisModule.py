@@ -686,6 +686,9 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
       # Launch SPV
       slicer.cli.run(SPV, None, parameters, wait_for_completion=True)
 
+      # Deletion of the CSV files in the Slicer temporary directory
+      if os.path.exists(filePathCSV):
+        os.remove(filePathCSV)
 
 #
 # ShapeAnalysisModuleLogic
