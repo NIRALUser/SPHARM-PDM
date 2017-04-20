@@ -631,8 +631,30 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     # Launch the CLI ShapePopulationViewer
     parameters = {}
     parameters["CSVFile"] = filePathCSV
-    launcherSPV = slicer.modules.launcher
-    slicer.cli.run(launcherSPV, None, parameters, wait_for_completion=True)
+    #   If a binary of SPV has been installed
+    if hasattr(slicer.modules, 'shapepopulationviewer'):
+      SPV = slicer.modules.shapepopulationviewer
+      slicer.cli.run(SPV, None, parameters, wait_for_completion=True)
+    #   If SPV has been installed via the Extension Manager
+    elif hasattr(slicer.modules, 'launcher'):
+      SPV = slicer.modules.launcher
+      slicer.cli.run(SPV, None, parameters, wait_for_completion=True)
+    #   Any SPV has been installed
+    else:
+      messageBox = ctk.ctkMessageBox()
+      messageBox.setWindowTitle(' /!\ WARNING /!\ ')
+      messageBox.setIcon(messageBox.Warning)
+      messageBox.setText("You don't have a Shape Population Viewer installed!")
+      messageBox.setInformativeText("To install Shape Population Viewer you can:\n"
+                                    "Solution 1: \n"
+                                    "    - Install it via the Extensions Managers\n"
+                                    "    - Restart 3DSlicer\n"
+                                    "Solution 2: \n"
+                                    "    - Download it on https://www.nitrc.org/projects/shapepopviewer/\n"
+                                    "    - Add the folder where you stored it in Edit/Application Settings/Modules/Add\n"
+                                    "    - Restart 3DSlicer")
+      messageBox.setStandardButtons(messageBox.Ok)
+      messageBox.exec_()
 
 #
 # ShapeAnalysisModuleLogic

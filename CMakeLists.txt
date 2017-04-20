@@ -34,7 +34,7 @@ mark_as_advanced(${LOCAL_PROJECT_NAME}_SUPERBUILD)
 # Slicer
 #----------------------------------------------------------------------------------------
 if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
-  set(extension_name_DIR "MeshToLabelMap ShapePopulationViewer")
+  set(extension_name_DIR "MeshToLabelMap")
 
   set(EXTENSION_NAME SPHARM-PDM)
   set(EXTENSION_HOMEPAGE "http://www.nitrc.org/projects/spharm-pdm")
