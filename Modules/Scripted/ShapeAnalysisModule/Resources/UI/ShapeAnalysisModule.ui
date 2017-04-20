@@ -850,6 +850,9 @@
    </item>
    <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_Visualization">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>Visualization in Shape Population Viewer</string>
      </property>
