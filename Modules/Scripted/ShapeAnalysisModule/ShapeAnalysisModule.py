@@ -8,6 +8,7 @@ from slicer.util import VTKObservationMixin
 import platform
 import time
 import urllib
+import shutil
 
 #
 # ShapeAnalysisModule
@@ -1570,9 +1571,7 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
     inputDirectoryPath =  slicer.app.temporaryPath + '/InputShapeAnalysisModule'
     if not os.path.exists(inputDirectoryPath):
       os.makedirs(inputDirectoryPath)
-    else:
-        for filename in os.listdir(inputDirectoryPath):
-          os.remove(os.path.join(inputDirectoryPath, filename))
+
     #   Download the label map in the input folder
     input_downloads = (
       ('https://data.kitware.com/api/v1/file/58f4f9078d777f16d095feaf/download', 'groupA_01_hippo.nrrd'),
@@ -1583,16 +1582,6 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
     outputDirectoryPath =  slicer.app.temporaryPath + '/OutputShapeAnalysisModule'
     if not os.path.exists(outputDirectoryPath):
       os.makedirs(outputDirectoryPath)
-    else:
-      SegPostProcessOutputDirectoryPath = outputDirectoryPath + '/PostProcess'
-      for filename in os.listdir(SegPostProcessOutputDirectoryPath):
-          os.remove(os.path.join(SegPostProcessOutputDirectoryPath, filename))
-      GenParaMeshOutputDirectoryPath = outputDirectoryPath + '/MeshParameters'
-      for filename in os.listdir(GenParaMeshOutputDirectoryPath):
-          os.remove(os.path.join(GenParaMeshOutputDirectoryPath, filename))
-      ParaToSPHARMMeshOutputDirectoryPath = outputDirectoryPath + '/SPHARMMesh'
-      for filename in os.listdir(ParaToSPHARMMeshOutputDirectoryPath):
-          os.remove(os.path.join(ParaToSPHARMMeshOutputDirectoryPath, filename))
 
     # Creation of a template folder
     templateDirectoryPath =  slicer.app.temporaryPath + '/TemplateShapeAnalysisModule'
@@ -1647,6 +1636,7 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
         self.assertTrue(self.test_ShapeAnalysisModule_comparisonOfOutputsSegPostProcess())
         self.assertTrue(self.test_ShapeAnalysisModule_comparisonOfOutputsGenParaMesh())
         self.assertTrue(self.test_ShapeAnalysisModule_comparisonOfOutputsParaToSPHARMMesh())
+        self.cleanSlicerTemporaryDirectory()
         slicer.mrmlScene.Clear(0)
         self.delayDisplay('Tests Passed!')
 
@@ -1845,3 +1835,21 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
         print 'Requesting download %s from %s...\n' % (name, url)
         urllib.urlretrieve(url, filePath)
     self.delayDisplay('Finished with download')
+
+  # Function to delete all the data needed for the tests
+  def cleanSlicerTemporaryDirectory(self):
+    # deletion of the SAM input folder
+    inputDirectoryPath =  slicer.app.temporaryPath + '/InputShapeAnalysisModule'
+    if os.path.exists(inputDirectoryPath):
+      shutil.rmtree(inputDirectoryPath)
+
+    # deletion of the SAM output folder
+    outputDirectoryPath =  slicer.app.temporaryPath + '/OutputShapeAnalysisModule'
+    if os.path.exists(outputDirectoryPath):
+      shutil.rmtree(outputDirectoryPath)
+
+    # deletion of the SAM template folder
+    templateDirectoryPath =  slicer.app.temporaryPath + '/TemplateShapeAnalysisModule'
+    if os.path.exists(templateDirectoryPath):
+      shutil.rmtree(templateDirectoryPath)
+
