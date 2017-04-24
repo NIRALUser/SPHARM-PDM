@@ -10,7 +10,6 @@
 
 #include <math.h>
 #include <stdio.h>
-
 #include <iostream>
 
 namespace neurolib
@@ -218,7 +217,7 @@ void SphericalHarmonicMeshSource::GenerateData()
       /**
       * Assign the points to the tetrahedron through their identifiers.
       */
-      unsigned long triPoints[3];
+      uint64_t triPoints[3];
       triPoints[0] = triangs[3 * i];
       triPoints[1] = triangs[3 * i + 1];
       triPoints[2] = triangs[3 * i + 2];
@@ -232,7 +231,7 @@ void SphericalHarmonicMeshSource::GenerateData()
       /**
       * Assign the points to the tetrahedron through their identifiers.
       */
-      unsigned long triPoints[3];
+      uint64_t triPoints[3];
       triPoints[0] = triangs[3 * i];
       triPoints[1] = triangs[3 * i + 1];
       triPoints[2] = triangs[3 * i + 2];

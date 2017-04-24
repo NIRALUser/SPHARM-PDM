@@ -10,7 +10,6 @@
 
 #include <math.h>
 #include <stdio.h>
-
 #include <iostream>
 
 namespace neurolib
@@ -278,7 +277,7 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 			/**
 				* Assign the points to the tetrahedron through their identifiers.
 			*/
-				unsigned long triPoints[3];
+				uint64_t triPoints[3];
 				
 				triPoints[0] = i*m_phi+j;
 				triPoints[2] = (i+1)*m_phi+j+1;

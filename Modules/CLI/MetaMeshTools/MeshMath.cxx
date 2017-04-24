@@ -1949,7 +1949,7 @@ int main(int argc, const char * *argv)
   else if( valueOn )
     {
 
-    char line[1000];
+    std::string line;
 
     // open inputFile
     std::ifstream input, input2;
@@ -1957,7 +1957,7 @@ int main(int argc, const char * *argv)
     input2.seekg(0, std::ios::beg);
     // calculate number of lines of the inputFilename
     int numberOfLines = 0;
-    while( (input2.getline(line, 1000) ) != NULL )
+    while( std::getline(input, line))
       {
       numberOfLines++;
       }
@@ -1978,10 +1978,10 @@ int main(int argc, const char * *argv)
     output << "TYPE=Scalar" << std::endl;
 
     // extract column 5 and write the values
-    while( (input.getline(line, 1000) ) != NULL )
+    while( std::getline(input, line) )
       {
       float dummy, extractValue, point;
-      sscanf(line, " %f %f %f %f %f ", &point, &dummy, &dummy, &dummy, &extractValue);
+      std::sscanf(line.c_str(), " %f %f %f %f %f ", &point, &dummy, &dummy, &dummy, &extractValue);
       // ////////uncomment if you want to select with the first column (like only one label)
       // if(point == Index)
 //  output <<extractValue << std::endl;
@@ -2045,12 +2045,9 @@ int main(int argc, const char * *argv)
         }
       }
 
-    while( (labelFile1.getline(line1, 1000) ) != NULL )
+    for (i = 0; i < nPts; i++)
       {
-      float Value;
-      sscanf(line1, " %f ", &Value);
-      label[i] = Value;
-      i++;
+      labelFile1 >> label[i];
       }
 
     found = false;
@@ -2063,13 +2060,9 @@ int main(int argc, const char * *argv)
         }
       }
 
-    i = 0;
-    while( (inputFile.getline(line2, 1000) ) != NULL )
+    for (i = 0; i < nPts; i++)
       {
-      float Value1;
-      sscanf(line2, " %f ", &Value1);
-      thick[i] = Value1;
-      i++;
+      inputFile >> thick[i];
       }
 
     // /////separeted all labels in 1file
@@ -2217,12 +2210,13 @@ int main(int argc, const char * *argv)
       max = i;
       }
     }
-    while( (input.getline(line, 1000) ) != NULL )
+    std::string tmpLine;
+    while( std::getline(input, tmpLine) )
       {
       float a, b, c, d, e, f, g, h, i;
       bool  Afound = false, Bfound = false, Cfound = false, Dfound = false, Efound = false, Ffound = false, Gfound =
         false, Hfound = false, Ifound = false;
-      sscanf(line, " %f %f %f %f %f %f %f %f %f", &a, &b, &c, &d, &e, &f, &g, &h, &i );
+      sscanf(tmpLine.c_str(), " %f %f %f %f %f %f %f %f %f", &a, &b, &c, &d, &e, &f, &g, &h, &i );
       for( int q = 1; q < max; q++ )
         {
         if( a == val[q] && Afound == false )
@@ -2331,7 +2325,8 @@ int main(int argc, const char * *argv)
     in.seekg(0, std::ios::beg);
     int numberOfLines = 0;
     // find number of lines
-    while( (in.getline(line, 1000) ) != NULL )
+    std::string tmpLine;
+    while( std::getline(in, tmpLine) )
       {
       numberOfLines++;
       }
@@ -2384,10 +2379,10 @@ int main(int argc, const char * *argv)
       }
 
     int index = 0;
-    while( (input.getline(line, 1000) ) != NULL )
+    while( std::getline(input, tmpLine) )
       {
       float point;
-      sscanf(line, " %f ", &point);
+      sscanf(tmpLine.c_str(), " %f ", &point);
       value[index][0] = point;
       for( int _num = 0; _num < numFiles; _num++ )
         {
@@ -2459,6 +2454,7 @@ int main(int argc, const char * *argv)
     {
 
     char line[1000], line2[1000];
+    std::string tmpLine;
     bool found = false;
 
     std::ifstream in;
@@ -2466,7 +2462,7 @@ int main(int argc, const char * *argv)
     in.seekg(0, std::ios::beg);
     int numberOfLines = 0;
     // find number of lines
-    while( (in.getline(line, 1000) ) != NULL )
+    while( std::getline(in, tmpLine) )
       {
       numberOfLines++;
       }
@@ -2524,10 +2520,10 @@ int main(int argc, const char * *argv)
         }
       }
 
-    while( (input.getline(line, 1000) ) != NULL )
+    while( std::getline(input, tmpLine) )
       {
       float point;
-      sscanf(line, " %f ", &point);
+      sscanf(tmpLine.c_str(), " %f ", &point);
       value[index][0] = point;
       for( int _num = 0; _num < numFiles; _num++ )
         {
@@ -2580,6 +2576,7 @@ int main(int argc, const char * *argv)
     {
 
     char line[1000], line2[1000];
+    std::string tmpLine;
     bool found = false;
 
     std::ifstream in;
@@ -2587,7 +2584,7 @@ int main(int argc, const char * *argv)
     in.seekg(0, std::ios::beg);
     int numberOfLines = 0;
     // find number of lines
-    while( (in.getline(line, 1000) ) != NULL )
+    while( std::getline(in, tmpLine) )
       {
       numberOfLines++;
       }
@@ -2645,10 +2642,10 @@ int main(int argc, const char * *argv)
         }
       }
 
-    while( (input.getline(line, 1000) ) != NULL )
+    while( std::getline(input, tmpLine) )
       {
       float point;
-      sscanf(line, " %f ", &point);
+      sscanf(tmpLine.c_str(), " %f ", &point);
       value[index][0] = point;
       for( int _num = 0; _num < numFiles; _num++ )
         {
@@ -2719,6 +2716,7 @@ int main(int argc, const char * *argv)
     {
 
     char line[1000], line2[1000];
+    std::string tmpLine;
     int  numfile = firstfiles.size();
 
     std::ifstream input;
@@ -2742,10 +2740,10 @@ int main(int argc, const char * *argv)
         }
       }
 
-    while( (input.getline(line, 1000) ) != NULL )
+    while( std::getline(input, tmpLine) )
       {
       float point;
-      sscanf(line, " %f ", &point);
+      sscanf(tmpLine.c_str(), " %f ", &point);
       output << point << ",";
       }
 
@@ -2767,10 +2765,10 @@ int main(int argc, const char * *argv)
           }
         }
 
-      while( (input2.getline(line2, 1000) ) != NULL )
+      while( std::getline(input2, tmpLine) )
         {
         float point2;
-        sscanf(line2, " %f ", &point2);
+        sscanf(tmpLine.c_str(), " %f ", &point2);
         output << point2 << ",";
         }
 
@@ -2783,7 +2781,6 @@ int main(int argc, const char * *argv)
   else if( subKWMOn )
     {
 
-    char   line1[1000], line2[1000];
     float  value1 = 0.0;
     float  value2 = 0.0;
     float  diff = 0.0;
@@ -2926,10 +2923,8 @@ int main(int argc, const char * *argv)
     output << "DIMENSION=" << 1 << std::endl;
     output << "TYPE=Scalar" << std::endl;
     // find the values of the two files, make the difference and write them into the ouputFile
-    while( ( (input1.getline(line1, 1000) ) != NULL) && (input2.getline(line2, 1000) != NULL) )
+    while( input1 >> value1 && input2 >> value2)
       {
-      value1 = atof(line1);
-      value2 = atof(line2);
       diff = value1 - value2;
       output << diff << std::endl;
       }

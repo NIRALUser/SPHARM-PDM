@@ -1485,6 +1485,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
   def onCLIModuleModified(self, cli_node, event):
     logging.info('-- %s : %s', cli_node.GetStatusString(), cli_node.GetName())
+    statusForNode = None
     if not cli_node.IsBusy():
       if platform.system() != 'Windows':
         self.removeObserver(cli_node, self.StatusModifiedEvent, self.onCLIModuleModified)

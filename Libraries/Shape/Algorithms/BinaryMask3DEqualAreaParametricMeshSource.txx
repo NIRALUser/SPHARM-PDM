@@ -259,7 +259,7 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
         CellType::CellAutoPointer cellpointer;
         cellpointer.TakeOwnership(new TriangleType);
 
-        unsigned long triPoints[3];
+        uint64_t triPoints[3];
         triPoints[0] = net.face[4 * i + 0];
         triPoints[1] = net.face[4 * i + 1];
         triPoints[2] = net.face[4 * i + 2];
@@ -271,7 +271,7 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
         CellType::CellAutoPointer cellpointer;
         cellpointer.TakeOwnership(new TriangleType);
 
-        unsigned long triPoints[3];
+        uint64_t triPoints[3];
         triPoints[0] = net.face[4 * i + 2];
         triPoints[1] = net.face[4 * i + 3];
         triPoints[2] = net.face[4 * i + 0];
@@ -335,7 +335,7 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
         CellType::CellAutoPointer cellpointer;
         cellpointer.TakeOwnership(new TriangleType);
 
-        unsigned long triPoints[3];
+        uint64_t triPoints[3];
         triPoints[0] = net.face[4 * i + 0];
         triPoints[1] = net.face[4 * i + 1];
         triPoints[2] = net.face[4 * i + 2];
@@ -347,7 +347,7 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
         CellType::CellAutoPointer cellpointer;
         cellpointer.TakeOwnership(new TriangleType);
 
-        unsigned long triPoints[3];
+        uint64_t triPoints[3];
         triPoints[0] = net.face[4 * i + 2];
         triPoints[1] = net.face[4 * i + 3];
         triPoints[2] = net.face[4 * i + 0];
@@ -395,7 +395,7 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
         CellType::CellAutoPointer cellpointer;
         cellpointer.TakeOwnership(new TriangleType);
 
-        unsigned long triPoints[3];
+        uint64_t triPoints[3];
         triPoints[0] = net.face[4 * i + 0];
         triPoints[1] = net.face[4 * i + 1];
         triPoints[2] = net.face[4 * i + 2];
@@ -407,7 +407,7 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
         CellType::CellAutoPointer cellpointer;
         cellpointer.TakeOwnership(new TriangleType);
 
-        unsigned long triPoints[3];
+        uint64_t triPoints[3];
         triPoints[0] = net.face[4 * i + 2];
         triPoints[1] = net.face[4 * i + 3];
         triPoints[2] = net.face[4 * i + 0];
