@@ -1,6 +1,5 @@
 ###Declares a list that contains the name of all the variables set in SlicerConfig.cmake
 set( SlicerConfigVarList
-Slicer_USE_BatchMake
 Slicer_USE_MIDAS
 Slicer_USE_NUMPY
 Slicer_USE_OpenIGTLink
@@ -95,7 +94,6 @@ Slicer_INSTALL_PREFIX
 Slicer_ExternalData_OBJECT_STORES
 Slicer_ExternalData_URL_TEMPLATES
 QT_QMAKE_EXECUTABLE
-BatchMake_DIR
 DCMTK_DIR
 CTK_DIR
 QtTesting_DIR
