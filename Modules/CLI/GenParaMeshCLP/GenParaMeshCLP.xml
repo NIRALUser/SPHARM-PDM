@@ -6,6 +6,7 @@
 <description>
 Spherical Parametrization : The output is two meshes, one for the surface and one for the spherical parametrization
 </description>
+<contributor>Martin Styner, Beatriz Paniagua, Laura Pascal</contributor>
 
   <parameters>
     <label>IO</label>

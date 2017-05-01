@@ -6,6 +6,7 @@
 <description>
 Processing of Binary Labels: it ensures spherical topology of the segmentation
 </description>
+<contributor>Martin Styner, Beatriz Paniagua, Laura Pascal</contributor>
 
   <parameters>
     <label>IO</label>
