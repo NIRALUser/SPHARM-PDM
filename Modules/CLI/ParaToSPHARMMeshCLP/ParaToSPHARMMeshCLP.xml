@@ -2,6 +2,7 @@
 <executable>
 <category>Shape Analysis</category>
 <title>ParaToSPHARMMesh</title>
+<version>2.0</version>
 <description>
 Compute SPHARM coefs and associated Mesh : The output is a series of SPHARM coefficients and SPHARM-PDM meshes, one set in the original coordinate system, one in the first order ellipsoid aligned coordinate system and one in the Procrustes aligned coordinate system.
 </description>

@@ -2,6 +2,7 @@
 <executable>
 <category>Shape Analysis</category>
 <title>GenParaMeshCLP</title>
+<version>2.0</version>
 <description>
 Spherical Parametrization : The output is two meshes, one for the surface and one for the spherical parametrization
 </description>

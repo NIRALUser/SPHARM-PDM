@@ -2,7 +2,7 @@
 <executable>
 <category>Shape Analysis</category>
 <title>SegPostProcess</title>
-<version>1.0</version>
+<version>2.0</version>
 <description>
 Processing of Binary Labels: it ensures spherical topology of the segmentation
 </description>
