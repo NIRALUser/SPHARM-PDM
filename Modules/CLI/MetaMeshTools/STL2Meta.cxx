@@ -154,8 +154,13 @@ int main(int argc, const char * *argv)
     for( unsigned int t = 0; t < numberOfTrianglesInStrip; t++ )
       {
       MeshType::CellAutoPointer c;
-      TriangleCellType *        tcell = new TriangleCellType;
-      tcell->SetPointIds( pointIds );
+      TriangleCellType * tcell = new TriangleCellType;
+      TriangleCellType::PointIdentifier itkPts[3];
+      for (int ii = 0; ii < 3; ++ii)
+        {
+        itkPts[ii] = static_cast<TriangleCellType::PointIdentifier>(pointIds[ii]);
+        }
+      tcell->SetPointIds( itkPts );
       c.TakeOwnership( tcell );
       mesh->SetCell( cellId, c );
       cellId++;
@@ -174,8 +179,13 @@ int main(int argc, const char * *argv)
       continue;
       }
     MeshType::CellAutoPointer c;
-    TriangleCellType *        t = new TriangleCellType;
-    t->SetPointIds((uint64_t *)cellPoints);
+    TriangleCellType *  t = new TriangleCellType;
+    TriangleCellType::PointIdentifier itkPts[3];
+    for (int ii = 0; ii < numberOfCellPoints; ++ii)
+      {
+      itkPts[ii] = static_cast<TriangleCellType::PointIdentifier>(cellPoints[ii]);
+      }
+    t->SetPointIds( itkPts );
     c.TakeOwnership( t );
     mesh->SetCell( cellId, c );
     cellId++;

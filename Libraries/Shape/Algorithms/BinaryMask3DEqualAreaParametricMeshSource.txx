@@ -263,7 +263,12 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
         triPoints[0] = net.face[4 * i + 0];
         triPoints[1] = net.face[4 * i + 1];
         triPoints[2] = net.face[4 * i + 2];
-        cellpointer->SetPointIds(triPoints);
+        CellType::PointIdentifier itkPts[3];
+        for (int ii = 0; ii < 3; ++ii)
+          {
+          itkPts[ii] = static_cast<CellType::PointIdentifier>(triPoints[ii]);
+          }
+        cellpointer->SetPointIds( itkPts );
 
         m_InitParametricMesh->SetCell( 2 * i + 0, cellpointer);
         }
@@ -275,7 +280,12 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
         triPoints[0] = net.face[4 * i + 2];
         triPoints[1] = net.face[4 * i + 3];
         triPoints[2] = net.face[4 * i + 0];
-        cellpointer->SetPointIds(triPoints);
+        CellType::PointIdentifier itkPts[3];
+        for (int ii = 0; ii < 3; ++ii)
+          {
+          itkPts[ii] = static_cast<CellType::PointIdentifier>(triPoints[ii]);
+          }
+        cellpointer->SetPointIds( itkPts );
 
         m_InitParametricMesh->SetCell( 2 * i + 1, cellpointer);
         }
@@ -339,7 +349,12 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
         triPoints[0] = net.face[4 * i + 0];
         triPoints[1] = net.face[4 * i + 1];
         triPoints[2] = net.face[4 * i + 2];
-        cellpointer->SetPointIds(triPoints);
+        CellType::PointIdentifier itkPts[3];
+        for (int ii = 0; ii < 3; ++ii)
+          {
+          itkPts[ii] = static_cast<CellType::PointIdentifier>(triPoints[ii]);
+          }
+        cellpointer->SetPointIds( itkPts );
 
         paraMesh->SetCell( 2 * i + 0, cellpointer);
         }
@@ -351,7 +366,12 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
         triPoints[0] = net.face[4 * i + 2];
         triPoints[1] = net.face[4 * i + 3];
         triPoints[2] = net.face[4 * i + 0];
-        cellpointer->SetPointIds(triPoints);
+        CellType::PointIdentifier itkPts[3];
+        for (int ii = 0; ii < 3; ++ii)
+          {
+          itkPts[ii] = static_cast<CellType::PointIdentifier>(triPoints[ii]);
+          }
+        cellpointer->SetPointIds( itkPts );
 
         paraMesh->SetCell( 2 * i + 1, cellpointer);
         }
@@ -399,7 +419,12 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
         triPoints[0] = net.face[4 * i + 0];
         triPoints[1] = net.face[4 * i + 1];
         triPoints[2] = net.face[4 * i + 2];
-        cellpointer->SetPointIds(triPoints);
+        CellType::PointIdentifier itkPts[3];
+        for (int ii = 0; ii < 3; ++ii)
+          {
+          itkPts[ii] = static_cast<CellType::PointIdentifier>(triPoints[ii]);
+          }
+        cellpointer->SetPointIds( itkPts );
 
         surfaceMesh->SetCell( 2 * i + 0, cellpointer);
         }
@@ -411,7 +436,12 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
         triPoints[0] = net.face[4 * i + 2];
         triPoints[1] = net.face[4 * i + 3];
         triPoints[2] = net.face[4 * i + 0];
-        cellpointer->SetPointIds(triPoints);
+        CellType::PointIdentifier itkPts[3];
+        for (int ii = 0; ii < 3; ++ii)
+          {
+          itkPts[ii] = static_cast<CellType::PointIdentifier>(triPoints[ii]);
+          }
+        cellpointer->SetPointIds( itkPts );
 
         surfaceMesh->SetCell( 2 * i + 1, cellpointer);
         }
