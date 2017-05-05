@@ -9,6 +9,7 @@ import platform
 import time
 import urllib
 import shutil
+from CommonUtilities import *
 
 #
 # ShapeAnalysisModule
@@ -691,31 +692,14 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 #
 # ShapeAnalysisModuleLogic
 #
-class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin):
+class ShapeAnalysisModuleLogic(LogicMixin):
   """
   Uses ScriptedLoadableModuleLogic base class, available at:
   https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
   """
   def __init__(self, interface):
-
-    VTKObservationMixin.__init__(self)
-
+    LogicMixin.__init__(self)
     self.interface = interface
-    self.InputCases = list()
-    self.allCaseStartTime = 0
-
-    # Dictionaries
-    self.pipeline = {}
-    self.completed = {}
-
-    # Status
-    self.Node = slicer.vtkMRMLCommandLineModuleNode()
-    self.Node.SetStatus(self.Node.Idle)
-    self.Node.SetName("ShapeAnalysisModule")
-    self.ProgressBar = slicer.qSlicerCLIProgressBar()
-    self.ProgressBar.setCommandLineModuleNode(self.Node)
-    self.ProgressBar.setNameVisibility(slicer.qSlicerCLIProgressBar.AlwaysVisible)
-    self.ErrorMessage = 'Unexpected error'
 
   def ShapeAnalysisCases(self):
 
@@ -742,69 +726,6 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
       # Launch Workflow
       self.startPipeline(0)
       return 0
-
-  def startPipeline(self, id):
-    self.pipeline[id].setup()
-    self.pipeline[id].Node.SetStatus(self.Node.Scheduled)
-    self.pipeline[id].runFirstCLIModule()
-
-  def Cancel(self):
-    self.Node.SetStatus(self.Node.Cancelling)
-    for i in range(len(self.pipeline)):
-      self.pipeline[i].Cancel()
-
-  def onPipelineModified(self, pipeline_node, event):
-    pipeline_id = None
-    current_pipeline = None
-    for key, pipeline in self.pipeline.iteritems():
-      if pipeline.Node == pipeline_node:
-        pipeline_id = key
-        current_pipeline = pipeline
-    if pipeline_id is None:
-      logging.error('Error: Unidentified pipeline modified')
-      return -1
-
-    status = pipeline_node.GetStatusString()
-    logging.info('-- %s: Case %d: %s', status, pipeline_id, current_pipeline.CaseInput)
-
-    if not pipeline_node.IsBusy():
-      self.removeObserver(pipeline_node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
-                          self.onPipelineModified)
-      # Report time taken to get to the non-busy state for the pipeline
-      logging.info('Case %d (%s) took %d sec to run', pipeline_id, current_pipeline.CaseInput,
-                    current_pipeline.getPipelineComputationTime())
-      statusForNode = None
-      # If canceled, stop everything
-      if pipeline_node.GetStatusString() == 'Cancelled':
-        self.ErrorMessage = current_pipeline.ErrorMessage
-        logging.error(current_pipeline.ErrorMessage)
-        statusForNode = pipeline_node.GetStatus()
-        # If completed, with errors or not
-      else:
-        # If completed with errors, inform user
-        if pipeline_node.GetStatusString() == 'Completed with errors':
-          self.ErrorMessage = current_pipeline.ErrorMessage
-          logging.error(current_pipeline.ErrorMessage)
-
-        # Then starts next case if it exists
-        self.completed[pipeline_id] = True
-        # If there is no anymore case
-        if self.areAllPipelineCompleted():
-          logging.info('All pipelines took: %d sec to run', time.time() - self.allCaseStartTime)
-          statusForNode = pipeline_node.GetStatus()
-          self.configurationVisualization()
-
-      if statusForNode is None:
-        # Run next pipeline
-        self.startPipeline(pipeline_id + 1)
-      else:
-        self.Node.SetStatus(statusForNode)
-
-  def areAllPipelineCompleted(self):
-    for i in range(len(self.completed)):
-      if not self.completed[i]:
-        return False
-    return True
 
   # Empty the output folders if the overwrite option is checked
   def cleanOutputFolders(self):
@@ -1046,95 +967,14 @@ class ShapeAnalysisModuleLogic(ScriptedLoadableModuleLogic, VTKObservationMixin)
     table.verticalHeader().setVisible(False)
 
 #
-# ShapeAnalysisModuleMRMLUtility
-#
-'''
-This class harbors all the utility functions to load, add, save and remove mrml nodes
-'''
-
-class ShapeAnalysisModuleMRMLUtility(object):
-
-  @staticmethod
-  def loadMRMLNode(file_path, file_type ):
-    properties = {}
-    if file_type == 'LabelMapVolumeFile':
-      file_type = 'VolumeFile'
-      properties['labelmap'] = True
-    node = slicer.util.loadNodeFromFile(file_path, file_type, properties, returnNode=True)
-    node = node[1]
-    return node
-
-  @staticmethod
-  def addnewMRMLNode(node_name, node_type):
-    node = slicer.mrmlScene.AddNode(node_type)
-    node.SetName(node_name)
-    return node
-
-  @staticmethod
-  def saveMRMLNode(node, filepath):
-    slicer.util.saveNode(node, filepath)
-
-  @staticmethod
-  def removeMRMLNode(node):
-    slicer.mrmlScene.RemoveNode(node)
-
-#
-# ShapeAnalysisModuleNode
-#
-class ShapeAnalysisModuleNode(object):
-  nodes = [None]
-  save = [False]
-  delete = [True]
-  filepaths = [" "]
-
-#
 # ShapeAnalysisModulePipeline
 #
-class ShapeAnalysisModulePipeline(VTKObservationMixin):
+class ShapeAnalysisModulePipeline(PipelineMixin):
   def __init__(self, pipelineID, CaseInput, interface):
 
-    VTKObservationMixin.__init__(self)
+    PipelineMixin.__init__(self, pipelineID, CaseInput, interface)
 
     self.interface = interface
-
-    self.pipelineID = pipelineID
-    self.strPipelineID = "_" + str(self.pipelineID)
-    self.CaseInput = CaseInput
-
-    # Pipeline computation time
-    self.pipelineStartTime = 0
-    self.pipelineEndTime = 0
-
-    # Status
-    self.StatusModifiedEvent = slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent
-    self.Node = slicer.vtkMRMLCommandLineModuleNode()
-    self.Node.SetStatus(self.Node.Idle)
-    self.Node.SetName('Case ' + str(self.pipelineID))
-    self.currentCLINode = None
-    self.ProgressBar = slicer.qSlicerCLIProgressBar()
-    self.ProgressBar.setCommandLineModuleNode(self.Node)
-    self.ProgressBar.setNameVisibility(slicer.qSlicerCLIProgressBar.AlwaysVisible)
-    self.ErrorMessage = 'Unexpected error'
-
-  # Return pipeline computation time
-  def getPipelineComputationTime(self):
-    return (self.pipelineEndTime - self.pipelineStartTime)
-
-  def setupGlobalVariables(self):
-    # Modules
-    self.ID = -1
-    self.slicerModule = {}
-    self.moduleParameters = {}
-
-    # Nodes
-    self.nodeDictionary = {}
-
-    # Input filename and extension
-    filepathSplit = self.CaseInput.split('/')[-1].split('.')
-    self.inputFilename = filepathSplit[0]
-    self.inputExtension = filepathSplit[1]
-    if len(filepathSplit) == 3:
-      self.inputExtension = self.inputExtension + "." + filepathSplit[2]
 
   def setupSkipCLIs(self):
 
@@ -1192,17 +1032,6 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
           if not file.find(SPHARMMeshBasename) == -1:
               self.skip_paraToSPHARMMesh = True
 
-  def setupModule(self, module, cli_parameters):
-    self.slicerModule[self.ID] = module
-    self.moduleParameters[self.ID] = cli_parameters
-
-  def setupNode(self, id, cli_nodes, cli_filepaths, cli_saveOutput, cli_deleteOutput):
-    self.nodeDictionary[id] = ShapeAnalysisModuleNode()
-    self.nodeDictionary[id].nodes = cli_nodes
-    self.nodeDictionary[id].filepaths = cli_filepaths
-    self.nodeDictionary[id].save = cli_saveOutput
-    self.nodeDictionary[id].delete = cli_deleteOutput
-
   def setup(self):
     # Initialization of global variables
     self.setupGlobalVariables()
@@ -1223,11 +1052,11 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       cli_parameters = {}
 
       inputFilepath = inputDirectory + '/' + self.CaseInput
-      model_input_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(inputFilepath, 'ModelFile')
+      model_input_node = MRMLUtility.loadMRMLNode(inputFilepath, 'ModelFile')
 
       cli_parameters["mesh"] = model_input_node
 
-      meshtolabelmap_output_node = ShapeAnalysisModuleMRMLUtility.addnewMRMLNode("output_MeshToLabelMap", slicer.vtkMRMLLabelMapVolumeNode())
+      meshtolabelmap_output_node = MRMLUtility.addnewMRMLNode("output_MeshToLabelMap", slicer.vtkMRMLLabelMapVolumeNode())
       cli_parameters["labelMap"] = meshtolabelmap_output_node
 
       cli_parameters["spacingVec"] = "0.1,0.1,0.1"
@@ -1250,7 +1079,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
     else:
       if os.path.exists(LabelMapOutputFilepath):
         # Setup of the nodes which will be used by the next CLI
-        meshtolabelmap_output_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(LabelMapOutputFilepath, 'LabelMapVolumeFile')
+        meshtolabelmap_output_node = MRMLUtility.loadMRMLNode(LabelMapOutputFilepath, 'LabelMapVolumeFile')
 
         cli_nodes.append(meshtolabelmap_output_node)
         cli_filepaths.append(LabelMapOutputFilepath)
@@ -1272,7 +1101,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       #     IF Mesh To Label Map has been skipped AND the input given was already a label map
       if self.skip_meshToLabelMap and not os.path.exists(LabelMapOutputFilepath):
         inputFilepath = inputDirectory + '/' + self.CaseInput
-        labelmap_input_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(inputFilepath, 'LabelMapVolumeFile')
+        labelmap_input_node = MRMLUtility.loadMRMLNode(inputFilepath, 'LabelMapVolumeFile')
       #     ELSE the input given was a model which has been transformed by MeshToLabelMap and store in the folder LabelMap
       else:
         labelmap_input_node = meshtolabelmap_output_node
@@ -1281,7 +1110,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
       cli_parameters["fileName"] = labelmap_input_node
 
-      pp_output_node = ShapeAnalysisModuleMRMLUtility.addnewMRMLNode("output_PostProcess", slicer.vtkMRMLLabelMapVolumeNode())
+      pp_output_node = MRMLUtility.addnewMRMLNode("output_PostProcess", slicer.vtkMRMLLabelMapVolumeNode())
       cli_parameters["outfileName"] = pp_output_node.GetID()
 
       if self.interface.RescaleSegPostProcess.checkState():
@@ -1312,7 +1141,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
     else:
       # Setup of the nodes which will be used by the next CLI
-      pp_output_node = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(PostProcessOutputFilepath, 'LabelMapVolumeFile')
+      pp_output_node = MRMLUtility.loadMRMLNode(PostProcessOutputFilepath, 'LabelMapVolumeFile')
 
       cli_nodes.append(pp_output_node)
       cli_filepaths.append(PostProcessOutputFilepath)
@@ -1334,10 +1163,10 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
       cli_parameters = {}
       cli_parameters["infile"] = pp_output_node
 
-      para_output_model = ShapeAnalysisModuleMRMLUtility.addnewMRMLNode("output_para", slicer.vtkMRMLModelNode())
+      para_output_model = MRMLUtility.addnewMRMLNode("output_para", slicer.vtkMRMLModelNode())
       cli_parameters["outParaName"] = para_output_model
 
-      surfmesh_output_model = ShapeAnalysisModuleMRMLUtility.addnewMRMLNode("output_surfmesh", slicer.vtkMRMLModelNode())
+      surfmesh_output_model = MRMLUtility.addnewMRMLNode("output_surfmesh", slicer.vtkMRMLModelNode())
       cli_parameters["outSurfName"] = surfmesh_output_model
 
       cli_parameters["numIterations"] = self.interface.NumberofIterations.value
@@ -1361,8 +1190,8 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
 
     else:
       # Setup of the nodes which will be used by the next CLI
-      para_output_model = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(ParaOutputFilepath, 'ModelFile')
-      surfmesh_output_model = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(SurfOutputFilepath, 'ModelFile')
+      para_output_model = MRMLUtility.loadMRMLNode(ParaOutputFilepath, 'ModelFile')
+      surfmesh_output_model = MRMLUtility.loadMRMLNode(SurfOutputFilepath, 'ModelFile')
 
       cli_nodes.append(para_output_model)
       cli_nodes.append(surfmesh_output_model)
@@ -1440,7 +1269,7 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
         if self.interface.useRegTemplate.checkState():
           cli_parameters["regTemplateFileOn"] = True
           regtemplate_filepath = self.interface.regTemplate.currentPath
-          regtemplate_model = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(regtemplate_filepath, 'ModelFile')
+          regtemplate_model = MRMLUtility.loadMRMLNode(regtemplate_filepath, 'ModelFile')
           cli_parameters["regTemplateFile"] = regtemplate_model
 
           cli_nodes.append(regtemplate_model)
@@ -1457,97 +1286,6 @@ class ShapeAnalysisModulePipeline(VTKObservationMixin):
           cli_parameters["finalFlipIndex"] = i
 
         self.setupModule(slicer.modules.paratospharmmeshclp, cli_parameters)
-
-  # Run the CLI for the current module
-  def runCLIModule(self):
-    # Create and run CLI
-    module = self.slicerModule[self.ID]
-    cli_node = self.createCLINode(module)
-    self.setCurrentCLINode(cli_node) # ProgressBar
-    self.addObserver(cli_node, self.StatusModifiedEvent, self.onCLIModuleModified)
-    slicer.cli.run(module, cli_node, self.moduleParameters[self.ID], wait_for_completion = False)
-
-  # Call the next module
-  def runNextCLIModule(self):
-    self.ID += 1
-    self.runCLIModule()
-
-  # Start the pipeline
-  def runFirstCLIModule(self):
-    if len(self.slicerModule) > 0:
-      self.ID = 0
-      self.pipelineStartTime = time.time()
-      self.runCLIModule()
-    else:
-      self.deleteNodes()
-      logging.info('Slicer Module queue is empty, nothing to do')
-      self.Node.SetStatus(self.Node.Completed)
-
-  def onCLIModuleModified(self, cli_node, event):
-    logging.info('-- %s : %s', cli_node.GetStatusString(), cli_node.GetName())
-    statusForNode = None
-    if not cli_node.IsBusy():
-      if platform.system() != 'Windows':
-        self.removeObserver(cli_node, self.StatusModifiedEvent, self.onCLIModuleModified)
-        statusForNode =  None
-
-      if cli_node.GetStatusString() == 'Completed':
-        if self.ID == len(self.slicerModule) - 1:
-          cli_node_name = "Case " + str(self.pipelineID) + ": " + self.inputFilename
-          cli_node.SetName(cli_node_name)
-          self.setCurrentCLINode(cli_node)
-          statusForNode = cli_node.GetStatus()
-
-      elif cli_node.GetStatusString() == 'Cancelled':
-        self.ErrorMessage = cli_node.GetName() + " Cancelled: cancelling the pipeline"
-        #Interrupt pipeline
-        statusForNode = cli_node.GetStatus()
-
-      else:
-        # Create Error Message
-        if cli_node.GetStatusString() == 'Completed with errors':
-          self.ErrorMessage = cli_node.GetName() + " completed with errors"
-          # Interrompt Pipeline
-          statusForNode = cli_node.GetStatus()
-
-      if statusForNode is None:
-        self.runNextCLIModule()
-      else:
-        self.saveNodes()
-        self.deleteNodes()
-        self.pipelineEndTime = time.time()
-        self.Node.SetStatus(statusForNode)
-
-  def createCLINode(self, module):
-    cli_node = slicer.cli.createNode(module)
-    cli_node_name = "Case " + str(self.pipelineID) + ": " + self.inputFilename + " - step " + str(self.ID) + ": " + module.title
-    cli_node.SetName(cli_node_name)
-    return cli_node
-
-  def saveNodes(self):
-    for id in self.nodeDictionary.keys():
-      save = self.nodeDictionary[id].save
-      node = self.nodeDictionary[id].nodes
-      for i in range(len(self.nodeDictionary[id].save)):
-        filepaths = self.nodeDictionary[id].filepaths
-        if save[i] == True:
-          ShapeAnalysisModuleMRMLUtility.saveMRMLNode( node[i], filepaths[i] )
-
-  def deleteNodes(self):
-    for id in self.nodeDictionary.keys():
-      delete = self.nodeDictionary[id].delete
-      node = self.nodeDictionary[id].nodes
-      for i in range(len(self.nodeDictionary[id].delete)):
-        if delete[i] == True:
-          ShapeAnalysisModuleMRMLUtility.removeMRMLNode( node[i] )
-
-  def setCurrentCLINode(self, cli_node):
-    self.ProgressBar.setCommandLineModuleNode(cli_node)
-    self.currentCLINode = cli_node
-
-  def Cancel(self):
-    if self.currentCLINode:
-      self.currentCLINode.Cancel()
 
 class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
   """
@@ -1668,8 +1406,8 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
 
       # Loading the 2 models for comparison
       volume_filepath1 = os.path.join(SegPostProcessOutputDirectoryPath, output_downloads[i][1])
-      volume1 = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(volume_filepath1, 'LabelMapVolumeFile')
-      volume2 = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(volume_filepath2, 'LabelMapVolumeFile')
+      volume1 = MRMLUtility.loadMRMLNode(volume_filepath1, 'LabelMapVolumeFile')
+      volume2 = MRMLUtility.loadMRMLNode(volume_filepath2, 'LabelMapVolumeFile')
 
       #   Comparison
       if not self.volume_comparison(volume1, volume2):
@@ -1704,8 +1442,8 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
 
       # Loading the 2 models for comparison
       model_filepath1 = os.path.join(GenParaMeshOutputDirectoryPath, output_downloads[i][1])
-      model1 = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(model_filepath1, 'ModelFile')
-      model2 = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(model_filepath2, 'ModelFile')
+      model1 = MRMLUtility.loadMRMLNode(model_filepath1, 'ModelFile')
+      model2 = MRMLUtility.loadMRMLNode(model_filepath2, 'ModelFile')
 
       #   Comparison
       if not self.polydata_comparison(model1, model2):
@@ -1742,8 +1480,8 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
 
       #   Loading the 2 models for comparison
       model_filepath1 = os.path.join(ParaToSPHARMMeshOutputDirectoryPath, output_downloads[i][1])
-      model1 = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(model_filepath1, 'ModelFile')
-      model2 = ShapeAnalysisModuleMRMLUtility.loadMRMLNode(model_filepath2, 'ModelFile')
+      model1 = MRMLUtility.loadMRMLNode(model_filepath1, 'ModelFile')
+      model2 = MRMLUtility.loadMRMLNode(model_filepath2, 'ModelFile')
 
       #   Comparison
       if not self.polydata_comparison(model1, model2):
