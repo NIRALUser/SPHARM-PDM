@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-<category>Shape Analysis</category>
+<category>SPHARM</category>
 <title>ParaToSPHARMMesh</title>
 <version>2.0</version>
 <description>
