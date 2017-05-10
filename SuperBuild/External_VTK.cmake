@@ -26,25 +26,25 @@ set(proj        VTK) #This local name
 
 
 #Setting VTK_VERSION_MAJOR to its default value if it has not been set before
-set(VTK_VERSION_MAJOR 7 CACHE STRING "Choose the expected VTK major version to build Slicer (5, 6 or 7).")
+set(VTK_VERSION_MAJOR 7 CACHE STRING "Choose the expected VTK major version to build Slicer (6 or 7).")
 # Set the possible values of VTK major version for cmake-gui
-set_property(CACHE VTK_VERSION_MAJOR PROPERTY STRINGS "5" "6" "7")
-if(NOT "${VTK_VERSION_MAJOR}" STREQUAL "5" AND NOT "${VTK_VERSION_MAJOR}" STREQUAL "6" AND NOT "${VTK_VERSION_MAJOR}" STREQUAL "7")
-  set(VTK_VERSION_MAJOR 7 CACHE STRING "Choose the expected VTK major version to build Slicer (5, 6 or 7)." FORCE)
+set_property(CACHE VTK_VERSION_MAJOR PROPERTY STRINGS "6" "7")
+if(NOT "${VTK_VERSION_MAJOR}" STREQUAL "6" AND NOT "${VTK_VERSION_MAJOR}" STREQUAL "7")
+  set(VTK_VERSION_MAJOR 7 CACHE STRING "Choose the expected VTK major version to build Slicer (6 or 7)." FORCE)
   message(WARNING "Setting VTK_VERSION_MAJOR to '7' as an invalid value was specified.")
 endif()
 
-set(USE_VTKv5 ON)
+set(USE_VTKv6 ON)
 set(USE_VTKv7 OFF)
 if(${VTK_VERSION_MAJOR} STREQUAL "7")
-  set(USE_VTKv5 OFF)
+  set(USE_VTKv6 OFF)
   set(USE_VTKv7 ON)
 endif()
 
 if(USE_VTKv7)
   set(${extProjName}_REQUIRED_VERSION "7.1.0")  #If a required version is necessary, then set this, else leave blank
 else()
-  set(${extProjName}_REQUIRED_VERSION "5.10")  #If a required version is necessary, then set this, else leave blank
+  set(${extProjName}_REQUIRED_VERSION "6.3.0")  #If a required version is necessary, then set this, else leave blank
 endif()
 
 # Sanity checks
@@ -194,8 +194,8 @@ if(USE_VTKv7)
   set(${proj}_GIT_TAG "v7.1.0")
   set(${proj}_REPOSITORY ${git_protocol}://github.com/Kitware/VTK.git)
 else()
-  set(${proj}_REPOSITORY ${git_protocol}://github.com/BRAINSia/VTK.git)
-  set(${proj}_GIT_TAG "FixClangFailure_VTK5.10_release")
+  set(${proj}_REPOSITORY ${git_protocol}://vtk.org/VTK.git)
+  set(${proj}_GIT_TAG "v6.3.0")
 endif()
   ExternalProject_Add(${proj}
     GIT_REPOSITORY ${${proj}_REPOSITORY}
@@ -233,7 +233,7 @@ endif()
 if(USE_VTKv7)
   set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/cmake/vtk-7.1)
 else()
-  set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/vtk-5.10)
+  set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/cmake/vtk-6.3)
 endif()
 
 else()
