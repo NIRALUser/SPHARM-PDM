@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 cmake_policy(VERSION 2.8.3)
 
+
+project(SPHARM-PDM)
 set(LOCAL_PROJECT_NAME SPHARM-PDM)
 
 ## NOTE THERE SHOULD BE NO PROJECT STATEMENT HERE!
@@ -19,23 +21,43 @@ set(LOCAL_PROJECT_NAME SPHARM-PDM)
 #                   Phase II: Build the ${LOCAL_PROJECT_NAME}, referencing the support
 #                             packages built in Phase I.
 #-----------------------------------------------------------------------------
+set(CMAKE_MODULE_PATH
+   ${CMAKE_SOURCE_DIR}/CMake
+   ${CMAKE_SOURCE_DIR}/SuperBuild
+   ${CMAKE_MODULE_PATH}
+)
+
 option(${LOCAL_PROJECT_NAME}_SUPERBUILD "Build ${LOCAL_PROJECT_NAME} and the projects it depends on via SuperBuild.cmake." ON)
 mark_as_advanced(${LOCAL_PROJECT_NAME}_SUPERBUILD)
 
-
 #----------------------------------------------------------------------------------------
-# Common SPHARM-PDM extension variables that need to be declared in top level CMakeLists
+# Slicer
 #----------------------------------------------------------------------------------------
 if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
+  set(extension_name_DIR "MeshToLabelMap")
+
   set(EXTENSION_NAME SPHARM-PDM)
   set(EXTENSION_HOMEPAGE "http://www.nitrc.org/projects/spharm-pdm")
   set(EXTENSION_CATEGORY "Shape Analysis")
-  set(EXTENSION_CONTRIBUTORS "Beatriz Paniagua (UNC), Francois Budin (UNC), Martin Styner (UNC)")
+  set(EXTENSION_CONTRIBUTORS "Beatriz Paniagua (UNC), Francois Budin (UNC), Martin Styner (UNC), Laura Pascal (Kitware), Hina Shah (Kitware)")
   set(EXTENSION_DESCRIPTION "SPHARM-PDM is a tool that computes point-based models using a parametric boundary description for the computing of Shape Analysis.")
   set(EXTENSION_ICONURL "http://www.na-mic.org/Wiki/images/a/ad/Spharm-pdm-icon.png")
   set(EXTENSION_SCREENSHOTURLS "http://www.na-mic.org/Wiki/images/3/34/Spharm-pdm-snapshot.png")
-  set(EXTENSION_BUILD_SUBDIRECTORY . )
+  set(EXTENSION_DEPENDS ${extension_name_DIR})
+  set(EXTENSION_BUILD_SUBDIRECTORY inner-build )
   set(MODULE_NAME SPHARM-PDM)
+
+  # Slicer
+  find_package(Slicer REQUIRED)
+  include(${Slicer_USE_FILE})
+  include(SlicerExtensionsConfigureMacros)
+  mark_as_superbuild(Slicer_DIR)
+
+  # Slicer Execution Model
+  find_package(SlicerExecutionModel REQUIRED)
+  include(${SlicerExecutionModel_USE_FILE})
+  include(${GenerateCLP_USE_FILE})
+
 endif()
 
 
@@ -47,10 +69,18 @@ if(${LOCAL_PROJECT_NAME}_SUPERBUILD)
   include("${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild.cmake")
   return()
 else()
-  project(${LOCAL_PROJECT_NAME})
+  project(${LOCAL_PROJECT_NAME}) 
   include("${CMAKE_CURRENT_SOURCE_DIR}/${LOCAL_PROJECT_NAME}.cmake")
-  return()
+#  return()
 endif()
 
-message(FATAL_ERROR "You should never reach this point !")
+#-----------------------------------------------------------------------------
+# Clear ${PROJECT_NAME}Targets.cmake
+file(WRITE ${CMAKE_BINARY_DIR}/${Slicer_SHARE_DIR}/${PROJECT_NAME}Targets.cmake "")
 
+#-----------------------------------------------------------------------------
+if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
+  # CPack
+  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
+  include(${Slicer_EXTENSION_CPACK})
+endif()
