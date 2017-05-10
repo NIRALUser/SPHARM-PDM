@@ -1,4 +1,4 @@
-<img src="Modules/Scripted/ShapeAnalysisModule/Resources/Icons/ShapeAnalysisModule2.png" width="512">
+<img src="Modules/Scripted/ShapeAnalysisModule/Resources/Icons/ShapeAnalysisModule2.png" width="700" height="180">
 
 Shape analysis has become of increasing interest to the medical community due to its potential to precisely locate morphological changes between healthy and pathological structures. SPHARM-PDM is a tool that computes point-based models using a parametric boundary description for the computing of Shape analysis.
 
@@ -16,11 +16,11 @@ On 3D Slicer and SlicerSALT, Shape Analysis Module uses:
 		3. Restart 3D Slicer
 * Mesh To Label Map, which will be downloaded automatically with Shape Analysis Module (https://www.slicer.org/wiki/Documentation/Nightly/Extensions/MeshToLabelMap)
 
-##License
-
+License
+-------------
 See License.txt
 
-##More information
-
+More information
+-------------
 Find the tool on [NITRC](http://www.nitrc.org/projects/spharm-pdm/)
 

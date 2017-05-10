@@ -282,7 +282,12 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 				triPoints[0] = i*m_phi+j;
 				triPoints[2] = (i+1)*m_phi+j+1;
 				triPoints[1] = (i+1)*m_phi+j;
-				cellpointer->SetPointIds(triPoints);
+        CellType::PointIdentifier itkPts[3];
+        for (int ii = 0; ii < 3; ++ii)
+          {
+          itkPts[ii] = static_cast<CellType::PointIdentifier>(triPoints[ii]);
+          }
+        cellpointer->SetPointIds( itkPts );
 				outputMesh->SetCell(2*(i*(m_phi-1)+j), cellpointer);
 				
 				CellType::CellAutoPointer cellpointer2;
@@ -291,8 +296,12 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 				triPoints[0] = i*m_phi+j;
 				triPoints[2] = (i)*m_phi+j+1;
 				triPoints[1] = (i+1)*m_phi+j+1;
-				cellpointer2->SetPointIds(triPoints);
-				outputMesh->SetCell(2*(i*(m_phi-1)+j)+1, cellpointer2);
+        for (int ii = 0; ii < 3; ++ii)
+          {
+          itkPts[ii] = static_cast<CellType::PointIdentifier>(triPoints[ii]);
+          }
+        cellpointer2->SetPointIds( itkPts );
+        outputMesh->SetCell(2*(i*(m_phi-1)+j)+1, cellpointer2);
 			}
 		}
 

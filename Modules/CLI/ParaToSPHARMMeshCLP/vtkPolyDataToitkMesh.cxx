@@ -129,7 +129,12 @@ vtkPolyDataToitkMesh
       {
       TriangleMeshType::CellAutoPointer c;
       TriangleCellType *                tcell = new TriangleCellType;
-      tcell->SetPointIds( pointIds );
+      TriangleCellType::PointIdentifier itkPts[3];
+      for (int ii = 0; ii < 3; ++ii)
+        {
+        itkPts[ii] = static_cast<TriangleCellType::PointIdentifier>(pointIds[ii]);
+        }
+      tcell->SetPointIds( itkPts );
       c.TakeOwnership( tcell );
       m_itkMesh->SetCell( cellId, c );
       cellId++;
@@ -150,7 +155,12 @@ vtkPolyDataToitkMesh
       }
     TriangleMeshType::CellAutoPointer c;
     TriangleCellType *                t = new TriangleCellType;
-    t->SetPointIds((uint64_t *)cellPoints);
+    TriangleCellType::PointIdentifier itkPts[3];
+    for (int ii = 0; ii < 3; ++ii)
+      {
+      itkPts[ii] = static_cast<TriangleCellType::PointIdentifier>(cellPoints[ii]);
+      }
+    t->SetPointIds( itkPts );
     c.TakeOwnership( t );
     m_itkMesh->SetCell( cellId, c );
     cellId++;
