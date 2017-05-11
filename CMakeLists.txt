@@ -44,7 +44,8 @@ if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
   set(EXTENSION_ICONURL "http://www.na-mic.org/Wiki/images/a/ad/Spharm-pdm-icon.png")
   set(EXTENSION_SCREENSHOTURLS "http://www.na-mic.org/Wiki/images/3/34/Spharm-pdm-snapshot.png")
   set(EXTENSION_DEPENDS ${extension_name_DIR})
-  set(EXTENSION_BUILD_SUBDIRECTORY inner-build )
+  set(EXTENSION_BUILD_SUBDIRECTORY ${LOCAL_PROJECT_NAME}-build)
+  set(SUPERBUILD_TOPLEVEL_PROJECT ${LOCAL_PROJECT_NAME})
   set(MODULE_NAME SPHARM-PDM)
 
   # Slicer
@@ -59,7 +60,6 @@ if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
   include(${GenerateCLP_USE_FILE})
 
 endif()
-
 
 #-----------------------------------------------------------------------------
 # Superbuild script
@@ -77,6 +77,9 @@ endif()
 #-----------------------------------------------------------------------------
 # Clear ${PROJECT_NAME}Targets.cmake
 file(WRITE ${CMAKE_BINARY_DIR}/${Slicer_SHARE_DIR}/${PROJECT_NAME}Targets.cmake "")
+
+#-----------------------------------------------------------------------------
+add_subdirectory(Modules)
 
 #-----------------------------------------------------------------------------
 if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )

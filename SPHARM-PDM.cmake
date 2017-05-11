@@ -1,4 +1,4 @@
-project(spharmpdm)
+project(SPHARM-PDM)
 
 
 if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
@@ -68,7 +68,6 @@ mark_as_advanced(BUILD_LIBRARIES)
 if(BUILD_LIBRARIES)
   add_subdirectory(Libraries)
 endif()
-add_subdirectory(Modules)
 
 #-----------------------------------------------------------------------------
 # Testing
