@@ -89,10 +89,10 @@ set(ReferenceImageSPHARM_Ellalign ${TestDataDirectory}/OutputImageToCompareParaT
 set(ReferenceImageSPHARM_Procalign ${TestDataDirectory}/OutputImageToCompareParaToSPHARMMeshCLP_SPHARM_procalign.vtk)
 
 set(OutputDirectorySPHARM ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLP)
-set(OutputImageSPHARM ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLPSPHARM.vtk)
-set(OutputImageSPHARM_medialMesh ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLPSPHARMMedialMesh.vtk)
-set(OutputImageSPHARM_Ellalign ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLPSPHARM_ellalign.vtk)
-set(OutputImageSPHARM_Procalign ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLPSPHARM_procalign.vtk)
+set(OutputImageSPHARM ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLP_SPHARM.vtk)
+set(OutputImageSPHARM_medialMesh ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLP_SPHARMMedialMesh.vtk)
+set(OutputImageSPHARM_Ellalign ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLP_SPHARM_ellalign.vtk)
+set(OutputImageSPHARM_Procalign ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLP_SPHARM_procalign.vtk)
 
 #       Downloading of data on Girder
 file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f3038d777f16d01e061f/download" ${InputImageForSPHARM_Para})
