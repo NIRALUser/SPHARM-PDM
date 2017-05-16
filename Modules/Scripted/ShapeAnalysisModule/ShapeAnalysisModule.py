@@ -732,19 +732,19 @@ class ShapeAnalysisModuleLogic(LogicMixin):
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
 
     if self.interface.OverwriteSegPostProcess.checkState():
-      PostProcessDirectory = outputDirectory + "/PostProcess"
+      PostProcessDirectory = outputDirectory + "/Step1_SegPostProcess"
       if os.path.exists(PostProcessDirectory):
         for filename in os.listdir(PostProcessDirectory):
           os.remove(os.path.join(PostProcessDirectory, filename))
 
     if self.interface.OverwriteGenParaMesh.checkState():
-      GenParaMeshOutputDirectory = outputDirectory + "/MeshParameters"
+      GenParaMeshOutputDirectory = outputDirectory + "/Step2_GenParaMesh"
       if os.path.exists(GenParaMeshOutputDirectory):
         for filename in os.listdir(GenParaMeshOutputDirectory):
           os.remove(os.path.join(GenParaMeshOutputDirectory, filename))
 
     if self.interface.OverwriteParaToSPHARMMesh.checkState():
-      SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
+      SPHARMMeshOutputDirectory = outputDirectory + "/Step3_ParaToSPHARMMesh"
       if os.path.exists(SPHARMMeshOutputDirectory):
         for filename in os.listdir(SPHARMMeshOutputDirectory):
           os.remove(os.path.join(SPHARMMeshOutputDirectory, filename))
@@ -817,7 +817,7 @@ class ShapeAnalysisModuleLogic(LogicMixin):
     #   column 1: checkbox that allows to the user to select what output he wants to display in Shape Population Viewer
     table = self.interface.tableWidget_visualization
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
-    SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh/"
+    SPHARMMeshOutputDirectory = outputDirectory + "/Step3_ParaToSPHARMMesh/"
     row = 0
 
     for filename in os.listdir(SPHARMMeshOutputDirectory):
@@ -937,7 +937,7 @@ class ShapeAnalysisModuleLogic(LogicMixin):
 
     # Add the filepath of the vtk file checked in the table
     outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
-    SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh/"
+    SPHARMMeshOutputDirectory = outputDirectory + "/Step3_ParaToSPHARMMesh/"
 
     # Add the path of the vtk files if the users selected it
     for row in range(0, table.rowCount):
@@ -1000,7 +1000,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
 
     # Skip SegPostProcess ?
     if not self.interface.OverwriteSegPostProcess.checkState():
-      PostProcessDirectory = outputDirectory + "/PostProcess"
+      PostProcessDirectory = outputDirectory + "/Step1_SegPostProcess"
       PostProcessOutputFilepath = PostProcessDirectory + "/" + self.inputFilename + "_pp." + self.inputExtension
       if os.path.exists(PostProcessOutputFilepath):
         self.skip_segPostProcess = True
@@ -1011,7 +1011,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
 
     # Skip GenParaMesh ?
     if not self.interface.OverwriteGenParaMesh.checkState():
-      GenParaMeshOutputDirectory = outputDirectory + "/MeshParameters"
+      GenParaMeshOutputDirectory = outputDirectory + "/Step2_GenParaMesh"
       ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_para.vtk"
       SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_surf.vtk"
       if os.path.exists(ParaOutputFilepath) and os.path.exists(SurfOutputFilepath):
@@ -1023,7 +1023,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
 
     # Skip ParaToSPHARMMesh ?
     if not self.interface.OverwriteParaToSPHARMMesh.checkState():
-      SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
+      SPHARMMeshOutputDirectory = outputDirectory + "/Step3_ParaToSPHARMMesh"
       SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + self.inputFilename
       SPHARMMeshDirectory = os.path.dirname(SPHARMMeshFilepath)
       SPHARMMeshBasename = os.path.basename(SPHARMMeshFilepath)
@@ -1089,7 +1089,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
     ## Post Processed Segmentation
     cli_nodes = list() # list of the nodes used in the Post Processed Segmentation step
     cli_filepaths = list() # list of the node filepaths used in the Post Processed Segmentation step
-    PostProcessDirectory = outputDirectory + "/PostProcess"
+    PostProcessDirectory = outputDirectory + "/Step1_SegPostProcess"
     PostProcessOutputFilepath = PostProcessDirectory + "/" + self.inputFilename + "_pp." + self.inputExtension
 
     if not self.skip_segPostProcess:
@@ -1128,7 +1128,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
       self.setupModule(slicer.modules.segpostprocessclp, cli_parameters)
 
       # Setup of the nodes created by the CLI
-      #    Creation of a folder in the output folder : PostProcess
+      #    Creation of a folder in the output folder : Step1_SegPostProcess
       if not os.path.exists(PostProcessDirectory):
         os.makedirs(PostProcessDirectory)
 
@@ -1152,7 +1152,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
     ## Generate Mesh Parameters
     cli_nodes = list() # list of the nodes used in the Generate Mesh Parameters step
     cli_filepaths = list() # list of the node filepaths used in the Generate Mesh Parameters step
-    GenParaMeshOutputDirectory = outputDirectory + "/MeshParameters"
+    GenParaMeshOutputDirectory = outputDirectory + "/Step2_GenParaMesh"
     ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_para.vtk"
     SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_surf.vtk"
 
@@ -1176,7 +1176,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
       self.setupModule(slicer.modules.genparameshclp, cli_parameters)
 
       # Setup of the nodes created by the CLI
-      #    Creation of a folder in the output folder : GenerateMeshParameters
+      #    Creation of a folder in the output folder : Step2_GenParaMesh
       if not os.path.exists(GenParaMeshOutputDirectory):
         os.makedirs(GenParaMeshOutputDirectory)
 
@@ -1203,7 +1203,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
     ##  Parameters to SPHARM Mesh
     cli_nodes = list()  # list of the nodes used in the Parameters To SPHARM Mesh step
     cli_filepaths = list()  # list of the node filepaths used in the Parameters To SPHARM Mesh step
-    SPHARMMeshOutputDirectory = outputDirectory + "/SPHARMMesh"
+    SPHARMMeshOutputDirectory = outputDirectory + "/Step3_ParaToSPHARMMesh"
     if not self.skip_paraToSPHARMMesh:
 
       # Search of the flip to apply:
@@ -1244,7 +1244,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
 
         cli_parameters["inSurfFile"] = surfmesh_output_model
 
-        #    Creation of a folder in the output folder : SPHARMMesh
+        #    Creation of a folder in the output folder : Step3_ParaToSPHARMMesh
         if not os.path.exists(SPHARMMeshOutputDirectory):
           os.makedirs(SPHARMMeshOutputDirectory)
         if flipIndexToApply < 8:
@@ -1383,9 +1383,9 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
   def test_ShapeAnalysisModule_comparisonOfOutputsSegPostProcess(self):
     self.delayDisplay('Test 2: Comparison of the outputs generated by SegPostProcess CLI')
 
-    # Checking the existence of the output directory MeshParameters
+    # Checking the existence of the output directory Step1_SegPostProcess
     outputDirectoryPath = slicer.app.temporaryPath + '/OutputShapeAnalysisModule'
-    SegPostProcessOutputDirectoryPath = outputDirectoryPath + '/PostProcess'
+    SegPostProcessOutputDirectoryPath = outputDirectoryPath + '/Step1_SegPostProcess'
     if not os.path.exists(SegPostProcessOutputDirectoryPath):
       return False
 
@@ -1400,7 +1400,7 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
     output_filenames = ['groupA_01_hippo_pp.nrrd']
     for i in range(len(output_filenames)):
       volume_filepath2 = os.path.join(SegPostProcessOutputDirectoryPath, output_filenames[i])
-      #   Checking the existence of the output files in the folder SPHARMMesh
+      #   Checking the existence of the output files in the folder Step3_ParaToSPHARMMesh
       if not os.path.exists(volume_filepath2):
         return False
 
@@ -1418,9 +1418,9 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
   def test_ShapeAnalysisModule_comparisonOfOutputsGenParaMesh(self):
     self.delayDisplay('Test 3: Comparison of the outputs generated by GenParaMesh CLI')
 
-    # Checking the existence of the output directory MeshParameters
+    # Checking the existence of the output directory Step2_GenParaMesh
     outputDirectoryPath = slicer.app.temporaryPath + '/OutputShapeAnalysisModule'
-    GenParaMeshOutputDirectoryPath = outputDirectoryPath + '/MeshParameters'
+    GenParaMeshOutputDirectoryPath = outputDirectoryPath + '/Step2_GenParaMesh'
     if not os.path.exists(GenParaMeshOutputDirectoryPath):
       return False
 
@@ -1436,7 +1436,7 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
     output_filenames = ['groupA_01_hippo_para.vtk', 'groupA_01_hippo_surf.vtk']
     for i in range(len(output_filenames)):
       model_filepath2 = os.path.join(GenParaMeshOutputDirectoryPath, output_filenames[i])
-      #   Checking the existence of the output files in the folder SPHARMMesh
+      #   Checking the existence of the output files in the folder Step3_ParaToSPHARMMesh
       if not os.path.exists(model_filepath2):
         return False
 
@@ -1454,9 +1454,9 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
   def test_ShapeAnalysisModule_comparisonOfOutputsParaToSPHARMMesh(self):
     self.delayDisplay('Test 4: Comparison of the outputs generated by ParaToSPHARMMesh CLI')
 
-    # Checking the existence of the output directory SPHARMMesh
+    # Checking the existence of the output directory Step3_ParaToSPHARMMesh
     outputDirectoryPath =  slicer.app.temporaryPath + '/OutputShapeAnalysisModule'
-    ParaToSPHARMMeshOutputDirectoryPath = outputDirectoryPath + '/SPHARMMesh'
+    ParaToSPHARMMeshOutputDirectoryPath = outputDirectoryPath + '/Step3_ParaToSPHARMMesh'
     if not os.path.exists(ParaToSPHARMMeshOutputDirectoryPath):
       return False
 
@@ -1474,7 +1474,7 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
     output_filenames = ['groupA_01_hippoSPHARM.vtk', 'groupA_01_hippoSPHARM_ellalign.vtk', 'groupA_01_hippoSPHARMMedialMesh.vtk', 'groupA_01_hippoSPHARM_procalign.vtk']
     for i in range(len(output_filenames)):
       model_filepath2 = os.path.join(ParaToSPHARMMeshOutputDirectoryPath, output_filenames[i])
-      #   Checking the existence of the output files in the folder SPHARMMesh
+      #   Checking the existence of the output files in the folder Step3_ParaToSPHARMMesh
       if not os.path.exists(model_filepath2):
         return False
 
