@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-<category>Shape Analysis</category>
-<title>GenParaMeshCLP</title>
+<category>SPHARM</category>
+<title>GenParaMesh</title>
 <version>2.0</version>
 <description>
 Spherical Parametrization : The output is two meshes, one for the surface and one for the spherical parametrization

@@ -1,4 +1,6 @@
 #include "vtkTestMain.h"
+#include "itkImageIOFactoryRegisterManager.h"
+#include "itkTransformIOFactoryRegisterManager.h"
 
 #ifdef WIN32
 #ifdef BUILD_SHARED_LIBS
