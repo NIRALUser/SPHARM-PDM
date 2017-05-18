@@ -636,7 +636,7 @@ int main( int argc, char * argv[] )
     #endif
 		outFileName.erase();
 		outFileName.append(base_string);
-		outFileName.append("SPHARMMedialMesh.vtk");
+        outFileName.append("_SPHARMMedialMesh.vtk");
 
 		vtkwriter->SetFileName(outFileName.c_str() );
 		vtkwriter->Write();
@@ -655,7 +655,7 @@ int main( int argc, char * argv[] )
 	 
 	 outFileName.erase();
 	 outFileName.append(base_string);
-	 outFileName.append("MedialAxisScalars.csv");
+     outFileName.append("_MedialAxisScalars.csv");
 	 
 	 std::ofstream ScalarFile(outFileName.c_str());
 	 ScalarFile<<"Theta,Radius,Area"<<std::endl;
@@ -685,7 +685,7 @@ int main( int argc, char * argv[] )
 #endif
          outFileName.erase();
          outFileName.append(base_string);
-         outFileName.append("SPHARMMedialAxis.vtk");
+         outFileName.append("_SPHARMMedialAxis.vtk");
 
          vtkwriter->SetFileName(outFileName.c_str() );
          vtkwriter->Write();
@@ -851,7 +851,7 @@ int main( int argc, char * argv[] )
          }
          outFileName.erase();
          outFileName.append(base_string);
-         outFileName.append("SPHARM.vtk");
+         outFileName.append("_SPHARM.vtk");
          vtkwriter->SetFileName(outFileName.c_str() );
 
          #if VTK_MAJOR_VERSION > 5
@@ -870,7 +870,7 @@ int main( int argc, char * argv[] )
          // save coefficients too
          outFileName.erase();
          outFileName.append(base_string);
-         outFileName.append("SPHARM.coef");
+         outFileName.append("_SPHARM.coef");
          typedef neurolib::SphericalHarmonicCoefficientFileWriter CoefWriterType;
          CoefWriterType::Pointer coefwriter = CoefWriterType::New();
 
@@ -979,13 +979,13 @@ int main( int argc, char * argv[] )
       #endif
       outFileName.erase();
       outFileName.append(base_string);
-      outFileName.append("SPHARM_ellalign.vtk");
+      outFileName.append("_SPHARM_ellalign.vtk");
       vtkwriter->SetFileName(outFileName.c_str() );
       vtkwriter->Write();
 
       outFileName.erase();
       outFileName.append(base_string);
-      outFileName.append("SPHARM_ellalign.coef");
+      outFileName.append("_SPHARM_ellalign.coef");
       coefwriter->SetFileName(outFileName.c_str() );
       coefwriter->SetInput(*ellipsoidAlign);
       coefwriter->Update();
@@ -1063,7 +1063,7 @@ int main( int argc, char * argv[] )
 
       outFileName.erase();
       outFileName.append(base_string);
-      outFileName.append("SPHARM_procalign.vtk");
+      outFileName.append("_SPHARM_procalign.vtk");
       std::cout << "procalign" << std::endl;
       itkMeshTovtkPolyData ITKVTKConverter3;
       ITKVTKConverter3.SetInput(RegisteredMesh);
