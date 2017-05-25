@@ -72,7 +72,6 @@ class LogicMixin(ScriptedLoadableModuleLogic, VTKObservationMixin):
         if self.areAllPipelineCompleted():
           logging.info('All pipelines took: %d sec to run', time.time() - self.allCaseStartTime)
           statusForNode = pipeline_node.GetStatus()
-          self.configurationVisualization()
 
       if statusForNode is None:
         # Run next pipeline

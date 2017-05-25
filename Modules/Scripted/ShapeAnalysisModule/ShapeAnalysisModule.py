@@ -441,7 +441,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.choiceOfFlip.enabled = self.sameFlipForAll.checkState()
     self.tableWidget_ChoiceOfFlip.enabled = not self.sameFlipForAll.checkState()
     if not self.sameFlipForAll.checkState():
-      self.Logic.fillTableForFlipOptions()
+      self.fillTableForFlipOptions()
 
   def onEnableRegTemplate(self):
     self.label_regTemplate.enabled = self.useRegTemplate.checkState()
@@ -506,6 +506,9 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
                                 'ShapeAnalysisModule',
                                 self.Logic.ErrorMessage)
 
+      elif status == 'Completed':
+        self.configurationVisualization()
+
       #  Empty lists
       self.Logic.pipeline = {}
       self.Logic.completed = {}
@@ -535,22 +538,22 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     # ******* Update the CheckableComboBox ******* #
     #     Check/Uncheck the "Case i: case_name [..]" checkboxes in the checkacle comboBox
     if currentText == "All Models":
-      self.Logic.checkedItems("SPHARM", currentItem.checkState())
+      self.checkedItems("SPHARM", currentItem.checkState())
 
     elif currentText == "All SPHARM Models":
-      self.Logic.checkedItems("SPHARM Models", currentItem.checkState())
+      self.checkedItems("SPHARM Models", currentItem.checkState())
 
     elif currentText == "All SPHARM Ellipse Aligned Models":
-      self.Logic.checkedItems("SPHARM Ellipse Aligned Models", currentItem.checkState())
+      self.checkedItems("SPHARM Ellipse Aligned Models", currentItem.checkState())
 
     elif currentText == "All SPHARM Medial Meshes":
-      self.Logic.checkedItems("SPHARM Medial Meshes", currentItem.checkState())
+      self.checkedItems("SPHARM Medial Meshes", currentItem.checkState())
 
     elif currentText == "All SPHARM Procrustes Aligned Models":
-      self.Logic.checkedItems("SPHARM Procrustes Aligned Models", currentItem.checkState())
+      self.checkedItems("SPHARM Procrustes Aligned Models", currentItem.checkState())
 
     #     Check/Uncheck the "All [..]" checkboxes in the checkacle comboBox
-    self.Logic.checkedAllItems()
+    self.checkedAllItems()
 
     self.CheckableComboBox_visualization.blockSignals(False)
 
@@ -648,21 +651,21 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 
       # Check/uncheck checbox case according of the checkbox in the table
       text = "Case " + str(i) + ": " + inputBasename + " - SPHARM Models"
-      self.Logic.checkedCaseItem(text, allCaseSPHARMModelsChecked)
+      self.checkedCaseItem(text, allCaseSPHARMModelsChecked)
 
       text = "Case " + str(i) + ": " + inputBasename + " - SPHARM Ellipse Aligned Models"
-      self.Logic.checkedCaseItem(text, allCaseSPHARMEllalignModelsChecked)
+      self.checkedCaseItem(text, allCaseSPHARMEllalignModelsChecked)
 
       if not allSPHARMMesdialMeshesIndex == -1:
         text = "Case " + str(i) + ": " + inputBasename + " - SPHARM Medial Meshes"
-        self.Logic.checkedCaseItem(text, allCaseSPHARMMedialMeshesChecked)
+        self.checkedCaseItem(text, allCaseSPHARMMedialMeshesChecked)
 
       if not allSPHARMProcrustesAlignedModelsIndex == -1:
         text = "Case " + str(i) + ": " + inputBasename + " - SPHARM Procrustes Aligned Models"
-        self.Logic.checkedCaseItem(text, allCaseSPHARMProcrustesAlignedModelsChecked)
+        self.checkedCaseItem(text, allCaseSPHARMProcrustesAlignedModelsChecked)
 
     # Check/Uncheck the "All [..]" checkboxes in the checkacle comboBox
-    self.Logic.checkedAllItems()
+    self.checkedAllItems()
 
     self.CheckableComboBox_visualization.blockSignals(False)
 
@@ -688,6 +691,194 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     # Deletion of the CSV files in the Slicer temporary directory
     if os.path.exists(filePathCSV):
       os.remove(filePathCSV)
+
+  # Function to fill the flip options table for all the SPHARM mesh outputs
+  #    - Column 0: filename of the input files
+  #    - Column 1: comboBox with the flip corresponding to the output file
+  def fillTableForFlipOptions(self):
+    table = self.tableWidget_ChoiceOfFlip
+    row = 0
+
+    for basename in self.Logic.InputCases:
+      table.setRowCount(row + 1)
+      # Column 0:
+      filename = basename.split('/')[-1].split('.')[0]
+      labelVTKFile = qt.QLabel(filename)
+      labelVTKFile.setAlignment(0x84)
+      table.setCellWidget(row, 0, labelVTKFile)
+
+      # Column 1:
+      widget = qt.QWidget()
+      layout = qt.QHBoxLayout(widget)
+      comboBox = qt.QComboBox()
+      comboBox.addItems(['No Flip',
+                         'Flip Along Axis of x and y',
+                         'Flip Along Axis of y and z',
+                         'Flip Along Axis of x and z',
+                         'Flip Along Axis of x',
+                         'Flip Along Axis of y',
+                         'Flip Along Axis of x, y and z',
+                         'Flip Along Axis of z',
+                         'All'])
+      comboBox.setCurrentIndex(self.choiceOfFlip.currentIndex)
+      layout.addWidget(comboBox)
+      layout.setAlignment(0x84)
+      layout.setContentsMargins(0, 0, 0, 0)
+      widget.setLayout(layout)
+      table.setCellWidget(row, 1, widget)
+
+      row = row + 1
+
+  # Function to configure the checkable comboBox and the table of the visualization tab
+  def configurationVisualization(self):
+    # Configuration of the checkable comboBox
+    checkableComboBox = self.CheckableComboBox_visualization
+    #   clean the checkable comboBox
+    list = checkableComboBox.model()
+    list.clear()
+    #   add items according of the SPHARM Mesh computed by ParaToSPHARMMesh
+    checkableComboBox.blockSignals(True)
+    checkableComboBox.addItem("All Models")
+    checkableComboBox.addItem("All SPHARM Models")
+    checkableComboBox.addItem("All SPHARM Ellipse Aligned Models")
+    if self.medialMesh.checkState():
+      checkableComboBox.addItem("All SPHARM Medial Meshes")
+    if self.useRegTemplate.checkState():
+      checkableComboBox.addItem("All SPHARM Procrustes Aligned Models")
+    # Fill the checkable comboBox
+    for i in range(len(self.Logic.InputCases)):
+      checkableComboBox.addItem("Case " + str(i) + ": " + self.Logic.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Models")
+      checkableComboBox.addItem("Case " + str(i) + ": " + self.Logic.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Ellipse Aligned Models")
+      if self.medialMesh.checkState():
+        checkableComboBox.addItem("Case " + str(i) + ": " + self.Logic.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Medial Meshes")
+      if self.useRegTemplate.checkState():
+        checkableComboBox.addItem("Case " + str(i) + ": " + self.Logic.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Procrustes Aligned Models")
+    checkableComboBox.blockSignals(False)
+
+    # Configuration of the table
+    #   column 0: filename of the SPHARM Meshes generated by ParaToSPHARMMesh
+    #   column 1: checkbox that allows to the user to select what output he wants to display in Shape Population Viewer
+    table = self.tableWidget_visualization
+    outputDirectory = self.GroupProjectOutputDirectory.directory.encode('utf-8')
+    SPHARMMeshOutputDirectory = outputDirectory + "/Step3_ParaToSPHARMMesh/"
+    row = 0
+
+    for filename in os.listdir(SPHARMMeshOutputDirectory):
+      if filename.endswith(".vtk") and not filename.endswith("_para.vtk") and not filename.endswith("SPHARMMedialAxis.vtk"):
+        table.setRowCount(row + 1)
+        # Column 0:
+        labelVTKFile = qt.QLabel(os.path.splitext(filename)[0])
+        labelVTKFile.setAlignment(0x84)
+        table.setCellWidget(row, 0, labelVTKFile)
+
+        # Column 1:
+        widget = qt.QWidget()
+        layout = qt.QHBoxLayout(widget)
+        checkBox = qt.QCheckBox()
+        layout.addWidget(checkBox)
+        layout.setAlignment(0x84)
+        layout.setContentsMargins(0, 0, 0, 0)
+        widget.setLayout(layout)
+        table.setCellWidget(row, 1, widget)
+        checkBox.connect('stateChanged(int)', self.onCheckBoxTableValueChanged)
+
+        row = row + 1
+
+  # Functions to update the checkable comboBox in the visualization tab
+  #     Check/Uncheck checkBoxes with the label 'text'
+  def checkedItems(self, text, checkState):
+    list = self.CheckableComboBox_visualization.model()
+    for i in range(1, list.rowCount()):
+      item = list.item(i, 0)
+      if not item.text().find(text) == -1:
+        item.setCheckState(checkState)
+
+  # Check/Uncheck "All [..]" checkBoxes in the checkable comboBox
+  def checkedAllItems(self):
+    list = self.CheckableComboBox_visualization.model()
+
+    allIndex = self.CheckableComboBox_visualization.findText("All Models")
+    allItem = list.item(allIndex, 0)
+    allSPHARMIndex = self.CheckableComboBox_visualization.findText("All SPHARM Models")
+    allSPHARMItem = list.item(allSPHARMIndex, 0)
+    allSPHARMEllalignIndex = self.CheckableComboBox_visualization.findText("All SPHARM Ellipse Aligned Models")
+    allSPHARMEllalignItem = list.item(allSPHARMEllalignIndex, 0)
+    allSPHARMMesdialMeshesIndex = self.CheckableComboBox_visualization.findText("All SPHARM Medial Meshes")
+    if not allSPHARMMesdialMeshesIndex == -1:
+      allSPHARMMesdialMeshesItem = list.item(allSPHARMMesdialMeshesIndex, 0)
+    allSPHARMProcrustesAlignedModelsIndex = self.CheckableComboBox_visualization.findText("All SPHARM Procrustes Aligned Models")
+    if not allSPHARMProcrustesAlignedModelsIndex == -1:
+      allSPHARMProcrustesAlignedModelsItem = list.item(allSPHARMProcrustesAlignedModelsIndex, 0)
+
+    # Check/Uncheck "All SPHARM Models" checkBox
+    self.checkedAllItem("- SPHARM Models", allSPHARMItem)
+    # Check/Uncheck "All SPHARM Ellipse Aligned Models" checkBox
+    self.checkedAllItem("- SPHARM Ellipse Aligned Models", allSPHARMEllalignItem)
+    # Check/Uncheck "All SPHARM Medial Mesh" checkBox
+    if not allSPHARMMesdialMeshesIndex == -1:
+      self.checkedAllItem("- SPHARM Medial Meshes", allSPHARMMesdialMeshesItem)
+    # Check/Uncheck "All SPHARM Procrustes Aligned Models" checkBox
+    if not allSPHARMProcrustesAlignedModelsIndex == -1:
+      self.checkedAllItem("- SPHARM Procrustes Aligned Models", allSPHARMProcrustesAlignedModelsItem)
+
+    # Check/Uncheck "All Models" checkBox
+    if allSPHARMEllalignItem.checkState() and allSPHARMItem.checkState():
+      if allSPHARMMesdialMeshesIndex == -1 and allSPHARMProcrustesAlignedModelsIndex == -1:
+        allItem.setCheckState(qt.Qt.Checked)
+        return
+      elif not allSPHARMMesdialMeshesIndex == -1 and not allSPHARMProcrustesAlignedModelsIndex == -1:
+        if allSPHARMMesdialMeshesItem.checkState() and allSPHARMProcrustesAlignedModelsItem.checkState():
+          allItem.setCheckState(qt.Qt.Checked)
+          return
+      elif not allSPHARMMesdialMeshesIndex == -1 and allSPHARMProcrustesAlignedModelsIndex == -1:
+        if allSPHARMMesdialMeshesItem.checkState():
+          allItem.setCheckState(qt.Qt.Checked)
+          return
+      elif allSPHARMMesdialMeshesIndex == -1 and not allSPHARMProcrustesAlignedModelsIndex == -1:
+        if allSPHARMProcrustesAlignedModelsItem.checkState():
+          allItem.setCheckState(qt.Qt.Checked)
+          return
+
+    allItem.setCheckState(qt.Qt.Unchecked)
+
+  # Check/Uncheck "Case i: case_name - SPHARM [..]" checkBox in the checkable comboBox
+  def checkedCaseItem(self, text, doCheck):
+    list = self.CheckableComboBox_visualization.model()
+    item = list.findItems(text)[0]
+    if doCheck:
+      item.setCheckState(qt.Qt.Checked)
+    else:
+      item.setCheckState(qt.Qt.Unchecked)
+
+  # Check/Uncheck "All [..]" (except "All Models") checkBox in the checkable comboBox
+  def checkedAllItem(self, text, item):
+    if self.areAllCasesChecked(text):
+      item.setCheckState(qt.Qt.Checked)
+    else:
+      item.setCheckState(qt.Qt.Unchecked)
+
+  # Specify if all the "Case i: case_name - SPHARM [..]" checkBoxes of one type of Model are checked
+  def areAllCasesChecked(self, text):
+    list = self.CheckableComboBox_visualization.model()
+    isChecked = True
+    for i in range(3, list.rowCount()):
+      item = list.item(i, 0)
+      if not item.text().find(text) == -1:
+        if not item.checkState():
+          isChecked = False
+    return isChecked
+
+  def clearFlipOptionsTable(self):
+    table = self.tableWidget_ChoiceOfFlip
+    table.clear()
+    table.setColumnCount(2)
+    table.setHorizontalHeaderLabels([' Files ', ' Choice of Flip '])
+    table.setColumnWidth(0, 400)
+    horizontalHeader = table.horizontalHeader()
+    horizontalHeader.setStretchLastSection(False)
+    horizontalHeader.setResizeMode(0, qt.QHeaderView.Stretch)
+    horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
+    table.verticalHeader().setVisible(False)
 
 #
 # ShapeAnalysisModuleLogic
@@ -749,182 +940,6 @@ class ShapeAnalysisModuleLogic(LogicMixin):
         for filename in os.listdir(SPHARMMeshOutputDirectory):
           os.remove(os.path.join(SPHARMMeshOutputDirectory, filename))
 
-  # Function to fill the flip options table for all the SPHARM mesh outputs
-  #    - Column 0: filename of the input files
-  #    - Column 1: comboBox with the flip corresponding to the output file
-  def fillTableForFlipOptions(self):
-    table = self.interface.tableWidget_ChoiceOfFlip
-    row = 0
-
-    for basename in self.InputCases:
-      table.setRowCount(row + 1)
-      # Column 0:
-      filename = basename.split('/')[-1].split('.')[0]
-      labelVTKFile = qt.QLabel(filename)
-      labelVTKFile.setAlignment(0x84)
-      table.setCellWidget(row, 0, labelVTKFile)
-
-      # Column 1:
-      widget = qt.QWidget()
-      layout = qt.QHBoxLayout(widget)
-      comboBox = qt.QComboBox()
-      comboBox.addItems(['No Flip',
-                         'Flip Along Axis of x and y',
-                         'Flip Along Axis of y and z',
-                         'Flip Along Axis of x and z',
-                         'Flip Along Axis of x',
-                         'Flip Along Axis of y',
-                         'Flip Along Axis of x, y and z',
-                         'Flip Along Axis of z',
-                         'All'])
-      comboBox.setCurrentIndex(self.interface.choiceOfFlip.currentIndex)
-      layout.addWidget(comboBox)
-      layout.setAlignment(0x84)
-      layout.setContentsMargins(0, 0, 0, 0)
-      widget.setLayout(layout)
-      table.setCellWidget(row, 1, widget)
-
-      row = row + 1
-
-  # Function to configure the checkable comboBox and the table of the visualization tab
-  def configurationVisualization(self):
-    # Configuration of the checkable comboBox
-    checkableComboBox = self.interface.CheckableComboBox_visualization
-    #   clean the checkable comboBox
-    list = checkableComboBox.model()
-    list.clear()
-    #   add items according of the SPHARM Mesh computed by ParaToSPHARMMesh
-    checkableComboBox.blockSignals(True)
-    checkableComboBox.addItem("All Models")
-    checkableComboBox.addItem("All SPHARM Models")
-    checkableComboBox.addItem("All SPHARM Ellipse Aligned Models")
-    if self.interface.medialMesh.checkState():
-      checkableComboBox.addItem("All SPHARM Medial Meshes")
-    if self.interface.useRegTemplate.checkState():
-      checkableComboBox.addItem("All SPHARM Procrustes Aligned Models")
-    #   Fill the checkable comboBox
-    for i in range(len(self.InputCases)):
-      checkableComboBox.addItem("Case " + str(i) + ": " + self.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Models")
-      checkableComboBox.addItem("Case " + str(i) + ": " + self.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Ellipse Aligned Models")
-      if self.interface.medialMesh.checkState():
-        checkableComboBox.addItem("Case " + str(i) + ": " + self.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Medial Meshes")
-      if self.interface.useRegTemplate.checkState():
-        checkableComboBox.addItem("Case " + str(i) + ": " + self.InputCases[i].split('/')[-1].split('.')[0] + " - SPHARM Procrustes Aligned Models")
-    checkableComboBox.blockSignals(False)
-
-    # Configuration of the table
-    #   column 0: filename of the SPHARM Meshes generated by ParaToSPHARMMesh
-    #   column 1: checkbox that allows to the user to select what output he wants to display in Shape Population Viewer
-    table = self.interface.tableWidget_visualization
-    outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
-    SPHARMMeshOutputDirectory = outputDirectory + "/Step3_ParaToSPHARMMesh/"
-    row = 0
-
-    for filename in os.listdir(SPHARMMeshOutputDirectory):
-      if filename.endswith(".vtk") and not filename.endswith("_para.vtk") and not filename.endswith("SPHARMMedialAxis.vtk"):
-        table.setRowCount(row + 1)
-        # Column 0:
-        labelVTKFile = qt.QLabel(os.path.splitext(filename)[0])
-        labelVTKFile.setAlignment(0x84)
-        table.setCellWidget(row, 0, labelVTKFile)
-
-        # Column 1:
-        widget = qt.QWidget()
-        layout = qt.QHBoxLayout(widget)
-        checkBox = qt.QCheckBox()
-        layout.addWidget(checkBox)
-        layout.setAlignment(0x84)
-        layout.setContentsMargins(0, 0, 0, 0)
-        widget.setLayout(layout)
-        table.setCellWidget(row, 1, widget)
-        checkBox.connect('stateChanged(int)', self.interface.onCheckBoxTableValueChanged)
-
-        row = row + 1
-
-  # Functions to update the checkable comboBox in the visualization tab
-  #     Check/Uncheck checkBoxes with the label 'text'
-  def checkedItems(self, text, checkState):
-    list = self.interface.CheckableComboBox_visualization.model()
-    for i in range(1, list.rowCount()):
-      item = list.item(i, 0)
-      if not item.text().find(text) == -1:
-        item.setCheckState(checkState)
-
-  #     Check/Uncheck "All [..]" checkBoxes in the checkable comboBox
-  def checkedAllItems(self):
-    list = self.interface.CheckableComboBox_visualization.model()
-
-    allIndex = self.interface.CheckableComboBox_visualization.findText("All Models")
-    allItem = list.item(allIndex, 0)
-    allSPHARMIndex = self.interface.CheckableComboBox_visualization.findText("All SPHARM Models")
-    allSPHARMItem = list.item(allSPHARMIndex, 0)
-    allSPHARMEllalignIndex = self.interface.CheckableComboBox_visualization.findText("All SPHARM Ellipse Aligned Models")
-    allSPHARMEllalignItem = list.item(allSPHARMEllalignIndex, 0)
-    allSPHARMMesdialMeshesIndex = self.interface.CheckableComboBox_visualization.findText("All SPHARM Medial Meshes")
-    if not allSPHARMMesdialMeshesIndex == -1:
-      allSPHARMMesdialMeshesItem = list.item(allSPHARMMesdialMeshesIndex, 0)
-    allSPHARMProcrustesAlignedModelsIndex = self.interface.CheckableComboBox_visualization.findText("All SPHARM Procrustes Aligned Models")
-    if not allSPHARMProcrustesAlignedModelsIndex == -1:
-      allSPHARMProcrustesAlignedModelsItem = list.item(allSPHARMProcrustesAlignedModelsIndex, 0)
-
-    # Check/Uncheck "All SPHARM Models" checkBox
-    self.checkedAllItem("- SPHARM Models", allSPHARMItem)
-    # Check/Uncheck "All SPHARM Ellipse Aligned Models" checkBox
-    self.checkedAllItem("- SPHARM Ellipse Aligned Models", allSPHARMEllalignItem)
-    # Check/Uncheck "All SPHARM Medial Mesh" checkBox
-    if not allSPHARMMesdialMeshesIndex == -1:
-      self.checkedAllItem("- SPHARM Medial Meshes", allSPHARMMesdialMeshesItem)
-    # Check/Uncheck "All SPHARM Procrustes Aligned Models" checkBox
-    if not allSPHARMProcrustesAlignedModelsIndex == -1:
-      self.checkedAllItem("- SPHARM Procrustes Aligned Models", allSPHARMProcrustesAlignedModelsItem)
-
-    # Check/Uncheck "All Models" checkBox
-    if allSPHARMEllalignItem.checkState() and allSPHARMItem.checkState():
-      if allSPHARMMesdialMeshesIndex == -1 and allSPHARMProcrustesAlignedModelsIndex == -1:
-          allItem.setCheckState(qt.Qt.Checked)
-          return
-      elif not allSPHARMMesdialMeshesIndex == -1 and not allSPHARMProcrustesAlignedModelsIndex == -1:
-        if allSPHARMMesdialMeshesItem.checkState() and allSPHARMProcrustesAlignedModelsItem.checkState():
-          allItem.setCheckState(qt.Qt.Checked)
-          return
-      elif not allSPHARMMesdialMeshesIndex == -1 and allSPHARMProcrustesAlignedModelsIndex == -1:
-        if allSPHARMMesdialMeshesItem.checkState():
-          allItem.setCheckState(qt.Qt.Checked)
-          return
-      elif allSPHARMMesdialMeshesIndex == -1 and not allSPHARMProcrustesAlignedModelsIndex == -1:
-        if allSPHARMProcrustesAlignedModelsItem.checkState():
-          allItem.setCheckState(qt.Qt.Checked)
-          return
-
-    allItem.setCheckState(qt.Qt.Unchecked)
-
-  #     Check/Uncheck "Case i: case_name - SPHARM [..]" checkBox in the checkable comboBox
-  def checkedCaseItem(self, text, doCheck):
-    list = self.interface.CheckableComboBox_visualization.model()
-    item = list.findItems(text)[0]
-    if doCheck:
-      item.setCheckState(qt.Qt.Checked)
-    else:
-      item.setCheckState(qt.Qt.Unchecked)
-
-  #     Check/Uncheck "All [..]" (except "All Models") checkBox in the checkable comboBox
-  def checkedAllItem(self, text, item):
-    if self.areAllCasesChecked(text):
-      item.setCheckState(qt.Qt.Checked)
-    else:
-      item.setCheckState(qt.Qt.Unchecked)
-
-  #     Specify if all the "Case i: case_name - SPHARM [..]" checkBoxes of one type of Model are checked
-  def areAllCasesChecked(self, text):
-    list = self.interface.CheckableComboBox_visualization.model()
-    isChecked = True
-    for i in range(3, list.rowCount()):
-      item = list.item(i, 0)
-      if not item.text().find(text) == -1:
-        if not item.checkState():
-          isChecked = False
-    return isChecked
-
   # Function to create a CSV file containing all the SPHARM mesh output files
   # that the user wants to display in ShapePopultaionViewer
   def creationCSVFileForSPV(self, filepathCSV):
@@ -954,17 +969,7 @@ class ShapeAnalysisModuleLogic(LogicMixin):
           cw.writerow([VTKfilepath])
     file.close()
 
-  def clearFlipOptionsTable(self):
-    table = self.interface.tableWidget_ChoiceOfFlip
-    table.clear()
-    table.setColumnCount(2)
-    table.setHorizontalHeaderLabels([' Files ', ' Choice of Flip '])
-    table.setColumnWidth(0, 400)
-    horizontalHeader = table.horizontalHeader()
-    horizontalHeader.setStretchLastSection(False)
-    horizontalHeader.setResizeMode(0, qt.QHeaderView.Stretch)
-    horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
-    table.verticalHeader().setVisible(False)
+
 
 #
 # ShapeAnalysisModulePipeline
