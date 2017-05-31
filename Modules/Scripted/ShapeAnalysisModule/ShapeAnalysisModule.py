@@ -50,7 +50,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     #
     #   Global variables
     #
-    self.Logic = ShapeAnalysisModuleLogic(self)
+    self.Logic = ShapeAnalysisModuleLogic()
     self.progressbars_layout = None
 
     #
@@ -135,7 +135,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
                                                    lambda: self.onSelectedCollapsibleButtonOpen(
                                                      self.CollapsibleButton_GroupProjectIO))
     self.GroupProjectInputDirectory.connect('directoryChanged(const QString &)', self.onInputDirectoryChanged)
-
+    self.GroupProjectOutputDirectory.connect('directoryChanged(const QString &)', self.onOutputDirectoryChanged)
+    self.Debug.connect('clicked(bool)', self.onDebug)
 
     #   Post Processed Segmentation
     self.CollapsibleButton_SegPostProcess.connect('clicked()',
@@ -143,29 +144,48 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
                                                     self.CollapsibleButton_SegPostProcess))
     self.OverwriteSegPostProcess.connect('clicked(bool)', self.onOverwriteFilesSegPostProcess)
     self.RescaleSegPostProcess.connect('stateChanged(int)', self.onSelectSpacing)
+    self.sx.connect('valueChanged(double)', self.onSxValueChanged)
+    self.sy.connect('valueChanged(double)', self.onSyValueChanged)
+    self.sz.connect('valueChanged(double)', self.onSzValueChanged)
     self.LabelState.connect('clicked(bool)', self.onSelectValueLabelNumber)
+    self.ValueLabelNumber.connect('valueChanged(double)', self.onLabelNumberValueChanged)
+
     #   Generate Mesh Parameters
     self.CollapsibleButton_GenParaMesh.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_GenParaMesh))
-
     self.OverwriteGenParaMesh.connect('clicked(bool)', self.onOverwriteFilesGenParaMesh)
+    self.NumberofIterations.connect('valueChanged(double)', self.onNumberofIterationsValueChanged)
+
     #   Parameters to SPHARM Mesh
     self.CollapsibleButton_ParaToSPHARMMesh.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_ParaToSPHARMMesh))
     self.OverwriteParaToSPHARMMesh.connect('clicked(bool)', self.onOverwriteFilesParaToSPHARMMesh)
+    self.SubdivLevelValue.connect('valueChanged(double)', self.onSubdivLevelValueChanged)
+    self.SPHARMDegreeValue.connect('valueChanged(double)', self.onSPHARMDegreeValueChanged)
+    self.thetaIterationValue.connect('valueChanged(int)', self.onThetaIterationValueChanged)
+    self.phiIterationValue.connect('valueChanged(int)', self.onPhiIterationValueChanged)
+    self.medialMesh.connect('clicked(bool)', self.onMedialMeshValueChanged)
+
     #   Advanced Post Processed Segmentation
     self.CollapsibleButton_AdvancedPostProcessedSegmentation.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_AdvancedPostProcessedSegmentation))
     self.GaussianFiltering.connect('clicked(bool)', self.onSelectGaussianVariance)
+    self.VarianceX.connect('valueChanged(double)', self.onVarianceXValueChanged)
+    self.VarianceY.connect('valueChanged(double)', self.onVarianceYValueChanged)
+    self.VarianceZ.connect('valueChanged(double)', self.onVarianceZValueChanged)
+
     #   Advanced Parameters to SPHARM Mesh
     self.CollapsibleButton_AdvancedParametersToSPHARMMesh.connect('clicked()',
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_AdvancedParametersToSPHARMMesh))
     self.useRegTemplate.connect('clicked(bool)', self.onEnableRegTemplate)
+    self.regTemplate.connect('currentPathChanged(const QString)', self.onRegTemplateValueChanged)
     self.useFlipTemplate.connect('clicked(bool)', self.onEnableFlipTemplate)
+    self.flipTemplate.connect('currentPathChanged(const QString)', self.onFlipTemplateValueChanged)
+    self.choiceOfFlip.connect('currentIndexChanged(int)', self.onChoiceOfFlipValueChanged)
     self.sameFlipForAll.connect('clicked(bool)', self.onEnableFlipChoices)
 
     #   Visualization
@@ -203,6 +223,10 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     horizontalHeader.setResizeMode(0, qt.QHeaderView.Stretch)
     horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
     self.tableWidget_visualization.verticalHeader().setVisible(False)
+
+    #     Configuration of the parameters of the widget
+    self.Logic.parameters.setTableForChoiceOfFlip(self.tableWidget_ChoiceOfFlip)
+
 
   def enter(self):
     if not hasattr(slicer.modules, 'shapepopulationviewer') and not hasattr(slicer.modules, 'launcher'):
@@ -335,12 +359,16 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
   #   Group Project IO
   #
   def onInputDirectoryChanged(self):
+    inputDirectory = self.GroupProjectInputDirectory.directory.encode('utf-8')
+
+    # Update of the input directory path
+    self.Logic.parameters.setInputDirectory(inputDirectory)
+
     #  Possible extensions
     exts = [".gipl", ".gipl.gz", ".mgh", ".mgh,gz", ".nii", ".nii.gz",".nrrd", ".vtk", ".vtp", ".hdr", ".mhd"]
 
     # Search cases and add the filename to a list
     self.Logic.InputCases = []
-    inputDirectory = self.GroupProjectInputDirectory.directory.encode('utf-8')
     for file in os.listdir(inputDirectory):
       for ext in exts:
         if file.endswith(ext):
@@ -350,10 +378,22 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
             self.label_RescaleSegPostProcess.enabled = False
             self.RescaleSegPostProcess.enabled = False
 
+  # Update of the output directory path
+  def onOutputDirectoryChanged(self):
+    outputDirectory = self.GroupProjectOutputDirectory.directory.encode('utf-8')
+    self.Logic.parameters.setOutputDirectory(outputDirectory)
+
+  # Update of the debug parameter
+  def onDebug(self):
+    self.Logic.parameters.setDebug(self.Debug.checkState())
+
   #
   #   Post Processed Segmentation
   #
   def onOverwriteFilesSegPostProcess(self):
+    # Update of the overwrite boolean for the Post Processed Segmentation step
+    self.Logic.parameters.setOverwriteSegPostProcess(self.OverwriteSegPostProcess.checkState())
+
     if self.OverwriteSegPostProcess.checkState():
       #   Message for the user
       messageBox = ctk.ctkMessageBox()
@@ -364,9 +404,15 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
       messageBox.exec_()
       #   Check the overwrite option for the next steps
       self.OverwriteGenParaMesh.setCheckState(qt.Qt.Checked)
+      self.Logic.parameters.setOverwriteGenParaMesh(self.OverwriteGenParaMesh.checkState())
       self.OverwriteParaToSPHARMMesh.setCheckState(qt.Qt.Checked)
+      self.Logic.parameters.setOverwriteParaToSPHARMMesh(self.OverwriteParaToSPHARMMesh.checkState())
 
   def onSelectSpacing(self):
+    # Update of the rescale boolean for the Post Processed Segmentation step
+    self.Logic.parameters.setRescaleSegPostProcess(self.RescaleSegPostProcess.checkState())
+
+    # Enable/Disable the spacing x,y, and z parameters in the UI
     self.label_sx.enabled = self.RescaleSegPostProcess.checkState()
     self.label_sy.enabled = self.RescaleSegPostProcess.checkState()
     self.label_sz.enabled = self.RescaleSegPostProcess.checkState()
@@ -374,9 +420,26 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.sy.enabled = self.RescaleSegPostProcess.checkState()
     self.sz.enabled = self.RescaleSegPostProcess.checkState()
 
+  # Update of the spacing x parameter for the Post Processed Segmentation step
+  def onSxValueChanged(self):
+    self.Logic.parameters.setSx(self.sx.value)
+
+  # Update of the spacing y parameter for the Post Processed Segmentation step
+  def onSyValueChanged(self):
+    self.Logic.parameters.setSy(self.sy.value)
+
+  # Update of the spacing z parameter for the Post Processed Segmentation step
+  def onSzValueChanged(self):
+    self.Logic.parameters.setSz(self.sz.value)
+
+  # Enable/Disable the label number value in the UI
   def onSelectValueLabelNumber(self):
     self.label_ValueLabelNumber.enabled = self.LabelState.checkState()
     self.ValueLabelNumber.enabled = self.LabelState.checkState()
+
+  # Update of the label parameter for the Post Processed Segmentation step
+  def onLabelNumberValueChanged(self):
+    self.Logic.parameters.setLabelNumber(self.ValueLabelNumber.value)
 
   #
   #   Generate Mesh Parameters
@@ -405,6 +468,15 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
       messageBox.exec_()
       #   Check the overwrite option for the next step
       self.OverwriteParaToSPHARMMesh.setCheckState(qt.Qt.Checked)
+      self.Logic.parameters.setOverwriteParaToSPHARMMesh(self.OverwriteParaToSPHARMMesh.checkState())
+
+    # Update of the overwrite boolean for the Generate Mesh Parameters step
+    self.Logic.parameters.setOverwriteGenParaMesh(self.OverwriteGenParaMesh.checkState())
+
+
+  # Update of the iterations parameter for the Generate Mesh Parameters step
+  def onNumberofIterationsValueChanged(self):
+    self.Logic.parameters.setNumberofIterations(self.NumberofIterations.value)
 
   #
   #   Parameters to SPHARM Mesh
@@ -423,10 +495,37 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
         messageBox.setStandardButtons(messageBox.Ok)
         messageBox.exec_()
 
+    # Update of the overwrite boolean for the Parameters to SPHARM Mesh step
+    self.Logic.parameters.setOverwriteParaToSPHARMMesh(self.OverwriteParaToSPHARMMesh.checkState())
+
+  # Update of the sub-division parameter for the Parameters to SPHARM Mesh step
+  def onSubdivLevelValueChanged(self):
+    self.Logic.parameters.setSubdivLevelValue(self.SubdivLevelValue.value)
+
+  # Update of the SPHARM degree parameter for the Parameters to SPHARM Mesh step
+  def onSPHARMDegreeValueChanged(self):
+    self.Logic.parameters.setSPHARMDegreeValue(self.SPHARMDegreeValue.value)
+
+  # Update of the theta iteration parameter for the Parameters to SPHARM Mesh step
+  def onThetaIterationValueChanged(self):
+    self.Logic.parameters.setThetaIterationValue(self.thetaIterationValue.value)
+
+  # Update of the phi iteration parameter for the Parameters to SPHARM Mesh step
+  def onPhiIterationValueChanged(self):
+    self.Logic.parameters.setPhiIterationValue(self.phiIterationValue.value)
+
+  # Update of the medial mesh boolean for the Parameters to SPHARM Mesh step
+  def onMedialMeshValueChanged(self):
+    self.Logic.parameters.setMedialMesh(self.medialMesh.checkState())
+
   #
   #   Advanced Post Processed Segmentation
   #
   def onSelectGaussianVariance(self):
+    # Update of the gaussian variance boolean for the Post Processed Segmentation step
+    self.Logic.parameters.setGaussianFiltering(self.GaussianFiltering.checkState())
+
+    # Enable/Disable the gaussian variance parameters in the UI
     self.label_VarianceX.enabled = self.GaussianFiltering.checkState()
     self.VarianceX.enabled = self.GaussianFiltering.checkState()
     self.label_VarianceY.enabled = self.GaussianFiltering.checkState()
@@ -434,22 +533,57 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.label_VarianceZ.enabled = self.GaussianFiltering.checkState()
     self.VarianceZ.enabled = self.GaussianFiltering.checkState()
 
+  # Update of the variance x parameter for the Post Processed Segmentation step
+  def onVarianceXValueChanged(self):
+    self.Logic.parameters.setVarianceX(self.VarianceX.value)
+
+  # Update of the variance y parameter for the Post Processed Segmentation step
+  def onVarianceYValueChanged(self):
+    self.Logic.parameters.setVarianceY(self.VarianceY.value)
+
+  # Update of the variance z parameter for the Post Processed Segmentation step
+  def onVarianceZValueChanged(self):
+    self.Logic.parameters.setVarianceZ(self.VarianceZ.value)
+
   #
   #   Advanced Parameters to SPHARM Mesh
   #
+  def onEnableRegTemplate(self):
+    # Update of the registration template boolean for the Parameters to SPHARM Mesh step
+    self.Logic.parameters.setUseRegTemplate(self.useRegTemplate.checkState())
+
+    # Enable/Disable the registration template path in the UI
+    self.label_regTemplate.enabled = self.useRegTemplate.checkState()
+    self.regTemplate.enabled = self.useRegTemplate.checkState()
+
+  # Update of the registration template path for the Parameters to SPHARM Mesh step
+  def onRegTemplateValueChanged(self):
+    self.Logic.parameters.setRegTemplate(self.regTemplate.currentPath)
+
+  def onEnableFlipTemplate(self):
+    # Update of the flip template boolean for the Parameters to SPHARM Mesh step
+    self.Logic.parameters.setUseFlipTemplate(self.useFlipTemplate.checkState())
+
+    # Enable/Disable the flip template path in the UI
+    self.label_flipTemplate.enabled = self.useFlipTemplate.checkState()
+    self.flipTemplate.enabled = self.useFlipTemplate.checkState()
+
+  # Update of the flip template path for the Parameters to SPHARM Mesh step
+  def onFlipTemplateValueChanged(self):
+    self.Logic.parameters.setFlipTemplate(self.flipTemplate.currentPath)
+
+  # Update of the flip parameter for the Parameters to SPHARM Mesh step
+  def onChoiceOfFlipValueChanged(self):
+    self.Logic.parameters.setChoiceOfFlip(self.choiceOfFlip.currentIndex)
+
   def onEnableFlipChoices(self):
+    # Update of the flip option boolean for the Parameters to SPHARM Mesh step
+    self.Logic.parameters.setSameFlipForAll(self.sameFlipForAll.checkState())
+
     self.choiceOfFlip.enabled = self.sameFlipForAll.checkState()
     self.tableWidget_ChoiceOfFlip.enabled = not self.sameFlipForAll.checkState()
     if not self.sameFlipForAll.checkState():
       self.fillTableForFlipOptions()
-
-  def onEnableRegTemplate(self):
-    self.label_regTemplate.enabled = self.useRegTemplate.checkState()
-    self.regTemplate.enabled = self.useRegTemplate.checkState()
-
-  def onEnableFlipTemplate(self):
-    self.label_flipTemplate.enabled = self.useFlipTemplate.checkState()
-    self.flipTemplate.enabled = self.useFlipTemplate.checkState()
 
   #
   #   Apply CLIs
@@ -673,7 +807,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
   def onSPHARMMeshesVisualizationInSPV(self):
     # Creation of a CSV file to load the vtk files in ShapePopulationViewer
     filePathCSV = slicer.app.temporaryPath + '/' + 'PreviewForVisualizationInSPV.csv'
-    self.Logic.creationCSVFileForSPV(filePathCSV)
+    self.Logic.creationCSVFileForSPV(self.tableWidget_visualization, filePathCSV)
 
     # Creation of the parameters of SPV
     parameters = {}
@@ -881,6 +1015,137 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     table.verticalHeader().setVisible(False)
 
 #
+# ShapeAnalysisModuleParameters
+#
+class ShapeAnalysisModuleParameters(object):
+  def __init__(self):
+    #   Group Project IO
+    self.inputDirectory = " "
+    self.outputDirectory = " "
+    self.debug = False
+
+    #   Post Processed Segmentation
+    self.OverwriteSegPostProcess = False
+    self.RescaleSegPostProcess = True
+    self.sx = 0.5
+    self.sy = 0.5
+    self.sz = 0.5
+
+    self.labelNumber = 0
+
+    #   Generate Mesh Parameters
+    self.OverwriteGenParaMesh = False
+    self.NumberofIterations = 1000
+
+    #   Parameters to SPHARM Mesh
+    self.OverwriteParaToSPHARMMesh = False
+    self.SubdivLevelValue = 10
+    self.SPHARMDegreeValue = 15
+    self.thetaIterationValue = 100
+    self.phiIterationValue = 100
+    self.medialMesh = False
+
+    self.tableWidget_ChoiceOfFlip = None
+
+    #   Advanced Post Processed Segmentation
+    self.GaussianFiltering = False
+    self.VarianceX = 10
+    self.VarianceY = 10
+    self.VarianceZ = 10
+
+    #   Advanced Parameters to SPHARM Mesh
+    self.useRegTemplate = False
+    self.regTemplate = " "
+    self.useFlipTemplate = False
+    self.flipTemplate = " "
+    self.choiceOfFlip = 0
+    self.sameFlipForAll = True
+
+  def setInputDirectory(self, path):
+    self.inputDirectory = path
+
+  def setOutputDirectory(self, path):
+    self.outputDirectory = path
+
+  def setDebug(self, bool):
+    self.debug = bool
+
+  def setOverwriteSegPostProcess(self, bool):
+    self.OverwriteSegPostProcess = bool
+
+  def setRescaleSegPostProcess(self, bool):
+    self.RescaleSegPostProcess = bool
+
+  def setSx(self, value):
+    self.sx = value
+
+  def setSy(self, value):
+    self.sy = value
+
+  def setSz(self, value):
+    self.sz = value
+
+  def setLabelNumber(self, value):
+    self.labelNumber = value
+
+  def setOverwriteGenParaMesh(self, bool):
+    self.OverwriteGenParaMesh = bool
+
+  def setNumberofIterations(self, value):
+    self.NumberofIterations = value
+
+  def setOverwriteParaToSPHARMMesh(self, bool):
+    self.OverwriteParaToSPHARMMesh = bool
+
+  def setSubdivLevelValue(self, value):
+    self.SubdivLevelValue = value
+
+  def setSPHARMDegreeValue(self, value):
+    self.SPHARMDegreeValue = value
+
+  def setThetaIterationValue(self, value):
+    self.thetaIterationValue = value
+
+  def setPhiIterationValue(self, value):
+    self.phiIterationValue = value
+
+  def setMedialMesh(self, bool):
+    self.medialMesh = bool
+
+  def setTableForChoiceOfFlip(self, table):
+    self.tableWidget_ChoiceOfFlip = table
+
+  def setGaussianFiltering(self, bool):
+    self.GaussianFiltering = bool
+
+  def setVarianceX(self, value):
+    self.VarianceX = value
+
+  def setVarianceY(self, value):
+    self.VarianceY = value
+
+  def setVarianceZ(self, value):
+    self.VarianceZ = value
+
+  def setUseRegTemplate(self, bool):
+    self.useRegTemplate = bool
+
+  def setRegTemplate(self, path):
+    self.regTemplate = path
+
+  def setUseFlipTemplate(self, bool):
+    self.useFlipTemplate = bool
+
+  def setFlipTemplate(self, path):
+    self.flipTemplate = path
+
+  def setChoiceOfFlip(self, value):
+    self.choiceOfFlip = value
+
+  def setSameFlipForAll(self, bool):
+    self.sameFlipForAll = bool
+
+#
 # ShapeAnalysisModuleLogic
 #
 class ShapeAnalysisModuleLogic(LogicMixin):
@@ -888,15 +1153,14 @@ class ShapeAnalysisModuleLogic(LogicMixin):
   Uses ScriptedLoadableModuleLogic base class, available at:
   https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
   """
-  def __init__(self, interface):
+  def __init__(self):
     LogicMixin.__init__(self)
-    self.interface = interface
+    self.parameters = ShapeAnalysisModuleParameters()
 
   def ShapeAnalysisCases(self):
-
     # No cases
     if not len(self.InputCases) > 0:
-      inputDirectory = self.interface.GroupProjectInputDirectory.directory.encode('utf-8')
+      inputDirectory = self.parameters.inputDirectory
       self.ErrorMessage = "No cases found in " + inputDirectory
       self.Node.SetStatus(self.Node.CompletedWithErrors)
       return -1
@@ -907,7 +1171,7 @@ class ShapeAnalysisModuleLogic(LogicMixin):
       # Init
       for i in range(len(self.InputCases)):
         self.completed[i] = False
-        self.pipeline[i] = ShapeAnalysisModulePipeline(i, self.InputCases[i], self.interface)
+        self.pipeline[i] = ShapeAnalysisModulePipeline(i, self.InputCases[i], self.parameters)
 
         self.addObserver(self.pipeline[i].Node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
                        self.onPipelineModified)
@@ -920,21 +1184,21 @@ class ShapeAnalysisModuleLogic(LogicMixin):
 
   # Empty the output folders if the overwrite option is checked
   def cleanOutputFolders(self):
-    outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
+    outputDirectory = self.parameters.outputDirectory
 
-    if self.interface.OverwriteSegPostProcess.checkState():
+    if self.parameters.OverwriteSegPostProcess:
       PostProcessDirectory = outputDirectory + "/Step1_SegPostProcess"
       if os.path.exists(PostProcessDirectory):
         for filename in os.listdir(PostProcessDirectory):
           os.remove(os.path.join(PostProcessDirectory, filename))
 
-    if self.interface.OverwriteGenParaMesh.checkState():
+    if self.parameters.OverwriteGenParaMesh:
       GenParaMeshOutputDirectory = outputDirectory + "/Step2_GenParaMesh"
       if os.path.exists(GenParaMeshOutputDirectory):
         for filename in os.listdir(GenParaMeshOutputDirectory):
           os.remove(os.path.join(GenParaMeshOutputDirectory, filename))
 
-    if self.interface.OverwriteParaToSPHARMMesh.checkState():
+    if self.parameters.OverwriteParaToSPHARMMesh:
       SPHARMMeshOutputDirectory = outputDirectory + "/Step3_ParaToSPHARMMesh"
       if os.path.exists(SPHARMMeshOutputDirectory):
         for filename in os.listdir(SPHARMMeshOutputDirectory):
@@ -942,16 +1206,14 @@ class ShapeAnalysisModuleLogic(LogicMixin):
 
   # Function to create a CSV file containing all the SPHARM mesh output files
   # that the user wants to display in ShapePopultaionViewer
-  def creationCSVFileForSPV(self, filepathCSV):
-    table = self.interface.tableWidget_visualization
-
+  def creationCSVFileForSPV(self, table, filepathCSV):
     # Creation of a CSV file with a header 'VTK Files'
     file = open(filepathCSV, 'w')
     cw = csv.writer(file, delimiter=',')
     cw.writerow(['VTK Files'])
 
     # Add the filepath of the vtk file checked in the table
-    outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
+    outputDirectory = self.parameters.outputDirectory
     SPHARMMeshOutputDirectory = outputDirectory + "/Step3_ParaToSPHARMMesh/"
 
     # Add the path of the vtk files if the users selected it
@@ -987,7 +1249,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
     self.skip_segPostProcess = False
     self.skip_genParaMesh = False
     self.skip_paraToSPHARMMesh = False
-    outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
+    outputDirectory = self.interface.outputDirectory
 
     # Skip MeshToLabelMap?
     if not self.inputExtension == "vtk" and not self.inputExtension == "vtp":
@@ -1004,7 +1266,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
       return
 
     # Skip SegPostProcess ?
-    if not self.interface.OverwriteSegPostProcess.checkState():
+    if not self.interface.OverwriteSegPostProcess:
       PostProcessDirectory = outputDirectory + "/Step1_SegPostProcess"
       PostProcessOutputFilepath = PostProcessDirectory + "/" + self.inputFilename + "_pp." + self.inputExtension
       if os.path.exists(PostProcessOutputFilepath):
@@ -1015,7 +1277,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
       return
 
     # Skip GenParaMesh ?
-    if not self.interface.OverwriteGenParaMesh.checkState():
+    if not self.interface.OverwriteGenParaMesh:
       GenParaMeshOutputDirectory = outputDirectory + "/Step2_GenParaMesh"
       ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_pp_para.vtk"
       SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_pp_surf.vtk"
@@ -1027,7 +1289,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
       return
 
     # Skip ParaToSPHARMMesh ?
-    if not self.interface.OverwriteParaToSPHARMMesh.checkState():
+    if not self.interface.OverwriteParaToSPHARMMesh:
       SPHARMMeshOutputDirectory = outputDirectory + "/Step3_ParaToSPHARMMesh"
       SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + self.inputFilename + "_pp_surf"
       SPHARMMeshDirectory = os.path.dirname(SPHARMMeshFilepath)
@@ -1042,8 +1304,8 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
     self.setupGlobalVariables()
     self.setupSkipCLIs()
 
-    inputDirectory = self.interface.GroupProjectInputDirectory.directory.encode('utf-8')
-    outputDirectory = self.interface.GroupProjectOutputDirectory.directory.encode('utf-8')
+    inputDirectory = self.interface.inputDirectory
+    outputDirectory = self.interface.outputDirectory
 
     ## Mesh To Label Map: Transform model in label map
     cli_nodes = list() # list of the nodes used in the Mesh to Label Map step
@@ -1118,17 +1380,17 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
       pp_output_node = MRMLUtility.addnewMRMLNode("output_PostProcess", slicer.vtkMRMLLabelMapVolumeNode())
       cli_parameters["outfileName"] = pp_output_node.GetID()
 
-      if self.interface.RescaleSegPostProcess.checkState():
+      if self.interface.RescaleSegPostProcess:
         cli_parameters["scaleOn"] = True
-        cli_parameters["spacing_vect"] = str(self.interface.sx.value) + "," + str(self.interface.sy.value) + "," + str(self.interface.sz.value)
-      cli_parameters["label"] = self.interface.ValueLabelNumber.value
-      if self.interface.Debug.checkState():
+        cli_parameters["spacing_vect"] = str(self.interface.sx) + "," + str(self.interface.sy) + "," + str(self.interface.sz)
+      cli_parameters["label"] = self.interface.labelNumber
+      if self.interface.debug:
         cli_parameters["debug"] = True
 
       #    Advanced parameters
-      if self.interface.GaussianFiltering.checkState():
+      if self.interface.GaussianFiltering:
         cli_parameters["gaussianOn"] = True
-        cli_parameters["variance_vect"] = str(self.interface.VarianceX.value) + "," + str(self.interface.VarianceY.value) + "," + str(self.interface.VarianceZ.value)
+        cli_parameters["variance_vect"] = str(self.interface.VarianceX) + "," + str(self.interface.VarianceY) + "," + str(self.interface.VarianceZ)
 
       self.setupModule(slicer.modules.segpostprocessclp, cli_parameters)
 
@@ -1174,8 +1436,8 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
       surfmesh_output_model = MRMLUtility.addnewMRMLNode("output_surfmesh", slicer.vtkMRMLModelNode())
       cli_parameters["outSurfName"] = surfmesh_output_model
 
-      cli_parameters["numIterations"] = self.interface.NumberofIterations.value
-      if self.interface.Debug.checkState():
+      cli_parameters["numIterations"] = self.interface.NumberofIterations
+      if self.interface.debug:
         cli_parameters["debug"] = True
 
       self.setupModule(slicer.modules.genparameshclp, cli_parameters)
@@ -1220,7 +1482,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
       #       6 = flip along x &amp; y &amp; z,
       #       7 = flip along z  where y is the smallest, x is the second smallest and z is the long axis of the ellipsoid
       #       8 = All the flips
-      if not self.interface.sameFlipForAll.checkState():
+      if not self.interface.sameFlipForAll:
         # Recovery of the flip chosen by the user
         row = self.pipelineID
         widget = self.interface.tableWidget_ChoiceOfFlip.cellWidget(row, 1)
@@ -1228,8 +1490,9 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
         comboBox = qt.QComboBox()
         comboBox = tuple[1]
         flipIndexToApply = comboBox.currentIndex
+        pass
       else:
-        flipIndexToApply = self.interface.choiceOfFlip.currentIndex
+        flipIndexToApply = self.interface.choiceOfFlip
 
       # Only one flip to apply
       if flipIndexToApply < 8:
@@ -1261,19 +1524,19 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
           SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + self.inputFilename + "_flip" + flipName[i - 1] + "_pp_surf"
           cli_parameters["outbase"] = SPHARMMeshFilepath
 
-        cli_parameters["subdivLevel"] = self.interface.SubdivLevelValue.value
-        cli_parameters["spharmDegree"] = self.interface.SPHARMDegreeValue.value
-        cli_parameters["thetaIteration"] = self.interface.thetaIterationValue.value
-        cli_parameters["phiIteration"] = self.interface.phiIterationValue.value
-        if self.interface.medialMesh.checkState():
+        cli_parameters["subdivLevel"] = self.interface.SubdivLevelValue
+        cli_parameters["spharmDegree"] = self.interface.SPHARMDegreeValue
+        cli_parameters["thetaIteration"] = self.interface.thetaIterationValue
+        cli_parameters["phiIteration"] = self.interface.phiIterationValue
+        if self.interface.medialMesh:
           cli_parameters["medialMesh"] = True
-        if self.interface.Debug.checkState():
+        if self.interface.debug:
           cli_parameters["debug"] = True
 
         #   Advanced parameters
-        if self.interface.useRegTemplate.checkState():
+        if self.interface.useRegTemplate:
           cli_parameters["regTemplateFileOn"] = True
-          regtemplate_filepath = self.interface.regTemplate.currentPath
+          regtemplate_filepath = self.interface.regTemplate
           regtemplate_model = MRMLUtility.loadMRMLNode(regtemplate_filepath, 'ModelFile')
           cli_parameters["regTemplateFile"] = regtemplate_model
 
@@ -1281,9 +1544,9 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
           cli_filepaths.append(regtemplate_filepath)
 
           self.setupNode(i + 2, cli_nodes, cli_filepaths, [False], [True])
-        if self.interface.useFlipTemplate.checkState():
+        if self.interface.useFlipTemplate:
           cli_parameters["flipTemplateFileOn"] = True
-          cli_parameters["flipTemplateFile"] = self.interface.flipTemplate.currentPath
+          cli_parameters["flipTemplateFile"] = self.interface.flipTemplate
 
         if flipIndexToApply < 8 :
             cli_parameters["finalFlipIndex"] = flipIndexToApply
