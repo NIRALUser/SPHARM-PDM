@@ -1019,6 +1019,9 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 #
 class ShapeAnalysisModuleParameters(object):
   def __init__(self):
+    #
+    self.waitForCompletion = True
+
     #   Group Project IO
     self.inputDirectory = " "
     self.outputDirectory = " "
@@ -1060,6 +1063,9 @@ class ShapeAnalysisModuleParameters(object):
     self.flipTemplate = " "
     self.choiceOfFlip = 0
     self.sameFlipForAll = True
+
+  def setWaitForCompletion(self, bool):
+    self.waitForCompletion = bool
 
   def setInputDirectory(self, path):
     self.inputDirectory = path
@@ -1555,14 +1561,12 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
 
         self.setupModule(slicer.modules.paratospharmmeshclp, cli_parameters)
 
-class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
+class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest):
   """
   This is the test case for your scripted module.
   Uses ScriptedLoadableModuleTest base class, available at:
   https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
   """
-  def __init__(self):
-    VTKObservationMixin.__init__(self)
 
   def setUp(self):
     slicer.mrmlScene.Clear(0)
@@ -1573,7 +1577,10 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
     self.test_ShapeAnalysisModule_completedWithoutErrors()
 
   def test_ShapeAnalysisModule_completedWithoutErrors(self):
+
     self.delayDisplay('Test 1: Run Shape Analysis Module')
+
+    self.Logic = ShapeAnalysisModuleLogic()
 
     #   Creation of input folder
     inputDirectoryPath =  slicer.app.temporaryPath + '/InputShapeAnalysisModule'
@@ -1604,51 +1611,41 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
     )
     self.download_files(templateDirectoryPath, template_downloads)
 
-
-    self.moduleWidget = slicer.modules.ShapeAnalysisModuleWidget
-
     #
     #  Inputs of Shape Analysis Module
     #
-    self.moduleWidget.GroupProjectInputDirectory.directory = inputDirectoryPath
-    self.moduleWidget.GroupProjectOutputDirectory.directory = outputDirectoryPath
-    self.moduleWidget.NumberofIterations.setValue(5)
-    self.moduleWidget.medialMesh.click()
-    self.moduleWidget.useRegTemplate.click()
+    self.Logic.parameters.setWaitForCompletion(True)
+    self.Logic.parameters.setInputDirectory(inputDirectoryPath)
+    self.Logic.parameters.setOutputDirectory(outputDirectoryPath)
+    self.Logic.parameters.setNumberofIterations(5)
+    self.Logic.parameters.setMedialMesh(True)
+    self.Logic.parameters.setUseRegTemplate(True)
     regTemplateFilePath = templateDirectoryPath + '/registrationTemplate.vtk'
-    self.moduleWidget.regTemplate.setCurrentPath(regTemplateFilePath)
+    self.Logic.parameters.setRegTemplate(regTemplateFilePath)
 
-    self.addObserver(self.moduleWidget.Logic.Node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
-                           self.onLogicModifiedForTests)
+    # Setup the inputCases
+    #     Possible extensions
+    exts = [".gipl", ".gipl.gz", ".mgh", ".mgh,gz", ".nii", ".nii.gz",".nrrd", ".vtk", ".vtp", ".hdr", ".mhd"]
+
+    #     Search cases and add the filename to a list
+    self.Logic.InputCases = []
+    for file in os.listdir(inputDirectoryPath):
+      for ext in exts:
+        if file.endswith(ext):
+          self.Logic.InputCases.append(file)
 
     self.delayDisplay('Run Shape Analysis Module')
-    self.moduleWidget.ApplyButton.click()
+    self.Logic.ShapeAnalysisCases()
 
-  def onLogicModifiedForTests(self, logic_node, event):
-    status = logic_node.GetStatusString()
-    if not logic_node.IsBusy():
-      if status == 'Completed with errors' or status == 'Cancelled':
-        self.removeObserver(logic_node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
-                            self.onLogicModifiedForTests)
-        self.moduleWidget.ApplyButton.setText("Run ShapeAnalysisModule")
+    self.assertTrue(self.comparisonOfOutputsSegPostProcess())
+    self.assertTrue(self.comparisonOfOutputsGenParaMesh())
+    self.assertTrue(self.comparisonOfOutputsParaToSPHARMMesh())
+    self.cleanSlicerTemporaryDirectory()
+    slicer.mrmlScene.Clear(0)
 
-        slicer.mrmlScene.Clear(0)
-        self.delayDisplay('Tests Failed!')
-      elif status == 'Completed':
-        self.removeObserver(logic_node, slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent,
-                            self.onLogicModifiedForTests)
 
-        self.moduleWidget.ApplyButton.setText("Run ShapeAnalysisModule")
 
-        # If Shape Analysis Module is completed without errors, then run some other tests on the generated outputs
-        self.assertTrue(self.test_ShapeAnalysisModule_comparisonOfOutputsSegPostProcess())
-        self.assertTrue(self.test_ShapeAnalysisModule_comparisonOfOutputsGenParaMesh())
-        self.assertTrue(self.test_ShapeAnalysisModule_comparisonOfOutputsParaToSPHARMMesh())
-        self.cleanSlicerTemporaryDirectory()
-        slicer.mrmlScene.Clear(0)
-        self.delayDisplay('Tests Passed!')
-
-  def test_ShapeAnalysisModule_comparisonOfOutputsSegPostProcess(self):
+  def comparisonOfOutputsSegPostProcess(self):
     self.delayDisplay('Test 2: Comparison of the outputs generated by SegPostProcess CLI')
 
     # Checking the existence of the output directory Step1_SegPostProcess
@@ -1683,7 +1680,7 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
 
     return True
 
-  def test_ShapeAnalysisModule_comparisonOfOutputsGenParaMesh(self):
+  def comparisonOfOutputsGenParaMesh(self):
     self.delayDisplay('Test 3: Comparison of the outputs generated by GenParaMesh CLI')
 
     # Checking the existence of the output directory Step2_GenParaMesh
@@ -1719,7 +1716,7 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest, VTKObservationMixin):
 
     return True
 
-  def test_ShapeAnalysisModule_comparisonOfOutputsParaToSPHARMMesh(self):
+  def comparisonOfOutputsParaToSPHARMMesh(self):
     self.delayDisplay('Test 4: Comparison of the outputs generated by ParaToSPHARMMesh CLI')
 
     # Checking the existence of the output directory Step3_ParaToSPHARMMesh

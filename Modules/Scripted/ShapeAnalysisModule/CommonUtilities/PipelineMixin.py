@@ -122,7 +122,7 @@ class PipelineMixin(VTKObservationMixin):
     cli_node = self.createCLINode(module)
     self.setCurrentCLINode(cli_node) # ProgressBar
     self.addObserver(cli_node, self.StatusModifiedEvent, self.onCLIModuleModified)
-    slicer.cli.run(module, cli_node, self.moduleParameters[self.ID], wait_for_completion = False)
+    slicer.cli.run(module, cli_node, self.moduleParameters[self.ID], wait_for_completion = self.interface.waitForCompletion)
 
   # Call the next module
   def runNextCLIModule(self):
