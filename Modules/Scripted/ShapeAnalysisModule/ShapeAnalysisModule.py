@@ -1561,6 +1561,74 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
 
         self.setupModule(slicer.modules.paratospharmmeshclp, cli_parameters)
 
+
+class ShapeAnalysisModuleWrapper:
+  """
+  This class should be called from an external python script to run SPHARM-PDM method on multiple cases thanks to SlicerSALT or 3DSlicer.
+
+  External python script (ex: SPHARM-PDM.py) should do the following:
+  from ShapeAnalasisModule import ShapeAnalysisModuleWrapper
+  from ConfigParser import SafeConfigParser
+  parser = SafeConfigParser()
+  parser.read(sys.argv[1]) #argv[1]: 'path/to/SPHARM-PDM-parameters.ini'
+  inputDirectoryPath = parser.get('section', 'input-directory-path')
+  [...]
+  ShapeAnalysisModuleInstance = ShapeAnalysisModuleWrapper(inputDirectoryPath, outputDirectoryPath, [...])
+  ShapeAnalysisModuleInstance.startProcessing()
+
+  The external python script can be run non-interactively using this command:
+  ./SlicerSalt --no-main-window --python-script /path/to/SPHARM-PDM.py path/to/SPHARM-PDM-parameters.py
+  """
+
+  def __init__(self, inputDirectoryPath, outputDirectoryPath,
+               RescaleSegPostProcess, sx, sy, sz, labelNumber,
+               GaussianFiltering, VarianceX, VarianceY, VarianceZ,
+               numberofIterations,
+               SubdivLevelValue, SPHARMDegreeValue,
+               medialMesh, thetaIterationValue, phiIterationValue,
+               useRegTemplate, regTemplate,
+               useFlipTemplate, flipTemplate, choiceOfFlip):
+
+    self.Logic = ShapeAnalysisModuleLogic()
+    self.Logic.parameters.setWaitForCompletion(True)
+    self.Logic.parameters.setInputDirectory(inputDirectoryPath)
+    self.Logic.parameters.setOutputDirectory(outputDirectoryPath)
+    self.Logic.parameters.setRescaleSegPostProcess(RescaleSegPostProcess)
+    self.Logic.parameters.setSx(sx)
+    self.Logic.parameters.setSy(sy)
+    self.Logic.parameters.setSz(sz)
+    self.Logic.parameters.setLabelNumber(labelNumber)
+    self.Logic.parameters.setGaussianFiltering(GaussianFiltering)
+    self.Logic.parameters.setVarianceX(VarianceX)
+    self.Logic.parameters.setVarianceY(VarianceY)
+    self.Logic.parameters.setVarianceZ(VarianceZ)
+    self.Logic.parameters.setNumberofIterations(numberofIterations)
+    self.Logic.parameters.setSubdivLevelValue(SubdivLevelValue)
+    self.Logic.parameters.setSPHARMDegreeValue(SPHARMDegreeValue)
+    self.Logic.parameters.setMedialMesh(medialMesh)
+    self.Logic.parameters.setThetaIterationValue(thetaIterationValue)
+    self.Logic.parameters.setPhiIterationValue(phiIterationValue)
+    self.Logic.parameters.setUseRegTemplate(useRegTemplate)
+    self.Logic.parameters.setRegTemplate(regTemplate)
+    self.Logic.parameters.setUseFlipTemplate(useFlipTemplate)
+    self.Logic.parameters.setFlipTemplate(flipTemplate)
+    self.Logic.parameters.setChoiceOfFlip(choiceOfFlip)
+
+  def startProcessing(self):
+
+    # Setup the inputCases
+    #     Possible extensions
+    exts = [".gipl", ".gipl.gz", ".mgh", ".mgh,gz", ".nii", ".nii.gz",".nrrd", ".vtk", ".vtp", ".hdr", ".mhd"]
+
+    #     Search cases and add the filename to a list
+    self.Logic.InputCases = []
+    for file in os.listdir(self.Logic.parameters.inputDirectory):
+      for ext in exts:
+        if file.endswith(ext):
+          self.Logic.InputCases.append(file)
+
+    self.Logic.ShapeAnalysisCases()
+
 class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest):
   """
   This is the test case for your scripted module.
