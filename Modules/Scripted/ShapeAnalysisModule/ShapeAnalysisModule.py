@@ -695,41 +695,41 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     for row in range(0, self.tableWidget_visualization.rowCount):
       actionOnCheckBox = False
       label = self.tableWidget_visualization.cellWidget(row, 0)
-      outputBasename = label.text
+      outputRootname = label.text
       if currentText == "All Models":
         actionOnCheckBox = True
 
       elif currentText == "All SPHARM Models":
-        if not outputBasename.find("SPHARM") == -1 and outputBasename.find("SPHARM_ellalign") == -1 and outputBasename.find("SPHARMMedialMesh") == -1 and outputBasename.find("SPHARM_procalign") == -1:
+        if not outputRootname.find("SPHARM") == -1 and outputRootname.find("SPHARM_ellalign") == -1 and outputRootname.find("SPHARMMedialMesh") == -1 and outputRootname.find("SPHARM_procalign") == -1:
           actionOnCheckBox = True
 
       elif currentText == "All SPHARM Ellipse Aligned Models":
-        if not outputBasename.find("SPHARM_ellalign") == -1:
+        if not outputRootname.find("SPHARM_ellalign") == -1:
           actionOnCheckBox = True
 
       elif currentText == "All SPHARM Medial Meshes":
-        if not outputBasename.find("SPHARMMedialMesh") == -1:
+        if not outputRootname.find("SPHARMMedialMesh") == -1:
           actionOnCheckBox = True
 
       elif currentText == "All SPHARM Procrustes Aligned Models":
-        if not outputBasename.find("SPHARM_procalign") == -1:
+        if not outputRootname.find("SPHARM_procalign") == -1:
           actionOnCheckBox = True
 
       else:
         for inputFilename in self.Logic.InputCases:
-          inputBasename = inputFilename.split('/')[-1].split('.')[0]
-          if not currentText.find(inputBasename) == -1:
+          inputRootname = inputFilename.split('/')[-1].split('.')[0]
+          if not currentText.find(inputRootname) == -1:
             if not currentText.find("SPHARM Models") == -1:
-              if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARM") == -1 and outputBasename.find("SPHARM_ellalign") == -1 and outputBasename.find("SPHARMMedialMesh") == -1 and outputBasename.find("SPHARM_procalign") == -1:
+              if not outputRootname.find(inputRootname) == -1 and not outputRootname.find("SPHARM") == -1 and outputRootname.find("SPHARM_ellalign") == -1 and outputRootname.find("SPHARMMedialMesh") == -1 and outputRootname.find("SPHARM_procalign") == -1:
                 actionOnCheckBox = True
             elif not currentText.find("SPHARM Ellipse Aligned Models") == -1:
-              if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARM_ellalign") == -1:
+              if not outputRootname.find(inputRootname) == -1 and not outputRootname.find("SPHARM_ellalign") == -1:
                 actionOnCheckBox = True
             elif not currentText.find("SPHARM Medial Meshes") == -1:
-              if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARMMedialMesh") == -1:
+              if not outputRootname.find(inputRootname) == -1 and not outputRootname.find("SPHARMMedialMesh") == -1:
                 actionOnCheckBox = True
             elif not currentText.find("SPHARM Procrustes Aligned Models") == -1:
-              if not outputBasename.find(inputBasename) == -1 and not outputBasename.find("SPHARM_procalign") == -1:
+              if not outputRootname.find(inputRootname) == -1 and not outputRootname.find("SPHARM_procalign") == -1:
                 actionOnCheckBox = True
 
       # check/uncheck the checkBox at (row,1)
@@ -760,42 +760,42 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
       allCaseSPHARMMedialMeshesChecked = True
       allCaseSPHARMProcrustesAlignedModelsChecked = True
 
-      inputBasename = self.Logic.InputCases[i].split('/')[-1].split('.')[0]
+      inputRootname = self.Logic.InputCases[i].split('/')[-1].split('.')[0]
       for row in range(0,table.rowCount):
         label = table.cellWidget(row, 0)
-        outputBasename = label.text
-        if not outputBasename.find(inputBasename) == -1:
+        outputRootname = label.text
+        if not outputRootname.find(inputRootname) == -1:
           widget = table.cellWidget(row, 1)
           tuple = widget.children()
           checkBox = tuple[1]
           if not checkBox.checkState():
-            if not outputBasename.find("SPHARM") == -1 and outputBasename.find("SPHARM_ellalign") == -1 and outputBasename.find("SPHARMMedialMesh") == -1 and outputBasename.find("SPHARM_procalign") == -1:
+            if not outputRootname.find("SPHARM") == -1 and outputRootname.find("SPHARM_ellalign") == -1 and outputRootname.find("SPHARMMedialMesh") == -1 and outputRootname.find("SPHARM_procalign") == -1:
               allCaseSPHARMModelsChecked = False
 
-            if not outputBasename.find("SPHARM_ellalign") == -1:
+            if not outputRootname.find("SPHARM_ellalign") == -1:
               allCaseSPHARMEllalignModelsChecked = False
 
             if not allSPHARMMesdialMeshesIndex == -1:
-              if not outputBasename.find("SPHARMMedialMesh") == -1:
+              if not outputRootname.find("SPHARMMedialMesh") == -1:
                 allCaseSPHARMMedialMeshesChecked = False
 
             if not allSPHARMProcrustesAlignedModelsIndex == -1:
-              if not outputBasename.find("SPHARM_procalign") == -1:
+              if not outputRootname.find("SPHARM_procalign") == -1:
                 allCaseSPHARMProcrustesAlignedModelsChecked = False
 
       # Check/uncheck checbox case according of the checkbox in the table
-      text = "Case " + str(i) + ": " + inputBasename + " - SPHARM Models"
+      text = "Case " + str(i) + ": " + inputRootname + " - SPHARM Models"
       self.checkedCaseItem(text, allCaseSPHARMModelsChecked)
 
-      text = "Case " + str(i) + ": " + inputBasename + " - SPHARM Ellipse Aligned Models"
+      text = "Case " + str(i) + ": " + inputRootname + " - SPHARM Ellipse Aligned Models"
       self.checkedCaseItem(text, allCaseSPHARMEllalignModelsChecked)
 
       if not allSPHARMMesdialMeshesIndex == -1:
-        text = "Case " + str(i) + ": " + inputBasename + " - SPHARM Medial Meshes"
+        text = "Case " + str(i) + ": " + inputRootname + " - SPHARM Medial Meshes"
         self.checkedCaseItem(text, allCaseSPHARMMedialMeshesChecked)
 
       if not allSPHARMProcrustesAlignedModelsIndex == -1:
-        text = "Case " + str(i) + ": " + inputBasename + " - SPHARM Procrustes Aligned Models"
+        text = "Case " + str(i) + ": " + inputRootname + " - SPHARM Procrustes Aligned Models"
         self.checkedCaseItem(text, allCaseSPHARMProcrustesAlignedModelsChecked)
 
     # Check/Uncheck the "All [..]" checkboxes in the checkacle comboBox
@@ -836,8 +836,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     for basename in self.Logic.InputCases:
       table.setRowCount(row + 1)
       # Column 0:
-      filename = basename.split('/')[-1].split('.')[0]
-      labelVTKFile = qt.QLabel(filename)
+      rootname = basename.split('/')[-1].split('.')[0]
+      labelVTKFile = qt.QLabel(rootname)
       labelVTKFile.setAlignment(0x84)
       table.setCellWidget(row, 0, labelVTKFile)
 
@@ -1193,10 +1193,10 @@ class ShapeAnalysisModuleLogic(LogicMixin):
     outputDirectory = self.parameters.outputDirectory
 
     if self.parameters.OverwriteSegPostProcess:
-      PostProcessDirectory = outputDirectory + "/Step1_SegPostProcess"
-      if os.path.exists(PostProcessDirectory):
-        for filename in os.listdir(PostProcessDirectory):
-          os.remove(os.path.join(PostProcessDirectory, filename))
+      PostProcessOutputDirectory = outputDirectory + "/Step1_SegPostProcess"
+      if os.path.exists(PostProcessOutputDirectory):
+        for filename in os.listdir(PostProcessOutputDirectory):
+          os.remove(os.path.join(PostProcessOutputDirectory, filename))
 
     if self.parameters.OverwriteGenParaMesh:
       GenParaMeshOutputDirectory = outputDirectory + "/Step2_GenParaMesh"
@@ -1231,8 +1231,8 @@ class ShapeAnalysisModuleLogic(LogicMixin):
       if checkBox.isChecked():
         # Recovery of the vtk filename
         qlabel = table.cellWidget(row, 0)
-        vtkBasename = qlabel.text
-        VTKfilepath = SPHARMMeshOutputDirectory + vtkBasename + ".vtk"
+        vtkRootname = qlabel.text
+        VTKfilepath = SPHARMMeshOutputDirectory + vtkRootname + ".vtk"
         if os.path.exists(VTKfilepath):
           cw.writerow([VTKfilepath])
     file.close()
@@ -1261,9 +1261,9 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
     if not self.inputExtension == "vtk" and not self.inputExtension == "vtp":
       self.skip_meshToLabelMap = True
     else:
-      LabelMapDirectory = outputDirectory + "/LabelMap"
-      LabelMapOutputFilepath = LabelMapDirectory + "/" + self.inputFilename + ".nrrd"
-      if os.path.exists(LabelMapOutputFilepath):
+      MeshToLabelMapOutputDirectory = outputDirectory + "/Step0_MeshToLabelMap"
+      MeshToLabelMapOutputFilepath = MeshToLabelMapOutputDirectory + "/" + self.inputRootname + ".nrrd"
+      if os.path.exists(MeshToLabelMapOutputFilepath):
         self.inputExtension = "nrrd"
         self.skip_meshToLabelMap = True
 
@@ -1273,8 +1273,8 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
 
     # Skip SegPostProcess ?
     if not self.interface.OverwriteSegPostProcess:
-      PostProcessDirectory = outputDirectory + "/Step1_SegPostProcess"
-      PostProcessOutputFilepath = PostProcessDirectory + "/" + self.inputFilename + "_pp." + self.inputExtension
+      PostProcessOutputDirectory = outputDirectory + "/Step1_SegPostProcess"
+      PostProcessOutputFilepath = PostProcessOutputDirectory + "/" + self.inputRootname + "_pp." + self.inputExtension
       if os.path.exists(PostProcessOutputFilepath):
         self.skip_segPostProcess = True
 
@@ -1285,8 +1285,8 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
     # Skip GenParaMesh ?
     if not self.interface.OverwriteGenParaMesh:
       GenParaMeshOutputDirectory = outputDirectory + "/Step2_GenParaMesh"
-      ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_pp_para.vtk"
-      SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_pp_surf.vtk"
+      ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputRootname + "_pp_para.vtk"
+      SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputRootname + "_pp_surf.vtk"
       if os.path.exists(ParaOutputFilepath) and os.path.exists(SurfOutputFilepath):
         self.skip_genParaMesh = True
 
@@ -1297,12 +1297,10 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
     # Skip ParaToSPHARMMesh ?
     if not self.interface.OverwriteParaToSPHARMMesh:
       SPHARMMeshOutputDirectory = outputDirectory + "/Step3_ParaToSPHARMMesh"
-      SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + self.inputFilename + "_pp_surf"
-      SPHARMMeshDirectory = os.path.dirname(SPHARMMeshFilepath)
-      SPHARMMeshBasename = os.path.basename(SPHARMMeshFilepath)
-      if os.path.exists(SPHARMMeshDirectory):
-        for file in os.listdir(SPHARMMeshDirectory):
-          if not file.find(SPHARMMeshBasename) == -1:
+      SPHARMMeshRootname = self.inputRootname + "_pp_surf"
+      if os.path.exists(SPHARMMeshOutputDirectory):
+        for file in os.listdir(SPHARMMeshOutputDirectory):
+          if not file.find(SPHARMMeshRootname) == -1:
               self.skip_paraToSPHARMMesh = True
 
   def setup(self):
@@ -1316,8 +1314,8 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
     ## Mesh To Label Map: Transform model in label map
     cli_nodes = list() # list of the nodes used in the Mesh to Label Map step
     cli_filepaths = list() # list of the node filepaths used in the Mesh to Label Map step
-    LabelMapDirectory = outputDirectory + "/LabelMap"
-    LabelMapOutputFilepath = LabelMapDirectory + "/" + self.inputFilename + ".nrrd"
+    MeshToLabelMapOutputDirectory = outputDirectory + "/Step0_MeshToLabelMap"
+    MeshToLabelMapOutputFilepath = MeshToLabelMapOutputDirectory + "/" + self.inputRootname + ".nrrd"
     if not self.skip_meshToLabelMap:
       # Setup of the parameters of the CLI
       self.ID += 1
@@ -1340,30 +1338,30 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
 
       # Setup of the nodes created by the CLI
       #    Creation of a folder in the output folder : LabelMap
-      if not os.path.exists(LabelMapDirectory):
-        os.makedirs(LabelMapDirectory)
+      if not os.path.exists(MeshToLabelMapOutputDirectory):
+        os.makedirs(MeshToLabelMapOutputDirectory)
 
       cli_nodes.append(model_input_node)
       cli_nodes.append(meshtolabelmap_output_node)
       cli_filepaths.append(inputFilepath)
-      cli_filepaths.append(LabelMapOutputFilepath)
+      cli_filepaths.append(MeshToLabelMapOutputFilepath)
 
       self.setupNode(0, cli_nodes, cli_filepaths, [False, True], [True, True])
     else:
-      if os.path.exists(LabelMapOutputFilepath):
+      if os.path.exists(MeshToLabelMapOutputFilepath):
         # Setup of the nodes which will be used by the next CLI
-        meshtolabelmap_output_node = MRMLUtility.loadMRMLNode(LabelMapOutputFilepath, 'LabelMapVolumeFile')
+        meshtolabelmap_output_node = MRMLUtility.loadMRMLNode(MeshToLabelMapOutputFilepath, 'LabelMapVolumeFile')
 
         cli_nodes.append(meshtolabelmap_output_node)
-        cli_filepaths.append(LabelMapOutputFilepath)
+        cli_filepaths.append(MeshToLabelMapOutputFilepath)
 
         self.setupNode(0, cli_nodes, cli_filepaths, [False], [True])
 
     ## Post Processed Segmentation
     cli_nodes = list() # list of the nodes used in the Post Processed Segmentation step
     cli_filepaths = list() # list of the node filepaths used in the Post Processed Segmentation step
-    PostProcessDirectory = outputDirectory + "/Step1_SegPostProcess"
-    PostProcessOutputFilepath = PostProcessDirectory + "/" + self.inputFilename + "_pp." + self.inputExtension
+    PostProcessOutputDirectory = outputDirectory + "/Step1_SegPostProcess"
+    PostProcessOutputFilepath = PostProcessOutputDirectory + "/" + self.inputRootname + "_pp." + self.inputExtension
 
     if not self.skip_segPostProcess:
       # Setup of the parameters of the CLI
@@ -1372,13 +1370,13 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
       cli_parameters = {}
 
       #     IF Mesh To Label Map has been skipped AND the input given was already a label map
-      if self.skip_meshToLabelMap and not os.path.exists(LabelMapOutputFilepath):
+      if self.skip_meshToLabelMap and not os.path.exists(MeshToLabelMapOutputFilepath):
         inputFilepath = inputDirectory + '/' + self.CaseInput
         labelmap_input_node = MRMLUtility.loadMRMLNode(inputFilepath, 'LabelMapVolumeFile')
       #     ELSE the input given was a model which has been transformed by MeshToLabelMap and store in the folder LabelMap
       else:
         labelmap_input_node = meshtolabelmap_output_node
-        inputFilepath = LabelMapOutputFilepath
+        inputFilepath = MeshToLabelMapOutputFilepath
 
 
       cli_parameters["fileName"] = labelmap_input_node
@@ -1402,8 +1400,8 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
 
       # Setup of the nodes created by the CLI
       #    Creation of a folder in the output folder : Step1_SegPostProcess
-      if not os.path.exists(PostProcessDirectory):
-        os.makedirs(PostProcessDirectory)
+      if not os.path.exists(PostProcessOutputDirectory):
+        os.makedirs(PostProcessOutputDirectory)
 
       cli_nodes.append(labelmap_input_node)
       cli_nodes.append(pp_output_node)
@@ -1426,8 +1424,8 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
     cli_nodes = list() # list of the nodes used in the Generate Mesh Parameters step
     cli_filepaths = list() # list of the node filepaths used in the Generate Mesh Parameters step
     GenParaMeshOutputDirectory = outputDirectory + "/Step2_GenParaMesh"
-    ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_pp_para.vtk"
-    SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputFilename + "_pp_surf.vtk"
+    ParaOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputRootname + "_pp_para.vtk"
+    SurfOutputFilepath = GenParaMeshOutputDirectory + "/" + self.inputRootname + "_pp_surf.vtk"
 
     if not self.skip_genParaMesh:
       # Setup of the parameters of the CLI
@@ -1522,13 +1520,13 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
         if not os.path.exists(SPHARMMeshOutputDirectory):
           os.makedirs(SPHARMMeshOutputDirectory)
         if flipIndexToApply < 8:
-          SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + self.inputFilename + "_pp_surf"
-          cli_parameters["outbase"] = SPHARMMeshFilepath
+          SPHARMMeshRootname = SPHARMMeshOutputDirectory + "/" + self.inputRootname + "_pp_surf"
+          cli_parameters["outbase"] = SPHARMMeshRootname
         #   For each flip creation of an output filename
         else:
           flipName = ['AlongXY', 'AlongYZ', 'AlongXZ', 'AlongX', 'AlongY', 'AlongXYZ', 'AlongZ']
-          SPHARMMeshFilepath = SPHARMMeshOutputDirectory + "/" + self.inputFilename + "_flip" + flipName[i - 1] + "_pp_surf"
-          cli_parameters["outbase"] = SPHARMMeshFilepath
+          SPHARMMeshRootname = SPHARMMeshOutputDirectory + "/" + self.inputRootname + "_flip" + flipName[i - 1] + "_pp_surf"
+          cli_parameters["outbase"] = SPHARMMeshRootname
 
         cli_parameters["subdivLevel"] = self.interface.SubdivLevelValue
         cli_parameters["spharmDegree"] = self.interface.SPHARMDegreeValue

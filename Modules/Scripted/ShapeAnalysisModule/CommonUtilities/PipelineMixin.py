@@ -64,7 +64,7 @@ class PipelineMixin(VTKObservationMixin):
 
     # Input filename and extension
     filepathSplit = self.CaseInput.split('/')[-1].split('.')
-    self.inputFilename = filepathSplit[0]
+    self.inputRootname = filepathSplit[0]
     self.inputExtension = filepathSplit[1]
     if len(filepathSplit) == 3:
       self.inputExtension = self.inputExtension + "." + filepathSplit[2]
@@ -90,7 +90,7 @@ class PipelineMixin(VTKObservationMixin):
 
       if cli_node.GetStatusString() == 'Completed':
         if self.ID == len(self.slicerModule) - 1:
-          cli_node_name = "Case " + str(self.pipelineID) + ": " + self.inputFilename
+          cli_node_name = "Case " + str(self.pipelineID) + ": " + self.inputRootname
           cli_node.SetName(cli_node_name)
           self.setCurrentCLINode(cli_node)
           statusForNode = cli_node.GetStatus()
@@ -159,7 +159,7 @@ class PipelineMixin(VTKObservationMixin):
 
   def createCLINode(self, module):
     cli_node = slicer.cli.createNode(module)
-    cli_node_name = "Case " + str(self.pipelineID) + ": " + self.inputFilename + " - step " + str(self.ID) + ": " + module.title
+    cli_node_name = "Case " + str(self.pipelineID) + ": " + self.inputRootname + " - step " + str(self.ID) + ": " + module.title
     cli_node.SetName(cli_node_name)
     return cli_node
 
