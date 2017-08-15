@@ -1020,7 +1020,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 class ShapeAnalysisModuleParameters(object):
   def __init__(self):
     #
-    self.waitForCompletion = True
+    self.waitForCompletion = False
 
     #   Group Project IO
     self.inputDirectory = " "
