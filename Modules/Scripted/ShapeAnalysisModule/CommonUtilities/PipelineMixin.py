@@ -16,14 +16,14 @@ class ShapeAnalysisModuleNode(object):
   nodes = [None]
   save = [False]
   delete = [True]
-  filepaths = [" "]
+  dirnames = [" "]
 
 #
 # PipelineMixin
 #
 '''
 This class is a base class for pipelines.
-A pipeline class deriving from the Mixin should impletent a setup  function.
+A pipeline class deriving from the Mixin should implement a setup function.
 '''
 class PipelineMixin(VTKObservationMixin):
   def __init__(self, pipelineID, CaseInput, interface):
@@ -73,10 +73,10 @@ class PipelineMixin(VTKObservationMixin):
     self.slicerModule[self.ID] = module
     self.moduleParameters[self.ID] = cli_parameters
 
-  def setupNode(self, id, cli_nodes, cli_filepaths, cli_saveOutput, cli_deleteOutput):
+  def setupNode(self, id, cli_nodes, cli_dirnames, cli_saveOutput, cli_deleteOutput):
     self.nodeDictionary[id] = ShapeAnalysisModuleNode()
     self.nodeDictionary[id].nodes = cli_nodes
-    self.nodeDictionary[id].filepaths = cli_filepaths
+    self.nodeDictionary[id].dirnames = cli_dirnames
     self.nodeDictionary[id].save = cli_saveOutput
     self.nodeDictionary[id].delete = cli_deleteOutput
 
@@ -145,9 +145,9 @@ class PipelineMixin(VTKObservationMixin):
       save = self.nodeDictionary[id].save
       node = self.nodeDictionary[id].nodes
       for i in range(len(self.nodeDictionary[id].save)):
-        filepaths = self.nodeDictionary[id].filepaths
+        dirnames = self.nodeDictionary[id].dirnames
         if save[i] == True:
-          MRMLUtility.saveMRMLNode( node[i], filepaths[i] )
+          MRMLUtility.saveMRMLNode( node[i], dirnames[i] )
 
   def deleteNodes(self):
     for id in self.nodeDictionary.keys():
