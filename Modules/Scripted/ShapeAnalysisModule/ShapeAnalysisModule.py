@@ -1327,7 +1327,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
 
       cli_parameters["mesh"] = model_input_node
 
-      meshtolabelmap_output_node = MRMLUtility.createNewMRMLNode(self.inputRootname, "vtkMRMLLabelMapVolumeNode")
+      meshtolabelmap_output_node = MRMLUtility.createNewMRMLNode(self.inputRootname, slicer.vtkMRMLLabelMapVolumeNode())
       cli_parameters["labelMap"] = meshtolabelmap_output_node
 
       cli_parameters["spacingVec"] = "0.1,0.1,0.1"
@@ -1383,7 +1383,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
 
       cli_parameters["fileName"] = labelmap_input_node
 
-      pp_output_node = MRMLUtility.createNewMRMLNode(PostProcessOutputRootname, "vtkMRMLLabelMapVolumeNode")
+      pp_output_node = MRMLUtility.createNewMRMLNode(PostProcessOutputRootname, slicer.vtkMRMLLabelMapVolumeNode())
       cli_parameters["outfileName"] = pp_output_node.GetID()
 
       if self.interface.RescaleSegPostProcess:
@@ -1438,10 +1438,10 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
       cli_parameters = {}
       cli_parameters["infile"] = pp_output_node
 
-      para_output_model = MRMLUtility.createNewMRMLNode(GenParaMeshOutputParaRootname, "vtkMRMLModelNode")
+      para_output_model = MRMLUtility.createNewMRMLNode(GenParaMeshOutputParaRootname, slicer.vtkMRMLModelNode())
       cli_parameters["outParaName"] = para_output_model
 
-      surfmesh_output_model = MRMLUtility.createNewMRMLNode(GenParaMeshOutputSurfRootname, "vtkMRMLModelNode")
+      surfmesh_output_model = MRMLUtility.createNewMRMLNode(GenParaMeshOutputSurfRootname, slicer.vtkMRMLModelNode())
       cli_parameters["outSurfName"] = surfmesh_output_model
 
       cli_parameters["numIterations"] = self.interface.NumberofIterations
