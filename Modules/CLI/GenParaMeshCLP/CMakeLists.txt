@@ -9,7 +9,7 @@ endif()
 SEMMacroBuildCLI(
     NAME GenParaMeshCLP
     EXECUTABLE_ONLY
-    ADDITIONAL_SRCS itkMeshTovtkPolyData.cxx
+    ADDITIONAL_SRCS itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx
     TARGET_LIBRARIES ${ITK_LIBRARIES} ${VTK_LIBRARIES} ShapeAlgorithms SparseMatrixLib
     LINK_DIRECTORIES ""
     INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}

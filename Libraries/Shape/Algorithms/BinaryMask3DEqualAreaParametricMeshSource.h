@@ -82,10 +82,9 @@ public:
 
 #define EqualAreaParametricMeshSourceMeshTypeDimension 3
 
-typedef DefaultDynamicMeshTraits<float, EqualAreaParametricMeshSourceMeshTypeDimension,
-                                 EqualAreaParametricMeshSourceMeshTypeDimension,
-                                 double> EqualAreaParametricMeshSourceMeshTrait;
-typedef Mesh<float, EqualAreaParametricMeshSourceMeshTypeDimension,
+typedef DefaultDynamicMeshTraits<double, EqualAreaParametricMeshSourceMeshTypeDimension,
+  EqualAreaParametricMeshSourceMeshTypeDimension, double, double> EqualAreaParametricMeshSourceMeshTrait;
+typedef Mesh<double, EqualAreaParametricMeshSourceMeshTypeDimension,
              EqualAreaParametricMeshSourceMeshTrait>
 BinaryMask3DEqualAreaParametricMeshSourceMeshType;
 
