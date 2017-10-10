@@ -86,7 +86,9 @@ file(WRITE ${CMAKE_BINARY_DIR}/${Slicer_SHARE_DIR}/${PROJECT_NAME}Targets.cmake 
 
 #-----------------------------------------------------------------------------
 add_subdirectory(Modules)
-add_subdirectory(CommandLineTool)
+if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
+ add_subdirectory(CommandLineTool)
+endif()
 
 #-----------------------------------------------------------------------------
 if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )

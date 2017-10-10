@@ -16,14 +16,14 @@ class ShapeAnalysisModuleNode(object):
   nodes = [None]
   save = [False]
   delete = [True]
-  filepaths = [" "]
+  dirnames = [" "]
 
 #
 # PipelineMixin
 #
 '''
 This class is a base class for pipelines.
-A pipeline class deriving from the Mixin should impletent a setup  function.
+A pipeline class deriving from the Mixin should implement a setup function.
 '''
 class PipelineMixin(VTKObservationMixin):
   def __init__(self, pipelineID, CaseInput, interface):
@@ -64,7 +64,7 @@ class PipelineMixin(VTKObservationMixin):
 
     # Input filename and extension
     filepathSplit = self.CaseInput.split('/')[-1].split('.')
-    self.inputFilename = filepathSplit[0]
+    self.inputRootname = filepathSplit[0]
     self.inputExtension = filepathSplit[1]
     if len(filepathSplit) == 3:
       self.inputExtension = self.inputExtension + "." + filepathSplit[2]
@@ -73,10 +73,10 @@ class PipelineMixin(VTKObservationMixin):
     self.slicerModule[self.ID] = module
     self.moduleParameters[self.ID] = cli_parameters
 
-  def setupNode(self, id, cli_nodes, cli_filepaths, cli_saveOutput, cli_deleteOutput):
+  def setupNode(self, id, cli_nodes, cli_dirnames, cli_saveOutput, cli_deleteOutput):
     self.nodeDictionary[id] = ShapeAnalysisModuleNode()
     self.nodeDictionary[id].nodes = cli_nodes
-    self.nodeDictionary[id].filepaths = cli_filepaths
+    self.nodeDictionary[id].dirnames = cli_dirnames
     self.nodeDictionary[id].save = cli_saveOutput
     self.nodeDictionary[id].delete = cli_deleteOutput
 
@@ -90,7 +90,7 @@ class PipelineMixin(VTKObservationMixin):
 
       if cli_node.GetStatusString() == 'Completed':
         if self.ID == len(self.slicerModule) - 1:
-          cli_node_name = "Case " + str(self.pipelineID) + ": " + self.inputFilename
+          cli_node_name = "Case " + str(self.pipelineID) + ": " + self.inputRootname
           cli_node.SetName(cli_node_name)
           self.setCurrentCLINode(cli_node)
           statusForNode = cli_node.GetStatus()
@@ -145,9 +145,9 @@ class PipelineMixin(VTKObservationMixin):
       save = self.nodeDictionary[id].save
       node = self.nodeDictionary[id].nodes
       for i in range(len(self.nodeDictionary[id].save)):
-        filepaths = self.nodeDictionary[id].filepaths
+        dirnames = self.nodeDictionary[id].dirnames
         if save[i] == True:
-          MRMLUtility.saveMRMLNode( node[i], filepaths[i] )
+          MRMLUtility.saveMRMLNode( node[i], dirnames[i] )
 
   def deleteNodes(self):
     for id in self.nodeDictionary.keys():
@@ -159,7 +159,7 @@ class PipelineMixin(VTKObservationMixin):
 
   def createCLINode(self, module):
     cli_node = slicer.cli.createNode(module)
-    cli_node_name = "Case " + str(self.pipelineID) + ": " + self.inputFilename + " - step " + str(self.ID) + ": " + module.title
+    cli_node_name = "Case " + str(self.pipelineID) + ": " + self.inputRootname + " - step " + str(self.ID) + ": " + module.title
     cli_node.SetName(cli_node_name)
     return cli_node
 
