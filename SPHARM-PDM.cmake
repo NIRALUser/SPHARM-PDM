@@ -32,7 +32,7 @@ find_package(SlicerExecutionModel REQUIRED)
 include(${SlicerExecutionModel_USE_FILE})
 #include(${SlicerExecutionModel_CMAKE_DIR}/SEMMacroBuildCLI.cmake)
 #-----------------------------------------------------------------------------
-message(STATUS ddd${ITK_DIR})
+
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

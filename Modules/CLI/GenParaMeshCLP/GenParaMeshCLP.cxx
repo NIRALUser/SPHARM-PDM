@@ -21,13 +21,18 @@
 
 #include "GenParaMeshCLPCLP.h"
 #include "itkMeshTovtkPolyData.h"
-#include "vtkPolyDataWriter.h"
+#include "vtkPolyDataToitkMesh.h"
+
+#include <vtkPolyDataWriter.h>
+#include <vtkXMLPolyDataReader.h>
+#include <vtkPolyDataReader.h>
 #include <vtkVersion.h>
 #include <vtkSmartPointer.h>
 
 
 using namespace std;
 void WriteEulerFile( std::string outEulerName, int Eulernum);
+vtkSmartPointer<vtkPolyData> ReadPolyData(std::string filePath);
 
 // static int debug = 0;
 
@@ -40,7 +45,6 @@ int main( int argc, char * argv[] )
   typedef itk::BinaryMask3DEqualAreaParametricMeshSource<ImageType> MeshSourceType;
   typedef MeshSourceType::OutputMeshType                            OutputMeshType;
   typedef itk::MeshSpatialObject<OutputMeshType>                    MeshSpatialObjectType;
-  //   typedef itk::SpatialObjectWriter<3,float,OutputMeshType::MeshTraits> MeshWriterType;
   typedef itk::ImageFileReader<ImageType> VolumeReaderType;
 
   MeshSourceType::Pointer meshsrc = MeshSourceType::New();
@@ -75,28 +79,63 @@ int main( int argc, char * argv[] )
     log.open(outLogName.c_str(), ios::out | ios::app);
     }
 
+
+
+  vtkSmartPointer<vtkPolyData>      vtkmesh = vtkSmartPointer<vtkPolyData>::New();
+  vtkPolyDataToitkMesh VTKITKConverter;
+
   // if necessary read parmesh
-  typedef itk::SpatialObjectReader<3, float, OutputMeshType::MeshTraits> ReaderType;
+  typedef itk::SpatialObjectReader<3, double, OutputMeshType::MeshTraits> ReaderType;
   ReaderType::Pointer readerSH = ReaderType::New();
   if( initParaFile )
     {
-    try
-      {
-      readerSH->SetFileName(initParaFileName);
-      readerSH->Update();
-      }
-    catch( itk::ExceptionObject ex )
-      {
-      std::cout << ex.GetDescription() << std::endl;
-      return EXIT_FAILURE ;
-      }
-    ReaderType::SceneType::Pointer          scene1 = readerSH->GetScene();
-    ReaderType::SceneType::ObjectListType * objList =  scene1->GetObjects(1, NULL);
-    // TODO: plugin name if multiple object are present
-    ReaderType::SceneType::ObjectListType::iterator it = objList->begin();
-    itk::SpatialObject<3> *                         curObj = *it;
-    MeshSpatialObjectType::Pointer                  paraSOMesh = dynamic_cast<MeshSpatialObjectType *>(curObj);
-    parmesh = paraSOMesh->GetMesh();
+      if (strstr(initParaFileName.c_str(),".meta"))
+	{
+	try
+	  {
+	    if( debug )
+	      {
+	      std::cout << "Reading " << initParaFileName << std::endl;
+	      }
+	    readerSH->SetFileName(initParaFileName);
+	    readerSH->Update();
+	    ReaderType::SceneType::Pointer          scene1 = readerSH->GetScene();
+	    ReaderType::SceneType::ObjectListType * objList =  scene1->GetObjects(1, NULL);
+	    // TODO: plugin name if multiple object are present
+	    ReaderType::SceneType::ObjectListType::iterator it = objList->begin();
+	    itk::SpatialObject<3> *                         curObj = *it;
+	    MeshSpatialObjectType::Pointer                  paraSOMesh = dynamic_cast<MeshSpatialObjectType *>(curObj);
+	    parmesh = paraSOMesh->GetMesh();
+	    }
+	catch( itk::ExceptionObject ex )
+	    {
+	    std::cout << ex.GetDescription() << std::endl;
+	    return EXIT_FAILURE ;
+	    }
+        } 
+
+
+      if (strstr(initParaFileName.c_str(),".vtk"))
+        {
+	  // convert surfaces to meta
+	  try
+	    {
+	      if( debug )
+		{
+		  std::cout << "Reading vtk " << initParaFileName << std::endl;
+		}
+	      vtkmesh = ReadPolyData( initParaFileName );
+	      
+	      VTKITKConverter.SetInput( vtkmesh);
+	      parmesh = VTKITKConverter.GetOutput();
+	      std::cout << "Converting vtk done"  << std::endl;
+	    }
+	  catch( itk::ExceptionObject ex )
+	    {
+	      std::cout << ex.GetDescription() << std::endl;
+	      return EXIT_FAILURE ;
+	    }
+	}
     }
 
   try
@@ -200,4 +239,25 @@ void WriteEulerFile( std::string outEulerName, int Eulernum)
     file.close();
     }
 
+}
+
+vtkSmartPointer<vtkPolyData> ReadPolyData(std::string filePath)
+{
+    size_t found = filePath.rfind(".vtp");
+    if (found != std::string::npos)
+    {
+        vtkSmartPointer<vtkXMLPolyDataReader> VTPreader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
+        VTPreader->SetFileName(filePath.c_str());
+        VTPreader->Update();
+        return VTPreader->GetOutput();
+    }
+    found = filePath.rfind(".vtk");
+    if ( found != std::string::npos )
+    {
+        vtkSmartPointer<vtkPolyDataReader> VTKreader = vtkSmartPointer<vtkPolyDataReader>::New();
+        VTKreader->SetFileName(filePath.c_str());
+        VTKreader->Update();
+        return VTKreader->GetOutput();
+    }
+    return NULL;
 }

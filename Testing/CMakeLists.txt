@@ -27,13 +27,13 @@ set(TestingBinarydirectory ${CMAKE_CURRENT_BINARY_DIR}/Temporary)
 add_test(NAME SegPostProcessCLPHelp COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:SegPostProcessCLP> --help) # Should just display the Usage : ${CMAKE_CURRENT_BINARY_DIR} = DTIAtlasBuilder-build/Testing -> need to ../
 
 ## Test 2
-set(InputImageForSeg ${TestDataDirectory}/InputImageForSegPostProcessCLP.nrrd)
-set(ReferenceImageSeg ${TestDataDirectory}/OutputImageToCompareSegPostProcessCLP.nrrd)
-set(OutputImageSeg ${TestingBinarydirectory}/OutputImageSegPostProcessCLP.nrrd)
+set(InputImageForSeg ${TestDataDirectory}/InputImageForSegPostProcess.gipl)
+set(ReferenceImageSeg ${TestDataDirectory}/OutputImageToCompareSegPostProcess.nrrd)
+set(OutputImageSeg ${TestingBinarydirectory}/OutputImageSegPostProcess.nrrd)
 
 #       Downloading of data on Girder
-file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f4568d777f16d01e0634/download" ${InputImageForSeg})
-file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f4578d777f16d01e0637/download" ${ReferenceImageSeg})
+file(DOWNLOAD "https://data.kitware.com/api/v1/file/59945eb38d777f7d33e9c3c1/download" ${InputImageForSeg})
+file(DOWNLOAD "https://data.kitware.com/api/v1/file/59945ee08d777f7d33e9c3d3/download" ${ReferenceImageSeg})
 
 add_test(
     NAME SegPostProcessCLPTest
@@ -44,7 +44,8 @@ add_test(
   ModuleEntryPoint
     ${InputImageForSeg}
     ${OutputImageSeg}
-    --UseUnitSpacing
+    --rescale 
+    --space 0.5,0.5,0.5
   )
 
 ## Test 3 : GenParaMeshCLP
@@ -52,14 +53,14 @@ add_test(NAME GenParaMeshCLPHelp COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:
 
 ## Test 4
 
-set(InputImageForGen ${TestDataDirectory}/InputImageForGenParaMeshCLP.nrrd)
-set(ReferenceImageGen ${TestDataDirectory}/OutputImageToCompareGenParaMeshCLP_surf.vtk)
-set(OutputImagePara ${TestingBinarydirectory}/OutputImageGenParaMeshCLP_para.vtk)
-set(OutputImageSurf ${TestingBinarydirectory}/OutputImageGenParaMeshCLP_surf.vtk)
+set(InputImageForGen ${TestDataDirectory}/InputImageForGenParaMesh.nrrd)
+set(ReferenceImageGen ${TestDataDirectory}/OutputImageToCompareGenParaMesh_surf.vtk)
+set(OutputImagePara ${TestingBinarydirectory}/OutputImageGenParaMesh_para.vtk)
+set(OutputImageSurf ${TestingBinarydirectory}/OutputImageGenParaMesh_surf.vtk)
 
 #       Downloading of data on Girder
-file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f0ad8d777f16d01e0616/download" ${InputImageForGen})
-file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f0b48d777f16d01e0619/download" ${ReferenceImageGen})
+file(DOWNLOAD "https://data.kitware.com/api/v1/file/59945ee08d777f7d33e9c3d6/download" ${InputImageForGen})
+file(DOWNLOAD "https://data.kitware.com/api/v1/file/59945ece8d777f7d33e9c3c7/download" ${ReferenceImageGen})
 
  add_test(
     NAME GenParaMeshCLPTest
@@ -71,7 +72,7 @@ file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f0b48d777f16d01e0619/dow
     ${InputImageForGen}
     ${OutputImagePara}
     ${OutputImageSurf}
-    --iter 100
+    --iter 25
   )
 
 ## Test 5 : ParaToSPHARMMeshCLP
@@ -81,28 +82,28 @@ add_test(NAME ParaToSPHARMMeshCLPHelp COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_
 
 set(InputImageForSPHARM_Para ${TestDataDirectory}/InputImageTestForSPHARM_para.vtk)
 set(InputImageForSPHARM_Surf ${TestDataDirectory}/InputImageTestForSPHARM_surf.vtk)
-set(RegTemplateForSPHARM ${TestDataDirectory}/RegistrationTemplateForParaToSPHARMMeshCLP.vtk)
+set(RegTemplateForSPHARM ${TestDataDirectory}/RegistrationTemplateForParaToSPHARMMesh.vtk)
 
-set(ReferenceImageSPHARM ${TestDataDirectory}/OutputImageToCompareParaToSPHARMMeshCLP_SPHARM.vtk)
-set(ReferenceImageSPHARM_MedialMesh ${TestDataDirectory}/OutputImageToCompareParaToSPHARMMeshCLP_MedialMesh.vtk)
-set(ReferenceImageSPHARM_Ellalign ${TestDataDirectory}/OutputImageToCompareParaToSPHARMMeshCLP_SPHARM_ellalign.vtk)
-set(ReferenceImageSPHARM_Procalign ${TestDataDirectory}/OutputImageToCompareParaToSPHARMMeshCLP_SPHARM_procalign.vtk)
+set(ReferenceImageSPHARM ${TestDataDirectory}/OutputImageToCompareParaToSPHARMMesh_SPHARM.vtk)
+set(ReferenceImageSPHARM_MedialMesh ${TestDataDirectory}/OutputImageToCompareParaToSPHARMMesh_MedialMesh.vtk)
+set(ReferenceImageSPHARM_Ellalign ${TestDataDirectory}/OutputImageToCompareParaToSPHARMMesh_SPHARM_ellalign.vtk)
+set(ReferenceImageSPHARM_Procalign ${TestDataDirectory}/OutputImageToCompareParaToSPHARMMesh_SPHARM_procalign.vtk)
 
-set(OutputDirectorySPHARM ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLP)
-set(OutputImageSPHARM ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLP_SPHARM.vtk)
-set(OutputImageSPHARM_medialMesh ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLP_SPHARMMedialMesh.vtk)
-set(OutputImageSPHARM_Ellalign ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLP_SPHARM_ellalign.vtk)
-set(OutputImageSPHARM_Procalign ${TestingBinarydirectory}/OutputImageParaToSPHARMMeshCLP_SPHARM_procalign.vtk)
+set(OutputDirectorySPHARM ${TestingBinarydirectory}/OutputImageParaToSPHARMMesh)
+set(OutputImageSPHARM ${TestingBinarydirectory}/OutputImageParaToSPHARMMesh_SPHARM.vtk)
+set(OutputImageSPHARM_medialMesh ${TestingBinarydirectory}/OutputImageParaToSPHARMMesh_SPHARMMedialMesh.vtk)
+set(OutputImageSPHARM_Ellalign ${TestingBinarydirectory}/OutputImageParaToSPHARMMesh_SPHARM_ellalign.vtk)
+set(OutputImageSPHARM_Procalign ${TestingBinarydirectory}/OutputImageParaToSPHARMMesh_SPHARM_procalign.vtk)
 
 #       Downloading of data on Girder
-file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f3038d777f16d01e061f/download" ${InputImageForSPHARM_Para})
-file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f30a8d777f16d01e0622/download" ${InputImageForSPHARM_Surf})
-file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f39e8d777f16d01e0631/download" ${RegTemplateForSPHARM})
+file(DOWNLOAD "https://data.kitware.com/api/v1/file/59af08798d777f7d33e9cf8e/download" ${InputImageForSPHARM_Para})
+file(DOWNLOAD "https://data.kitware.com/api/v1/file/59945ed08d777f7d33e9c3cd/download" ${InputImageForSPHARM_Surf})
+file(DOWNLOAD "https://data.kitware.com/api/v1/file/599462f78d777f7d33e9c3e6/download" ${RegTemplateForSPHARM})
 
-file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f3188d777f16d01e0628/download" ${ReferenceImageSPHARM})
-file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f3188d777f16d01e0625/download" ${ReferenceImageSPHARM_MedialMesh})
-file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f3198d777f16d01e062b/download" ${ReferenceImageSPHARM_Ellalign})
-file(DOWNLOAD "https://data.kitware.com/api/v1/file/5909f31a8d777f16d01e062e/download" ${ReferenceImageSPHARM_Procalign})
+file(DOWNLOAD "https://data.kitware.com/api/v1/file/59af09028d777f7d33e9cf9a/download" ${ReferenceImageSPHARM})
+file(DOWNLOAD "https://data.kitware.com/api/v1/file/59af09018d777f7d33e9cf94/download" ${ReferenceImageSPHARM_MedialMesh})
+file(DOWNLOAD "https://data.kitware.com/api/v1/file/59af09018d777f7d33e9cf91/download" ${ReferenceImageSPHARM_Ellalign})
+file(DOWNLOAD "https://data.kitware.com/api/v1/file/59af09028d777f7d33e9cf97/download" ${ReferenceImageSPHARM_Procalign})
 
 add_test(
     NAME ParaToSPHARMMeshCLPTest
@@ -127,6 +128,7 @@ add_test(
     --spharmDegree 15
     --medialMesh
     --FinalFlip 3
+    --paraOut
     --regTemplateFileOn
     --regTemplate ${RegTemplateForSPHARM}
  )

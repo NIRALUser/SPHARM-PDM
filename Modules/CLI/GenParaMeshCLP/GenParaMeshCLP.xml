@@ -2,7 +2,7 @@
 <executable>
 <category>SPHARM</category>
 <title>GenParaMesh</title>
-<version>2.0</version>
+<version>2.0.1</version>
 <description>
 Spherical Parametrization : The output is two meshes, one for the surface and one for the spherical parametrization
 </description>
@@ -93,14 +93,14 @@ Spherical Parametrization : The output is two meshes, one for the surface and on
       <longflag>verb</longflag>
       <description>Verbose mode</description>
     </boolean>
-    <file>
+    <geometry fileExtensions=".vtk,.meta">
       <name>initParaFileName</name>
       <default>NULL</default>
       <label>initialization of Parametrization</label>
       <channel>input</channel>
       <longflag>initPara</longflag>
       <description>initialization of Parametrization, file has to be a mesh of same triangle topology as the one extracted from the image</description>
-    </file>
+    </geometry>
   </parameters>
 
 

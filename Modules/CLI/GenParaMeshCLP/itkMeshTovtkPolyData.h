@@ -25,8 +25,8 @@ public:
   itkMeshTovtkPolyData( void );
   virtual ~itkMeshTovtkPolyData( void );
 
-  typedef itk::DefaultDynamicMeshTraits<float, 3, 3, double> TriangleMeshTraits;
-  typedef itk::Mesh<float, 3, TriangleMeshTraits>            TriangleMeshType;
+  typedef itk::DefaultDynamicMeshTraits<double, 3, 3, double,double> TriangleMeshTraits;
+  typedef itk::Mesh<double, 3, TriangleMeshTraits>            TriangleMeshType;
   typedef TriangleMeshType::PointType                        PointType;
   typedef TriangleMeshType::PointsContainer                  InputPointsContainer;
   typedef InputPointsContainer::Pointer                      InputPointsContainerPointer;
@@ -41,11 +41,10 @@ public:
   void SetInput(TriangleMeshType::Pointer mesh);
 
   vtkSmartPointer<vtkPolyData> GetOutput();
-
+ 
   void ConvertitkTovtk();
 
   TriangleMeshType::Pointer m_itkTriangleMesh;
-
   vtkSmartPointer<vtkPoints>    m_Points;
   vtkSmartPointer<vtkPolyData>  m_PolyData;
   vtkSmartPointer<vtkCellArray> m_Polys;

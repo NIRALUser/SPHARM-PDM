@@ -8,7 +8,7 @@ from slicer.ScriptedLoadableModule import *
 
 
 class LogicMixin(ScriptedLoadableModuleLogic, VTKObservationMixin):
-  def __init__(self):
+  def __init__(self, ModuleNodeName):
     VTKObservationMixin.__init__(self)
 
     self.InputCases = list()
@@ -21,7 +21,7 @@ class LogicMixin(ScriptedLoadableModuleLogic, VTKObservationMixin):
     # Status
     self.Node = slicer.vtkMRMLCommandLineModuleNode()
     self.Node.SetStatus(self.Node.Idle)
-    self.Node.SetName("ShapeAnalysisModule")
+    self.Node.SetName(ModuleNodeName)
     self.ProgressBar = slicer.qSlicerCLIProgressBar()
     self.ProgressBar.setCommandLineModuleNode(self.Node)
     self.ProgressBar.setNameVisibility(slicer.qSlicerCLIProgressBar.AlwaysVisible)
@@ -72,7 +72,6 @@ class LogicMixin(ScriptedLoadableModuleLogic, VTKObservationMixin):
         if self.areAllPipelineCompleted():
           logging.info('All pipelines took: %d sec to run', time.time() - self.allCaseStartTime)
           statusForNode = pipeline_node.GetStatus()
-          self.configurationVisualization()
 
       if statusForNode is None:
         # Run next pipeline
