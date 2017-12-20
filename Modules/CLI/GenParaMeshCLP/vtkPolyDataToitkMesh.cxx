@@ -16,23 +16,20 @@ vtkPolyDataToitkMesh
 {
 
   m_itkMesh = TriangleMeshType::New();
-  m_PolyData = vtkPolyData::New();
-  
+  m_PolyData = vtkSmartPointer<vtkPolyData>::New();
+
 }
 
 
 vtkPolyDataToitkMesh
 ::~vtkPolyDataToitkMesh()
 {
-  if (m_PolyData)
-    {
-      m_PolyData->Delete();
-    }
+
 }
 
 void
 vtkPolyDataToitkMesh
-::SetInput(vtkPolyData * polydata)
+::SetInput(vtkSmartPointer<vtkPolyData> polydata)
 {
   m_PolyData = polydata;
   this->ConvertvtkToitk();
@@ -53,15 +50,19 @@ vtkPolyDataToitkMesh
   // Transfer the points from the vtkPolyData into the itk::Mesh
   //
   const unsigned int numberOfPoints = m_PolyData->GetNumberOfPoints();
-  vtkPoints * vtkpoints =  m_PolyData->GetPoints();
- 
+  vtkSmartPointer<vtkPoints>  vtkpoints =  m_PolyData->GetPoints();
+
   m_itkMesh->GetPoints()->Reserve( numberOfPoints );
 
   for(unsigned int p =0; p < numberOfPoints; p++)
     {
 
-    vtkFloatingPointType * apoint = vtkpoints->GetPoint( p );
-    m_itkMesh->SetPoint( p, TriangleMeshType::PointType( apoint ));
+      #if VTK_MAJOR_VERSION > 5
+        float * apoint = vtkpoints->GetPoint( p );
+      #else
+        vtkFloatingPointType* apoint = vtkpoints->GetPoint( p );
+      #endif
+      m_itkMesh->SetPoint( p, TriangleMeshType::PointType( apoint ));
 
     // Need to convert the point to PoinType
     TriangleMeshType::PointType pt;
@@ -75,7 +76,7 @@ vtkPolyDataToitkMesh
   //
   // Transfer the cells from the vtkPolyData into the itk::Mesh
   //
-  vtkCellArray * triangleStrips = m_PolyData->GetStrips();
+  vtkSmartPointer<vtkCellArray> triangleStrips = m_PolyData->GetStrips();
 
   vtkIdType  * cellPoints;
   vtkIdType    numberOfCellPoints;
@@ -91,8 +92,8 @@ vtkPolyDataToitkMesh
     numberOfTriangles += numberOfCellPoints-2;
     }
 
-   vtkCellArray * polygons = m_PolyData->GetPolys();
-  
+   vtkSmartPointer<vtkCellArray> polygons = m_PolyData->GetPolys();
+
    polygons->InitTraversal();
 
    while( polygons->GetNextCell( numberOfCellPoints, cellPoints ) )
@@ -108,7 +109,7 @@ vtkPolyDataToitkMesh
   //
    m_itkMesh->GetCells()->Reserve( numberOfTriangles );
 
-  // 
+  //
   // Copy the triangles from vtkPolyData into the itk::Mesh
   //
   //
@@ -124,16 +125,21 @@ vtkPolyDataToitkMesh
      {
      unsigned int numberOfTrianglesInStrip = numberOfCellPoints - 2;
 
-     unsigned long pointIds[3];
+     uint64_t  pointIds[3];
      pointIds[0] = cellPoints[0];
      pointIds[1] = cellPoints[1];
      pointIds[2] = cellPoints[2];
-       
+
      for( unsigned int t=0; t < numberOfTrianglesInStrip; t++ )
        {
         TriangleMeshType::CellAutoPointer c;
         TriangleCellType * tcell = new TriangleCellType;
-        tcell->SetPointIds( pointIds );
+        TriangleCellType::PointIdentifier itkPts[3];
+        for (int ii = 0; ii < 3; ++ii)
+        {
+            itkPts[ii] = static_cast<TriangleCellType::PointIdentifier>(pointIds[ii]);
+        }
+        tcell->SetPointIds( itkPts );
         c.TakeOwnership( tcell );
         m_itkMesh->SetCell( cellId, c );
         cellId++;
@@ -141,10 +147,10 @@ vtkPolyDataToitkMesh
         pointIds[1] = pointIds[2];
         pointIds[2] = cellPoints[t+3];
        }
-       
+
      }
 
-   // then copy the triangles 
+   // then copy the triangles
    polygons->InitTraversal();
    while( polygons->GetNextCell( numberOfCellPoints, cellPoints ) )
      {
@@ -154,10 +160,15 @@ vtkPolyDataToitkMesh
        }
      TriangleMeshType::CellAutoPointer c;
      TriangleCellType * t = new TriangleCellType;
-     t->SetPointIds( (unsigned long*)cellPoints );
+     TriangleCellType::PointIdentifier itkPts[3];
+     for (int ii = 0; ii < 3; ++ii)
+     {
+        itkPts[ii] = static_cast<TriangleCellType::PointIdentifier>(cellPoints[ii]);
+     }
+     t->SetPointIds( itkPts );
      c.TakeOwnership( t );
      m_itkMesh->SetCell( cellId, c );
      cellId++;
-     } 
-  
+     }
+
 }
