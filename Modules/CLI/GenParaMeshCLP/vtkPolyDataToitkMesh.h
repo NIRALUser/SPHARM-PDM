@@ -7,6 +7,7 @@
 #include "itkDefaultDynamicMeshTraits.h"
 #include "itkMesh.h"
 #include "itkTriangleCell.h"
+#include <vtkSmartPointer.h>
 
 
 /** 
@@ -30,15 +31,15 @@ class vtkPolyDataToitkMesh
   /**
   The SetInput method provides pointer to the vtkPolyData
   */
-  void SetInput( vtkPolyData * polydata);
+  void SetInput( vtkSmartPointer<vtkPolyData> polydata);
   TriangleMeshType * GetOutput();
   void ConvertvtkToitk();
 
-  TriangleMeshType::Pointer  m_itkMesh;
+  TriangleMeshType::Pointer m_itkMesh;
 
-  vtkPolyData           * m_PolyData;
+  vtkSmartPointer<vtkPolyData> m_PolyData;
 
-  
+
 };
 
 #endif
