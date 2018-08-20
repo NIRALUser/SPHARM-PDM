@@ -48,43 +48,8 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
   endif()
 
-  ### --- Project specific additions here
-  if(${PROJECT_NAME}_BUILD_FFTWF_SUPPORT)
-    set(${proj}_FFTWF_ARGS
-      -DITK_USE_FFTWF:BOOL=ON
-      )
-  endif()
-  if(${PROJECT_NAME}_BUILD_FFTWD_SUPPORT)
-    set(${proj}_FFTWD_ARGS
-      -DITK_USE_FFTWD:BOOL=ON
-      )
-  endif()
-
   # Include dependent projects if any
   SlicerMacroCheckExternalProjectDependency(${proj})
-
-  set(${proj}_WRAP_ARGS)
-  #if(foo)
-    #set(${proj}_WRAP_ARGS
-    #  -DINSTALL_WRAP_ITK_COMPATIBILITY:BOOL=OFF
-    #  -DWRAP_float:BOOL=ON
-    #  -DWRAP_unsigned_char:BOOL=ON
-    #  -DWRAP_signed_short:BOOL=ON
-    #  -DWRAP_unsigned_short:BOOL=ON
-    #  -DWRAP_complex_float:BOOL=ON
-    #  -DWRAP_vector_float:BOOL=ON
-    #  -DWRAP_covariant_vector_float:BOOL=ON
-    #  -DWRAP_rgb_signed_short:BOOL=ON
-    #  -DWRAP_rgb_unsigned_char:BOOL=ON
-    #  -DWRAP_rgb_unsigned_short:BOOL=ON
-    #  -DWRAP_ITK_TCL:BOOL=OFF
-    #  -DWRAP_ITK_JAVA:BOOL=OFF
-    #  -DWRAP_ITK_PYTHON:BOOL=ON
-    #  -DPYTHON_EXECUTABLE:PATH=${${CMAKE_PROJECT_NAME}_PYTHON_EXECUTABLE}
-    #  -DPYTHON_INCLUDE_DIR:PATH=${${CMAKE_PROJECT_NAME}_PYTHON_INCLUDE}
-    #  -DPYTHON_LIBRARY:FILEPATH=${${CMAKE_PROJECT_NAME}_PYTHON_LIBRARY}
-    #  )
-  #endif()
 
   # HACK This code fixes a loony problem with HDF5 -- it doesn't
   #      link properly if -fopenmp is used.
@@ -103,10 +68,6 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DKWSYS_USE_MD5:BOOL=ON # Required by SlicerExecutionModel
       -DITK_WRAPPING:BOOL=OFF #${BUILD_SHARED_LIBS} ## HACK:  QUICK CHANGE
       -DModule_MGHIO:BOOL=ON  # Allow building of the MGHIO classes
-      ${${proj}_DCMTK_ARGS}
-      ${${proj}_WRAP_ARGS}
-      ${${proj}_FFTWF_ARGS}
-      ${${proj}_FFTWD_ARGS}
     )
   ### --- End Project specific additions
   set(${proj}_REPOSITORY ${git_protocol}://itk.org/ITK.git)
