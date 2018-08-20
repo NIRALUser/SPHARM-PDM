@@ -12,25 +12,19 @@ if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
 endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
-#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
 find_package(ITK 4 REQUIRED)
 include(${ITK_USE_FILE})
 
-
 find_package(SlicerExecutionModel REQUIRED)
-#include(${GenerateCLP_USE_FILE})
 include(${SlicerExecutionModel_USE_FILE})
-#include(${SlicerExecutionModel_CMAKE_DIR}/SEMMacroBuildCLI.cmake)
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
-#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
 set(CLAPACK_LIBRARY_DIRECTORIES
   ${CLAPACK_DIR}/F2CLIBS/libf2c
   ${CLAPACK_DIR}/BLAS/SRC
