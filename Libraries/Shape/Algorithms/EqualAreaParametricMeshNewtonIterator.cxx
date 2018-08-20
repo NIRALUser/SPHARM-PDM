@@ -300,14 +300,14 @@ int EqualAreaParametricMeshNewtonIterator::check_constraints(int n_equal, int n_
   // assert(act_i == n_active, "all actives must be visited.");
 
   badness = 0;
-  int worst = -1;
+  //int worst = -1;
   for( act_i = n_equal + n_active; act_i-- > 0; )   // also over positive inequalities(?)
     {
     register double increase = sqr(c_hat_try[act_i]) - sqr(c_hat[act_i]);
     if( increase > badness )
       {
       badness = increase;
-      worst = act_i;
+      //worst = act_i;
       }
     }
   // if (badness > 1)
