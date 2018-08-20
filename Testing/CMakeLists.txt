@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-CMAKE_POLICY(VERSION 2.8)
+cmake_policy(VERSION 2.8)
 
 # Testing for 
 

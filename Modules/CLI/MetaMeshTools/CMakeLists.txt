@@ -16,9 +16,9 @@ set(SRC_META2STL_CXX Meta2STL.cxx itkMeshTovtkPolyData.cxx)
 add_executable(Meta2STL ${SRC_META2STL_CXX})
 target_link_libraries(Meta2STL ${ITK_LIBRARIES} ${VTK_LIBRARIES})
 
-SET(SRC_MESHMATH_CXX MeshMath.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx)
-ADD_EXECUTABLE(MeshMath ${SRC_MESHMATH_CXX})
-TARGET_LINK_LIBRARIES(MeshMath ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+set(SRC_MESHMATH_CXX MeshMath.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx)
+add_executable(MeshMath ${SRC_MESHMATH_CXX})
+target_link_libraries(MeshMath ${ITK_LIBRARIES} ${VTK_LIBRARIES})
 
 add_executable(Meta2VTK Meta2VTK.cxx itkMeshTovtkPolyData.cxx)
 target_link_libraries(Meta2VTK ${ITK_LIBRARIES} ${VTK_LIBRARIES})
@@ -26,20 +26,20 @@ target_link_libraries(Meta2VTK ${ITK_LIBRARIES} ${VTK_LIBRARIES})
 add_executable(VTK2Meta VTK2Meta.cxx vtkPolyDataToitkMesh.cxx)
 target_link_libraries(VTK2Meta ${ITK_LIBRARIES} ${VTK_LIBRARIES} )
 
-ADD_EXECUTABLE(asc2vtk asc2vtk.cxx)
-ADD_EXECUTABLE(asc2meta asc2meta.cxx)
+add_executable(asc2vtk asc2vtk.cxx)
+add_executable(asc2meta asc2meta.cxx)
 
-ADD_EXECUTABLE(BYU2VTK BYU2VTK.cxx)
+add_executable(BYU2VTK BYU2VTK.cxx)
 target_link_libraries(BYU2VTK ${VTK_LIBRARIES} )
 
-ADD_EXECUTABLE(STL2VTK STL2VTK.cxx)
+add_executable(STL2VTK STL2VTK.cxx)
 target_link_libraries(STL2VTK ${VTK_LIBRARIES} )
 
 macro(INSTALL_EXECUTABLE)
   set(options )
   set( oneValueArgs OUTPUT_DIR )
   set(multiValueArgs LIST_EXEC )
-  CMAKE_PARSE_ARGUMENTS(LOCAL
+  cmake_parse_arguments(LOCAL
     "${options}"
     "${oneValueArgs}"
     "${multiValueArgs}"

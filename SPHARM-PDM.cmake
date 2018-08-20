@@ -8,7 +8,7 @@ if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
 #-----------------------------------------------------------------------------
   set(RELATIVE_EXTENSION_PATH ..)
   set(NOCLI_INSTALL_DIR ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${RELATIVE_EXTENSION_PATH})
-  ADD_DEFINITIONS(-DSLICER_EXTENSION_PATH=${RELATIVE_EXTENSION_PATH})
+  add_definitions(-DSLICER_EXTENSION_PATH=${RELATIVE_EXTENSION_PATH})
 endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
@@ -58,7 +58,7 @@ endif()
 # Testing
 #-----------------------------------------------------------------------------
 option(BUILD_TESTING "Build testing" OFF)
-IF(BUILD_TESTING)
+if(BUILD_TESTING)
   include(CTest)
-  ADD_SUBDIRECTORY(Testing)
-ENDIF(BUILD_TESTING)
+  add_subdirectory(Testing)
+endif(BUILD_TESTING)
