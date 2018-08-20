@@ -1,8 +1,3 @@
-cmake_minimum_required(VERSION 2.8)
-cmake_policy(VERSION 2.8)
-
-# Testing for 
-
 macro( BULD_AND_INSTALL_TESTS NAME TEST_FILE)
   add_executable(${NAME}Test ${TEST_FILE})
   target_link_libraries(${NAME}Test ${NAME}Lib)
