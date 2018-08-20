@@ -59,22 +59,6 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DITK_USE_FFTWD:BOOL=ON
       )
   endif()
-  if( ${PROJECT_NAME}_BUILD_TIFF_SUPPORT )
-    set(${proj}_TIFF_ARGS
-      -DITK_USE_SYSTEM_TIFF:BOOL=ON
-      -DTIFF_LIBRARY:FILEPATH=${TIFF_LIBRARY}
-      -DTIFF_INCLUDE_DIR:PATH=${TIFF_INCLUDE_DIR}
-       )
-    list(APPEND ${proj}_DEPENDENCIES TIFF)
-  endif()
-  if( ${PROJECT_NAME}_BUILD_JPEG_SUPPORT )
-    set(${proj}_JPEG_ARGS
-      -DITK_USE_SYSTEM_JPEG:BOOL=ON
-      -DJPEG_LIBRARY:FILEPATH=${JPEG_LIBRARY}
-      -DJPEG_INCLUDE_DIR:PATH=${JPEG_INCLUDE_DIR}
-      )
-    list(APPEND ${proj}_DEPENDENCIES JPEG)
-  endif()
 
   # Include dependent projects if any
   SlicerMacroCheckExternalProjectDependency(${proj})
@@ -119,8 +103,6 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DKWSYS_USE_MD5:BOOL=ON # Required by SlicerExecutionModel
       -DITK_WRAPPING:BOOL=OFF #${BUILD_SHARED_LIBS} ## HACK:  QUICK CHANGE
       -DModule_MGHIO:BOOL=ON  # Allow building of the MGHIO classes
-      ${${proj}_TIFF_ARGS}
-      ${${proj}_JPEG_ARGS}
       ${${proj}_DCMTK_ARGS}
       ${${proj}_WRAP_ARGS}
       ${${proj}_FFTWF_ARGS}
