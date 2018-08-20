@@ -29,7 +29,7 @@ static bool phiThetaFile ;
 static char* baseName ;
 
 // takes in a spharm coefficient file, and generates the evaluations of the first and second derivatives
-int main(int argc, const char **argv)
+int main(int /*argc*/, const char **argv)
 {
   // get the arguments
   char *coefFileName;
@@ -105,7 +105,7 @@ int main(int argc, const char **argv)
   return 0 ;
 }
 
-void ComputeRidge (SphericalHarmonicSpatialObject::CoefListType *coefs, double *icos, int nPts) 
+void ComputeRidge (SphericalHarmonicSpatialObject::CoefListType *coefs, double */*icos*/, int /*nPts*/) 
 {
   neurolib::SphericalHarmonicPolynomial<3> spharm ;
   spharm.SetDegree (degree) ;
