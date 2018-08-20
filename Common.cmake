@@ -8,17 +8,6 @@ set(PRIMARY_PROJECT_NAME ${LOCAL_PROJECT_NAME})
 option(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT "Install development support include and libraries for external packages." OFF)
 mark_as_advanced(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT)
 
-set(ITK_VERSION_MAJOR 4 CACHE STRING "Choose the expected ITK4 major version to build SPHARM-PDM.")
-# Set the possible values of ITK major version for cmake-gui
-if( NOT WIN32 )
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
-endif()
-if(NOT ${ITK_VERSION_MAJOR} STREQUAL "4")
-  message(FATAL_ERROR "ITK_VERSION_MAJOR should be 4")
-endif()
-
-set(USE_ITKv4 ON)
-
 #-----------------------------------------------------------------------------
 # Update CMake module path
 #------------------------------------------------------------------------------
