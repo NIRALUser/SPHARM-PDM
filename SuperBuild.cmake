@@ -53,20 +53,6 @@ endif()
 #-----------------------------------------------------------------------------
 # Superbuild option(s)
 #-----------------------------------------------------------------------------
-option(BUILD_STYLE_UTILS "Build uncrustify, cppcheck, & KWStyle" OFF)
-CMAKE_DEPENDENT_OPTION(
-  USE_SYSTEM_Uncrustify "Use system Uncrustify program" OFF
-  "BUILD_STYLE_UTILS" OFF
-  )
-CMAKE_DEPENDENT_OPTION(
-  USE_SYSTEM_KWStyle "Use system KWStyle program" OFF
-  "BUILD_STYLE_UTILS" OFF
-  )
-CMAKE_DEPENDENT_OPTION(
-  USE_SYSTEM_Cppcheck "Use system Cppcheck program" OFF
-  "BUILD_STYLE_UTILS" OFF
-  )
-
 set(EXTERNAL_PROJECT_BUILD_TYPE "Release" CACHE STRING "Default build type for support libraries")
 
 option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
@@ -98,9 +84,6 @@ if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
   set(${LOCAL_PROJECT_NAME}_DEPENDENCIES CLAPACK)
 else()
     set(${LOCAL_PROJECT_NAME}_DEPENDENCIES ITKv4 SlicerExecutionModel VTK CLAPACK)
-endif()
-if(BUILD_STYLE_UTILS)
-  list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDENCIES Cppcheck KWStyle Uncrustify)
 endif()
 #-----------------------------------------------------------------------------
 # Define Superbuild global variables
