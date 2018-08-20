@@ -87,15 +87,6 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       )
     list(APPEND ${proj}_DEPENDENCIES JPEG)
   endif()
-  if( ${PROJECT_NAME}_BUILD_ZLIB_SUPPORT )
-    set(${proj}_ZLIB_ARGS
-      -DITK_USE_SYSTEM_ZLIB:BOOL=ON
-      -DZLIB_INCLUDE_DIRS:STRING=${ZLIB_INCLUDE_DIRS}
-      -DZLIB_LIBRARIES:STRING=${ZLIB_LIBRARIES}
-      )
-    list(APPEND ${proj}_DEPENDENCIES zlib)
-  endif()
-
 
   # Include dependent projects if any
   SlicerMacroCheckExternalProjectDependency(${proj})
@@ -143,7 +134,6 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DITK_USE_SYSTEM_DCMTK:BOOL=${${PROJECT_NAME}_BUILD_DICOM_SUPPORT}
       ${${proj}_TIFF_ARGS}
       ${${proj}_JPEG_ARGS}
-      ${${proj}_ZLIB_ARGS}
       ${${proj}_DCMTK_ARGS}
       ${${proj}_WRAP_ARGS}
       ${${proj}_FFTWF_ARGS}
