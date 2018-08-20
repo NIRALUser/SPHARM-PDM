@@ -1,5 +1,7 @@
 include(CMakeDependentOption)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 #-----------------------------------------------------------------------------
 # Build option(s)
 #-----------------------------------------------------------------------------
@@ -120,17 +122,6 @@ else() # Release, or anything else
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_RELEASE_DESIRED_FLAGS}" )
 endif()
 
-#-----------------------------------------------------------------------------
-# Add needed flag for gnu on linux like enviroments to build static common libs
-# suitable for linking with shared object libs.
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-  if(NOT "${CMAKE_CXX_FLAGS}" MATCHES "-fPIC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-  endif()
-  if(NOT "${CMAKE_C_FLAGS}" MATCHES "-fPIC")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-  endif()
-endif()
 #-----------------------------------------------------------------------------
 if(WIN32)
   set(fileextension .exe)
