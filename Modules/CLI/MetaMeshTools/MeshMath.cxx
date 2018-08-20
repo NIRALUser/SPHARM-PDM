@@ -728,7 +728,7 @@ int main(int argc, const char * *argv)
   bool PvalueColorMapOn = ipExistsArgument(argv, "-significanceLevel");
   // double PvalueColorMapNb;
   std::string PvalueColorMapNb_string;
-  double      PvalueColorMapNb(0.0);
+//  double      PvalueColorMapNb(0.0);
   if( PvalueColorMapOn )
     {
     nbfile = ipGetStringMultipArgument(argv, "-significanceLevel", files, maxNumFiles);
@@ -741,7 +741,7 @@ int main(int argc, const char * *argv)
       {
       nbfile = nbfile + 1; PvalueColorMapNb_string.append(files[0]);
       // istringstream(PvalueColorMapNb_string) >> PvalueColorMapNb; //convert the string (the argument0 to a double
-      PvalueColorMapNb = atof(PvalueColorMapNb_string.c_str() );
+//      PvalueColorMapNb = atof(PvalueColorMapNb_string.c_str() );
 
       }
     }
@@ -1186,7 +1186,6 @@ int main(int argc, const char * *argv)
       }
 
     // find number&points of cells
-    typedef CellType::PointIdIterator PointIdIterator;
     CellIterator cellIterator = mesh->GetCells()->Begin();
     CellIterator cellEnd      = mesh->GetCells()->End();
     PointType    curPoint;
@@ -1617,7 +1616,6 @@ int main(int argc, const char * *argv)
         MeshType::PointsContainerPointer _points = _mesh->GetPoints();
         }
 
-      typedef CellType::PointIdIterator PointIdIterator;
       CellIterator cellIterator = mesh->GetCells()->Begin();
       CellIterator cellEnd      = mesh->GetCells()->End();
       // PointType    curPoint;
@@ -4186,17 +4184,15 @@ int main(int argc, const char * *argv)
     char     line[70];
     ifstream input;
     ofstream output;
-    int      NPoints;
     float    value;
-    char *   aux;
+    //char *   aux;
     float    minOne = 9999999;
 
     // Start reading the Input
     input.open(inputFilename, ios::in);
     input.getline(line, 70, '\n');
-    aux = strtok(line, " = ");
-    aux = strtok(NULL, " = ");
-    NPoints = atoi(aux);
+    /*aux = */strtok(line, " = ");
+    /*aux = */strtok(NULL, " = ");
     input.getline(line, 70, '\n');
     input.getline(line, 70, '\n');
 
@@ -4223,17 +4219,15 @@ int main(int argc, const char * *argv)
     char     line[70];
     ifstream input;
     ofstream output;
-    int      NPoints;
     float    value;
-    char *   aux;
+    //char *   aux;
     float    maxOne = 0;
 
     // Start reading the Input
     input.open(inputFilename, ios::in);
     input.getline(line, 70, '\n');
-    aux = strtok(line, " = ");
-    aux = strtok(NULL, " = ");
-    NPoints = atoi(aux);
+    /*aux = */strtok(line, " = ");
+    /*aux = */strtok(NULL, " = ");
     input.getline(line, 70, '\n');
     input.getline(line, 70, '\n');
 
@@ -4812,7 +4806,6 @@ int main(int argc, const char * *argv)
     sort(v_Attributes.begin(), v_Attributes.end() );
 
     // Computing surface area
-    typedef CellType::PointIdIterator PointIdIterator;
     CellIterator        cellIterator = inputMesh->GetCells()->Begin();
     CellIterator        cellEnd = inputMesh->GetCells()->End();
     PointType           curPoint;
@@ -5505,7 +5498,6 @@ int main(int argc, const char * *argv)
       sort(v_Attributes.begin(), v_Attributes.end());
      
       // Computing surface area
-      typedef CellType::PointIdIterator PointIdIterator;
       CellIterator cellIterator = inputMesh->GetCells()->Begin();
       CellIterator cellEnd = inputMesh->GetCells()->End();
       PointType curPoint;
@@ -5972,17 +5964,11 @@ int main(int argc, const char * *argv)
    } else if (lptsOn)
    {
 	//std::cout << inputFilename << " " << argv[2] << " " << outputFilename << std::endl;
-        int Pointwritten;
-	Pointwritten=0;
-	int nbPoints=0;
 
-	if(nbPoints ==0)
-	{
-                vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
-		meshin->SetFileName(inputFilename);
-		meshin->Update();
-		nbPoints=meshin->GetOutput()->GetNumberOfPoints();
-	}
+  vtkSmartPointer<vtkPolyDataReader> meshin = vtkSmartPointer<vtkPolyDataReader>::New();
+	meshin->SetFileName(inputFilename);
+	meshin->Update();
+  meshin->GetOutput()->GetNumberOfPoints();
 
 	std::ofstream lptsfile(outputFilename, std::ios::out | std::ios::trunc);
 
