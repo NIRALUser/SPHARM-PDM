@@ -56,7 +56,6 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
   endif()
 
   ### --- Project specific additions here
-  set(VTK_WRAP_TCL OFF)
   set(VTK_WRAP_PYTHON OFF)
 
   if (${PROJECT_NAME}_USE_PYTHONQT)
@@ -114,33 +113,6 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
     list(APPEND VTK_QT_ARGS -DVTK_USE_TK:BOOL=OFF)
   endif()
 
-  set(slicer_TCL_LIB)
-  set(slicer_TK_LIB)
-  set(slicer_TCLSH)
-  set(VTK_TCL_ARGS)
-  if(VTK_WRAP_TCL)
-    if(WIN32)
-      set(slicer_TCL_LIB ${CMAKE_BINARY_DIR}/tcl-build/lib/tcl84.lib)
-      set(slicer_TK_LIB ${CMAKE_BINARY_DIR}/tcl-build/lib/tk84.lib)
-      set(slicer_TCLSH ${CMAKE_BINARY_DIR}/tcl-build/bin/tclsh.exe)
-    elseif(APPLE)
-      set(slicer_TCL_LIB ${CMAKE_BINARY_DIR}/tcl-build/lib/libtcl8.4.dylib)
-      set(slicer_TK_LIB ${CMAKE_BINARY_DIR}/tcl-build/lib/libtk8.4.dylib)
-      set(slicer_TCLSH ${CMAKE_BINARY_DIR}/tcl-build/bin/tclsh84)
-    else()
-      set(slicer_TCL_LIB ${CMAKE_BINARY_DIR}/tcl-build/lib/libtcl8.4.so)
-      set(slicer_TK_LIB ${CMAKE_BINARY_DIR}/tcl-build/lib/libtk8.4.so)
-      set(slicer_TCLSH ${CMAKE_BINARY_DIR}/tcl-build/bin/tclsh84)
-    endif()
-    set(VTK_TCL_ARGS
-      -DTCL_INCLUDE_PATH:PATH=${CMAKE_BINARY_DIR}/tcl-build/include
-      -DTK_INCLUDE_PATH:PATH=${CMAKE_BINARY_DIR}/tcl-build/include
-      -DTCL_LIBRARY:FILEPATH=${slicer_TCL_LIB}
-      -DTK_LIBRARY:FILEPATH=${slicer_TK_LIB}
-      -DTCL_TCLSH:FILEPATH=${slicer_TCLSH}
-      )
-  endif()
-
   set(VTK_BUILD_STEP "")
   if(UNIX)
     configure_file(SuperBuild/External_VTK_build_step.cmake.in
@@ -156,9 +128,8 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DVTK_USE_PARALLEL:BOOL=ON
       -DVTK_DEBUG_LEAKS:BOOL=${${PROJECT_NAME}_USE_VTK_DEBUG_LEAKS}
       -DVTK_LEGACY_REMOVE:BOOL=OFF
-      -DVTK_WRAP_TCL:BOOL=${VTK_WRAP_TCL}
+      -DVTK_WRAP_TCL:BOOL=OFF
       #-DVTK_USE_RPATH:BOOL=ON # Unused
-      ${VTK_TCL_ARGS}
       -DVTK_WRAP_PYTHON:BOOL=${VTK_WRAP_PYTHON}
       -DVTK_INSTALL_LIB_DIR:PATH=${${PROJECT_NAME}_INSTALL_LIB_DIR}
       ${VTK_PYTHON_ARGS}
