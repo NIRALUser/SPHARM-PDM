@@ -122,7 +122,3 @@ else() # Release, or anything else
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_RELEASE_DESIRED_FLAGS}" )
 endif()
 
-#-----------------------------------------------------------------------------
-if(WIN32)
-  set(fileextension .exe)
-endif()
