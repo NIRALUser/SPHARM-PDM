@@ -19,9 +19,9 @@ function(test_cc_flags c_flag_var flag_list)
     if(${C_HAS${flag}})
       set(local_c_flags "${local_c_flags} ${flag}")
     endif()
-  endforeach(flag)
+  endforeach()
   set(${c_flag_var} "${local_c_flags}" PARENT_SCOPE)
-endfunction(test_cc_flags)
+endfunction()
 
 #
 # this functions loops through the list to add the flags
@@ -33,9 +33,9 @@ function(test_cxx_flags cxx_flag_var flag_list)
     if(${CXX_HAS${flag}})
       set(local_cxx_flags "${local_cxx_flags} ${flag}")
     endif()
-  endforeach(flag)
+  endforeach()
   set(${cxx_flag_var} "${local_cxx_flags}" PARENT_SCOPE)
-endfunction(test_cxx_flags)
+endfunction()
 
 #-pedantic
 set(common_flags_to_test

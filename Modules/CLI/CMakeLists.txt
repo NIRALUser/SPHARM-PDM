@@ -81,32 +81,32 @@ if(COMPILE_ImageMath)
     PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${proj}-install/bin/ImageMath${CMAKE_EXECUTABLE_SUFFIX}
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}
     )
-endif(COMPILE_ImageMath)
+endif()
 
 option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
 if(COMPILE_MetaMeshTools)
   add_subdirectory(MetaMeshTools)
-endif(COMPILE_MetaMeshTools)
+endif()
 
 option(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
 if(COMPILE_SegPostProcessCLP)
   add_subdirectory(SegPostProcessCLP)
-endif(COMPILE_SegPostProcessCLP)
+endif()
 
 option(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
 if(COMPILE_GenParaMeshCLP)
   add_subdirectory(GenParaMeshCLP)
-endif(COMPILE_GenParaMeshCLP)
+endif()
 
 option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
 if(COMPILE_ParaToSPHARMMeshCLP)
   add_subdirectory(ParaToSPHARMMeshCLP)
-endif(COMPILE_ParaToSPHARMMeshCLP)
+endif()
 
 option(COMPILE_SpharmTool "Compile SpharmTool." ON)
 if(COMPILE_SpharmTool)
   add_subdirectory(SpharmTool)
-endif(COMPILE_SpharmTool)
+endif()
 
 option(COMPILE_shapeAnalysisMANCOVA_Wizard "Compile shapeAnalysisMANCOVA_Wizard." OFF)
 option(COMPILE_StatNonParamTestPDM "Compile StatNonParamTestPDM." OFF)
@@ -131,7 +131,7 @@ if(COMPILE_StatNonParamTestPDM)
       ${external_projects_vars}
       INSTALL_COMMAND ""
   )
-endif(COMPILE_StatNonParamTestPDM)
+endif()
 
 option(COMPILE_shapeworks "Compile shapeworks." OFF)
 if(COMPILE_shapeworks)
@@ -150,4 +150,4 @@ if(COMPILE_shapeworks)
       ${external_projects_vars}
       INSTALL_COMMAND ""
   )
-endif(COMPILE_shapeworks)
+endif()
