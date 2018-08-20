@@ -38,9 +38,6 @@ set(${proj}_DEPENDENCIES "")
 if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" ) )
   #message(STATUS "${__indent}Adding project ${proj}")
   # Set dependency list
-  if(${PROJECT_NAME}_BUILD_DICOM_SUPPORT)
-    list(APPEND ${proj}_DEPENDENCIES DCMTK)
-  endif()
 
   # Set CMake OSX variable to pass down the external project
   set(CMAKE_OSX_EXTERNAL_PROJECT_ARGS)
@@ -52,15 +49,6 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
   endif()
 
   ### --- Project specific additions here
-  set(${proj}_DCMTK_ARGS)
-  if(${PROJECT_NAME}_BUILD_DICOM_SUPPORT)
-    set(${proj}_DCMTK_ARGS
-      -DDCMTK_DIR:PATH=${DCMTK_DIR}
-      -DModule_ITKDCMTK:BOOL=ON
-      -DModule_ITKIODCMTK:BOOL=ON
-      )
-  endif()
-
   if(${PROJECT_NAME}_BUILD_FFTWF_SUPPORT)
     set(${proj}_FFTWF_ARGS
       -DITK_USE_FFTWF:BOOL=ON
@@ -131,7 +119,6 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DKWSYS_USE_MD5:BOOL=ON # Required by SlicerExecutionModel
       -DITK_WRAPPING:BOOL=OFF #${BUILD_SHARED_LIBS} ## HACK:  QUICK CHANGE
       -DModule_MGHIO:BOOL=ON  # Allow building of the MGHIO classes
-      -DITK_USE_SYSTEM_DCMTK:BOOL=${${PROJECT_NAME}_BUILD_DICOM_SUPPORT}
       ${${proj}_TIFF_ARGS}
       ${${proj}_JPEG_ARGS}
       ${${proj}_DCMTK_ARGS}
