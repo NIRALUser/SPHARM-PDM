@@ -783,11 +783,11 @@ int main( int argc, char * argv[] )
                for( int i = 0; i < nvert; i++ )
                {
                    PointType curPoint =  paraPoints->GetElement(i);
-                   double    theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                   double    curTheta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
                    //0 .. M_PI
-                   efile << theta << endl;
+                   efile << curTheta << endl;
                    // if (i != nvert - 1) efile << " ";
-                   array->InsertNextValue(theta);
+                   array->InsertNextValue(curTheta);
                }
                efile.close();
                ITKVTKConverter.GetOutput()->GetPointData()->AddArray(array);
@@ -819,11 +819,11 @@ int main( int argc, char * argv[] )
                    {
                        phi = 2 * M_PI - phi;            // 0 .. M_PI ..0
                    }
-                   double theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                   double curTheta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
                    // 0 .. M_PI
-                   efile << theta / M_PI * ( phi / M_PI + 1) << endl;
+                   efile << curTheta / M_PI * ( phi / M_PI + 1) << endl;
                    // if (i != nvert - 1) efile << " ";
-                   array->InsertNextValue(theta/ M_PI * ( phi / M_PI + 1));
+                   array->InsertNextValue(curTheta/ M_PI * ( phi / M_PI + 1));
                }
                efile.close();
                ITKVTKConverter.GetOutput()->GetPointData()->AddArray(array);
@@ -921,9 +921,9 @@ int main( int argc, char * argv[] )
                 for( int i = 0; i < nvert; i++ )
                 {
                   PointType curPoint =  paraPoints->GetElement(i);
-                  double    theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                  double    curTheta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
                   //0 .. M_PI
-                  array->InsertNextValue(theta);
+                  array->InsertNextValue(curTheta);
                 }
                 ITKVTKConverter2.GetOutput()->GetPointData()->AddArray(array);
             }
@@ -940,9 +940,9 @@ int main( int argc, char * argv[] )
                     {
                     phi = 2 * M_PI - phi;            // 0 .. M_PI ..0
                     }
-                  double theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                  double curTheta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
                   // 0 .. M_PI
-                  array->InsertNextValue(theta/ M_PI * ( phi / M_PI + 1));
+                  array->InsertNextValue(curTheta/ M_PI * ( phi / M_PI + 1));
                 }
                 ITKVTKConverter2.GetOutput()->GetPointData()->AddArray(array);
             }
