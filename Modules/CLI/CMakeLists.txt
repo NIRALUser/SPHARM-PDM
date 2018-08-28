@@ -147,6 +147,8 @@ if(COMPILE_shapeworks)
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
       -DITK_DIR:PATH=${ITK_DIR}
+      # Workaround use of "${USE_ITK_FILE}" in "shapeworks/CMakeLists.txt"
+      -DUSE_ITK_FILE:PATH=${ITK_USE_FILE}
       ${external_projects_vars}
       INSTALL_COMMAND ""
   )
