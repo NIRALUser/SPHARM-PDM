@@ -34,10 +34,6 @@ set(${extProjName}_REQUIRED_VERSION "7.1.0")  #If a required version is necessar
 
 # Set dependency list
 set(${proj}_DEPENDENCIES "")
-set(${PROJECT_NAME}_USE_PYTHONQT OFF)
-if (${PROJECT_NAME}_USE_PYTHONQT)
-  list(APPEND ${proj}_DEPENDENCIES python)
-endif()
 
 # Include dependent projects if any
 SlicerMacroCheckExternalProjectDependency(${proj})
@@ -56,62 +52,6 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
   endif()
 
   ### --- Project specific additions here
-  set(VTK_WRAP_PYTHON OFF)
-
-  if (${PROJECT_NAME}_USE_PYTHONQT)
-    set(VTK_WRAP_PYTHON ON)
-  endif()
-
-  set(VTK_PYTHON_ARGS
-      -DPYTHON_EXECUTABLE:PATH=${PYTHON_EXECUTABLE}
-      -DPYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE_DIR}
-      -DPYTHON_LIBRARIES:FILEPATH=${PYTHON_LIBRARIES}
-      )
-  if(${PROJECT_NAME}_USE_PYTHONQT)
-    list(APPEND VTK_PYTHON_ARGS
-      -DVTK_INSTALL_PYTHON_USING_CMAKE:BOOL=ON
-      )
-  endif()
-
-  set(VTK_QT_ARGS)
-  if(${PRIMARY_PROJECT_NAME}_USE_QT)
-    set(VTK_QT_ARGS
-      -DModule_vtkGUISupportQt:BOOL=ON
-      )
-    if(NOT APPLE)
-      list(APPEND VTK_QT_ARGS
-        #-DDESIRED_QT_VERSION:STRING=4 # Unused
-        -DVTK_USE_GUISUPPORT:BOOL=ON
-        -DVTK_USE_QVTK_QTOPENGL:BOOL=ON
-        -DVTK_USE_QT:BOOL=ON
-        -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-        )
-    else()
-      list(APPEND VTK_QT_ARGS
-        -DVTK_USE_CARBON:BOOL=OFF
-        # Default to Cocoa, VTK/CMakeLists.txt will enable Carbon and disable cocoa if needed
-        -DVTK_USE_COCOA:BOOL=ON
-        -DVTK_USE_X:BOOL=OFF
-        #-DVTK_USE_RPATH:BOOL=ON # Unused
-        #-DDESIRED_QT_VERSION:STRING=4 # Unused
-        -DVTK_USE_GUISUPPORT:BOOL=ON
-        -DVTK_USE_QVTK_QTOPENGL:BOOL=ON
-        -DVTK_USE_QT:BOOL=ON
-        -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-        )
-    endif()
-    find_package(Qt4 REQUIRED)
-  else()
-    set(VTK_QT_ARGS
-        -DVTK_USE_GUISUPPORT:BOOL=OFF
-        -DVTK_USE_QT:BOOL=OFF
-        )
-  endif()
-
-  # Disable Tk when Python wrapping is enabled
-  if (${PROJECT_NAME}_USE_PYTHONQT)
-    list(APPEND VTK_QT_ARGS -DVTK_USE_TK:BOOL=OFF)
-  endif()
 
   set(VTK_BUILD_STEP "")
   if(UNIX)
@@ -130,10 +70,11 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DVTK_LEGACY_REMOVE:BOOL=OFF
       -DVTK_WRAP_TCL:BOOL=OFF
       #-DVTK_USE_RPATH:BOOL=ON # Unused
-      -DVTK_WRAP_PYTHON:BOOL=${VTK_WRAP_PYTHON}
+      -DVTK_WRAP_PYTHON:BOOL=OFF
       -DVTK_INSTALL_LIB_DIR:PATH=${${PROJECT_NAME}_INSTALL_LIB_DIR}
-      ${VTK_PYTHON_ARGS}
-      ${VTK_QT_ARGS}
+      # Disable Qt
+      -DVTK_USE_GUISUPPORT:BOOL=OFF
+      -DVTK_USE_QT:BOOL=OFF
       ${VTK_MAC_ARGS}
     )
   ### --- End Project specific additions
