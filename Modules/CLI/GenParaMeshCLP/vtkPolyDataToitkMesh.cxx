@@ -58,7 +58,7 @@ vtkPolyDataToitkMesh
     {
 
       #if VTK_MAJOR_VERSION > 5
-        float * apoint = vtkpoints->GetPoint( p );
+        double * apoint = vtkpoints->GetPoint( p );
       #else
         vtkFloatingPointType* apoint = vtkpoints->GetPoint( p );
       #endif
