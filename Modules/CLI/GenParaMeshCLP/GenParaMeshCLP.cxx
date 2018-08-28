@@ -170,11 +170,7 @@ int main( int argc, char * argv[] )
       SurfMesh = ITKVTKConverter.GetOutput();
 
       // Writing the file
-      #if VTK_MAJOR_VERSION > 5
       writer->SetInputData(SurfMesh);
-      #else
-      writer->SetInput(SurfMesh);
-      #endif
       writer->SetFileName(outSurfName.c_str() );
       writer->Write();
 
@@ -197,11 +193,7 @@ int main( int argc, char * argv[] )
       // delete (ITKVTKConverter2);
 
       // Writing the file
-      #if VTK_MAJOR_VERSION > 5
       writer->SetInputData(ParaMesh);
-      #else
-      writer->SetInput(ParaMesh);
-      #endif
       writer->SetFileName(outParaName.c_str() );
       writer->Write();
       if( logFile )

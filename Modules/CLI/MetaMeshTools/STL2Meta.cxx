@@ -35,21 +35,10 @@ using namespace std;
 const unsigned int PointDimension   = 3;
 const unsigned int MaxCellDimension = 2;
 
-// This define is needed to deal with double/float changes in VTK
-#if VTK_MAJOR_VERSION > 5
-  typedef itk::DefaultStaticMeshTraits<double, PointDimension,
+typedef itk::DefaultStaticMeshTraits<double, PointDimension,
                                      MaxCellDimension, double,
                                      double> MeshTraits;
-  typedef itk::Mesh<double, PointDimension, MeshTraits> MeshType;
-#else
-  #ifndef vtkFloatingPointType
-  #define vtkFloatingPointType float
-  #endif
-  typedef itk::DefaultStaticMeshTraits<vtkFloatingPointType, PointDimension,
-                                     MaxCellDimension, vtkFloatingPointType,
-                                     vtkFloatingPointType> MeshTraits;
-  typedef itk::Mesh<vtkFloatingPointType, PointDimension, MeshTraits> MeshType;
-#endif
+typedef itk::Mesh<double, PointDimension, MeshTraits> MeshType;
 
 int main(int argc, const char * *argv)
 {
@@ -82,14 +71,8 @@ int main(int argc, const char * *argv)
   mesh->GetPoints()->Reserve( numberOfPoints );
   for( unsigned int p = 0; p < numberOfPoints; p++ )
     {
-    #if VTK_MAJOR_VERSION > 5
     double * apoint = vtkpoints->GetPoint( p );
-    #else
-    vtkSmartPointer<vtkFloatingPointType> apoint = vtkpoints->GetPoint( p );
-    #endif
-
     mesh->SetPoint( p, MeshType::PointType( apoint ) );
-
     }
 
   //

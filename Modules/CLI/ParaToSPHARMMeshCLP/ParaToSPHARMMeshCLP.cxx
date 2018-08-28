@@ -621,11 +621,7 @@ int main( int argc, char * argv[] )
 
 		// END Add scalars for visualization
 
-    #if VTK_MAJOR_VERSION > 5
 		vtkwriter->SetInputData(polydataAtt);
-    #else
-		vtkwriter->SetInput(polydataAtt);
-    #endif
 		outFileName.erase();
 		outFileName.append(base_string);
         outFileName.append("_SPHARMMedialMesh.vtk");
@@ -670,11 +666,7 @@ int main( int argc, char * argv[] )
          }
          ScalarFile.close();
 
-#if VTK_MAJOR_VERSION > 5
          vtkwriter->SetInputData(medialAxis );
-#else
-         vtkwriter->SetInput(medialAxis );
-#endif
          outFileName.erase();
          outFileName.append(base_string);
          outFileName.append("_SPHARMMedialAxis.vtk");
@@ -701,11 +693,7 @@ int main( int argc, char * argv[] )
 
            itkMeshTovtkPolyData ITKVTKConverter4;
            ITKVTKConverter4.SetInput(_paraMesh);
-           #if VTK_MAJOR_VERSION > 5
            vtkwriter->SetInputData(ITKVTKConverter4.GetOutput() );
-           #else
-           vtkwriter->SetInput(ITKVTKConverter4.GetOutput() );
-           #endif
            vtkwriter->SetFileName(outFileName.c_str() );
            vtkwriter->Write();
 
@@ -846,11 +834,7 @@ int main( int argc, char * argv[] )
          outFileName.append("_SPHARM.vtk");
          vtkwriter->SetFileName(outFileName.c_str() );
 
-         #if VTK_MAJOR_VERSION > 5
          vtkwriter->SetInputData(ITKVTKConverter.GetOutput());
-         #else
-         vtkwriter->SetInput(ITKVTKConverter.GetOutput());
-         #endif
          vtkwriter->SetFileName(outFileName.c_str());
          vtkwriter->Write();
 
@@ -964,11 +948,7 @@ int main( int argc, char * argv[] )
             }
       }
 
-      #if VTK_MAJOR_VERSION > 5
       vtkwriter->SetInputData(ITKVTKConverter2.GetOutput() );
-      #else
-      vtkwriter->SetInput(ITKVTKConverter2.GetOutput() );
-      #endif
       outFileName.erase();
       outFileName.append(base_string);
       outFileName.append("_SPHARM_ellalign.vtk");
@@ -1059,11 +1039,7 @@ int main( int argc, char * argv[] )
       std::cout << "procalign" << std::endl;
       itkMeshTovtkPolyData ITKVTKConverter3;
       ITKVTKConverter3.SetInput(RegisteredMesh);
-      #if VTK_MAJOR_VERSION > 5
       vtkwriter->SetInputData(ITKVTKConverter3.GetOutput() );
-      #else
-      vtkwriter->SetInput(ITKVTKConverter3.GetOutput() );
-      #endif
       vtkwriter->SetFileName(outFileName.c_str() );
       vtkwriter->Write();
 
