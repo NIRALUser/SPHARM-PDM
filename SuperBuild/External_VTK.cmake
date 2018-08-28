@@ -25,7 +25,7 @@ set(extProjName VTK) #The find_package known name
 set(proj        VTK) #This local name
 
 
-set(${extProjName}_REQUIRED_VERSION "7.1.0")  #If a required version is necessary, then set this, else leave blank
+set(${extProjName}_REQUIRED_VERSION "8.1.1")  #If a required version is necessary, then set this, else leave blank
 
 # Sanity checks
 #if(DEFINED ${extProjName}_DIR AND NOT EXISTS ${${extProjName}_DIR})
@@ -53,14 +53,6 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
 
   ### --- Project specific additions here
 
-  set(VTK_BUILD_STEP "")
-  if(UNIX)
-    configure_file(SuperBuild/External_VTK_build_step.cmake.in
-      ${CMAKE_CURRENT_BINARY_DIR}/External_VTK_build_step.cmake
-      @ONLY)
-    set(VTK_BUILD_STEP ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/External_VTK_build_step.cmake)
-  endif()
-
   set(${proj}_CMAKE_OPTIONS
       -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/${proj}-install
       -DBUILD_EXAMPLES:BOOL=OFF
@@ -78,21 +70,22 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       ${VTK_MAC_ARGS}
     )
   ### --- End Project specific additions
-  set(${proj}_GIT_TAG "v7.1.0")
+  set(${proj}_GIT_TAG "v8.1.1")
   set(${proj}_REPOSITORY ${git_protocol}://github.com/Kitware/VTK.git)
+  set(${proj}_VERSION_ID vtk-8.1)
+
   ExternalProject_Add(${proj}
     GIT_REPOSITORY ${${proj}_REPOSITORY}
     GIT_TAG ${${proj}_GIT_TAG}
     SOURCE_DIR ${EXTERNAL_SOURCE_DIRECTORY}/${proj}
     BINARY_DIR ${proj}-build
-    BUILD_COMMAND ${VTK_BUILD_STEP}
     LOG_CONFIGURE 0  # Wrap configure in script to ignore log output from dashboards
     LOG_BUILD     0  # Wrap build in script to to ignore log output from dashboards
     LOG_TEST      0  # Wrap test in script to to ignore log output from dashboards
     LOG_INSTALL   0  # Wrap install in script to to ignore log output from dashboards
     ${cmakeversion_external_update} "${cmakeversion_external_update_value}"
     CMAKE_GENERATOR ${gen}
-    CMAKE_ARGS
+    CMAKE_CACHE_ARGS
       ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
       ${COMMON_EXTERNAL_PROJECT_ARGS}
       ${${proj}_CMAKE_OPTIONS}
@@ -101,18 +94,7 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       ${${proj}_DEPENDENCIES}
     )
 
-
-  set(VTKPatchScript ${CMAKE_CURRENT_LIST_DIR}/External_VTK_patch.cmake)
-  ExternalProject_Add_Step(${proj} VTKPatch
-    COMMENT "get rid of obsolete C/CXX flags"
-    DEPENDEES download
-    DEPENDERS configure
-    COMMAND ${CMAKE_COMMAND}
-    -DVTKSource=<SOURCE_DIR>
-    -P ${VTKPatchScript}
-    )
-
-  set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/cmake/vtk-7.1)
+  set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/cmake/${${proj}_VERSION_ID})
 else()
   if(${USE_SYSTEM_${extProjName}})
     find_package(${extProjName} ${${extProjName}_REQUIRED_VERSION} REQUIRED)
