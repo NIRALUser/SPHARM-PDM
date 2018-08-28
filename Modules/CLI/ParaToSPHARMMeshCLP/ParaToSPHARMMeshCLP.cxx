@@ -330,7 +330,7 @@ int main( int argc, char * argv[] )
         rotPts[1] =  rotMat->TransformPoint(pts[1]);
         rotPts[2] =  rotMat->TransformPoint(pts[2]);
 
-        double rotTheta[3], rotPhi[3];
+        double rotPhi[3];
         for( int i = 0; i < 3; i++ )
           {
           if( rotPts[i][2] > 1 )
@@ -341,7 +341,6 @@ int main( int argc, char * argv[] )
             {
             rotPts[i][2] = -1;
             }
-          rotTheta[i] = acos(rotPts[i][2]); // 0 .. M_PI
           rotPhi[i] = atan2(rotPts[i][1], rotPts[i][0]);
           if( rotPhi[i] < 0 )
             {
