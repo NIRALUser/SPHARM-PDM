@@ -114,7 +114,7 @@ if(COMPILE_StatNonParamTestPDM)
   ###add download Mancova and configure mancova project. Qt for wizard....
   set( proj StatNonParamTestPDM)
   set( ${proj}_REPOSITORY ${git_protocol}://github.com/NIRALUser/shapeAnalysisMANCOVA.git)
-  set( ${proj}_GIT_TAG f325dca1f1d91e8bf11b2ddd7f1983fb88a8d6a0 )
+  set( ${proj}_GIT_TAG b67b87b7bc0c7a665bb7659422b9e2f1ca901a81 )
   ExternalProject_Add(MANCOVA
     GIT_REPOSITORY ${${proj}_REPOSITORY}
     GIT_TAG ${${proj}_GIT_TAG}
