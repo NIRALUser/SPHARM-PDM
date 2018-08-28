@@ -64,22 +64,15 @@ int main( int argc, char * argv[] )
 
   /** Hold on to the type information specified by the template parameters. */
   typedef  MeshType::Pointer    MeshPointer;
-  typedef  MeshTrait::PointType MeshPointType;
-  typedef  MeshTrait::PixelType MeshPixelType;
+
+
 
   /** Some convenient typedefs. */
   typedef  MeshType::Pointer                MeshPointer;
-  typedef  MeshType::CellTraits             CellTraits;
   typedef  MeshType::PointsContainerPointer PointsContainerPointer;
-  typedef  MeshType::PointsContainer        PointsContainer;
   typedef  MeshType::CellsContainerPointer  CellsContainerPointer;
-  typedef  MeshType::CellsContainer         CellsContainer;
   typedef  MeshType::PointType              PointType;
-  typedef  MeshType::CellType               CellType;
-  typedef  itk::TriangleCell<CellType>      TriangleType;
-
   typedef itk::MeshSpatialObject<MeshType>                     MeshSpatialObjectType;
-  typedef itk::SpatialObjectWriter<3, float, MeshTrait>        MeshWriterType;
   typedef neurolib::ParametricMeshToSPHARMSpatialObjectFilter  SPHARMFilterType;
   typedef itk::Mesh3DProcrustesAlignFilter<MeshType, MeshType> ProcrustesFilterType;
   typedef itk::AffineTransform<double, dimension>              TransformType;
