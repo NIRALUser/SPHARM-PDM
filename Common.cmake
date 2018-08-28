@@ -27,6 +27,12 @@ include(PreventInBuildInstalls)
 #-----------------------------------------------------------------------------
 # Prerequisites
 #-----------------------------------------------------------------------------
+if("${COMPILE_shapeworks}")
+  find_package(Subversion)
+  if(NOT Subversion_FOUND)
+    message(WARNING "SVN may be needed to download external dependencies. Install SVN and try to re-configure")
+  endif()
+endif()
 
 find_package(Git)
 if(NOT GIT_FOUND)
