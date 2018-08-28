@@ -64,7 +64,7 @@ if(COMPILE_ImageMath)
 )
 
   set( ${proj}_REPOSITORY ${git_protocol}://github.com/NIRALUser/niral_utilities.git )
-  set( ${proj}_GIT_TAG 3996b452eaa807cd53f167e35de76e181d497e58 )
+  set( ${proj}_GIT_TAG 6b7af3fb25e3b2a5bb7ff3792a23a4ea3d6de3f2 )
   ExternalProject_Add(niral_utilities
     GIT_REPOSITORY ${${proj}_REPOSITORY}
     GIT_TAG ${${proj}_GIT_TAG}
