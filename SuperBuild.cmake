@@ -52,7 +52,6 @@ option(BUILD_SHARED_LIBS "Use shared libraries" OFF) #to give the user the optio
 # ${LOCAL_PROJECT_NAME} modules and external tools
 #------------------------------------------------------------------------------
 
-option(COMPILE_StatNonParamTestPDM "Compile StatNonParam and ShapeMancova" OFF)
 option(COMPILE_ImageMath "Compile ImageMath." OFF)
 option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
 option(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
@@ -173,7 +172,6 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   CLAPACK_DIR:PATH
   BOOST_INCLUDE_DIR:PATH
   BOOST_ROOT:PATH
-  COMPILE_StatNonParamTestPDM:BOOL
   COMPILE_ImageMath:BOOL
   COMPILE_MetaMeshTools:BOOL
   COMPILE_SegPostProcessCLP:BOOL

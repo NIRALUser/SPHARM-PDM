@@ -107,28 +107,3 @@ option(COMPILE_SpharmTool "Compile SpharmTool." ON)
 if(COMPILE_SpharmTool)
   add_subdirectory(SpharmTool)
 endif()
-
-option(COMPILE_shapeAnalysisMANCOVA_Wizard "Compile shapeAnalysisMANCOVA_Wizard." OFF)
-option(COMPILE_StatNonParamTestPDM "Compile StatNonParamTestPDM." OFF)
-if(COMPILE_StatNonParamTestPDM)
-  ###add download Mancova and configure mancova project. Qt for wizard....
-  set( proj StatNonParamTestPDM)
-  set( ${proj}_REPOSITORY ${git_protocol}://github.com/NIRALUser/shapeAnalysisMANCOVA.git)
-  set( ${proj}_GIT_TAG b67b87b7bc0c7a665bb7659422b9e2f1ca901a81 )
-  ExternalProject_Add(MANCOVA
-    GIT_REPOSITORY ${${proj}_REPOSITORY}
-    GIT_TAG ${${proj}_GIT_TAG}
-    UPDATE_COMMAND ""
-    SOURCE_DIR MANCOVA
-    BINARY_DIR MANCOVA-build
-    CMAKE_GENERATOR ${gen}
-    CMAKE_ARGS
-      -DCOMPILE_shapeAnalysisMANCOVA_Wizard:BOOL={COMPILE_shapeAnalysisMANCOVA_Wizard}
-      -DITK_DIR:PATH=${ITK_DIR}
-      -DVTK_DIR:PATH=${VTK_DIR}
-      -DGenerateCLP_DIR:PATH=${GenerateCLP_DIR}
-      -DBoost_DIR:PATH=${Boost_DIR}/share/boost-${boost_version}/cmake
-      ${external_projects_vars}
-      INSTALL_COMMAND ""
-  )
-endif()
