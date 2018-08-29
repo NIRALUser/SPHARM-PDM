@@ -1,10 +1,8 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+project(SpharmTool)
 
-PROJECT(SpharmTool)
+set (SPHARMTOOL SpharmTool)
 
-SET (SPHARMTOOL SpharmTool)
-
-SET(${SPHARMTOOL}_SOURCE
+set(${SPHARMTOOL}_SOURCE
 SpharmTool.cxx
 )
 

@@ -273,7 +273,6 @@ jump_over:
 int QSort(VECTOR_int & v, VECTOR_double& x, int base_ptr, int total_elems)
 {
   int    pivot_buffer;
-  double pixot_buffer;
 
   if( total_elems > MAX_THRESH )
     {
@@ -323,7 +322,6 @@ int QSort(VECTOR_int & v, VECTOR_double& x, int base_ptr, int total_elems)
 jump_over:
 
           pivot_buffer = v[mid];
-          pixot_buffer = x[mid];
           }
 
         left_ptr  = lo + 1;

@@ -64,7 +64,7 @@ if(COMPILE_ImageMath)
 )
 
   set( ${proj}_REPOSITORY ${git_protocol}://github.com/NIRALUser/niral_utilities.git )
-  set( ${proj}_GIT_TAG 3996b452eaa807cd53f167e35de76e181d497e58 )
+  set( ${proj}_GIT_TAG 6b7af3fb25e3b2a5bb7ff3792a23a4ea3d6de3f2 )
   ExternalProject_Add(niral_utilities
     GIT_REPOSITORY ${${proj}_REPOSITORY}
     GIT_TAG ${${proj}_GIT_TAG}
@@ -77,33 +77,36 @@ if(COMPILE_ImageMath)
       ${external_projects_vars}
       -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/${proj}-install
   )
-  install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${proj}-install/bin/ImageMath${fileextension} DESTINATION ${CMAKE_INSTALL_PREFIX}/${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION})
-endif(COMPILE_ImageMath)
+  install(
+    PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${proj}-install/bin/ImageMath${CMAKE_EXECUTABLE_SUFFIX}
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}
+    )
+endif()
 
 option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
 if(COMPILE_MetaMeshTools)
   add_subdirectory(MetaMeshTools)
-endif(COMPILE_MetaMeshTools)
+endif()
 
 option(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
 if(COMPILE_SegPostProcessCLP)
   add_subdirectory(SegPostProcessCLP)
-endif(COMPILE_SegPostProcessCLP)
+endif()
 
 option(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
 if(COMPILE_GenParaMeshCLP)
   add_subdirectory(GenParaMeshCLP)
-endif(COMPILE_GenParaMeshCLP)
+endif()
 
 option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
 if(COMPILE_ParaToSPHARMMeshCLP)
   add_subdirectory(ParaToSPHARMMeshCLP)
-endif(COMPILE_ParaToSPHARMMeshCLP)
+endif()
 
 option(COMPILE_SpharmTool "Compile SpharmTool." ON)
 if(COMPILE_SpharmTool)
   add_subdirectory(SpharmTool)
-endif(COMPILE_SpharmTool)
+endif()
 
 option(COMPILE_shapeAnalysisMANCOVA_Wizard "Compile shapeAnalysisMANCOVA_Wizard." OFF)
 option(COMPILE_StatNonParamTestPDM "Compile StatNonParamTestPDM." OFF)
@@ -111,7 +114,7 @@ if(COMPILE_StatNonParamTestPDM)
   ###add download Mancova and configure mancova project. Qt for wizard....
   set( proj StatNonParamTestPDM)
   set( ${proj}_REPOSITORY ${git_protocol}://github.com/NIRALUser/shapeAnalysisMANCOVA.git)
-  set( ${proj}_GIT_TAG f325dca1f1d91e8bf11b2ddd7f1983fb88a8d6a0 )
+  set( ${proj}_GIT_TAG b67b87b7bc0c7a665bb7659422b9e2f1ca901a81 )
   ExternalProject_Add(MANCOVA
     GIT_REPOSITORY ${${proj}_REPOSITORY}
     GIT_TAG ${${proj}_GIT_TAG}
@@ -128,7 +131,7 @@ if(COMPILE_StatNonParamTestPDM)
       ${external_projects_vars}
       INSTALL_COMMAND ""
   )
-endif(COMPILE_StatNonParamTestPDM)
+endif()
 
 option(COMPILE_shapeworks "Compile shapeworks." OFF)
 if(COMPILE_shapeworks)
@@ -144,7 +147,9 @@ if(COMPILE_shapeworks)
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
       -DITK_DIR:PATH=${ITK_DIR}
+      # Workaround use of "${USE_ITK_FILE}" in "shapeworks/CMakeLists.txt"
+      -DUSE_ITK_FILE:PATH=${ITK_USE_FILE}
       ${external_projects_vars}
       INSTALL_COMMAND ""
   )
-endif(COMPILE_shapeworks)
+endif()

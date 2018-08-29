@@ -64,22 +64,15 @@ int main( int argc, char * argv[] )
 
   /** Hold on to the type information specified by the template parameters. */
   typedef  MeshType::Pointer    MeshPointer;
-  typedef  MeshTrait::PointType MeshPointType;
-  typedef  MeshTrait::PixelType MeshPixelType;
+
+
 
   /** Some convenient typedefs. */
   typedef  MeshType::Pointer                MeshPointer;
-  typedef  MeshType::CellTraits             CellTraits;
   typedef  MeshType::PointsContainerPointer PointsContainerPointer;
-  typedef  MeshType::PointsContainer        PointsContainer;
   typedef  MeshType::CellsContainerPointer  CellsContainerPointer;
-  typedef  MeshType::CellsContainer         CellsContainer;
   typedef  MeshType::PointType              PointType;
-  typedef  MeshType::CellType               CellType;
-  typedef  itk::TriangleCell<CellType>      TriangleType;
-
   typedef itk::MeshSpatialObject<MeshType>                     MeshSpatialObjectType;
-  typedef itk::SpatialObjectWriter<3, float, MeshTrait>        MeshWriterType;
   typedef neurolib::ParametricMeshToSPHARMSpatialObjectFilter  SPHARMFilterType;
   typedef itk::Mesh3DProcrustesAlignFilter<MeshType, MeshType> ProcrustesFilterType;
   typedef itk::AffineTransform<double, dimension>              TransformType;
@@ -330,7 +323,7 @@ int main( int argc, char * argv[] )
         rotPts[1] =  rotMat->TransformPoint(pts[1]);
         rotPts[2] =  rotMat->TransformPoint(pts[2]);
 
-        double rotTheta[3], rotPhi[3];
+        double rotPhi[3];
         for( int i = 0; i < 3; i++ )
           {
           if( rotPts[i][2] > 1 )
@@ -341,7 +334,6 @@ int main( int argc, char * argv[] )
             {
             rotPts[i][2] = -1;
             }
-          rotTheta[i] = acos(rotPts[i][2]); // 0 .. M_PI
           rotPhi[i] = atan2(rotPts[i][1], rotPts[i][0]);
           if( rotPhi[i] < 0 )
             {
@@ -629,11 +621,7 @@ int main( int argc, char * argv[] )
 
 		// END Add scalars for visualization
 
-    #if VTK_MAJOR_VERSION > 5
 		vtkwriter->SetInputData(polydataAtt);
-    #else
-		vtkwriter->SetInput(polydataAtt);
-    #endif
 		outFileName.erase();
 		outFileName.append(base_string);
         outFileName.append("_SPHARMMedialMesh.vtk");
@@ -678,11 +666,7 @@ int main( int argc, char * argv[] )
          }
          ScalarFile.close();
 
-#if VTK_MAJOR_VERSION > 5
          vtkwriter->SetInputData(medialAxis );
-#else
-         vtkwriter->SetInput(medialAxis );
-#endif
          outFileName.erase();
          outFileName.append(base_string);
          outFileName.append("_SPHARMMedialAxis.vtk");
@@ -709,11 +693,7 @@ int main( int argc, char * argv[] )
 
            itkMeshTovtkPolyData ITKVTKConverter4;
            ITKVTKConverter4.SetInput(_paraMesh);
-           #if VTK_MAJOR_VERSION > 5
            vtkwriter->SetInputData(ITKVTKConverter4.GetOutput() );
-           #else
-           vtkwriter->SetInput(ITKVTKConverter4.GetOutput() );
-           #endif
            vtkwriter->SetFileName(outFileName.c_str() );
            vtkwriter->Write();
 
@@ -803,11 +783,11 @@ int main( int argc, char * argv[] )
                for( int i = 0; i < nvert; i++ )
                {
                    PointType curPoint =  paraPoints->GetElement(i);
-                   double    theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                   double    curTheta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
                    //0 .. M_PI
-                   efile << theta << endl;
+                   efile << curTheta << endl;
                    // if (i != nvert - 1) efile << " ";
-                   array->InsertNextValue(theta);
+                   array->InsertNextValue(curTheta);
                }
                efile.close();
                ITKVTKConverter.GetOutput()->GetPointData()->AddArray(array);
@@ -839,11 +819,11 @@ int main( int argc, char * argv[] )
                    {
                        phi = 2 * M_PI - phi;            // 0 .. M_PI ..0
                    }
-                   double theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                   double curTheta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
                    // 0 .. M_PI
-                   efile << theta / M_PI * ( phi / M_PI + 1) << endl;
+                   efile << curTheta / M_PI * ( phi / M_PI + 1) << endl;
                    // if (i != nvert - 1) efile << " ";
-                   array->InsertNextValue(theta/ M_PI * ( phi / M_PI + 1));
+                   array->InsertNextValue(curTheta/ M_PI * ( phi / M_PI + 1));
                }
                efile.close();
                ITKVTKConverter.GetOutput()->GetPointData()->AddArray(array);
@@ -854,11 +834,7 @@ int main( int argc, char * argv[] )
          outFileName.append("_SPHARM.vtk");
          vtkwriter->SetFileName(outFileName.c_str() );
 
-         #if VTK_MAJOR_VERSION > 5
          vtkwriter->SetInputData(ITKVTKConverter.GetOutput());
-         #else
-         vtkwriter->SetInput(ITKVTKConverter.GetOutput());
-         #endif
          vtkwriter->SetFileName(outFileName.c_str());
          vtkwriter->Write();
 
@@ -945,9 +921,9 @@ int main( int argc, char * argv[] )
                 for( int i = 0; i < nvert; i++ )
                 {
                   PointType curPoint =  paraPoints->GetElement(i);
-                  double    theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                  double    curTheta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
                   //0 .. M_PI
-                  array->InsertNextValue(theta);
+                  array->InsertNextValue(curTheta);
                 }
                 ITKVTKConverter2.GetOutput()->GetPointData()->AddArray(array);
             }
@@ -964,19 +940,15 @@ int main( int argc, char * argv[] )
                     {
                     phi = 2 * M_PI - phi;            // 0 .. M_PI ..0
                     }
-                  double theta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                  double curTheta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
                   // 0 .. M_PI
-                  array->InsertNextValue(theta/ M_PI * ( phi / M_PI + 1));
+                  array->InsertNextValue(curTheta/ M_PI * ( phi / M_PI + 1));
                 }
                 ITKVTKConverter2.GetOutput()->GetPointData()->AddArray(array);
             }
       }
 
-      #if VTK_MAJOR_VERSION > 5
       vtkwriter->SetInputData(ITKVTKConverter2.GetOutput() );
-      #else
-      vtkwriter->SetInput(ITKVTKConverter2.GetOutput() );
-      #endif
       outFileName.erase();
       outFileName.append(base_string);
       outFileName.append("_SPHARM_ellalign.vtk");
@@ -1067,11 +1039,7 @@ int main( int argc, char * argv[] )
       std::cout << "procalign" << std::endl;
       itkMeshTovtkPolyData ITKVTKConverter3;
       ITKVTKConverter3.SetInput(RegisteredMesh);
-      #if VTK_MAJOR_VERSION > 5
       vtkwriter->SetInputData(ITKVTKConverter3.GetOutput() );
-      #else
-      vtkwriter->SetInput(ITKVTKConverter3.GetOutput() );
-      #endif
       vtkwriter->SetFileName(outFileName.c_str() );
       vtkwriter->Write();
 

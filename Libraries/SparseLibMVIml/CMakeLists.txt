@@ -1,9 +1,9 @@
 
 if(WIN32)
   add_definitions("-DCOMPLEX=std::complex<double>")
-else(WIN32)
+else()
   add_definitions('-DCOMPLEX=std::complex<double>')
-endif(WIN32)
+endif()
 
 set(SparseLib_SRCS compcol_double.cxx
   diagpre_double.cxx mvblasf.cxx mvmd.cxx mvvc.cxx

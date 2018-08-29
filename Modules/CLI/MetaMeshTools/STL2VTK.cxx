@@ -49,11 +49,7 @@ int main(int argc, const char **argv)
 
   vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New () ;
   writer->SetFileName ( outputFilename.c_str () ) ;
-  #if VTK_MAJOR_VERSION > 5
   writer->SetInputData ( polyData ) ;
-  #else
-  writer->SetInput ( polyData ) ;
-  #endif
   writer->Update () ;
   
   std::cout << "Conversion Completed" << endl ;

@@ -37,12 +37,8 @@ else()
   set(gen "${CMAKE_GENERATOR}")
 endif()
 
-
-# With CMake 2.8.9 or later, the UPDATE_COMMAND is required for updates to occur.
-# For earlier versions, we nullify the update state to prevent updates and
-# undesirable rebuild.
 option(FORCE_EXTERNAL_BUILDS "Force rebuilding of external project (if they are updated)" OFF)
-if(CMAKE_VERSION VERSION_LESS 2.8.9 OR NOT FORCE_EXTERNAL_BUILDS)
+if(NOT FORCE_EXTERNAL_BUILDS)
   set(cmakeversion_external_update UPDATE_COMMAND)
   set(cmakeversion_external_update_value "" )
 else()
@@ -53,26 +49,11 @@ endif()
 #-----------------------------------------------------------------------------
 # Superbuild option(s)
 #-----------------------------------------------------------------------------
-option(BUILD_STYLE_UTILS "Build uncrustify, cppcheck, & KWStyle" OFF)
-CMAKE_DEPENDENT_OPTION(
-  USE_SYSTEM_Uncrustify "Use system Uncrustify program" OFF
-  "BUILD_STYLE_UTILS" OFF
-  )
-CMAKE_DEPENDENT_OPTION(
-  USE_SYSTEM_KWStyle "Use system KWStyle program" OFF
-  "BUILD_STYLE_UTILS" OFF
-  )
-CMAKE_DEPENDENT_OPTION(
-  USE_SYSTEM_Cppcheck "Use system Cppcheck program" OFF
-  "BUILD_STYLE_UTILS" OFF
-  )
-
 set(EXTERNAL_PROJECT_BUILD_TYPE "Release" CACHE STRING "Default build type for support libraries")
 
 option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
 option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
 option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
-option(USE_SYSTEM_zlib "Build using external zlib" ON)
 option(USE_SYSTEM_CLAPACK "Build using an externally defined version of CLAPACK" OFF)
 option(BUILD_SHARED_LIBS "Use shared libraries" OFF) #to give the user the option to configure their builds as they want
 
@@ -98,9 +79,6 @@ if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
   set(${LOCAL_PROJECT_NAME}_DEPENDENCIES CLAPACK)
 else()
     set(${LOCAL_PROJECT_NAME}_DEPENDENCIES ITKv4 SlicerExecutionModel VTK CLAPACK)
-endif()
-if(BUILD_STYLE_UTILS)
-  list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDENCIES Cppcheck KWStyle Uncrustify)
 endif()
 #-----------------------------------------------------------------------------
 # Define Superbuild global variables
@@ -165,9 +143,13 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   MEMORYCHECK_COMMAND:PATH
   SITE:STRING
   BUILDNAME:STRING
-  Subversion_SVN_EXECUTABLE:FILEPATH
   GIT_EXECUTABLE:FILEPATH
   )
+if("${COMPILE_shapeworks}")
+  list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
+    Subversion_SVN_EXECUTABLE:FILEPATH
+    )
+endif()
 
 _expand_external_project_vars()
 set(COMMON_EXTERNAL_PROJECT_ARGS ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS})
@@ -287,31 +269,3 @@ ExternalProject_Add_Step(${proj} forcebuild
     ALWAYS 1
   )
 
-# if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
-#   unsetForSlicer( NAMES VTK_DIR SlicerExecutionModel_DIR DCMTK_DIR ITK_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
-#   # Create fake imported target to avoid importing Slicer target: See SlicerConfig.cmake:line 820
-#   add_library(SlicerBaseLogic SHARED IMPORTED)
-#   find_package(Slicer REQUIRED)
-#   include(${Slicer_USE_FILE})
-#   set( EXTENSION_NO_CLI asc2meta asc2vtk BYU2VTK MeshMath Meta2STL Meta2VTK SpharmTool STL2Meta VTK2Meta )
-#   set( EXTENSION_CLI GenParaMeshCLP ParaToSPHARMMeshCLP RadiusToMesh SegPostProcessCLP ShapeAnalysisModule  )
-#   set( EXTENSION_TESTS ${EXTENSION_NO_CLI} ${EXTENSION_CLI} GenParaMeshCLPTest SegPostProcessCLPTest )
-#   foreach( VAR ${EXTENSION_TESTS})
-#     add_executable(${VAR} IMPORTED)
-#     set_property(TARGET ${VAR} PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${proj}-install/${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${VAR}${fileextension})
-#   endforeach()
-#   if(BUILD_TESTING)
-#     add_subdirectory(Testing)
-#   endif()
-#   resetForSlicer( NAMES VTK_DIR ITK_DIR SlicerExecutionModel_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS)
-#   set( NOCLI_INSTALL_DIR ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}/../ExternalBin)
-#   foreach( VAR ${EXTENSION_NO_CLI})
-#     install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${proj}-install/${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${VAR}${fileextension} DESTINATION ${NOCLI_INSTALL_DIR} )
-#   endforeach()
-#   foreach( VAR ${EXTENSION_CLI})
-#     install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${proj}-install/${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${VAR}${fileextension} DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION} )
-#   endforeach()
-#   install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bmm DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}/.. )
-#   set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
-#   include(${Slicer_EXTENSION_CPACK})
-# endif()

@@ -55,11 +55,7 @@ int main(int argc, const char * *argv)
 
   // write out the vtk mesh
   vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
-  #if VTK_MAJOR_VERSION > 5
   writer->SetInputData( ITKVTKConverter.GetOutput() );
-  #else
-  writer->SetInput( ITKVTKConverter.GetOutput() );
-  #endif
   writer->SetFileName( outfile );
   writer->Update();
 

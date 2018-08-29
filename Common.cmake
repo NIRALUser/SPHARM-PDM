@@ -1,5 +1,7 @@
 include(CMakeDependentOption)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 #-----------------------------------------------------------------------------
 # Build option(s)
 #-----------------------------------------------------------------------------
@@ -7,17 +9,6 @@ set(PRIMARY_PROJECT_NAME ${LOCAL_PROJECT_NAME})
 
 option(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT "Install development support include and libraries for external packages." OFF)
 mark_as_advanced(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT)
-
-set(ITK_VERSION_MAJOR 4 CACHE STRING "Choose the expected ITK4 major version to build SPHARM-PDM.")
-# Set the possible values of ITK major version for cmake-gui
-if( NOT WIN32 )
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
-endif()
-if(NOT ${ITK_VERSION_MAJOR} STREQUAL "4")
-  message(FATAL_ERROR "ITK_VERSION_MAJOR should be 4")
-endif()
-
-set(USE_ITKv4 ON)
 
 #-----------------------------------------------------------------------------
 # Update CMake module path
@@ -32,14 +23,15 @@ set(CMAKE_MODULE_PATH
 #------------------------------------------------------------------------------
 include(PreventInSourceBuilds)
 include(PreventInBuildInstalls)
-include(SlicerExtensionsConfigureMacros)
 
 #-----------------------------------------------------------------------------
 # Prerequisites
 #-----------------------------------------------------------------------------
-find_package(Subversion)
-if(NOT Subversion_FOUND)
-  message(WARNING "SVN may be needed to download external dependencies. Install SVN and try to re-configure")
+if("${COMPILE_shapeworks}")
+  find_package(Subversion)
+  if(NOT Subversion_FOUND)
+    message(WARNING "SVN may be needed to download external dependencies. Install SVN and try to re-configure")
+  endif()
 endif()
 
 find_package(Git)
@@ -50,18 +42,14 @@ endif()
 option(USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
 if(NOT USE_GIT_PROTOCOL)
   set(git_protocol "http")
-else(NOT USE_GIT_PROTOCOL)
+else()
   set(git_protocol "git")
 endif()
 
 #-----------------------------------------------------------------------------
 # CMake Function(s) and Macro(s)
 #-----------------------------------------------------------------------------
-if(CMAKE_VERSION VERSION_LESS 2.8.3)
-  include(Pre283CMakeParseArguments)
-else()
-  include(CMakeParseArguments)
-endif()
+include(CMakeParseArguments)
 
 #-----------------------------------------------------------------------------
 # Platform check
@@ -136,18 +124,3 @@ else() # Release, or anything else
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_RELEASE_DESIRED_FLAGS}" )
 endif()
 
-#-----------------------------------------------------------------------------
-# Add needed flag for gnu on linux like enviroments to build static common libs
-# suitable for linking with shared object libs.
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-  if(NOT "${CMAKE_CXX_FLAGS}" MATCHES "-fPIC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-  endif()
-  if(NOT "${CMAKE_C_FLAGS}" MATCHES "-fPIC")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-  endif()
-endif()
-#-----------------------------------------------------------------------------
-if(WIN32)
-  set(fileextension .exe)
-endif()

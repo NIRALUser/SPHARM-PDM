@@ -110,15 +110,15 @@ int main( int argc, char * argv[] )
   typedef unsigned short                         ImagePixelType;
   typedef Image<ImagePixelType, Dimension>       ImageType;
   typedef float                                  SmoothImagePixelType;
-  typedef ImageType::SizeType                    ImageSizeType;
+
   typedef Image<SmoothImagePixelType, Dimension> SmoothImageType;
   typedef ImageFileReader<ImageType>             VolumeReaderType;
   typedef ImageFileWriter<ImageType>             VolumeWriterType;
-  typedef ImageFileWriter<SmoothImageType> SmoothWriterType ;
+
   typedef ResampleImageFilter<ImageType, ImageType> ResamplerType;
   typedef AffineTransform<CoordRepType, Dimension>  TransformType;
 
-  typedef BSplineInterpolateImageFunction<ImageType, CoordRepType>         SplineInterpolFunctionType;
+//  typedef BSplineInterpolateImageFunction<ImageType, CoordRepType>         SplineInterpolFunctionType;
   typedef LinearInterpolateImageFunction<ImageType, CoordRepType>          LinearInterpolFunctionType;
   typedef NearestNeighborInterpolateImageFunction<ImageType, CoordRepType> NNInterpolFunctionType;
 
@@ -142,7 +142,6 @@ int main( int argc, char * argv[] )
   typedef RescaleIntensityImageFilter<SmoothImageType, ImageType>      RescaleFilter;
 
   typedef ImageRegionIteratorWithIndex<ImageType> IteratorType;
-  typedef Index<Dimension>                        IndexType;
 
   /* typedef short PixelType;
    typedef ImageFileReader< ImageType >          VolumeReaderType;
@@ -155,13 +154,10 @@ int main( int argc, char * argv[] )
    typedef itk::Vector< float, 3 > VectorType;*/
   typedef short                                                             PixelType;
   typedef ImageFileReader<ImageType>                                        VolumeReaderType;
-  typedef ImageRegionIterator<ImageType>                                    Iterator;
-  typedef ImageType::Pointer                                                ImagePointer;
   typedef itk::Statistics::ImageToListSampleAdaptor<ImageType>              ImageSampleType;
   typedef ImageSampleType::Iterator                                         ImageSampleIterator;
   typedef itk::Statistics::MembershipSample<ImageSampleType>                MembershipSampleType;
   typedef itk::Statistics::Subsample<MembershipSampleType::ClassSampleType> SubsampleType;
-  typedef itk::Vector<float, 3>                                             VectorType;
 
   typedef AddImageFilter<ImageType, ImageType,  ImageType> addFilterType;
   typedef MaskImageFilter<ImageType, ImageType, ImageType> maskFilterType;

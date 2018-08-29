@@ -8,38 +8,23 @@ if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
 #-----------------------------------------------------------------------------
   set(RELATIVE_EXTENSION_PATH ..)
   set(NOCLI_INSTALL_DIR ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${RELATIVE_EXTENSION_PATH})
-  ADD_DEFINITIONS(-DSLICER_EXTENSION_PATH=${RELATIVE_EXTENSION_PATH})
+  add_definitions(-DSLICER_EXTENSION_PATH=${RELATIVE_EXTENSION_PATH})
 endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
-#-----------------------------------------------------------------------------
 
-set(expected_ITK_VERSION_MAJOR ${ITK_VERSION_MAJOR})
-find_package(ITK REQUIRED)
-if(${ITK_VERSION_MAJOR} VERSION_LESS ${expected_ITK_VERSION_MAJOR})
-  # Note: Since ITKv3 doesn't include a ITKConfigVersion.cmake file, let's check the version
-  #       explicitly instead of passing the version as an argument to find_package() command.
-  message(FATAL_ERROR "Could not find a configuration file for package \"ITK\" that is compatible "
-                      "with requested version \"${expected_ITK_VERSION_MAJOR}\".\n"
-                      "The following configuration files were considered but not accepted:\n"
-                      "  ${ITK_CONFIG}, version: ${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}.${ITK_VERSION_PATCH}\n")
-endif()
+#-----------------------------------------------------------------------------
+find_package(ITK 4 REQUIRED)
 include(${ITK_USE_FILE})
 
-
 find_package(SlicerExecutionModel REQUIRED)
-#include(${GenerateCLP_USE_FILE})
 include(${SlicerExecutionModel_USE_FILE})
-#include(${SlicerExecutionModel_CMAKE_DIR}/SEMMacroBuildCLI.cmake)
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
-#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
 set(CLAPACK_LIBRARY_DIRECTORIES
   ${CLAPACK_DIR}/F2CLIBS/libf2c
   ${CLAPACK_DIR}/BLAS/SRC
@@ -73,7 +58,7 @@ endif()
 # Testing
 #-----------------------------------------------------------------------------
 option(BUILD_TESTING "Build testing" OFF)
-IF(BUILD_TESTING)
+if(BUILD_TESTING)
   include(CTest)
-  ADD_SUBDIRECTORY(Testing)
-ENDIF(BUILD_TESTING)
+  add_subdirectory(Testing)
+endif(BUILD_TESTING)

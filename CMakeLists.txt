@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 2.8.3)
-cmake_policy(VERSION 2.8.3)
-cmake_policy(SET CMP0048 NEW)
+cmake_minimum_required(VERSION 3.5.0)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(SPHARM-PDM)
 set(LOCAL_PROJECT_NAME SPHARM-PDM)
@@ -36,6 +38,31 @@ set(CMAKE_MODULE_PATH
 option(${LOCAL_PROJECT_NAME}_SUPERBUILD "Build ${LOCAL_PROJECT_NAME} and the projects it depends on via SuperBuild.cmake." ON)
 mark_as_advanced(${LOCAL_PROJECT_NAME}_SUPERBUILD)
 
+#-----------------------------------------------------------------------------
+# Standalone vs Slicer extension option
+#-----------------------------------------------------------------------------
+
+# This option should be named after the project name, it corresponds to the
+# option set to ON when the project is build by the Slicer Extension build
+# system.
+
+set(_default OFF)
+set(_reason "${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION is ON")
+if(NOT DEFINED ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION AND DEFINED Slicer_DIR)
+  set(_default ON)
+  set(_reason "Slicer_DIR is SET")
+endif()
+
+option(${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION "Build as a Slicer Extension" ${_default})
+
+set(_msg "Checking if building as a Slicer extension")
+message(STATUS ${_msg})
+if(${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
+  message(STATUS "${_msg} - yes (${_reason})")
+else()
+  message(STATUS "${_msg} - no (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION is OFF)")
+endif()
+
 #----------------------------------------------------------------------------------------
 # Slicer
 #----------------------------------------------------------------------------------------
@@ -57,7 +84,6 @@ if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
   # Slicer
   find_package(Slicer REQUIRED)
   include(${Slicer_USE_FILE})
-  include(SlicerExtensionsConfigureMacros)
   mark_as_superbuild(Slicer_DIR)
 
   # Slicer Execution Model
