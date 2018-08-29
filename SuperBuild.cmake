@@ -62,7 +62,6 @@ option(BUILD_SHARED_LIBS "Use shared libraries" OFF) #to give the user the optio
 #------------------------------------------------------------------------------
 
 option(COMPILE_StatNonParamTestPDM "Compile StatNonParam and ShapeMancova" OFF)
-option(COMPILE_shapeworks "Compile shapeworks." OFF)
 option(COMPILE_ImageMath "Compile ImageMath." OFF)
 option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
 option(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
@@ -145,11 +144,6 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   BUILDNAME:STRING
   GIT_EXECUTABLE:FILEPATH
   )
-if("${COMPILE_shapeworks}")
-  list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
-    Subversion_SVN_EXECUTABLE:FILEPATH
-    )
-endif()
 
 _expand_external_project_vars()
 set(COMMON_EXTERNAL_PROJECT_ARGS ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS})
@@ -189,7 +183,6 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   BOOST_INCLUDE_DIR:PATH
   BOOST_ROOT:PATH
   COMPILE_StatNonParamTestPDM:BOOL
-  COMPILE_shapeworks:BOOL
   COMPILE_ImageMath:BOOL
   COMPILE_MetaMeshTools:BOOL
   COMPILE_SegPostProcessCLP:BOOL

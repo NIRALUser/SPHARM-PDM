@@ -132,24 +132,3 @@ if(COMPILE_StatNonParamTestPDM)
       INSTALL_COMMAND ""
   )
 endif()
-
-option(COMPILE_shapeworks "Compile shapeworks." OFF)
-if(COMPILE_shapeworks)
-  set(shapeworks_REPOSITORY  https://www.nitrc.org/svn/shapeworks/code CACHE STRING "" FORCE)
-  ExternalProject_Add(shapeworks
-    SVN_REPOSITORY ${shapeworks_REPOSITORY}
-    SVN_REVISION -r 78
-    SVN_USERNAME slicerbot
-    SVN_PASSWORD slicer
-    UPDATE_COMMAND ""
-    SOURCE_DIR shapeworks
-    BINARY_DIR shapeworks-build
-    CMAKE_GENERATOR ${gen}
-    CMAKE_ARGS
-      -DITK_DIR:PATH=${ITK_DIR}
-      # Workaround use of "${USE_ITK_FILE}" in "shapeworks/CMakeLists.txt"
-      -DUSE_ITK_FILE:PATH=${ITK_USE_FILE}
-      ${external_projects_vars}
-      INSTALL_COMMAND ""
-  )
-endif()
