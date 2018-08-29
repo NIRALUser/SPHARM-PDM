@@ -37,15 +37,6 @@ else()
   set(gen "${CMAKE_GENERATOR}")
 endif()
 
-option(FORCE_EXTERNAL_BUILDS "Force rebuilding of external project (if they are updated)" OFF)
-if(NOT FORCE_EXTERNAL_BUILDS)
-  set(cmakeversion_external_update UPDATE_COMMAND)
-  set(cmakeversion_external_update_value "" )
-else()
-  set(cmakeversion_external_update LOG_UPDATE )
-  set(cmakeversion_external_update_value 1)
-endif()
-
 #-----------------------------------------------------------------------------
 # Superbuild option(s)
 #-----------------------------------------------------------------------------
