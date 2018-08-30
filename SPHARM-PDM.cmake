@@ -39,7 +39,7 @@ if(BUILD_TESTING)
 endif(BUILD_TESTING)
 
 #-----------------------------------------------------------------------------
-if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
+if(${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
   # CPack
   set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
   include(${Slicer_EXTENSION_CPACK})
