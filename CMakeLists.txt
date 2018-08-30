@@ -103,22 +103,5 @@ if(${LOCAL_PROJECT_NAME}_SUPERBUILD)
 else()
   project(${LOCAL_PROJECT_NAME}) 
   include("${CMAKE_CURRENT_SOURCE_DIR}/${LOCAL_PROJECT_NAME}.cmake")
-#  return()
-endif()
-
-#-----------------------------------------------------------------------------
-# Clear ${PROJECT_NAME}Targets.cmake
-file(WRITE ${CMAKE_BINARY_DIR}/${Slicer_SHARE_DIR}/${PROJECT_NAME}Targets.cmake "")
-
-#-----------------------------------------------------------------------------
-add_subdirectory(Modules)
-if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
- add_subdirectory(CommandLineTool)
-endif()
-
-#-----------------------------------------------------------------------------
-if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
-  # CPack
-  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
-  include(${Slicer_EXTENSION_CPACK})
+  return()
 endif()
