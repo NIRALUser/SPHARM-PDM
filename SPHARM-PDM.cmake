@@ -31,7 +31,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/IO)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/SpatialObject)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/Algorithms)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/Numerics)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/Statistics)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/SparseLibMVIml)
 
 option(BUILD_LIBRARIES "Build libraries" ON)
