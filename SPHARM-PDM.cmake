@@ -1,16 +1,5 @@
 project(SPHARM-PDM)
 
-
-if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
-#-----------------------------------------------------------------------------
-#   Program definitions for C++ interfacing
-#   Necessary at runtime
-#-----------------------------------------------------------------------------
-  set(RELATIVE_EXTENSION_PATH ..)
-  set(NOCLI_INSTALL_DIR ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${RELATIVE_EXTENSION_PATH})
-  add_definitions(-DSLICER_EXTENSION_PATH=${RELATIVE_EXTENSION_PATH})
-endif()
-
 include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
 
 #-----------------------------------------------------------------------------
