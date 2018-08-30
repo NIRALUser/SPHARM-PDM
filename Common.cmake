@@ -9,6 +9,12 @@ set(PRIMARY_PROJECT_NAME ${LOCAL_PROJECT_NAME})
 option(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT "Install development support include and libraries for external packages." OFF)
 mark_as_advanced(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT)
 
+option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
+option(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
+option(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
+option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
+option(COMPILE_SpharmTool "Compile SpharmTool." ON)
+
 #-----------------------------------------------------------------------------
 # Update CMake module path
 #------------------------------------------------------------------------------

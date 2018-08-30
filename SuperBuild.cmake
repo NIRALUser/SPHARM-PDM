@@ -49,16 +49,6 @@ option(USE_SYSTEM_CLAPACK "Build using an externally defined version of CLAPACK"
 option(BUILD_SHARED_LIBS "Use shared libraries" OFF) #to give the user the option to configure their builds as they want
 
 #------------------------------------------------------------------------------
-# ${LOCAL_PROJECT_NAME} modules and external tools
-#------------------------------------------------------------------------------
-
-option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
-option(COMPILE_SegPostProcessCLP "Compile SegPostProcessCLP." ON)
-option(COMPILE_GenParaMeshCLP "Compile GenParaMeshCLP." ON)
-option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
-option(COMPILE_SpharmTool "Compile SpharmTool." ON)
-
-#------------------------------------------------------------------------------
 # ${LOCAL_PROJECT_NAME} dependency list
 #------------------------------------------------------------------------------
 
