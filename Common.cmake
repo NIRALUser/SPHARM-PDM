@@ -6,7 +6,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 #-----------------------------------------------------------------------------
 set(PRIMARY_PROJECT_NAME ${LOCAL_PROJECT_NAME})
 
-option(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT "Install development support include and libraries for external packages." OFF)
+set(_default ON)
+if(DEFINED Slicer_DIR)
+  set(_default OFF)
+endif()
+option(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT "Install development support include and libraries for external packages." ${_default})
 mark_as_advanced(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT)
 
 option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
@@ -118,17 +122,16 @@ else()
 endif()
 
 #-------------------------------------------------------------------------
-# SlicerExecutionModel output and install directories
-# * for configuring SlicerExecutionModel external project default directories
-# * for building and installing regular executables
-if(NOT ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
-  SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-  SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
-  SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-  SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_INSTALL_LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBRARY_DESTINATION})
-  SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_INSTALL_ARCHIVE_DESTINATION ${CMAKE_INSTALL_ARCHIVE_DESTINATION})
-  SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION ${CMAKE_INSTALL_RUNTIME_DESTINATION})
-endif()
+# Output and install directories for:
+# * configuring SlicerExecutionModel external project default output and install directories
+#   when building as a standalone project.
+# * configuring CLI-like executables that are not using the SlicerExecutionModel.
+SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
+SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_INSTALL_LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBRARY_DESTINATION})
+SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_INSTALL_ARCHIVE_DESTINATION ${CMAKE_INSTALL_ARCHIVE_DESTINATION})
+SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION ${CMAKE_INSTALL_RUNTIME_DESTINATION})
 
 #-------------------------------------------------------------------------
 if(NOT DEFINED CMAKE_MACOSX_RPATH)

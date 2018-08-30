@@ -26,40 +26,17 @@ target_link_libraries(BYU2VTK PRIVATE ${VTK_LIBRARIES} )
 add_executable(STL2VTK STL2VTK.cxx)
 target_link_libraries(STL2VTK PRIVATE ${VTK_LIBRARIES} )
 
-macro(INSTALL_EXECUTABLE)
-  set(options )
-  set( oneValueArgs OUTPUT_DIR )
-  set(multiValueArgs LIST_EXEC )
-  cmake_parse_arguments(LOCAL
-    "${options}"
-    "${oneValueArgs}"
-    "${multiValueArgs}"
-    ${ARGN}
-    )
-  foreach( tool ${LOCAL_LIST_EXEC})
-    install(TARGETS ${tool} DESTINATION ${LOCAL_OUTPUT_DIR} )
-  endforeach()
-endmacro()
-
-if( NOT SPHARM-PDM_BUILD_SLICER_EXTENSION )
-  install(TARGETS
-   STL2Meta
-   Meta2STL
-   MeshMath
-   Meta2VTK
-   BYU2VTK
-   VTK2Meta
-   STL2VTK
-   asc2vtk
-   asc2meta
-   BUNDLE DESTINATION  bin
-   RUNTIME DESTINATION bin
-   LIBRARY DESTINATION lib
-   ARCHIVE DESTINATION lib/static  
-   )
-else()
-  set( NotCLIToolsList
-    MeshMath STL2Meta Meta2STL Meta2VTK VTK2Meta asc2vtk asc2meta BYU2VTK STL2VTK
-     )
-  INSTALL_EXECUTABLE( OUTPUT_DIR ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION} LIST_EXEC ${NotCLIToolsList} )
-endif()
+install(
+  TARGETS
+    asc2meta
+    asc2vtk
+    BYU2VTK
+    MeshMath
+    Meta2STL
+    Meta2VTK
+    STL2Meta
+    STL2VTK
+    VTK2Meta
+  BUNDLE DESTINATION  ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION} COMPONENT Runtime
+  RUNTIME DESTINATION ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION} COMPONENT Runtime
+  )

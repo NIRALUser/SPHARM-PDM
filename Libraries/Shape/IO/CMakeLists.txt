@@ -7,7 +7,7 @@ set(ShapeIO_SRCS
 add_library(ShapeIO STATIC ${ShapeIO_SRCS})
 target_link_libraries(ShapeIO PUBLIC SpatialObject)
 
-if(NOT SPHARM-PDM_BUILD_SLICER_EXTENSION)
+if(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT)
   install(TARGETS ShapeIO
     ARCHIVE DESTINATION lib COMPONENT Development
     LIBRARY DESTINATION lib COMPONENT RuntimeLibraries

@@ -19,7 +19,7 @@ target_link_libraries(ShapeAlgorithms
     ${CLAPACK_LIBRARIES}
   )
 
-if(NOT SPHARM-PDM_BUILD_SLICER_EXTENSION)
+if(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT)
   install(TARGETS ShapeAlgorithms
     ARCHIVE DESTINATION lib COMPONENT Development
     LIBRARY DESTINATION lib COMPONENT RuntimeLibraries
