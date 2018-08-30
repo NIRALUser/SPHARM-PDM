@@ -81,19 +81,47 @@ if(NOT COMMAND SETIFEMPTY)
 endif()
 
 #-----------------------------------------------------------------------------
-SETIFEMPTY(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
-SETIFEMPTY(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
-SETIFEMPTY(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-#-----------------------------------------------------------------------------
-SETIFEMPTY(CMAKE_INSTALL_LIBRARY_DESTINATION lib)
-SETIFEMPTY(CMAKE_INSTALL_ARCHIVE_DESTINATION lib)
-SETIFEMPTY(CMAKE_INSTALL_RUNTIME_DESTINATION bin)
+# Output directories
+foreach(type LIBRARY RUNTIME ARCHIVE)
+  # Make sure the directory exists
+  if(DEFINED ${LOCAL_PROJECT_NAME}_CMAKE_${type}_OUTPUT_DIRECTORY
+     AND NOT EXISTS ${${LOCAL_PROJECT_NAME}_CMAKE_${type}_OUTPUT_DIRECTORY})
+    message(FATAL_ERROR "${LOCAL_PROJECT_NAME}_CMAKE_${type}_OUTPUT_DIRECTORY is set to a non-existing directory [${${LOCAL_PROJECT_NAME}_CMAKE_${type}_OUTPUT_DIRECTORY}]")
+  endif()
+
+  if(${LOCAL_PROJECT_NAME}_SUPERBUILD)
+    set(output_dir ${${LOCAL_PROJECT_NAME}_BINARY_DIR}/bin)
+    if(NOT DEFINED ${LOCAL_PROJECT_NAME}_CMAKE_${type}_OUTPUT_DIRECTORY)
+      set(${LOCAL_PROJECT_NAME}_CMAKE_${type}_OUTPUT_DIRECTORY ${${LOCAL_PROJECT_NAME}_BINARY_DIR}/${${LOCAL_PROJECT_NAME}}-build/bin)
+    endif()
+    # The variable is manually appended to ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
+  else()
+    if(NOT DEFINED ${LOCAL_PROJECT_NAME}_CMAKE_${type}_OUTPUT_DIRECTORY)
+      set(output_dir ${${LOCAL_PROJECT_NAME}_BINARY_DIR}/bin)
+    else()
+      set(output_dir ${${LOCAL_PROJECT_NAME}_CMAKE_${type}_OUTPUT_DIRECTORY})
+    endif()
+  endif()
+  set(CMAKE_${type}_OUTPUT_DIRECTORY ${output_dir} CACHE INTERNAL "Single output directory for building all libraries.")
+endforeach()
 
 #-------------------------------------------------------------------------
+# Install directories
 if(NOT ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
-  # CLI output and install directories
-  # * for configuring SlicerExecutionModel external project default directories
-  # * for building and installing regular executables
+  SETIFEMPTY(CMAKE_INSTALL_LIBRARY_DESTINATION lib)
+  SETIFEMPTY(CMAKE_INSTALL_ARCHIVE_DESTINATION lib)
+  SETIFEMPTY(CMAKE_INSTALL_RUNTIME_DESTINATION bin)
+else()
+  SETIFEMPTY(CMAKE_INSTALL_LIBRARY_DESTINATION ${Slicer_INSTALL_THIRDPARTY_LIB_DIR})
+  SETIFEMPTY(CMAKE_INSTALL_ARCHIVE_DESTINATION ${Slicer_INSTALL_THIRDPARTY_LIB_DIR})
+  SETIFEMPTY(CMAKE_INSTALL_RUNTIME_DESTINATION ${Slicer_INSTALL_THIRDPARTY_BIN_DIR})
+endif()
+
+#-------------------------------------------------------------------------
+# SlicerExecutionModel output and install directories
+# * for configuring SlicerExecutionModel external project default directories
+# * for building and installing regular executables
+if(NOT ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
   SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
   SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
   SETIFEMPTY(${LOCAL_PROJECT_NAME}_CLI_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
