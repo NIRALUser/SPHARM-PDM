@@ -23,11 +23,7 @@ set(CLAPACK_LIBRARIES lapack blas f2c)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
-option(BUILD_LIBRARIES "Build libraries" ON)
-mark_as_advanced(BUILD_LIBRARIES)
-if(BUILD_LIBRARIES)
-  add_subdirectory(Libraries)
-endif()
+add_subdirectory(Libraries)
 
 #-----------------------------------------------------------------------------
 # Testing
