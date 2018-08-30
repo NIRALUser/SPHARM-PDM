@@ -1,4 +1,3 @@
-include(CMakeDependentOption)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -38,11 +37,6 @@ if(NOT USE_GIT_PROTOCOL)
 else()
   set(git_protocol "git")
 endif()
-
-#-----------------------------------------------------------------------------
-# CMake Function(s) and Macro(s)
-#-----------------------------------------------------------------------------
-include(CMakeParseArguments)
 
 #-----------------------------------------------------------------------------
 # Platform check
