@@ -39,10 +39,6 @@ if(NOT DEFINED ${extProjName}_DIR AND NOT ${USE_SYSTEM_${extProjName}})
       -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
   endif()
 
-  ### --- Project specific additions here
-  set(${proj}_CMAKE_OPTIONS
-    )
-
 set(CLAPACK_version 3.2.1)
 # We needed to patch CLAPACK to avoid building tests when BUILD_TESTING was set to OFF
 # Instead of patching the source code each time, we copied the source code from 
@@ -73,11 +69,12 @@ endif()
     BINARY_DIR ${proj}-build
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
+      # Compiler settings
+      -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
+      # Options
       ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
       ${COMMON_EXTERNAL_PROJECT_ARGS}
-      -DBUILD_EXAMPLES:BOOL=OFF
       -DBUILD_TESTING:BOOL=OFF
-      ${${proj}_CMAKE_OPTIONS}
     #PATCH_COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild/CLAPACK-PatchTesting.txt ${CMAKE_CURRENT_BINARY_DIR}/CLAPACK/CMakeLists.txt # No testing if BUILD_TESTING is set to OFF
     INSTALL_COMMAND ""
     DEPENDS
