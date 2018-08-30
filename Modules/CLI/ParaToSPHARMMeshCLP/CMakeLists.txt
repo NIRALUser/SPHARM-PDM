@@ -5,7 +5,6 @@ set(ParaToSPHARMMeshCLP_LIBRARIES
        ${ITK_LIBRARIES}
        ${VTK_LIBRARIES}
        ShapeIO SpatialObject ShapeAlgorithms SpatialObject
-       ${CLAPACK_LIBRARIES}
        )
 
 

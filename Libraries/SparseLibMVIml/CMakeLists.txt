@@ -28,9 +28,4 @@ set(SparseLib_SRCS
   spsm.cxx
   )
 
-add_library(SparseMatrixLib STATIC  ${SparseLib_SRCS})
-
-if( NOT SPHARM-PDM_BUILD_SLICER_EXTENSION )
-  install_targets(/lib SparseMatrixLib)
-  install_files(/include/Shape/Numerics "(\\.h|\\.txx)$")
-endif()
+add_library(SparseMatrixLib STATIC ${SparseLib_SRCS})

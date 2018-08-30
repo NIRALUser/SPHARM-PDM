@@ -9,29 +9,19 @@ include(${ITK_USE_FILE})
 find_package(SlicerExecutionModel REQUIRED)
 include(${SlicerExecutionModel_USE_FILE})
 
-#-----------------------------------------------------------------------------
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
-#-----------------------------------------------------------------------------
-set(CLAPACK_LIBRARY_DIRECTORIES
-  ${CLAPACK_DIR}/F2CLIBS/libf2c
-  ${CLAPACK_DIR}/BLAS/SRC
-  ${CLAPACK_DIR}/SRC
-   )
-if(WIN32)
-  set(CLAPACK_LIBRARIES lapack blas libf2c)
-else()
-  set(CLAPACK_LIBRARIES lapack blas f2c)
-endif()
+find_package(CLAPACK NO_MODULE REQUIRED)
+# Workaround incomplete lapack target
+set_target_properties(lapack PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "${CLAPACK_DIR}/../CLAPACK/INCLUDE"
+  )
+set(CLAPACK_LIBRARIES lapack blas f2c)
 
-link_directories( ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} )
-link_directories(${CLAPACK_LIBRARY_DIRECTORIES})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/IO)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/SpatialObject)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/Algorithms)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/Numerics)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/SparseLibMVIml)
+#-----------------------------------------------------------------------------
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
 option(BUILD_LIBRARIES "Build libraries" ON)
 mark_as_advanced(BUILD_LIBRARIES)
