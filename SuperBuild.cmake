@@ -227,7 +227,7 @@ ExternalProject_Add(
     ${COMMON_EXTERNAL_PROJECT_ARGS}
     -D${LOCAL_PROJECT_NAME}_SUPERBUILD:BOOL=OFF
     -DEXTENSION_SUPERBUILD_BINARY_DIR:PATH=${${EXTENSION_NAME}_BINARY_DIR}
-    -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/${proj}-install
+  INSTALL_COMMAND ""
   )
 
 ## Force rebuilding of the main subproject every time building from super structure
