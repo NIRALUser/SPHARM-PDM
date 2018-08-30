@@ -36,7 +36,7 @@ option(BUILD_TESTING "Build testing" OFF)
 if(BUILD_TESTING)
   include(CTest)
   add_subdirectory(Testing)
-endif(BUILD_TESTING)
+endif()
 
 #-----------------------------------------------------------------------------
 if(${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
