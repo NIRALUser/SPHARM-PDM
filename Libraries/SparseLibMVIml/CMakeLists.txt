@@ -1,10 +1,4 @@
 
-if(WIN32)
-  add_definitions("-DCOMPLEX=std::complex<double>")
-else()
-  add_definitions('-DCOMPLEX=std::complex<double>')
-endif()
-
 set(SparseLib_SRCS
   compcol_double.cxx
   comprow_double.cxx

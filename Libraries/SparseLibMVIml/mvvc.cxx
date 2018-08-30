@@ -27,6 +27,7 @@
 //
 
 #include <iostream>
+#include "mvconfig.h"
 #include "mvv.h"
 
 MV_Vector_COMPLEX::MV_Vector_COMPLEX()  : p_(0), dim_(0), ref_(0)

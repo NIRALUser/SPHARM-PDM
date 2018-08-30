@@ -25,6 +25,8 @@
 #ifndef _MV_BLAS1_COMPLEX_H_
 #define _MV_BLAS1_COMPLEX_H_
 
+#include "mvconfig.h"
+
 MV_Vector_COMPLEX & operator*=(MV_Vector_COMPLEX & x, const COMPLEX & a);
 
 MV_Vector_COMPLEX operator*(const COMPLEX & a, const MV_Vector_COMPLEX & x);

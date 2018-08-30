@@ -26,6 +26,7 @@
 //          Basic matrix class (COMPLEX precision)
 //
 
+#include "mvconfig.h"
 #include "mvm.h"
 
 int MV_ColMat_COMPLEX::dim(int i) const

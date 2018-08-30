@@ -31,6 +31,8 @@
 #ifndef _MV_MATRIX_ALL_H_
 #define _MV_MATRIX_ALL_H_
 
+#include "mvconfig.h"
+
 #include "mvmrf.h"
 #include "mvmd.h"
 #include "mvmi.h"

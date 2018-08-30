@@ -31,6 +31,8 @@
 #ifndef _MV_VECTOR_ALL_H_
 #define _MV_VECTOR_ALL_H_
 
+#include "mvconfig.h"
+
 #include "mvvrf.h"
 #include "mvvd.h"
 #include "mvvi.h"

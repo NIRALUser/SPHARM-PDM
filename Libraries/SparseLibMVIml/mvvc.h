@@ -37,6 +37,7 @@
 #include <assert.h>
 #endif
 
+#include "mvconfig.h"
 #include "mvvind.h"
 
 // this is really used as a sort of global constant. The reason
