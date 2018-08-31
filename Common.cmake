@@ -4,8 +4,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 #-----------------------------------------------------------------------------
 # Build option(s)
 #-----------------------------------------------------------------------------
-set(PRIMARY_PROJECT_NAME ${LOCAL_PROJECT_NAME})
-
 set(_default ON)
 if(DEFINED Slicer_DIR)
   set(_default OFF)
