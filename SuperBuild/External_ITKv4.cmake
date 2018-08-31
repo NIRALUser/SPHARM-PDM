@@ -76,7 +76,7 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DModule_ITKReview:BOOL=OFF
       #-DITK_INSTALL_NO_DEVELOPMENT:BOOL=ON
       -DKWSYS_USE_MD5:BOOL=ON # Required by SlicerExecutionModel
-      -DITK_WRAPPING:BOOL=OFF #${BUILD_SHARED_LIBS} ## HACK:  QUICK CHANGE
+      -DITK_WRAPPING:BOOL=OFF
       -DModule_MGHIO:BOOL=ON  # Allow building of the MGHIO classes
     )
   ### --- End Project specific additions

@@ -46,7 +46,6 @@ option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
 option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
 option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
 option(USE_SYSTEM_CLAPACK "Build using an externally defined version of CLAPACK" OFF)
-option(BUILD_SHARED_LIBS "Use shared libraries" OFF) #to give the user the option to configure their builds as they want
 
 #------------------------------------------------------------------------------
 # ${LOCAL_PROJECT_NAME} dependency list
@@ -95,7 +94,6 @@ endmacro()
 #-----------------------------------------------------------------------------
 list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   MAKECOMMAND:STRING
-  BUILD_SHARED_LIBS:BOOL
   CMAKE_GENERATOR:STRING
   CMAKE_EXTRA_GENERATOR:STRING
   )
