@@ -20,12 +20,6 @@ option(COMPILE_ParaToSPHARMMeshCLP "Compile ParaToSPHARMMeshCLP." ON)
 option(COMPILE_SpharmTool "Compile SpharmTool." ON)
 
 #-----------------------------------------------------------------------------
-# Sanity checks
-#------------------------------------------------------------------------------
-include(PreventInSourceBuilds)
-include(PreventInBuildInstalls)
-
-#-----------------------------------------------------------------------------
 # Prerequisites
 #-----------------------------------------------------------------------------
 find_package(Git)

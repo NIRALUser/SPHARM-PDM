@@ -11,6 +11,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(SPHARM-PDM_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 list(INSERT CMAKE_MODULE_PATH 0 ${SPHARM-PDM_CMAKE_DIR})
 
+# Sanity checks
+include(PreventInSourceBuilds)
+include(PreventInBuildInstalls)
+
 project(SPHARM-PDM)
 set(LOCAL_PROJECT_NAME SPHARM-PDM)
 
