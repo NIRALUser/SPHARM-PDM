@@ -1,8 +1,15 @@
 cmake_minimum_required(VERSION 3.5.0)
 
-set(CMAKE_CXX_STANDARD 11)
+# C++ standard
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 11)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Update CMake module path
+set(SPHARM-PDM_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+list(INSERT CMAKE_MODULE_PATH 0 ${SPHARM-PDM_CMAKE_DIR})
 
 project(SPHARM-PDM)
 set(LOCAL_PROJECT_NAME SPHARM-PDM)
@@ -29,12 +36,6 @@ set(${LOCAL_PROJECT_NAME}_VERSION
 #                   Phase II: Build the ${LOCAL_PROJECT_NAME}, referencing the support
 #                             packages built in Phase I.
 #-----------------------------------------------------------------------------
-set(CMAKE_MODULE_PATH
-   ${CMAKE_SOURCE_DIR}/CMake
-   ${CMAKE_SOURCE_DIR}/SuperBuild
-   ${CMAKE_MODULE_PATH}
-)
-
 option(${LOCAL_PROJECT_NAME}_SUPERBUILD "Build ${LOCAL_PROJECT_NAME} and the projects it depends on via SuperBuild.cmake." ON)
 mark_as_advanced(${LOCAL_PROJECT_NAME}_SUPERBUILD)
 
