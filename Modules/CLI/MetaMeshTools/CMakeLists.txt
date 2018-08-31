@@ -1,41 +1,73 @@
+include(spharm_add_executable)
 
-set(SRC_STL2META_CXX STL2Meta.cxx vtkPolyDataToitkMesh.cxx)
-add_executable(STL2Meta ${SRC_STL2META_CXX})
-target_link_libraries(STL2Meta PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+# STL -> Meta
+spharm_add_executable(
+  NAME STL2Meta
+  ADDITIONAL_SRCS
+    vtkPolyDataToitkMesh.cxx
+  TARGET_LIBRARIES PRIVATE
+    ${ITK_LIBRARIES}
+    ${VTK_LIBRARIES}
+  )
 
-set(SRC_META2STL_CXX Meta2STL.cxx itkMeshTovtkPolyData.cxx)
-add_executable(Meta2STL ${SRC_META2STL_CXX})
-target_link_libraries(Meta2STL PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+# Meta -> STL
+spharm_add_executable(
+  NAME Meta2STL
+  ADDITIONAL_SRCS
+    itkMeshTovtkPolyData.cxx
+  TARGET_LIBRARIES PRIVATE
+    ${ITK_LIBRARIES}
+    ${VTK_LIBRARIES}
+  )
 
-set(SRC_MESHMATH_CXX MeshMath.cxx itkMeshTovtkPolyData.cxx vtkPolyDataToitkMesh.cxx)
-add_executable(MeshMath ${SRC_MESHMATH_CXX})
-target_link_libraries(MeshMath PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} ShapeAlgorithms)
+# MeshMath
+spharm_add_executable(
+  NAME MeshMath
+  ADDITIONAL_SRCS
+    itkMeshTovtkPolyData.cxx
+    vtkPolyDataToitkMesh.cxx
+  TARGET_LIBRARIES PRIVATE
+    ${ITK_LIBRARIES}
+    ${VTK_LIBRARIES}
+    ShapeAlgorithms
+  )
 
-add_executable(Meta2VTK Meta2VTK.cxx itkMeshTovtkPolyData.cxx)
-target_link_libraries(Meta2VTK PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+# Meta -> VTK
+spharm_add_executable(
+  NAME Meta2VTK
+  ADDITIONAL_SRCS
+    itkMeshTovtkPolyData.cxx
+  TARGET_LIBRARIES PRIVATE
+    ${ITK_LIBRARIES}
+    ${VTK_LIBRARIES}
+  )
 
-add_executable(VTK2Meta VTK2Meta.cxx vtkPolyDataToitkMesh.cxx)
-target_link_libraries(VTK2Meta PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} )
+# VTK -> Meta
+spharm_add_executable(
+  NAME VTK2Meta
+  ADDITIONAL_SRCS
+    vtkPolyDataToitkMesh.cxx
+  TARGET_LIBRARIES PRIVATE
+    ${ITK_LIBRARIES}
+    ${VTK_LIBRARIES}
+  )
 
-add_executable(asc2vtk asc2vtk.cxx)
-add_executable(asc2meta asc2meta.cxx)
+# asc -> VTK
+spharm_add_executable(NAME asc2vtk)
 
-add_executable(BYU2VTK BYU2VTK.cxx)
-target_link_libraries(BYU2VTK PRIVATE ${VTK_LIBRARIES} )
+# asc -> Meta
+spharm_add_executable(NAME asc2meta)
 
-add_executable(STL2VTK STL2VTK.cxx)
-target_link_libraries(STL2VTK PRIVATE ${VTK_LIBRARIES} )
+# BYU -> VTK
+spharm_add_executable(
+  NAME BYU2VTK
+  TARGET_LIBRARIES PRIVATE
+    ${VTK_LIBRARIES}
+  )
 
-install(
-  TARGETS
-    asc2meta
-    asc2vtk
-    BYU2VTK
-    MeshMath
-    Meta2STL
-    Meta2VTK
-    STL2Meta
-    STL2VTK
-    VTK2Meta
-  RUNTIME DESTINATION ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION} COMPONENT Runtime
+# STL -> VTK
+spharm_add_executable(
+  NAME STL2VTK
+  TARGET_LIBRARIES PRIVATE
+    ${VTK_LIBRARIES}
   )

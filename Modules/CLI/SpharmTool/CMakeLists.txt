@@ -1,12 +1,11 @@
-add_executable(SpharmTool SpharmTool.cxx)
-target_link_libraries(SpharmTool
-  PRIVATE
-    ${ITK_LIBRARIES}
-    ShapeIO SpatialObject
-    ShapeAlgorithms
-    SpatialObject
-  )
+include(spharm_add_executable)
 
-install(TARGETS SpharmTool
-  RUNTIME DESTINATION ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION} COMPONENT Runtime
+spharm_add_executable(
+  NAME SpharmTool
+  TARGET_LIBRARIES
+    PRIVATE
+      ${ITK_LIBRARIES}
+      ShapeIO SpatialObject
+      ShapeAlgorithms
+      SpatialObject
   )
