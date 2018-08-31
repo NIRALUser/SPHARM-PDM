@@ -18,7 +18,6 @@ include(PreventInBuildInstalls)
 project(SPHARM-PDM VERSION "2.0.0")
 set(LOCAL_PROJECT_NAME SPHARM-PDM)
 
-## NOTE THERE SHOULD BE NO PROJECT STATEMENT HERE!
 ## This file acts as a simple switch to initiate
 ## two completely independant CMake build environments.
 
@@ -85,14 +84,17 @@ if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
 endif()
 
 #-----------------------------------------------------------------------------
+# Common build features for both the superbuild and the main build
+#-----------------------------------------------------------------------------
+include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake) #<-- All feature options for top superbuild and inner product build
+
+#-----------------------------------------------------------------------------
 # Superbuild script
 #-----------------------------------------------------------------------------
 if(${LOCAL_PROJECT_NAME}_SUPERBUILD)
-  project(SuperBuild_${LOCAL_PROJECT_NAME})
-  include("${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild.cmake")
+  include("${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild.cmake") #<-- Harness for managing top superbuild, and finally delegate inner product build
   return()
 else()
-  project(${LOCAL_PROJECT_NAME}) 
-  include("${CMAKE_CURRENT_SOURCE_DIR}/${LOCAL_PROJECT_NAME}.cmake")
+  include("${CMAKE_CURRENT_SOURCE_DIR}/${LOCAL_PROJECT_NAME}.cmake") #<-- inner product build (a separate build environment from top level build)
   return()
 endif()

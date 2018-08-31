@@ -9,8 +9,6 @@ include(CTest)
 set( EXTERNAL_SOURCE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )
 
 #-----------------------------------------------------------------------------
-include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
-#-----------------------------------------------------------------------------
 #If it is build as an extension
 #-----------------------------------------------------------------------------
 if( ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )

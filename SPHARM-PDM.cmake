@@ -1,6 +1,3 @@
-project(SPHARM-PDM)
-
-include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
 
 #-----------------------------------------------------------------------------
 find_package(ITK 4 REQUIRED)
