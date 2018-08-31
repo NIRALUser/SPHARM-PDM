@@ -62,10 +62,16 @@ set(EXTENSION_BUILD_SUBDIRECTORY ${LOCAL_PROJECT_NAME}-build)
 find_package(Git REQUIRED)
 mark_as_superbuild(GIT_EXECUTABLE)
 
-if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
-  find_package(Slicer REQUIRED)
+set(${LOCAL_PROJECT_NAME}_CLI_EXECUTABLE_LINK_FLAGS "")
+
+if(${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
+  find_package(Slicer 4.9 REQUIRED)
   include(${Slicer_USE_FILE})
   mark_as_superbuild(Slicer_DIR)
+
+  # Link flags used in "spharm_add_executable" function
+  # On macOS, these are of the form "-Wl,-rpath,@loader_path/..."
+  set(${LOCAL_PROJECT_NAME}_CLI_EXECUTABLE_LINK_FLAGS "${Slicer_INSTALL_THIRDPARTY_EXECUTABLE_LINK_FLAGS}")
 endif()
 
 #-----------------------------------------------------------------------------

@@ -41,6 +41,7 @@ function(spharm_add_executable)
   set(expected_defined_vars
     LOCAL_PROJECT_NAME
     ${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION
+    ${LOCAL_PROJECT_NAME}_CLI_EXECUTABLE_LINK_FLAGS
     )
   foreach(var ${expected_defined_vars})
     if(NOT DEFINED ${var})
@@ -56,6 +57,10 @@ function(spharm_add_executable)
   add_executable(${MY_NAME} ${_src} ${MY_ADDITIONAL_SRCS})
   if(MY_TARGET_LIBRARIES)
     target_link_libraries(${MY_NAME} ${MY_TARGET_LIBRARIES})
+  endif()
+
+  if(NOT "${${LOCAL_PROJECT_NAME}_CLI_EXECUTABLE_LINK_FLAGS}" STREQUAL "")
+    set_target_properties(${MY_NAME} PROPERTIES LINK_FLAGS ${${LOCAL_PROJECT_NAME}_CLI_EXECUTABLE_LINK_FLAGS})
   endif()
 
   if(NOT MY_NO_INSTALL)
