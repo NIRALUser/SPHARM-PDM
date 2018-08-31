@@ -29,7 +29,6 @@ endif()
 #-----------------------------------------------------------------------------
 # Testing
 #-----------------------------------------------------------------------------
-option(BUILD_TESTING "Build testing" OFF)
 if(BUILD_TESTING)
   include(CTest)
   add_subdirectory(Testing)
