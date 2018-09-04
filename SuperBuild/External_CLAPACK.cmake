@@ -44,6 +44,11 @@ if(NOT DEFINED ${proj}_DIR AND NOT Slicer_USE_SYSTEM_${proj})
   string(REPLACE "/W3" "/W0" CMAKE_C_FLAGS_CLAPACK "${CMAKE_C_FLAGS}")
   string(REPLACE "/W4" "/W0" CMAKE_C_FLAGS_CLAPACK "${CMAKE_C_FLAGS_CLAPACK}")
 
+  set(log_command_output "0")
+  if(NOT "$ENV{DASHBOARD_TEST_FROM_CTEST}" STREQUAL "")
+    set(log_command_output "1")
+  endif()
+
   ExternalProject_Add(${proj}
     ${${proj}_EP_ARGS}
     GIT_REPOSITORY "${Slicer_${proj}_GIT_REPOSITORY}"
@@ -58,8 +63,8 @@ if(NOT DEFINED ${proj}_DIR AND NOT Slicer_USE_SYSTEM_${proj})
       -DBUILD_TESTING:BOOL=OFF
     INSTALL_COMMAND ""
     # Wrap commands to ignore log output from dashboards
-    LOG_CONFIGURE 1
-    LOG_BUILD     1
+    LOG_CONFIGURE ${log_command_output}
+    LOG_BUILD     ${log_command_output}
     DEPENDS
       ${${proj}_DEPENDS}
     )
