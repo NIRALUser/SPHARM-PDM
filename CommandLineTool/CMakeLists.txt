@@ -8,5 +8,8 @@ if(APPLE)
   set(SPHARM_commandline_install_dir ${Slicer_INSTALL_ROOT}${Slicer_BUNDLE_EXTENSIONS_LOCATION}${Slicer_SHARE_DIR}/CommandLineTool)
 endif()
 
-install(FILES ${SPHARM-PDM_python-script} DESTINATION ${SPHARM_commandline_install_dir} COMPONENT RuntimeLibraries)
-install(FILES ${SPHARM-PDM_parameters-file} DESTINATION ${SPHARM_commandline_install_dir} COMPONENT RuntimeLibraries)
+install(FILES
+    ${SPHARM-PDM_parameters-file}
+    ${SPHARM-PDM_python-script}
+  DESTINATION ${SPHARM_commandline_install_dir} COMPONENT RuntimeLibraries
+  )

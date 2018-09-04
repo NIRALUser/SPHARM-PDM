@@ -26,6 +26,7 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include "mvconfig.h"
 #include "mvv.h"
 
 MV_Vector_COMPLEX & operator*=(MV_Vector_COMPLEX & x, const COMPLEX & a)

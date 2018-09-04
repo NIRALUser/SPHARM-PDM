@@ -1,20 +1,32 @@
 
-#Link to CLAPACK
-find_package(CLAPACK NO_MODULE REQUIRED)
-include_directories(${CLAPACK_DIR}/../CLAPACK/INCLUDE)
-
-
-if(WIN32)
-  add_definitions("-DCOMPLEX=std::complex<double>")
-else()
-  add_definitions('-DCOMPLEX=std::complex<double>')
-endif()
-
 set(ShapeAlgorithms_SRCS
- SphericalHarmonicMeshSource.cxx TSurfaceNet.cxx TVoxelVolume.cxx
- EqualAreaParametricMeshNewtonIterator.cxx
- ParametricMeshToSPHARMSpatialObjectFilter.cxx
- SphericalHarmonicMedialAxisMeshSource.cxx
-)
+  EqualAreaParametricMeshNewtonIterator.cxx
+  ParametricMeshToSPHARMSpatialObjectFilter.cxx
+  SphericalHarmonicMedialAxisMeshSource.cxx
+  SphericalHarmonicMeshSource.cxx
+  TSurfaceNet.cxx
+  TVoxelVolume.cxx
+  )
 
-add_library(ShapeAlgorithms  STATIC ${ShapeAlgorithms_SRCS})
+add_library(ShapeAlgorithms STATIC ${ShapeAlgorithms_SRCS})
+target_link_libraries(ShapeAlgorithms
+  PUBLIC
+    ShapeNumerics
+    SpatialObject
+    ${ITK_LIBRARIES}
+  PRIVATE
+    SparseMatrixLib
+    ${CLAPACK_LIBRARIES}
+  )
+
+if(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT)
+  install(TARGETS ShapeAlgorithms
+    ARCHIVE DESTINATION ${${LOCAL_PROJECT_NAME}_INSTALL_ARCHIVE_DESTINATION} COMPONENT Development
+    LIBRARY DESTINATION ${${LOCAL_PROJECT_NAME}_INSTALL_LIBRARY_DESTINATION} COMPONENT RuntimeLibraries
+    RUNTIME DESTINATION ${${LOCAL_PROJECT_NAME}_INSTALL_RUNTIME_DESTINATION} COMPONENT RuntimeLibraries
+    )
+  install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
+    DESTINATION include/Shape/Algorithms COMPONENT Development
+    FILES_MATCHING PATTERN "*.h" PATTERN "*.txx"
+    )
+endif()

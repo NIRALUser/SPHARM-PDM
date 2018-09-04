@@ -1,19 +1,31 @@
 cmake_minimum_required(VERSION 3.5.0)
 
-set(CMAKE_CXX_STANDARD 11)
+# C++ standard
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 11)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-project(SPHARM-PDM)
+# Update CMake module path
+set(SPHARM-PDM_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+list(INSERT CMAKE_MODULE_PATH 0 ${SPHARM-PDM_CMAKE_DIR})
+
+# Sanity checks
+include(PreventInSourceBuilds)
+include(PreventInBuildInstalls)
+
+# Superbuild
+set(SUPERBUILD_TOPLEVEL_PROJECT SPHARM-PDM)
+set(EXTERNAL_PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild)
+set(EXTERNAL_PROJECT_FILE_PREFIX "External_")
+include(ExternalProject)
+include(ExternalProjectDependency)
+
+project(SPHARM-PDM VERSION "2.0.0")
 set(LOCAL_PROJECT_NAME SPHARM-PDM)
+set(EXTENSION_NAME "${LOCAL_PROJECT_NAME}")
 
-set(${LOCAL_PROJECT_NAME}_MAJOR_VERSION "2")
-set(${LOCAL_PROJECT_NAME}_MINOR_VERSION "0")
-set(${LOCAL_PROJECT_NAME}_PATCH_VERSION "0")
-set(${LOCAL_PROJECT_NAME}_VERSION
-  ${${LOCAL_PROJECT_NAME}_MAJOR_VERSION}.${${LOCAL_PROJECT_NAME}_MINOR_VERSION}.${${LOCAL_PROJECT_NAME}_PATCH_VERSION})
-
-## NOTE THERE SHOULD BE NO PROJECT STATEMENT HERE!
 ## This file acts as a simple switch to initiate
 ## two completely independant CMake build environments.
 
@@ -29,96 +41,15 @@ set(${LOCAL_PROJECT_NAME}_VERSION
 #                   Phase II: Build the ${LOCAL_PROJECT_NAME}, referencing the support
 #                             packages built in Phase I.
 #-----------------------------------------------------------------------------
-set(CMAKE_MODULE_PATH
-   ${CMAKE_SOURCE_DIR}/CMake
-   ${CMAKE_SOURCE_DIR}/SuperBuild
-   ${CMAKE_MODULE_PATH}
-)
-
 option(${LOCAL_PROJECT_NAME}_SUPERBUILD "Build ${LOCAL_PROJECT_NAME} and the projects it depends on via SuperBuild.cmake." ON)
 mark_as_advanced(${LOCAL_PROJECT_NAME}_SUPERBUILD)
 
-#-----------------------------------------------------------------------------
-# Standalone vs Slicer extension option
-#-----------------------------------------------------------------------------
+include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake) #<-- All feature options for top superbuild and inner product build
 
-# This option should be named after the project name, it corresponds to the
-# option set to ON when the project is build by the Slicer Extension build
-# system.
-
-set(_default OFF)
-set(_reason "${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION is ON")
-if(NOT DEFINED ${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION AND DEFINED Slicer_DIR)
-  set(_default ON)
-  set(_reason "Slicer_DIR is SET")
-endif()
-
-option(${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION "Build as a Slicer Extension" ${_default})
-
-set(_msg "Checking if building as a Slicer extension")
-message(STATUS ${_msg})
-if(${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
-  message(STATUS "${_msg} - yes (${_reason})")
-else()
-  message(STATUS "${_msg} - no (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION is OFF)")
-endif()
-
-#----------------------------------------------------------------------------------------
-# Slicer
-#----------------------------------------------------------------------------------------
-if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
-  set(extension_name_DIR "MeshToLabelMap")
-
-  set(EXTENSION_NAME SPHARM-PDM)
-  set(EXTENSION_HOMEPAGE "http://www.nitrc.org/projects/spharm-pdm")
-  set(EXTENSION_CATEGORY "SPHARM")
-  set(EXTENSION_CONTRIBUTORS "Beatriz Paniagua (UNC), Francois Budin (UNC), Martin Styner (UNC), Laura Pascal (Kitware), Hina Shah (Kitware)")
-  set(EXTENSION_DESCRIPTION "SPHARM-PDM is a tool that computes point-based models using a parametric boundary description for the computing of Shape Analysis.")
-  set(EXTENSION_ICONURL "http://www.na-mic.org/Wiki/images/a/ad/Spharm-pdm-icon.png")
-  set(EXTENSION_SCREENSHOTURLS "http://www.na-mic.org/Wiki/images/3/34/Spharm-pdm-snapshot.png")
-  set(EXTENSION_DEPENDS ${extension_name_DIR})
-  set(EXTENSION_BUILD_SUBDIRECTORY ${LOCAL_PROJECT_NAME}-build)
-  set(SUPERBUILD_TOPLEVEL_PROJECT ${LOCAL_PROJECT_NAME})
-  set(MODULE_NAME SPHARM-PDM)
-
-  # Slicer
-  find_package(Slicer REQUIRED)
-  include(${Slicer_USE_FILE})
-  mark_as_superbuild(Slicer_DIR)
-
-  # Slicer Execution Model
-  find_package(SlicerExecutionModel REQUIRED)
-  include(${SlicerExecutionModel_USE_FILE})
-  include(${GenerateCLP_USE_FILE})
-
-endif()
-
-#-----------------------------------------------------------------------------
-# Superbuild script
-#-----------------------------------------------------------------------------
 if(${LOCAL_PROJECT_NAME}_SUPERBUILD)
-  project(SuperBuild_${LOCAL_PROJECT_NAME})
-  include("${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild.cmake")
+  include("${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild.cmake") #<-- Harness for managing top superbuild, and finally delegate inner product build
   return()
 else()
-  project(${LOCAL_PROJECT_NAME}) 
-  include("${CMAKE_CURRENT_SOURCE_DIR}/${LOCAL_PROJECT_NAME}.cmake")
-#  return()
-endif()
-
-#-----------------------------------------------------------------------------
-# Clear ${PROJECT_NAME}Targets.cmake
-file(WRITE ${CMAKE_BINARY_DIR}/${Slicer_SHARE_DIR}/${PROJECT_NAME}Targets.cmake "")
-
-#-----------------------------------------------------------------------------
-add_subdirectory(Modules)
-if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
- add_subdirectory(CommandLineTool)
-endif()
-
-#-----------------------------------------------------------------------------
-if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION )
-  # CPack
-  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
-  include(${Slicer_EXTENSION_CPACK})
+  include("${CMAKE_CURRENT_SOURCE_DIR}/${LOCAL_PROJECT_NAME}.cmake") #<-- inner product build (a separate build environment from top level build)
+  return()
 endif()

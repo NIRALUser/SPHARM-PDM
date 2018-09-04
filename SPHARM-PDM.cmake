@@ -1,17 +1,3 @@
-project(SPHARM-PDM)
-
-
-if( SPHARM-PDM_BUILD_SLICER_EXTENSION )
-#-----------------------------------------------------------------------------
-#   Program definitions for C++ interfacing
-#   Necessary at runtime
-#-----------------------------------------------------------------------------
-  set(RELATIVE_EXTENSION_PATH ..)
-  set(NOCLI_INSTALL_DIR ${${LOCAL_PROJECT_NAME}_CLI_INSTALL_RUNTIME_DESTINATION}/${RELATIVE_EXTENSION_PATH})
-  add_definitions(-DSLICER_EXTENSION_PATH=${RELATIVE_EXTENSION_PATH})
-endif()
-
-include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
 
 #-----------------------------------------------------------------------------
 find_package(ITK 4 REQUIRED)
@@ -20,45 +6,52 @@ include(${ITK_USE_FILE})
 find_package(SlicerExecutionModel REQUIRED)
 include(${SlicerExecutionModel_USE_FILE})
 
-#-----------------------------------------------------------------------------
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
+find_package(CLAPACK NO_MODULE REQUIRED)
+# Workaround incomplete lapack target
+set_target_properties(lapack PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "${CLAPACK_DIR}/../CLAPACK/INCLUDE"
+  )
+set(CLAPACK_LIBRARIES lapack blas f2c)
+
 #-----------------------------------------------------------------------------
-set(CLAPACK_LIBRARY_DIRECTORIES
-  ${CLAPACK_DIR}/F2CLIBS/libf2c
-  ${CLAPACK_DIR}/BLAS/SRC
-  ${CLAPACK_DIR}/SRC
-   )
-if(WIN32)
-  set(CLAPACK_LIBRARIES lapack blas libf2c)
-else()
-  set(CLAPACK_LIBRARIES lapack blas f2c)
-endif()
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
-link_directories( ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} )
-link_directories(${CLAPACK_LIBRARY_DIRECTORIES})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/IO)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/SpatialObject)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/Algorithms)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/Numerics)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Shape/Statistics)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Libraries/SparseLibMVIml)
-include_directories(${Boost_DIR}/include)
-include_directories(${Boost_DIR}/include)
-
-link_directories(${Boost_DIR}/lib)
-option(BUILD_LIBRARIES "Build libraries" ON)
-mark_as_advanced(BUILD_LIBRARIES)
-if(BUILD_LIBRARIES)
-  add_subdirectory(Libraries)
+add_subdirectory(Libraries)
+add_subdirectory(Modules)
+if (${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
+ add_subdirectory(CommandLineTool)
 endif()
 
 #-----------------------------------------------------------------------------
 # Testing
 #-----------------------------------------------------------------------------
-option(BUILD_TESTING "Build testing" OFF)
 if(BUILD_TESTING)
   include(CTest)
   add_subdirectory(Testing)
-endif(BUILD_TESTING)
+endif()
+
+
+#-----------------------------------------------------------------------------
+# Packaging
+#-----------------------------------------------------------------------------
+set(EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS)
+list(APPEND EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS "${CLAPACK_DIR};CLAPACK;RuntimeLibraries;/")
+set(${EXTENSION_NAME}_CPACK_INSTALL_CMAKE_PROJECTS "${EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS}" CACHE STRING "List of external projects to install" FORCE)
+
+#-----------------------------------------------------------------------------
+set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};Runtime;/")
+set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};RuntimeLibraries;/")
+if(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT)
+  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};Development;/")
+endif()
+list(APPEND CPACK_INSTALL_CMAKE_PROJECTS "${${EXTENSION_NAME}_CPACK_INSTALL_CMAKE_PROJECTS}")
+
+#-----------------------------------------------------------------------------
+if(DEFINED Slicer_DIR)
+  include(${Slicer_EXTENSION_GENERATE_CONFIG})
+  include(${Slicer_EXTENSION_CPACK})
+endif()

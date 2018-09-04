@@ -1,101 +1,77 @@
-if( NOT EXTERNAL_SOURCE_DIRECTORY )
-  set( EXTERNAL_SOURCE_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/ExternalSources )
-endif()
-# Make sure this file is included only once
-get_filename_component(CMAKE_CURRENT_LIST_FILENAME ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
-if(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED)
-  return()
-endif()
 
-set(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED 1)
-
-# Include dependent projects if any
-set(extProjName CLAPACK)         #The find_package known name
-set(proj        ${extProjName} ) #This local name
-
-#if(${USE_SYSTEM_${extProjName}})
-#  unset(${extProjName}_DIR CACHE)
-#endif()
-
-# Sanity checks
-if(DEFINED ${extProjName}_DIR AND NOT EXISTS ${${extProjName}_DIR})
-  message(FATAL_ERROR "${extProjName}_DIR variable is defined but corresponds to non-existing directory")
-endif()
-
+set(proj CLAPACK)
 
 # Set dependency list
-set(${proj}_DEPENDENCIES "")
+set(${proj}_DEPENDS
+  ""
+  )
 
-#SlicerMacroCheckExternalProjectDependency(${proj})
+# Include dependent projects if any
+ExternalProject_Include_Dependencies(${proj} PROJECT_VAR proj)
 
+if(Slicer_USE_SYSTEM_${proj})
+  message(FATAL_ERROR "Enabling Slicer_USE_SYSTEM_${proj} is not supported !")
+endif()
 
-if(NOT DEFINED ${extProjName}_DIR AND NOT ${USE_SYSTEM_${extProjName}})
-  # Set CMake OSX variable to pass down the external project
-  set(CMAKE_OSX_EXTERNAL_PROJECT_ARGS)
-  if(APPLE)
-    list(APPEND CMAKE_OSX_EXTERNAL_PROJECT_ARGS
-      -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-      -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-      -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
-  endif()
+# Sanity checks
+if(DEFINED CLAPACK_DIR AND NOT EXISTS ${CLAPACK_DIR})
+  message(FATAL_ERROR "CLAPACK_DIR [${CLAPACK_DIR}] variable is defined but corresponds to nonexistent directory")
+endif()
 
-  ### --- Project specific additions here
-  set(${proj}_CMAKE_OPTIONS
+if(NOT DEFINED ${proj}_DIR AND NOT Slicer_USE_SYSTEM_${proj})
+
+  # We needed to patch CLAPACK to avoid building tests when BUILD_TESTING was set to OFF
+  # Instead of patching the source code each time, we copied the source code from
+  # http://svn.slicer.org/Slicer3-lib-mirrors/trunk/clapack-3.2.1-CMAKE.tgz
+  # to https://github.com/NIRALUser/CLAPACK
+
+  ExternalProject_SetIfNotDefined(
+    Slicer_${proj}_GIT_REPOSITORY
+    "${EP_GIT_PROTOCOL}://github.com/NIRALUser/CLAPACK.git"
+    QUIET
     )
 
-set(CLAPACK_version 3.2.1)
-# We needed to patch CLAPACK to avoid building tests when BUILD_TESTING was set to OFF
-# Instead of patching the source code each time, we copied the source code from 
-# http://svn.slicer.org/Slicer3-lib-mirrors/trunk/clapack-3.2.1-CMAKE.tgz
-# to https://github.com/NIRALUser/CLAPACK
-set(${proj}_REPOSITORY ${git_protocol}://github.com/NIRALUser/CLAPACK.git)
-set(${proj}_GIT_TAG b12609ee7addcad38d6b9265a7d1ae5446b05255)
+  ExternalProject_SetIfNotDefined(
+    Slicer_${proj}_GIT_TAG
+    "b12609ee7addcad38d6b9265a7d1ae5446b05255"
+    QUIET
+    )
 
-# Turn off the warnings for CLAPACK on windows
-string(REPLACE "/W3" "/W0" CMAKE_CXX_FLAGS_CLAPACK "${ep_common_cxx_flags}")
-string(REPLACE "/W4" "/W0" CMAKE_CXX_FLAGS_CLAPACK "${CMAKE_CXX_FLAGS_CLAPACK}")
-string(REPLACE "/W3" "/W0" CMAKE_C_FLAGS_CLAPACK "${ep_common_c_flags}")
-string(REPLACE "/W4" "/W0" CMAKE_C_FLAGS_CLAPACK "${CMAKE_C_FLAGS_CLAPACK}")
+  set(EP_SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj})
+  set(EP_BINARY_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
 
-#
-# To fix compilation problem: relocation R_X86_64_32 against `a local symbol' can not be
-# used when making a shared object; recompile with -fPIC
-# See http://www.cmake.org/pipermail/cmake/2007-May/014350.html
-#
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-  set(CMAKE_C_FLAGS_CLAPACK "-fPIC ${CMAKE_C_FLAGS_CLAPACK}")
-endif()
-  ### --- End Project specific additions
- ExternalProject_Add(${proj}
-    GIT_REPOSITORY ${${proj}_REPOSITORY}
-    GIT_TAG ${${proj}_GIT_TAG}
-    SOURCE_DIR ${EXTERNAL_SOURCE_DIRECTORY}/${proj}
-    BINARY_DIR ${proj}-build
-    CMAKE_GENERATOR ${gen}
-    CMAKE_ARGS
-      ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
-      ${COMMON_EXTERNAL_PROJECT_ARGS}
-      -DBUILD_EXAMPLES:BOOL=OFF
+  # Turn off the warnings for CLAPACK on windows
+  string(REPLACE "/W3" "/W0" CMAKE_C_FLAGS_CLAPACK "${CMAKE_C_FLAGS}")
+  string(REPLACE "/W4" "/W0" CMAKE_C_FLAGS_CLAPACK "${CMAKE_C_FLAGS_CLAPACK}")
+
+  set(log_command_output "0")
+  if(NOT "$ENV{DASHBOARD_TEST_FROM_CTEST}" STREQUAL "")
+    set(log_command_output "1")
+  endif()
+
+  ExternalProject_Add(${proj}
+    ${${proj}_EP_ARGS}
+    GIT_REPOSITORY "${Slicer_${proj}_GIT_REPOSITORY}"
+    GIT_TAG "${Slicer_${proj}_GIT_TAG}"
+    SOURCE_DIR ${EP_SOURCE_DIR}
+    BINARY_DIR ${EP_BINARY_DIR}
+    CMAKE_CACHE_ARGS
+      # Compiler settings
+      -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
+      -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS_CLAPACK}
+      # Options
       -DBUILD_TESTING:BOOL=OFF
-      ${${proj}_CMAKE_OPTIONS}
-    #PATCH_COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild/CLAPACK-PatchTesting.txt ${CMAKE_CURRENT_BINARY_DIR}/CLAPACK/CMakeLists.txt # No testing if BUILD_TESTING is set to OFF
     INSTALL_COMMAND ""
+    # Wrap commands to ignore log output from dashboards
+    LOG_CONFIGURE ${log_command_output}
+    LOG_BUILD     ${log_command_output}
     DEPENDS
-      ${${proj}_DEPENDENCIES}
-    BUILD_COMMAND ${BUILD_COMMAND_STRING}
+      ${${proj}_DEPENDS}
     )
-  set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
-else()
+  set(CLAPACK_DIR ${EP_BINARY_DIR})
 
-  if(${USE_SYSTEM_${extProjName}})
-    find_package(${extProjName} REQUIRED)
-    if(NOT ${extProjName}_DIR)
-      message(FATAL_ERROR "To use the system ${extProjName}, set ${extProjName}_DIR")
-    endif()
-  endif()
-  # The project is provided using ${extProjName}_DIR, nevertheless since other
-  # project may depend on ${extProjName}v4, let's add an 'empty' one
-  SlicerMacroEmptyExternalProject(${proj} "${${proj}_DEPENDENCIES}")
+else()
+  ExternalProject_Add_Empty(${proj} DEPENDS ${${proj}_DEPENDS})
 endif()
 
-list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS ${extProjName}_DIR:PATH)
+mark_as_superbuild(CLAPACK_DIR:PATH)

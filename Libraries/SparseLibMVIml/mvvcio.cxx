@@ -7,6 +7,8 @@
 #include <complex.h>
 #include <iostream>
 
+#include "mvconfig.h"
+
 // AT&T Cfront does not provide for cout << complex ...
 //
 std::ostream & operator<<(std::ostream & s, COMPLEX z)

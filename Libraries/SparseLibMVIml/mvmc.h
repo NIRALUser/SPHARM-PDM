@@ -32,6 +32,7 @@
 #ifndef _MV_MATRIX_COMPLEX_H_
 #define _MV_MATRIX_COMPLEX_H_
 
+#include "mvconfig.h"
 #include "mvvc.h"
 #include "mvmrf.h"
 
