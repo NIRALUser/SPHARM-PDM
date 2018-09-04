@@ -16,7 +16,7 @@ target_link_libraries(ShapeAlgorithms
     ${ITK_LIBRARIES}
   PRIVATE
     SparseMatrixLib
-    ${CLAPACK_LIBRARIES}
+    ${LAPACKE_LIBRARIES}
   )
 
 if(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT)

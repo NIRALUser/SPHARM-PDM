@@ -10,6 +10,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Update CMake module path
 set(SPHARM-PDM_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 list(INSERT CMAKE_MODULE_PATH 0 ${SPHARM-PDM_CMAKE_DIR})
+add_subdirectory(${SPHARM-PDM_CMAKE_DIR})
+list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_BINARY_DIR}/CMake")
 
 # Sanity checks
 include(PreventInSourceBuilds)
@@ -25,6 +27,28 @@ include(ExternalProjectDependency)
 project(SPHARM-PDM VERSION "2.0.0")
 set(LOCAL_PROJECT_NAME SPHARM-PDM)
 set(EXTENSION_NAME "${LOCAL_PROJECT_NAME}")
+
+# Fortran
+if(UNIX)
+  # Ensure CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES is automatically set
+  enable_language(Fortran)
+else()
+  # Explicitly lookup of Flang link libraries
+  set(_hints)
+  if(DEFINED CMAKE_Fortran_COMPILER)
+    get_filename_component(fortran_bin_dir ${CMAKE_Fortran_COMPILER} DIRECTORY)
+    set(_hints HINTS ${fortran_bin_dir}/../lib)
+  endif()
+  set(libs)
+  foreach(lib IN ITEMS flangmain flang flangrti ompstub)
+    find_library(${lib}_LIBRARY ${lib} ${_hints})
+    if(NOT ${lib}_LIBRARY)
+      message(FATAL_ERROR "${lib} library is required to build LAPACK")
+    endif()
+    list(APPEND libs ${${lib}_LIBRARY})
+  endforeach()
+  set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES ${libs})
+endif()
 
 ## This file acts as a simple switch to initiate
 ## two completely independant CMake build environments.
