@@ -38,9 +38,9 @@ list(APPEND EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS "${LAPACK_DIR};LAPACK;Runtime
 set(${EXTENSION_NAME}_CPACK_INSTALL_CMAKE_PROJECTS "${EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS}" CACHE STRING "List of external projects to install" FORCE)
 
 #-----------------------------------------------------------------------------
-set(SAVED_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
 if(UNIX AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   # Install gfortran shared libraries
+  set(SAVED_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
   set(CMAKE_FIND_LIBRARY_SUFFIXES ".so")
   set(fortran_LIBRARIES ${CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES})
   list(REMOVE_DUPLICATES fortran_LIBRARIES)
@@ -57,23 +57,15 @@ if(UNIX AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
       RENAME ${lib_name}
       )
   endforeach()
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ${SAVED_CMAKE_FIND_LIBRARY_SUFFIXES})
 elseif(WIN32)
-  # Install flang shared libraries
-  set(CMAKE_FIND_LIBRARY_SUFFIXES ".dll")
-  set(fortran_LIBRARIES ${CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES})
-  get_filename_component(shared_lib_dir ${CMAKE_Fortran_COMPILER} DIRECTORY)
-  foreach(lib IN LISTS fortran_LIBRARIES)
-    get_filename_component(lib_basename ${lib} NAME_WE)
-    find_library(${lib}_LIBRARY ${lib_basename} HINTS ${shared_lib_dir} NO_DEFAULT_PATH)
-    if(NOT ${lib}_LIBRARY)
-      continue()
-    endif()
+  # Install flang runtime libraries
+  foreach(lib IN LISTS Fortran_Flang_RUNTIME_LIBS)
     install(FILES ${${lib}_LIBRARY}
       DESTINATION ${${LOCAL_PROJECT_NAME}_INSTALL_RUNTIME_DESTINATION} COMPONENT RuntimeLibraries
       )
   endforeach()
 endif()
-set(CMAKE_FIND_LIBRARY_SUFFIXES ${SAVED_CMAKE_FIND_LIBRARY_SUFFIXES})
 
 #-----------------------------------------------------------------------------
 set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};Runtime;/")

@@ -33,21 +33,10 @@ if(UNIX)
   # Ensure CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES is automatically set
   enable_language(Fortran)
 else()
-  # Explicitly lookup of Flang link libraries
-  set(_hints)
-  if(DEFINED CMAKE_Fortran_COMPILER)
-    get_filename_component(fortran_bin_dir ${CMAKE_Fortran_COMPILER} DIRECTORY)
-    set(_hints HINTS ${fortran_bin_dir}/../lib)
-  endif()
-  set(libs)
-  foreach(lib IN ITEMS flangmain flang flangrti ompstub)
-    find_library(${lib}_LIBRARY ${lib} ${_hints})
-    if(NOT ${lib}_LIBRARY)
-      message(FATAL_ERROR "${lib} library is required to build LAPACK")
-    endif()
-    list(APPEND libs ${${lib}_LIBRARY})
-  endforeach()
-  set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES ${libs})
+  # Explicit lookup of Flang support libraries
+  set(Fortran_COMPILER_ID "Flang")
+  find_package(Fortran REQUIRED)
+  set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES ${Fortran_Flang_IMPLICIT_LINK_LIBRARIES})
 endif()
 
 ## This file acts as a simple switch to initiate

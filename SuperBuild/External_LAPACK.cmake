@@ -70,35 +70,19 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
     endif()
 
     # flang
-    set(_hints)
-    if(DEFINED CMAKE_Fortran_COMPILER)
-      get_filename_component(fortran_bin_dir ${CMAKE_Fortran_COMPILER} DIRECTORY)
-      set(_hints HINTS ${fortran_bin_dir})
-    endif()
-    find_program(FLANG_EXECUTABLE flang.exe ${_hints})
-    if(NOT FLANG_EXECUTABLE)
-      message(FATAL_ERROR "flang.exe fortran compiler is required to build LAPACK")
-    endif()
-
-    # clang-cl
-    get_filename_component(flang_bin_dir ${FLANG_EXECUTABLE} DIRECTORY)
-    find_program(CLANG_CL_EXECUTABLE clang-cl.exe HINTS ${flang_bin_dir})
-    if(NOT CLANG_CL_EXECUTABLE)
-      message(FATAL_ERROR "clang-cl.exe is required to build LAPACK")
-    endif()
-
-    find_package(Vcvars REQUIRED)
+    set(Fortran_COMPILER_ID "Flang")
+    find_package(Fortran REQUIRED)
 
     set(build_type "Release")
 
     set(cmake_cache_args
       # Compiler settings
-      -DCMAKE_C_COMPILER:FILEPATH=${CLANG_CL_EXECUTABLE}
-      -DCMAKE_CXX_COMPILER:FILEPATH=${CLANG_CL_EXECUTABLE}
+      -DCMAKE_C_COMPILER:FILEPATH=${Fortran_Flang_CLANG_CL_EXECUTABLE}
+      -DCMAKE_CXX_COMPILER:FILEPATH=${Fortran_Flang_CLANG_CL_EXECUTABLE}
       -DCMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD}
       -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=${CMAKE_CXX_STANDARD_REQUIRED}
       -DCMAKE_CXX_EXTENSIONS:BOOL=${CMAKE_CXX_EXTENSIONS}
-      -DCMAKE_Fortran_COMPILER:FILEPATH=${FLANG_EXECUTABLE}
+      -DCMAKE_Fortran_COMPILER:FILEPATH=${Fortran_Flang_EXECUTABLE}
       # Output directories
       ## NA
       # Install directories
@@ -117,10 +101,11 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
     endif()
 
     # Get flang lib directory
-    get_filename_component(flang_bin_dir ${FLANG_EXECUTABLE} DIRECTORY)
+    get_filename_component(flang_bin_dir ${Fortran_Flang_EXECUTABLE} DIRECTORY)
     set(flang_lib_dir ${flang_bin_dir}/../lib)
 
     # Configure command
+    find_package(Vcvars REQUIRED)
     set(EXTERNAL_PROJECT_CONFIGURE_COMMAND CONFIGURE_COMMAND
       ${CMAKE_COMMAND} -E env
         LIB=${flang_lib_dir}
