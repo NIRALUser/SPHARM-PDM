@@ -13,8 +13,8 @@ endif()
 
 # Download FindFortran.cmake
 set(dest_file "${CMAKE_CURRENT_BINARY_DIR}/FindFortran.cmake")
-set(expected_hash "9d183b33bfba59ecd60e5883085a0e3e6a0751a90f76194d4ca6305204d87e0e")
-set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindFortran/v0.4/FindFortran.cmake")
+set(expected_hash "3e1e5b822224e27d372d4803e6a7b896b841e2fd6c255636d8f234231578ffc4")
+set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindFortran/v0.4.1/FindFortran.cmake")
 if(NOT EXISTS ${dest_file})
   file(DOWNLOAD ${url} ${dest_file} EXPECTED_HASH SHA256=${expected_hash})
 else()
