@@ -35,7 +35,7 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
 
   ExternalProject_SetIfNotDefined(
     Slicer_${proj}_GIT_TAG
-    "c5471e8be2754345ec650c8d3b08c6eb680ebd0c"
+    "7851b1869cd798d1e7cd0ec4b69059012921c57f"
     QUIET
     )
 
@@ -100,15 +100,13 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
         )
     endif()
 
-    # Get flang lib directory
-    get_filename_component(flang_bin_dir ${Fortran_Flang_EXECUTABLE} DIRECTORY)
-    set(flang_lib_dir ${flang_bin_dir}/../lib)
-
     # Configure command
     find_package(Vcvars REQUIRED)
     set(EXTERNAL_PROJECT_CONFIGURE_COMMAND CONFIGURE_COMMAND
       ${CMAKE_COMMAND} -E env
-        LIB=${flang_lib_dir}
+        CC=${Fortran_Flang_CLANG_CL_EXECUTABLE}
+        CXX=${Fortran_Flang_CLANG_CL_EXECUTABLE}
+        LIB=${Fortran_${Fortran_COMPILER_ID}_IMPLICIT_LINK_DIRECTORIES}
       ${Vcvars_WRAPPER_BATCH_FILE} ${CMAKE_COMMAND} -G ${generator}
         ${cmake_cache_args}
         ${EP_SOURCE_DIR}
@@ -143,7 +141,7 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
     #-----------------------------------------------------------------------------
     # Launcher setting specific to build tree
     set(${proj}_LIBRARY_PATHS_LAUNCHER_BUILD
-      ${flang_bin_dir}
+      ${Fortran_${Fortran_COMPILER_ID}_RUNTIME_DIRECTORIES}
       )
     mark_as_superbuild(
       VARS ${proj}_LIBRARY_PATHS_LAUNCHER_BUILD

@@ -9,7 +9,11 @@ include(${SlicerExecutionModel_USE_FILE})
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
-find_package(LAPACKE NO_MODULE REQUIRED)
+find_package(LAPACKE CONFIG REQUIRED)
+
+# Set Fortran_<id>_RUNTIME_LIBRARIES and CMAKE_Fortran_IMPLICIT_LINK_*
+set(Fortran_COMPILER_ID "${LAPACKE_Fortran_COMPILER_ID}")
+find_package(Fortran REQUIRED)
 
 #-----------------------------------------------------------------------------
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -29,7 +33,6 @@ if(BUILD_TESTING)
   add_subdirectory(Testing)
 endif()
 
-
 #-----------------------------------------------------------------------------
 # Packaging
 #-----------------------------------------------------------------------------
@@ -37,35 +40,10 @@ set(EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS)
 list(APPEND EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS "${LAPACK_DIR};LAPACK;RuntimeLibraries;/")
 set(${EXTENSION_NAME}_CPACK_INSTALL_CMAKE_PROJECTS "${EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS}" CACHE STRING "List of external projects to install" FORCE)
 
-#-----------------------------------------------------------------------------
-if(UNIX AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  # Install gfortran shared libraries
-  set(SAVED_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
-  set(CMAKE_FIND_LIBRARY_SUFFIXES ".so")
-  set(fortran_LIBRARIES ${CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES})
-  list(REMOVE_DUPLICATES fortran_LIBRARIES)
-  list(REMOVE_ITEM fortran_LIBRARIES "c" "m")
-  foreach(lib IN LISTS fortran_LIBRARIES)
-    find_library(${lib}_LIBRARY ${lib} HINTS ${CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES} NO_DEFAULT_PATH)
-    if(NOT ${lib}_LIBRARY)
-      continue()
-    endif()
-    get_filename_component(${lib}_LIBRARY_REALPATH ${${lib}_LIBRARY} REALPATH)
-    get_filename_component(lib_name ${${lib}_LIBRARY} NAME)
-    install(FILES ${${lib}_LIBRARY_REALPATH}
-      DESTINATION ${${LOCAL_PROJECT_NAME}_INSTALL_LIBRARY_DESTINATION} COMPONENT RuntimeLibraries
-      RENAME ${lib_name}
-      )
-  endforeach()
-  set(CMAKE_FIND_LIBRARY_SUFFIXES ${SAVED_CMAKE_FIND_LIBRARY_SUFFIXES})
-elseif(WIN32)
-  # Install flang runtime libraries
-  foreach(lib IN LISTS Fortran_Flang_RUNTIME_LIBS)
-    install(FILES ${${lib}_LIBRARY}
-      DESTINATION ${${LOCAL_PROJECT_NAME}_INSTALL_RUNTIME_DESTINATION} COMPONENT RuntimeLibraries
-      )
-  endforeach()
-endif()
+# Install fortran runtime libraries
+install(FILES ${Fortran_${LAPACKE_Fortran_COMPILER_ID}_RUNTIME_LIBRARIES}
+  DESTINATION ${${LOCAL_PROJECT_NAME}_INSTALL_RUNTIME_DESTINATION} COMPONENT RuntimeLibraries
+  )
 
 #-----------------------------------------------------------------------------
 set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};Runtime;/")

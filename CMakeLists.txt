@@ -28,17 +28,6 @@ project(SPHARM-PDM VERSION "2.0.0")
 set(LOCAL_PROJECT_NAME SPHARM-PDM)
 set(EXTENSION_NAME "${LOCAL_PROJECT_NAME}")
 
-# Fortran
-if(UNIX)
-  # Ensure CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES is automatically set
-  enable_language(Fortran)
-else()
-  # Explicit lookup of Flang support libraries
-  set(Fortran_COMPILER_ID "Flang")
-  find_package(Fortran REQUIRED)
-  set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES ${Fortran_Flang_IMPLICIT_LINK_LIBRARIES})
-endif()
-
 ## This file acts as a simple switch to initiate
 ## two completely independant CMake build environments.
 
