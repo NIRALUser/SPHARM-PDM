@@ -72,6 +72,7 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
     # flang
     set(Fortran_COMPILER_ID "Flang")
     find_package(Fortran REQUIRED)
+    mark_as_superbuild(Fortran_COMPILER_ID)
     mark_as_superbuild(Fortran_${Fortran_COMPILER_ID}_EXECUTABLE)
 
     set(build_type "Release")
@@ -152,6 +153,7 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
   else()
 
     find_package(Fortran REQUIRED)
+    mark_as_superbuild(Fortran_COMPILER_ID:STRING)
     mark_as_superbuild(Fortran_${Fortran_COMPILER_ID}_EXECUTABLE)
 
     ExternalProject_Add(${proj}
