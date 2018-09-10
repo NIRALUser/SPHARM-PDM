@@ -380,7 +380,6 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
 
   // map IteratorSurfaceNet to ITK Mesh for surfaceMesh
     {
-    InputSpacingType spacing = image->GetSpacing();
 
     PointsContainerPointer points = PointsContainer::New();
     for( int i = 0; i < net.nvert; i++ )

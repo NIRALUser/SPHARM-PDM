@@ -182,7 +182,7 @@ protected:
 
   void GenerateData();
 
-  virtual void GenerateOutputInformation()
+  virtual void GenerateOutputInformation() ITK_OVERRIDE
   {
   };                                          // do nothing
 private:
