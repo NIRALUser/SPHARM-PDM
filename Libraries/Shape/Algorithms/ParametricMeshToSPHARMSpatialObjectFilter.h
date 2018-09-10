@@ -163,11 +163,11 @@ public:
   SpatialObjectType * GetFlipTemplate()
   {
     return m_FlipTemplate;
-  };
+  }
   void SetFlipTemplate( SpatialObjectType * flipTemplate)
   {
     m_FlipTemplate = flipTemplate;
-  };
+  }
 
   /** SetParametrizationFlipIndex allows an optional additional flipping of the parametrization.
       This should rarely be necessary, but is available for completeness.
@@ -195,21 +195,21 @@ public:
    * output.  */
   using itk::ProcessObject::MakeOutput;
 
-  virtual itk::ProcessObject::DataObjectPointer MakeOutput(itk::ProcessObject::DataObjectPointerArraySizeType idx);
+  virtual itk::ProcessObject::DataObjectPointer MakeOutput(itk::ProcessObject::DataObjectPointerArraySizeType idx) ITK_OVERRIDE;
 
-  void GenerateOutputInformation()
+  void GenerateOutputInformation() ITK_OVERRIDE
   {
-  };
-  void GenerateData();
+  }
+  void GenerateData() ITK_OVERRIDE;
 
 protected:
   ParametricMeshToSPHARMSpatialObjectFilter();
-  ~ParametricMeshToSPHARMSpatialObjectFilter();
-  void PrintSelf(std::ostream& os, itk::Indent indent) const;
+  ~ParametricMeshToSPHARMSpatialObjectFilter() ITK_OVERRIDE;
+  void PrintSelf(std::ostream& os, itk::Indent indent) const ITK_OVERRIDE;
 
   /**  Since all DataObjects should be able to set the requested region in
    * unstructured form, just copy output->RequestedRegion all inputs. */
-  void GenerateInputRequestedRegion();
+  void GenerateInputRequestedRegion() ITK_OVERRIDE;
 
   /** compute best possible flip of coordinates and parameterization */
   int  BestFlipAlign(CoefListType * coef, const CoefListType * flipTemplate);

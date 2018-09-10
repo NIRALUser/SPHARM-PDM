@@ -178,9 +178,9 @@ public:
 protected:
   BinaryMask3DEqualAreaParametricMeshSource();
   ~BinaryMask3DEqualAreaParametricMeshSource();
-  void PrintSelf(std::ostream& os, Indent indent) const;
+  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
 
-  void GenerateData();
+  void GenerateData() ITK_OVERRIDE;
 
   virtual void GenerateOutputInformation() ITK_OVERRIDE
   {

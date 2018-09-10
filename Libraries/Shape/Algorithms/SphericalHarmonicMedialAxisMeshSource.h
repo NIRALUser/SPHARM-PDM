@@ -111,9 +111,9 @@ namespace neurolib
 
 		protected:
 			SphericalHarmonicMedialAxisMeshSource();
-			~SphericalHarmonicMedialAxisMeshSource();
+      ~SphericalHarmonicMedialAxisMeshSource() ITK_OVERRIDE;
 			
-			void GenerateData();
+      void GenerateData() ITK_OVERRIDE;
 			
 			void setPhiThetaTable();
 			void GetBounds(double[],double[],int);

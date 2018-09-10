@@ -85,18 +85,18 @@ public:
 
   /** Derived spatial geometric functions from the superclass SpatialObject,
       resulting directly from calling corresponding functions of p_coefsMeshSpatialObject. */
-  virtual bool  ValueAt(const PointType & point, double & value, unsigned int depth = 0, char *name = NULL) const;
+  virtual bool  ValueAt(const PointType & point, double & value, unsigned int depth = 0, char *name = NULL) const ITK_OVERRIDE;
 
-  virtual bool  IsEvaluableAt(const PointType & point, unsigned int depth = 0, char *name = NULL) const;
+  virtual bool  IsEvaluableAt(const PointType & point, unsigned int depth = 0, char *name = NULL) const ITK_OVERRIDE;
 
-  virtual bool  IsInside(const PointType & point, unsigned int depth, char *name = NULL) const;
+  virtual bool  IsInside(const PointType & point, unsigned int depth, char *name = NULL) const ITK_OVERRIDE;
 
   virtual bool  IsInside(const PointType & point) const;
 
   // virtual bool  ComputeBoundingBox () const;
-  virtual bool ComputeLocalBoundingBox() const;
+  virtual bool ComputeLocalBoundingBox() const ITK_OVERRIDE;
 
-  virtual void PrintSelf(std::ostream& os, itk::Indent indent) const;
+  virtual void PrintSelf(std::ostream& os, itk::Indent indent) const ITK_OVERRIDE;
 
 /** The four vitual geometric functions calls this function whenever the b_Dirty is true. */
   void ComputeHiddenMeshSpatialObject();
@@ -104,7 +104,7 @@ public:
 protected:
 
   SphericalHarmonicSpatialObject();
-  virtual ~SphericalHarmonicSpatialObject();
+  virtual ~SphericalHarmonicSpatialObject() ITK_OVERRIDE;
 
   /** Set functions */
   itkSetMacro(Count, int);

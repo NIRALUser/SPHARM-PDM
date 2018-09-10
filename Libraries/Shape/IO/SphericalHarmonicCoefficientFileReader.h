@@ -75,7 +75,7 @@ protected:
   std::string m_FileName;
 
   SphericalHarmonicCoefficientFileReader();
-  virtual ~SphericalHarmonicCoefficientFileReader();
+  virtual ~SphericalHarmonicCoefficientFileReader() ITK_OVERRIDE;
 private:
   CoefListType m_Coefs;
 
