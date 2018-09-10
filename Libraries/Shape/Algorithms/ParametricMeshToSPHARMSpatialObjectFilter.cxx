@@ -995,8 +995,8 @@ ParametricMeshToSPHARMSpatialObjectFilter::Get_BaseVal( PointsContainerPointer p
       }
     }
 
-  delete plm;
-  delete vert;
+  delete [] plm;
+  delete [] vert;
 
   return 0;
 }
@@ -1058,7 +1058,7 @@ ParametricMeshToSPHARMSpatialObjectFilter::ComputeCoeffs()
 
     delete A;
     A = NULL;
-    delete work;
+    delete [] work;
     work = NULL;
 
     int curElem = 0;
@@ -1079,7 +1079,7 @@ ParametricMeshToSPHARMSpatialObjectFilter::ComputeCoeffs()
         curElem++;
         }
       }
-    delete obj;
+    delete [] obj;
     }
   m_coeffs.clear();
   SpatialObjectType::ScalarType elem[3];
