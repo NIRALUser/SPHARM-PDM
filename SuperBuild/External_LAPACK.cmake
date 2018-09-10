@@ -35,7 +35,7 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
 
   ExternalProject_SetIfNotDefined(
     Slicer_${proj}_GIT_TAG
-    "7851b1869cd798d1e7cd0ec4b69059012921c57f"
+    "eb6fac41396e383e5c780b1afd01512848a7bcf9"
     QUIET
     )
 
