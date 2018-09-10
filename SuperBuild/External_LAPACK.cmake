@@ -150,6 +150,10 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
       )
 
   else()
+
+    find_package(Fortran REQUIRED)
+    mark_as_superbuild(Fortran_${Fortran_COMPILER_ID}_EXECUTABLE)
+
     ExternalProject_Add(${proj}
       ${${proj}_EP_ARGS}
       GIT_REPOSITORY "${Slicer_${proj}_GIT_REPOSITORY}"
@@ -163,7 +167,7 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
         -DCMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD}
         -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=${CMAKE_CXX_STANDARD_REQUIRED}
         -DCMAKE_CXX_EXTENSIONS:BOOL=${CMAKE_CXX_EXTENSIONS}
-        -DCMAKE_Fortran_COMPILER:FILEPATH=${CMAKE_Fortran_COMPILER}
+        -DCMAKE_Fortran_COMPILER:FILEPATH=${Fortran_${Fortran_COMPILER_ID}_EXECUTABLE}
         # Output directories
         ## NA
         # Install directories
