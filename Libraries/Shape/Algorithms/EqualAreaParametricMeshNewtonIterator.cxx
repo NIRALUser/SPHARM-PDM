@@ -527,7 +527,7 @@ void EqualAreaParametricMeshNewtonIterator::write_YSMP(const char* name, int n_r
       }
     }
   std::cout << "}}];\n\n";
-  delete rowpic;
+  delete[] rowpic;
   std::cout.flush();
 }
 
@@ -949,7 +949,7 @@ void EqualAreaParametricMeshNewtonIterator::estimate_jacobian()
     }
   copy_vector(this->m_x_try, this->m_x, 3 * net.nvert);          // return to initial position
   delete this->m_dx;
-  delete a_row;
+  delete [] a_row;
   this->m_dx = old_dx;
 }
 

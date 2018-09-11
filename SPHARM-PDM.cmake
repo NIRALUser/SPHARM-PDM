@@ -9,12 +9,11 @@ include(${SlicerExecutionModel_USE_FILE})
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
-find_package(CLAPACK NO_MODULE REQUIRED)
-# Workaround incomplete lapack target
-set_target_properties(lapack PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "${CLAPACK_DIR}/../CLAPACK/INCLUDE"
-  )
-set(CLAPACK_LIBRARIES lapack blas f2c)
+find_package(LAPACKE CONFIG REQUIRED)
+
+# Set Fortran_<id>_RUNTIME_LIBRARIES and CMAKE_Fortran_IMPLICIT_LINK_*
+set(Fortran_COMPILER_ID "${LAPACKE_Fortran_COMPILER_ID}")
+find_package(Fortran REQUIRED)
 
 #-----------------------------------------------------------------------------
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -34,13 +33,20 @@ if(BUILD_TESTING)
   add_subdirectory(Testing)
 endif()
 
-
 #-----------------------------------------------------------------------------
 # Packaging
 #-----------------------------------------------------------------------------
 set(EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS)
-list(APPEND EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS "${CLAPACK_DIR};CLAPACK;RuntimeLibraries;/")
+list(APPEND EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS "${LAPACK_DIR};LAPACK;RuntimeLibraries;/")
 set(${EXTENSION_NAME}_CPACK_INSTALL_CMAKE_PROJECTS "${EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS}" CACHE STRING "List of external projects to install" FORCE)
+
+# Install fortran runtime libraries
+if(DEFINED Slicer_DIR AND NOT APPLE)
+  Fortran_InstallLibrary(
+    FILES ${Fortran_${LAPACKE_Fortran_COMPILER_ID}_RUNTIME_LIBRARIES}
+    DESTINATION ${${LOCAL_PROJECT_NAME}_INSTALL_LIBRARY_DESTINATION} COMPONENT RuntimeLibraries
+    )
+endif()
 
 #-----------------------------------------------------------------------------
 set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};Runtime;/")

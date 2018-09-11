@@ -73,7 +73,7 @@ protected:
   std::string m_FileName;
 
   SphericalHarmonicCoefficientFileWriter();
-  virtual ~SphericalHarmonicCoefficientFileWriter();
+  virtual ~SphericalHarmonicCoefficientFileWriter() ITK_OVERRIDE;
 private:
   CoefListType m_Coefs;
 

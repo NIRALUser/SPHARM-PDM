@@ -19,8 +19,14 @@ set(Slicer_USE_SYSTEM_SlicerExecutionModel ${USE_SYSTEM_SlicerExecutionModel})
 option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
 set(Slicer_USE_SYSTEM_VTK ${USE_SYSTEM_VTK})
 
-option(USE_SYSTEM_CLAPACK "Build using an externally defined version of CLAPACK" OFF)
-set(Slicer_USE_SYSTEM_CLAPACK ${USE_SYSTEM_CLAPACK})
+option(USE_SYSTEM_LAPACK "Build using an externally defined version of LAPACK" OFF)
+set(Slicer_USE_SYSTEM_LAPACK ${USE_SYSTEM_LAPACK})
+
+#-----------------------------------------------------------------------------
+# Configure "external" projects
+#-----------------------------------------------------------------------------
+set(LAPACK_INSTALL_RUNTIME_DIR ${${LOCAL_PROJECT_NAME}_INSTALL_RUNTIME_DESTINATION})
+set(LAPACK_INSTALL_LIBRARY_DIR ${${LOCAL_PROJECT_NAME}_INSTALL_LIBRARY_DESTINATION})
 
 #-----------------------------------------------------------------------------
 # Top-level "external" project
@@ -32,7 +38,7 @@ endforeach()
 
 # Project dependencies
 set(${LOCAL_PROJECT_NAME}_DEPENDS
-  CLAPACK
+  LAPACK
   )
 if(NOT SPHARM-PDM_BUILD_SLICER_EXTENSION)
   list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDS

@@ -22,15 +22,11 @@
 #include "SphericalHarmonicSpatialObject.h"
 #include "SphericalHarmonicMeshSource.h"
 
-extern "C" {
-#include "f2c.h"
-#include "clapack.h"
-int sgels_(char *trans, integer *m, integer *n, integer *
-           nrhs, real *a, integer *lda, real *b, integer *ldb, real *work, integer *lwork, integer *info);
-
-}
 // SOMEHOW not all lapack routine have made it into vxl's netlib directory (WHY?)
-// and the ones for solving linear systems seem to be missing
+// and the ones (sgels_) for solving linear systems seem to be missing
+#define lapack_complex_float std::complex<float>
+#define lapack_complex_double std::complex<double>
+#include <lapacke.h>
 
 namespace neurolib
 {
@@ -999,8 +995,8 @@ ParametricMeshToSPHARMSpatialObjectFilter::Get_BaseVal( PointsContainerPointer p
       }
     }
 
-  delete plm;
-  delete vert;
+  delete [] plm;
+  delete [] vert;
 
   return 0;
 }
@@ -1009,7 +1005,7 @@ void
 ParametricMeshToSPHARMSpatialObjectFilter::ComputeCoeffs()
 {
   float * A;
-  integer numRH, m, n;
+  lapack_int numRH, m, n;
 
   InputMeshType::Pointer surfMesh = GetInputSurfaceMesh();
   InputMeshType::Pointer paraMesh = GetInputParametrizationMesh();
@@ -1051,18 +1047,18 @@ ParametricMeshToSPHARMSpatialObjectFilter::ComputeCoeffs()
 
     char    trans[20] = "N";
     int     fac = n * m;
-    integer workSize = fac * 2;
-    integer info;
+    lapack_int workSize = fac * 2;
+    lapack_int info;
     float * work = new float[workSize];
 
-    integer lda = m;
-    integer ldb = m;
+    lapack_int lda = m;
+    lapack_int ldb = m;
 
-    sgels_(trans, &m, &n, &numRH, A, &lda, obj, &ldb, work, &workSize, &info);
+    LAPACK_sgels(trans, &m, &n, &numRH, A, &lda, obj, &ldb, work, &workSize, &info);
 
     delete A;
     A = NULL;
-    delete work;
+    delete [] work;
     work = NULL;
 
     int curElem = 0;
@@ -1083,7 +1079,7 @@ ParametricMeshToSPHARMSpatialObjectFilter::ComputeCoeffs()
         curElem++;
         }
       }
-    delete obj;
+    delete [] obj;
     }
   m_coeffs.clear();
   SpatialObjectType::ScalarType elem[3];

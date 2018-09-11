@@ -10,6 +10,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Update CMake module path
 set(SPHARM-PDM_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 list(INSERT CMAKE_MODULE_PATH 0 ${SPHARM-PDM_CMAKE_DIR})
+add_subdirectory(${SPHARM-PDM_CMAKE_DIR})
+list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_BINARY_DIR}/CMake")
 
 # Sanity checks
 include(PreventInSourceBuilds)
