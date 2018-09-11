@@ -159,9 +159,9 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 			p2[1]=vertex[i*m_phi+(j+1)%m_phi][1];
 			p2[2]=vertex[i*m_phi+(j+1)%m_phi][2];
 			
-			x=abs(p1[0]-medialVertex[i][0]);
-			y=abs(p1[1]-medialVertex[i][1]);
-			z=abs(p1[2]-medialVertex[i][2]);
+			x=fabs(p1[0]-medialVertex[i][0]);
+			y=fabs(p1[1]-medialVertex[i][1]);
+			z=fabs(p1[2]-medialVertex[i][2]);
 			distance=sqrt(x*x+y*y+z*z);
 			m_radius[i]+=distance;
 			
