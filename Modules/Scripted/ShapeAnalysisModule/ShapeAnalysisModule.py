@@ -10,7 +10,13 @@ import time
 import urllib
 import shutil
 from CommonUtilities import *
+from packaging import version
 
+def _setSectionResizeMode(header, *args, **kwargs):
+  if version.parse(qt.Qt.qVersion()) < version.parse("5.0.0"):
+    header.setResizeMode(*args, **kwargs)
+  else:
+    header.setSectionResizeMode(*args, **kwargs)
 #
 # ShapeAnalysisModule
 #
@@ -207,8 +213,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.tableWidget_ChoiceOfFlip.setColumnWidth(0, 400)
     horizontalHeader = self.tableWidget_ChoiceOfFlip.horizontalHeader()
     horizontalHeader.setStretchLastSection(False)
-    horizontalHeader.setResizeMode(0, qt.QHeaderView.Stretch)
-    horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
+    _setSectionResizeMode(horizontalHeader, 0, qt.QHeaderView.Stretch)
+    _setSectionResizeMode(horizontalHeader, 1, qt.QHeaderView.ResizeToContents)
     self.tableWidget_ChoiceOfFlip.verticalHeader().setVisible(False)
 
     #     Progress Bar
@@ -220,8 +226,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.tableWidget_visualization.setColumnWidth(0, 400)
     horizontalHeader = self.tableWidget_visualization.horizontalHeader()
     horizontalHeader.setStretchLastSection(False)
-    horizontalHeader.setResizeMode(0, qt.QHeaderView.Stretch)
-    horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
+    _setSectionResizeMode(horizontalHeader, 0, qt.QHeaderView.Stretch)
+    _setSectionResizeMode(horizontalHeader, 1, qt.QHeaderView.ResizeToContents)
     self.tableWidget_visualization.verticalHeader().setVisible(False)
 
     #     Configuration of the parameters of the widget
@@ -302,8 +308,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.tableWidget_ChoiceOfFlip.setColumnWidth(0, 400)
     horizontalHeader = self.tableWidget_ChoiceOfFlip.horizontalHeader()
     horizontalHeader.setStretchLastSection(False)
-    horizontalHeader.setResizeMode(0, qt.QHeaderView.Stretch)
-    horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
+    _setSectionResizeMode(horizontalHeader, 0, qt.QHeaderView.Stretch)
+    _setSectionResizeMode(horizontalHeader, 1, qt.QHeaderView.ResizeToContents)
     self.tableWidget_ChoiceOfFlip.verticalHeader().setVisible(False)
 
     #   Visualization
@@ -315,8 +321,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.tableWidget_visualization.setColumnWidth(0, 400)
     horizontalHeader = self.tableWidget_visualization.horizontalHeader()
     horizontalHeader.setStretchLastSection(False)
-    horizontalHeader.setResizeMode(0, qt.QHeaderView.Stretch)
-    horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
+    _setSectionResizeMode(horizontalHeader, 0, qt.QHeaderView.Stretch)
+    _setSectionResizeMode(horizontalHeader, 1, qt.QHeaderView.ResizeToContents)
     self.tableWidget_visualization.verticalHeader().setVisible(False)
 
     # Apply
@@ -1010,8 +1016,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     table.setColumnWidth(0, 400)
     horizontalHeader = table.horizontalHeader()
     horizontalHeader.setStretchLastSection(False)
-    horizontalHeader.setResizeMode(0, qt.QHeaderView.Stretch)
-    horizontalHeader.setResizeMode(1, qt.QHeaderView.ResizeToContents)
+    _setSectionResizeMode(horizontalHeader, 0, qt.QHeaderView.Stretch)
+    _setSectionResizeMode(horizontalHeader, 1, qt.QHeaderView.ResizeToContents)
     table.verticalHeader().setVisible(False)
 
 #
