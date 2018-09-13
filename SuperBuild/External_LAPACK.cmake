@@ -55,11 +55,6 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
   set(EP_SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj})
   set(EP_BINARY_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
 
-  set(log_command_output "0")
-  if(NOT "$ENV{DASHBOARD_TEST_FROM_CTEST}" STREQUAL "")
-    set(log_command_output "1")
-  endif()
-
   if(MSVC)
     # Generator
     find_program(NINJA_EXECUTABLE ninja)
@@ -133,9 +128,6 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
       ${EXTERNAL_PROJECT_CONFIGURE_COMMAND}
       ${EXTERNAL_PROJECT_BUILD_COMMAND}
       INSTALL_COMMAND ""
-      # Wrap commands to ignore log output from dashboards
-      LOG_CONFIGURE ${log_command_output}
-      LOG_BUILD     ${log_command_output}
       DEPENDS
         ${${proj}_DEPENDS}
       )
@@ -156,6 +148,19 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
     mark_as_superbuild(Fortran_COMPILER_ID:STRING)
     mark_as_superbuild(Fortran_${Fortran_COMPILER_ID}_EXECUTABLE)
 
+    set(EXTERNAL_PROJECT_OPTIONAL_CMAKE_CACHE_ARGS)
+    if(APPLE)
+      # Since Detect/Verify tests associated with FortranCInterface CMake module
+      # fails when at least the CMAKE_OSX_ARCHITECTURES option is set to x86_64,
+      # we explicitly disable the CMAKE_OSX_* options here.
+      # Failure was observed when using gfortran_osx-64 from conda.
+      list(APPEND EXTERNAL_PROJECT_OPTIONAL_CMAKE_CACHE_ARGS
+        -DCMAKE_OSX_ARCHITECTURES:STRING=
+        -DCMAKE_OSX_SYSROOT:PATH=
+        -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=
+        )
+    endif()
+
     ExternalProject_Add(${proj}
       ${${proj}_EP_ARGS}
       GIT_REPOSITORY "${Slicer_${proj}_GIT_REPOSITORY}"
@@ -163,6 +168,7 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
       SOURCE_DIR ${EP_SOURCE_DIR}
       BINARY_DIR ${EP_BINARY_DIR}
       CMAKE_CACHE_ARGS
+        ${EXTERNAL_PROJECT_OPTIONAL_CMAKE_CACHE_ARGS}
         # Compiler settings
         -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
         -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
@@ -170,6 +176,7 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
         -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=${CMAKE_CXX_STANDARD_REQUIRED}
         -DCMAKE_CXX_EXTENSIONS:BOOL=${CMAKE_CXX_EXTENSIONS}
         -DCMAKE_Fortran_COMPILER:FILEPATH=${Fortran_${Fortran_COMPILER_ID}_EXECUTABLE}
+        -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=1
         # Output directories
         ## NA
         # Install directories
@@ -180,9 +187,6 @@ if(NOT DEFINED LAPACK_DIR AND NOT Slicer_USE_SYSTEM_LAPACK
         -DCBLAS:BOOL=OFF
         -DLAPACKE:BOOL=ON
       INSTALL_COMMAND ""
-      # Wrap commands to ignore log output from dashboards
-      LOG_CONFIGURE ${log_command_output}
-      LOG_BUILD     ${log_command_output}
       DEPENDS
         ${${proj}_DEPENDS}
       )
