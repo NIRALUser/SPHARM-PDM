@@ -41,11 +41,15 @@ list(APPEND EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS "${LAPACK_DIR};LAPACK;Runtime
 set(${EXTENSION_NAME}_CPACK_INSTALL_CMAKE_PROJECTS "${EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS}" CACHE STRING "List of external projects to install" FORCE)
 
 # Install fortran runtime libraries
-if(DEFINED Slicer_DIR AND NOT APPLE)
-  Fortran_InstallLibrary(
-    FILES ${Fortran_${LAPACKE_Fortran_COMPILER_ID}_RUNTIME_LIBRARIES}
-    DESTINATION ${${LOCAL_PROJECT_NAME}_INSTALL_LIBRARY_DESTINATION} COMPONENT RuntimeLibraries
-    )
+if(DEFINED Slicer_DIR)
+  if(NOT APPLE)
+    Fortran_InstallLibrary(
+      FILES ${Fortran_${LAPACKE_Fortran_COMPILER_ID}_RUNTIME_LIBRARIES}
+      DESTINATION ${Slicer_INSTALL_THIRDPARTY_LIB_DIR} COMPONENT RuntimeLibraries
+      )
+  else()
+    set(${EXTENSION_NAME}_FIXUP_BUNDLE_LIBRARY_DIRECTORIES ${Fortran_${LAPACKE_Fortran_COMPILER_ID}_RUNTIME_DIRECTORIES} CACHE STRING "List of fixup bundle library directories" FORCE)
+  endif()
 endif()
 
 #-----------------------------------------------------------------------------
