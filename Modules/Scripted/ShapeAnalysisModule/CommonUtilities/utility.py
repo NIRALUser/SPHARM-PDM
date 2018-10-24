@@ -13,7 +13,7 @@ This class harbors all the utility functions to load, add, save and remove mrml 
 class MRMLUtility(object):
   @staticmethod
   def loadMRMLNode(node_name, file_dir, file_name, file_type):
-    node = slicer.util.getNode(node_name)
+    node = slicer.mrmlScene.GetFirstNodeByName(node_name)
     if node is None:
       properties = {}
       file_path = os.path.join(file_dir, file_name)
@@ -58,7 +58,7 @@ class MRMLUtility(object):
 
   @staticmethod
   def getMRMLNode(node_name, mrml_type, copy_node=None, transform=None):
-    mrml_node = slicer.util.getNode(node_name)
+    mrml_node = slicer.mrmlScene.GetFirstNodeByName(node_name)
     if mrml_node is None:
       mrml_node = MRMLUtility.createNewMRMLNode(node_name, mrml_type, copy_node, transform)
       already_exists = False
@@ -95,22 +95,23 @@ class MRMLUtility(object):
 
   @staticmethod
   def saveMRMLNode(node, case_dir):
-    if slicer.util.getNode(node.GetName()):
-      file_name = node.GetName()
-      class_name = node.GetClassName()
-      if class_name == 'vtkMRMLScalarVolumeNode' or class_name == 'vtkMRMLLabelMapVolumeNode':
-        file_name += '.nrrd'
-      elif class_name == 'vtkMRMLModelNode':
-        file_name += '.vtk'
-      elif class_name == 'vtkMRMLLinearTransformNode' or class_name == 'vtkMRMLTransformNode':
-        file_name += '.mat'
-      elif class_name == 'vtkMRMLMarkupsFiducialNode':
-        file_name += '.fcsv'
-      elif class_name == 'vtkMRMLDoubleArrayNode':
-        file_name += '.mcsv'
-      file_path = os.path.join(case_dir, file_name)
-      logging.info("Saving %s in %s", file_name, case_dir)
-      slicer.util.saveNode(node, file_path)
+    if not node:
+      return
+    file_name = node.GetName()
+    class_name = node.GetClassName()
+    if class_name == 'vtkMRMLScalarVolumeNode' or class_name == 'vtkMRMLLabelMapVolumeNode':
+      file_name += '.nrrd'
+    elif class_name == 'vtkMRMLModelNode':
+      file_name += '.vtk'
+    elif class_name == 'vtkMRMLLinearTransformNode' or class_name == 'vtkMRMLTransformNode':
+      file_name += '.mat'
+    elif class_name == 'vtkMRMLMarkupsFiducialNode':
+      file_name += '.fcsv'
+    elif class_name == 'vtkMRMLDoubleArrayNode':
+      file_name += '.mcsv'
+    file_path = os.path.join(case_dir, file_name)
+    logging.info("Saving %s in %s", file_name, case_dir)
+    slicer.util.saveNode(node, file_path)
 
   @staticmethod
   def removeMRMLNodes(nodes):
@@ -119,6 +120,5 @@ class MRMLUtility(object):
 
   @staticmethod
   def removeMRMLNode(node):
-    if slicer.util.getNode(node.GetName()):
-      slicer.mrmlScene.RemoveNode(node)
+    slicer.mrmlScene.RemoveNode(node)
 
