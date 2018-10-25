@@ -533,6 +533,7 @@ int main( int argc, char * argv[] )
       resampleFilter->SetSize(size);
       resampleFilter->SetOutputSpacing(spacing);
       resampleFilter->SetOutputOrigin(image->GetOrigin() );
+      resampleFilter->SetOutputDirection(image->GetDirection());
       resampleFilter->SetTransform(transform.GetPointer() );
       resampleFilter->SetInterpolator(interpolFunction.GetPointer() );
       resampleFilter->Update();
@@ -585,6 +586,7 @@ int main( int argc, char * argv[] )
       resampleFilter->SetSize(size);
       resampleFilter->SetOutputSpacing(spacing);
       resampleFilter->SetOutputOrigin(image->GetOrigin() );
+      resampleFilter->SetOutputDirection(image->GetDirection());
       resampleFilter->SetTransform(transform.GetPointer() );
       resampleFilter->SetInterpolator(interpolFunction.GetPointer() );
       resampleFilter->Update();
