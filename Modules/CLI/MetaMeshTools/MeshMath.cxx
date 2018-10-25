@@ -1410,7 +1410,7 @@ int main(int argc, const char * *argv)
 
 		        avgPoints = tmpPoints;
        		}
-	        catch( itk::ExceptionObject ex )
+	        catch( itk::ExceptionObject &ex )
 	        {
         		std::cerr << "Error reading meshfile:  " << AvgMeshFiles[index] << std::endl << "ITK error: "
                   << ex.GetDescription() << std::endl;
@@ -3234,7 +3234,7 @@ int main(int argc, const char * *argv)
           }
         avgPoints = pointsTmp;
         }
-      catch( itk::ExceptionObject ex )
+      catch( itk::ExceptionObject &ex )
         {
         std::cerr << "Error reading meshfile:  " << AvgGaussMeshFiles[index] << std::endl << "ITK error: "
                   << ex.GetDescription() << std::endl;
