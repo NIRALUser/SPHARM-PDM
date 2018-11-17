@@ -9,7 +9,7 @@ set(${proj}_DEPENDS
 # Include dependent projects if any
 ExternalProject_Include_Dependencies(${proj} PROJECT_VAR proj)
 
-if(Slicer_USE_SYSTEM_${proj})
+if(${SUPERBUILD_TOPLEVEL_PROJECT}_USE_SYSTEM_${proj})
   unset(ITK_DIR CACHE)
   find_package(ITK 4 REQUIRED)
 endif()
@@ -19,16 +19,16 @@ if(DEFINED ITK_DIR AND NOT EXISTS ${ITK_DIR})
   message(FATAL_ERROR "ITK_DIR [${ITK_DIR}] variable is defined but corresponds to nonexistent directory")
 endif()
 
-if(NOT DEFINED ITK_DIR AND NOT Slicer_USE_SYSTEM_${proj})
+if(NOT DEFINED ITK_DIR AND NOT ${SUPERBUILD_TOPLEVEL_PROJECT}_USE_SYSTEM_${proj})
 
   ExternalProject_SetIfNotDefined(
-    Slicer_${proj}_GIT_REPOSITORY
+    ${SUPERBUILD_TOPLEVEL_PROJECT}_${proj}_GIT_REPOSITORY
     "${EP_GIT_PROTOCOL}://github.com/InsightSoftwareConsortium/ITK.git"
     QUIET
     )
 
   ExternalProject_SetIfNotDefined(
-    Slicer_${proj}_GIT_TAG
+    ${SUPERBUILD_TOPLEVEL_PROJECT}_${proj}_GIT_TAG
     "v4.13.1"
     QUIET
     )
@@ -46,8 +46,8 @@ if(NOT DEFINED ITK_DIR AND NOT Slicer_USE_SYSTEM_${proj})
 
   ExternalProject_Add(${proj}
     ${${proj}_EP_ARGS}
-    GIT_REPOSITORY "${Slicer_${proj}_GIT_REPOSITORY}"
-    GIT_TAG "${Slicer_${proj}_GIT_TAG}"
+    GIT_REPOSITORY "${${SUPERBUILD_TOPLEVEL_PROJECT}_${proj}_GIT_REPOSITORY}"
+    GIT_TAG "${${SUPERBUILD_TOPLEVEL_PROJECT}_${proj}_GIT_TAG}"
     SOURCE_DIR ${EP_SOURCE_DIR}
     BINARY_DIR ${EP_BINARY_DIR}
     CMAKE_CACHE_ARGS
