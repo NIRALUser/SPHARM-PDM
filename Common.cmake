@@ -65,7 +65,7 @@ mark_as_superbuild(GIT_EXECUTABLE)
 set(${LOCAL_PROJECT_NAME}_CLI_EXECUTABLE_LINK_FLAGS "")
 
 if(${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
-  find_package(Slicer 4.9 REQUIRED)
+  find_package(Slicer REQUIRED)
   include(${Slicer_USE_FILE})
   mark_as_superbuild(Slicer_DIR)
 
