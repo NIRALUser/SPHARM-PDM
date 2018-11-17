@@ -1,5 +1,5 @@
 
-set(proj ITKv4)
+set(proj ITK)
 
 # Set dependency list
 set(${proj}_DEPENDS
@@ -11,7 +11,7 @@ ExternalProject_Include_Dependencies(${proj} PROJECT_VAR proj)
 
 if(${SUPERBUILD_TOPLEVEL_PROJECT}_USE_SYSTEM_${proj})
   unset(ITK_DIR CACHE)
-  find_package(ITK 4 REQUIRED)
+  find_package(ITK 4.13.1 REQUIRED)
 endif()
 
 # Sanity checks

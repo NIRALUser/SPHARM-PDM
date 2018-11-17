@@ -2,7 +2,7 @@ set(proj SlicerExecutionModel)
 
 # Set dependency list
 set(${proj}_DEPENDS
-  ITKv4
+  ITK
   )
 
 # Include dependent projects if any

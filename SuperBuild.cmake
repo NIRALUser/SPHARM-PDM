@@ -11,7 +11,7 @@ endif()
 # Superbuild option(s)
 #-----------------------------------------------------------------------------
 option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
-set(Slicer_USE_SYSTE_ITKv4 ${USE_SYSTEM_ITK})
+set(Slicer_USE_SYSTEM_ITK ${USE_SYSTEM_ITK})
 
 option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
 set(Slicer_USE_SYSTEM_SlicerExecutionModel ${USE_SYSTEM_SlicerExecutionModel})
@@ -42,7 +42,7 @@ set(${LOCAL_PROJECT_NAME}_DEPENDS
   )
 if(NOT SPHARM-PDM_BUILD_SLICER_EXTENSION)
   list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDS
-    ITKv4
+    ITK
     SlicerExecutionModel
     VTK
     )
