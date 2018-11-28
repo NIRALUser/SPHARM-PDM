@@ -202,7 +202,7 @@ endforeach()
 #-------------------------------------------------------------------------
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-include(ITKSetStandardCompilerFlags)
+include(${SPHARM-PDM_CMAKE_DIR}/ITKSetStandardCompilerFlags.cmake)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_DEBUG_DESIRED_FLAGS}" )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_DEBUG_DESIRED_FLAGS}" )
