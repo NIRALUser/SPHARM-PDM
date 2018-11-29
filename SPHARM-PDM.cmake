@@ -28,7 +28,7 @@ endif()
 #-----------------------------------------------------------------------------
 # Testing
 #-----------------------------------------------------------------------------
-if(BUILD_TESTING)
+if(SPHARM-PDM_BUILD_TESTING)
   include(CTest)
   add_subdirectory(Testing)
 endif()

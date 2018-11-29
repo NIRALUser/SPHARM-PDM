@@ -1,6 +1,6 @@
 # Export of the files SPHARM-PDM-parameters.ini and SPHARM-PDM.py in the SPHARM package share folder in order to run SPHARM-PDM by command-lines via SlicerSALT or Slicer
-set(SPHARM-PDM_python-script ${CMAKE_SOURCE_DIR}/CommandLineTool/SPHARM-PDM.py)
-set(SPHARM-PDM_parameters-file ${CMAKE_SOURCE_DIR}/CommandLineTool/SPHARM-PDM-parameters.ini)
+set(SPHARM-PDM_python-script ${SPHARM-PDM_SOURCE_DIR}/CommandLineTool/SPHARM-PDM.py)
+set(SPHARM-PDM_parameters-file ${SPHARM-PDM_SOURCE_DIR}/CommandLineTool/SPHARM-PDM-parameters.ini)
 
 set(SPHARM_commandline_install_dir ${Slicer_INSTALL_ROOT}${Slicer_SHARE_DIR}/CommandLineTool)
 

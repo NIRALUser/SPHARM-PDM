@@ -11,7 +11,7 @@ endif()
 # Superbuild option(s)
 #-----------------------------------------------------------------------------
 option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
-set(Slicer_USE_SYSTE_ITKv4 ${USE_SYSTEM_ITK})
+set(Slicer_USE_SYSTEM_ITK ${USE_SYSTEM_ITK})
 
 option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
 set(Slicer_USE_SYSTEM_SlicerExecutionModel ${USE_SYSTEM_SlicerExecutionModel})
@@ -42,7 +42,7 @@ set(${LOCAL_PROJECT_NAME}_DEPENDS
   )
 if(NOT SPHARM-PDM_BUILD_SLICER_EXTENSION)
   list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDS
-    ITKv4
+    ITK
     SlicerExecutionModel
     VTK
     )
@@ -52,7 +52,7 @@ set(proj ${SUPERBUILD_TOPLEVEL_PROJECT})
 
 ExternalProject_Include_Dependencies(${proj}
   PROJECT_VAR proj
-  SUPERBUILD_VAR ${PROJECT_NAME}_SUPERBUILD
+  SUPERBUILD_VAR ${LOCAL_PROJECT_NAME}_SUPERBUILD
   )
 
 ExternalProject_Add(${proj}
@@ -74,8 +74,8 @@ ExternalProject_Add(${proj}
     -DMIDAS_PACKAGE_EMAIL:STRING=${MIDAS_PACKAGE_EMAIL}
     -DMIDAS_PACKAGE_API_KEY:STRING=${MIDAS_PACKAGE_API_KEY}
     # Superbuild
-    -D${EXTENSION_NAME}_SUPERBUILD:BOOL=OFF
-    -DEXTENSION_SUPERBUILD_BINARY_DIR:PATH=${${EXTENSION_NAME}_BINARY_DIR}
+    -D${LOCAL_PROJECT_NAME}_SUPERBUILD:BOOL=OFF
+    -DEXTENSION_SUPERBUILD_BINARY_DIR:PATH=${${LOCAL_PROJECT_NAME}_BINARY_DIR}
   INSTALL_COMMAND ""
   DEPENDS
     ${${LOCAL_PROJECT_NAME}_DEPENDS}

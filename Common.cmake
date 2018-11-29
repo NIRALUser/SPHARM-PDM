@@ -65,7 +65,7 @@ mark_as_superbuild(GIT_EXECUTABLE)
 set(${LOCAL_PROJECT_NAME}_CLI_EXECUTABLE_LINK_FLAGS "")
 
 if(${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
-  find_package(Slicer 4.9 REQUIRED)
+  find_package(Slicer REQUIRED)
   include(${Slicer_USE_FILE})
   mark_as_superbuild(Slicer_DIR)
 
@@ -85,8 +85,11 @@ option(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT "Install development support in
 mark_as_advanced(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT)
 mark_as_superbuild(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT)
 
-option(BUILD_TESTING "Build testing" OFF)
-mark_as_superbuild(BUILD_TESTING)
+if(NOT DEFINED SPHARM-PDM_BUILD_TESTING)
+  option(BUILD_TESTING "tests" ON)
+  set(SPHARM-PDM_BUILD_TESTING ${BUILD_TESTING})
+endif()
+mark_as_superbuild(SPHARM-PDM_BUILD_TESTING)
 
 option(COMPILE_MetaMeshTools "Compile MetaMeshTools." ON)
 mark_as_superbuild(COMPILE_MetaMeshTools)
@@ -199,7 +202,7 @@ endforeach()
 #-------------------------------------------------------------------------
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-include(ITKSetStandardCompilerFlags)
+include(${SPHARM-PDM_CMAKE_DIR}/ITKSetStandardCompilerFlags.cmake)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_DEBUG_DESIRED_FLAGS}" )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_DEBUG_DESIRED_FLAGS}" )
