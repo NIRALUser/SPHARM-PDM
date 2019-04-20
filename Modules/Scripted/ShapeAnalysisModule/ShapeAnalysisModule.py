@@ -1514,7 +1514,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
         L = [1]
       # All the flips to apply
       else:
-        L = range(1,8)
+        L = list(range(1,8))
 
       for i in L:
 

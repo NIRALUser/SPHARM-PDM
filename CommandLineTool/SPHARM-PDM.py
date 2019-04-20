@@ -1,7 +1,11 @@
 from __future__ import print_function
 import sys, os
 from ShapeAnalysisModule import ShapeAnalysisModuleWrapper
-from ConfigParser import SafeConfigParser
+
+try:
+  from configparser import SafeConfigParser
+except ImportError:
+  from ConfigParser import SafeConfigParser  # python 2.x
 
 if len(sys.argv) != 2:
   print("\n\nUsage: ./SlicerSALT --no-main-window --python-script " + sys.argv[0] + " path/to/SPHARM-PDM/parameters/file\n\n")
