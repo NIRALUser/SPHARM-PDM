@@ -1574,7 +1574,7 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
         self.setupModule(slicer.modules.paratospharmmeshclp, cli_parameters)
 
 
-class ShapeAnalysisModuleWrapper:
+class ShapeAnalysisModuleWrapper(object):
   """
   This class should be called from an external python script to run SPHARM-PDM method on multiple cases thanks to SlicerSALT or 3DSlicer.
 
