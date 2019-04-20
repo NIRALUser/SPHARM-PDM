@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os, sys
 import unittest
 import vtk, qt, ctk, slicer
@@ -1944,7 +1945,7 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest):
     for url, name in downloads:
       filePath = os.path.join(directoryPath, name)
       if not os.path.exists(filePath) or os.stat(filePath).st_size == 0:
-        print 'Requesting download %s from %s...\n' % (name, url)
+        print('Requesting download %s from %s...\n' % (name, url))
         urllib.urlretrieve(url, filePath)
     self.delayDisplay('Finished with download')
 
