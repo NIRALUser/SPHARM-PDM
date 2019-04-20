@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os, sys
 import vtk, ctk, slicer
 import logging
@@ -73,19 +74,19 @@ class MRMLUtility(object):
       if mrml_type == 'vtkMRMLModelNode':
         if mrml_node.GetPolyData() is not None:
           node_empty = False
-          print "***", mrml_node.GetName(), "already has a polyData attribute"
+          print("***", mrml_node.GetName(), "already has a polyData attribute")
       if mrml_type == 'vtkMRMLModelHierarchyNode':
         if mrml_node.GetNumberOfChildrenNodes() != 0:
           node_empty = False
-          print "***", mrml_node.GetName(), "already has children models"
+          print("***", mrml_node.GetName(), "already has children models")
       elif mrml_type == 'vtkMRMLTransformNode' or mrml_type == 'vtkMRMLLinearTransformNode':
         if mrml_node.GetTransformToParent() is not None:
           node_empty = False
-          print "***", mrml_node.GetName(), "already has a transform attribute"
+          print("***", mrml_node.GetName(), "already has a transform attribute")
       elif mrml_type == 'vtkMRMLScalarVolumeNode' or mrml_type == 'vtkMRMLLabelMapVolumeNode':
         if mrml_node.GetImageData() is not None:
           node_empty = False
-          print "***", mrml_node.GetName(), "already has an image attribute"
+          print("***", mrml_node.GetName(), "already has an image attribute")
     return node_empty
 
   @staticmethod
