@@ -36,7 +36,7 @@ class LogicMixin(ScriptedLoadableModuleLogic, VTKObservationMixin):
 
     pipeline_id = None
     current_pipeline = None
-    for key, pipeline in self.pipeline.iteritems():
+    for key, pipeline in self.pipeline.items():
       if pipeline.Node == pipeline_node:
         pipeline_id = key
         current_pipeline = pipeline
