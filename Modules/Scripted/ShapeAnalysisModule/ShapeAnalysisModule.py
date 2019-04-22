@@ -8,7 +8,12 @@ import csv
 from slicer.util import VTKObservationMixin
 import platform
 import time
-import urllib
+
+try:
+  import urllib.request, urllib.parse, urllib.error
+except ImportError:
+  import urllib  # python 2.x
+
 import shutil
 from CommonUtilities import *
 from packaging import version
@@ -1946,7 +1951,10 @@ class ShapeAnalysisModuleTest(ScriptedLoadableModuleTest):
       filePath = os.path.join(directoryPath, name)
       if not os.path.exists(filePath) or os.stat(filePath).st_size == 0:
         print('Requesting download %s from %s...\n' % (name, url))
-        urllib.urlretrieve(url, filePath)
+        if sys.version_info[0] == 3:
+          urllib.request.urlretrieve(url, filePath)
+        else:
+          urllib.urlretrieve(url, filePath)  # python 2.x
     self.delayDisplay('Finished with download')
 
   # Function to delete all the data needed for the tests
