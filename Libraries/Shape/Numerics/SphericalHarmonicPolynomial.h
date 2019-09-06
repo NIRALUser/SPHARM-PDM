@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include <itkExceptionObject.h>
+#include <itkMacro.h>
 #include <itkPoint.h>
 
 namespace neurolib

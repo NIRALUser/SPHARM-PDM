@@ -96,7 +96,7 @@ public:
   // virtual bool  ComputeBoundingBox () const;
   virtual bool ComputeLocalBoundingBox() const ITK_OVERRIDE;
 
-  virtual void PrintSelf(std::ostream& os, itk::Indent indent) const ITK_OVERRIDE;
+  void PrintSelf(std::ostream& os, itk::Indent indent) const override;
 
 /** The four vitual geometric functions calls this function whenever the b_Dirty is true. */
   void ComputeHiddenMeshSpatialObject();
@@ -104,7 +104,7 @@ public:
 protected:
 
   SphericalHarmonicSpatialObject();
-  virtual ~SphericalHarmonicSpatialObject() ITK_OVERRIDE;
+  ~SphericalHarmonicSpatialObject() override;
 
   /** Set functions */
   itkSetMacro(Count, int);
