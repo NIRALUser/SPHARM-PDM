@@ -85,16 +85,14 @@ public:
 
   /** Derived spatial geometric functions from the superclass SpatialObject,
       resulting directly from calling corresponding functions of p_coefsMeshSpatialObject. */
-  virtual bool  ValueAt(const PointType & point, double & value, unsigned int depth = 0, char *name = NULL) const ITK_OVERRIDE;
+  bool  ValueAtInObjectSpace(const PointType & point, double & value, unsigned int depth = 0, const std::string & name = "") const override;
 
-  virtual bool  IsEvaluableAt(const PointType & point, unsigned int depth = 0, char *name = NULL) const ITK_OVERRIDE;
+  bool  IsEvaluableAtInObjectSpace(const PointType & point, unsigned int depth = 0,
+                             const std::string & name = "") const override;
 
-  virtual bool  IsInside(const PointType & point, unsigned int depth, char *name = NULL) const ITK_OVERRIDE;
+  bool  IsInsideInObjectSpace(const PointType & point) const override;
 
-  virtual bool  IsInside(const PointType & point) const;
-
-  // virtual bool  ComputeBoundingBox () const;
-  virtual bool ComputeLocalBoundingBox() const ITK_OVERRIDE;
+  virtual bool ComputeLocalBoundingBox() const;// ITK_OVERRIDE;
 
   void PrintSelf(std::ostream& os, itk::Indent indent) const override;
 

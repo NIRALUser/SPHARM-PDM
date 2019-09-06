@@ -16,7 +16,6 @@ namespace neurolib
 /** Constructor */
 SphericalHarmonicSpatialObject::SphericalHarmonicSpatialObject()
 {
-  this->SetDimension(SphericalHarmonicSpatialObjectDimension); // Dimension 3
   this->SetTypeName("SphericalHarmonicSpatialObject");
 
   m_Count = 0;
@@ -84,43 +83,22 @@ void SphericalHarmonicSpatialObject::GetCoefs(SphericalHarmonicSpatialObject::Co
 /** p_coefsMeshSpatialObject is the hidden mesh to provide results
 for the three geometric functions (IsInside,  ComputeBoundingBox).
 Pay attention to the variable 'depth'?? */
-bool SphericalHarmonicSpatialObject::ValueAt( const PointType & /* point */,
+bool SphericalHarmonicSpatialObject::ValueAtInObjectSpace( const PointType & /* point */,
                                               double & /* value */,
                                               unsigned int /* depth */,
-                                              char * /* name */) const
+                                              const std::string & /* name */) const
 {
   return false;
 }
 
-bool SphericalHarmonicSpatialObject::IsEvaluableAt(const PointType & /* point */,
-                                                   unsigned int /* depth */,
-                                                   char * /* name */) const
+bool SphericalHarmonicSpatialObject::IsEvaluableAtInObjectSpace(const PointType & /* point */, unsigned int /* depth */,
+                             const std::string & /* name */) const
 {
   return false;
 }
 
-bool SphericalHarmonicSpatialObject::IsInside(const PointType & point, unsigned int depth, char *name) const
-{
-  itkDebugMacro( "Checking the point [" << point << "] is inside the SphericalHarmonicSpatialObject" );
-  if( name == NULL )
-    {
-    if( IsInside(point) )
-      {
-      return true;
-      }
-    }
-  else if( strstr(typeid(Self).name(), name) )
-    {
-    if( IsInside(point) )
-      {
-      return true;
-      }
-    }
-  return Superclass::IsInside(point, depth, name);
-}
-
-bool SphericalHarmonicSpatialObject::IsInside(const PointType & point) const
-{
+bool SphericalHarmonicSpatialObject::IsInsideInObjectSpace(const PointType & point) const
+{/*
   if( !this->GetIndexToWorldTransform()->GetInverse(const_cast<TransformType *>(this->GetInternalInverseTransform() ) ) )
     {
     return false;
@@ -135,14 +113,14 @@ bool SphericalHarmonicSpatialObject::IsInside(const PointType & point) const
   if( this->GetBounds()->IsInside(point) )
     {
     return m_CoefsMeshSpatialObject->IsInside(transformedPoint);
-    }
+    }*/
   return false;
 }
 
 bool SphericalHarmonicSpatialObject::ComputeLocalBoundingBox() const
 {
   itkDebugMacro( "Computing SphericalHarmonicSpatialObject local bounding box" );
-
+  /*
   if( this->GetBoundingBoxChildrenName().empty()
       || strstr(typeid(Self).name(), this->GetBoundingBoxChildrenName().c_str() ) )
     {
@@ -157,6 +135,7 @@ bool SphericalHarmonicSpatialObject::ComputeLocalBoundingBox() const
     const_cast<BoundingBoxType *>(this->GetBounds() )->SetMinimum(ptMin);
     const_cast<BoundingBoxType *>(this->GetBounds() )->SetMaximum(ptMax);
     }
+    */
   return true;
 }
 
@@ -169,7 +148,7 @@ void SphericalHarmonicSpatialObject::ComputeHiddenMeshSpatialObject()
   m_Meshsrc->Update();
   m_CoefsMesh = m_Meshsrc->GetOutput();
   m_CoefsMeshSpatialObject->SetMesh(m_CoefsMesh);
-  m_CoefsMeshSpatialObject->ComputeLocalBoundingBox();
+  //m_CoefsMeshSpatialObject->ComputeLocalBoundingBox();
 
 }
 
