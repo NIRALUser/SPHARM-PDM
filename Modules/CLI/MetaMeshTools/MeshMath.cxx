@@ -63,7 +63,7 @@
 #include <itkMetaArrayWriter.h>
 #include <itkSpatialObjectWriter.h>
 #include <itkSpatialObjectReader.h>
-#include <itkSceneSpatialObject.h>
+//#include <itkSceneSpatialObject.h>
 
 #include <itkLinearInterpolateImageFunction.h>
 #include <itkNearestNeighborInterpolateImageFunction.h>
@@ -100,7 +100,7 @@ typedef MeshTraitsType::PointType                                PointType;
 typedef MeshTraitsType::CellType CellType;
 
 typedef itk::SpatialObjectWriter<3, float, MeshTraitsType> MeshWriterType;
-typedef itk::SceneSpatialObject<3>                         SceneSpatialObjectType;
+//typedef itk::SceneSpatialObject<3>                         SceneSpatialObjectType;
 
 typedef itk::DefaultDynamicMeshTraits<double, 3, 3, double, double> TriangleMeshTraits;
 typedef itk::Mesh<double, 3, TriangleMeshTraits>                    TriangleMeshType;
