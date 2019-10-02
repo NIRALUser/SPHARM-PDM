@@ -139,7 +139,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.tableWidget_visualization = self.getWidget('tableWidget_visualization')
     #   Apply CLIs
     self.ApplyButton = self.getWidget('applyButton')
-    self.progress_layout = self.getWidget('progress_layout')
+    self.progress_layout = self.getWidget('progress_layout').layout()
 
     # Connections
     #   Group Project IO

@@ -28,9 +28,6 @@
      <property name="checked">
       <bool>true</bool>
      </property>
-     <property name="contentsFrameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
      <layout class="QFormLayout" name="formLayout_2">
       <property name="fieldGrowthPolicy">
        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
@@ -517,9 +514,6 @@
      <property name="checked">
       <bool>false</bool>
      </property>
-     <property name="contentsFrameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
      <layout class="QFormLayout" name="formLayout_5">
       <item row="0" column="0">
        <widget class="QLabel" name="label_GaussianFiltering">
@@ -638,9 +632,6 @@
      </property>
      <property name="checked">
       <bool>false</bool>
-     </property>
-     <property name="contentsFrameShape">
-      <enum>QFrame::StyledPanel</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
@@ -846,7 +837,9 @@
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="progress_layout"/>
+    <widget class="QWidget" name="progress_layout" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout_2"/>
+    </widget>
    </item>
    <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_Visualization">
@@ -858,9 +851,6 @@
      </property>
      <property name="checked">
       <bool>false</bool>
-     </property>
-     <property name="contentsFrameShape">
-      <enum>QFrame::StyledPanel</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
