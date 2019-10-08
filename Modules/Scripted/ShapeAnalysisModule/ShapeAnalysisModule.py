@@ -815,13 +815,23 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     filePathCSV = slicer.app.temporaryPath + '/' + 'PreviewForVisualizationInSPV.csv'
     self.Logic.creationCSVFileForSPV(self.tableWidget_visualization, filePathCSV)
 
-    # Creation of the parameters of SPV
-    parameters = {}
-    parameters["CSVFile"] = filePathCSV
+    if isinstance(slicer.modules.gaussianblurimagefilter, slicer.qSlicerCLIModule):
+      # Creation of the parameters of SPV
+      parameters = {}
+      parameters["CSVFile"] = filePathCSV
 
-    # Launch SPV
-    slicer.modules.shapepopulationviewer.widgetRepresentation().loadCSVFile(filePathCSV)
-    slicer.util.selectModule(slicer.modules.shapepopulationviewer)
+      # If a binary of SPV has been installed
+      if hasattr(slicer.modules, 'shapepopulationviewer'):
+        SPV = slicer.modules.shapepopulationviewer
+      # If SPV has been installed via the Extension Manager
+      elif hasattr(slicer.modules, 'launcher'):
+        SPV = slicer.modules.launcher
+      # Launch SPV
+      slicer.cli.run(SPV, None, parameters, wait_for_completion=True)
+    else:
+      # Load CSV and select modules
+      slicer.modules.shapepopulationviewer.widgetRepresentation().loadCSVFile(filePathCSV)
+      slicer.util.selectModule(slicer.modules.shapepopulationviewer)
 
     # Deletion of the CSV files in the Slicer temporary directory
     if os.path.exists(filePathCSV):
