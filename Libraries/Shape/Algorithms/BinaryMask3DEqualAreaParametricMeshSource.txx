@@ -327,7 +327,7 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
       curVertex[1] = xvec[3 * i + 1];
       curVertex[2] = xvec[3 * i + 2];
       // check whether curVertex has Nan's if so raise exceptiont
-      if( vnl_math_isnan(curVertex[0]) || vnl_math_isnan(curVertex[1]) || vnl_math_isnan(curVertex[2]) )
+      if( vnl_math::isnan(curVertex[0]) || vnl_math::isnan(curVertex[1]) || vnl_math::isnan(curVertex[2]) )
         {
         throw BinaryMask3DEqualAreaParametricMeshSourceException(
                 __FILE__, __LINE__, "Numerical error in the parameterization, contains NaN");
