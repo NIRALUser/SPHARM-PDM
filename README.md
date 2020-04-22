@@ -4,7 +4,7 @@ Shape analysis has become of increasing interest to the medical community due to
 
 The point-based models computed with the SPHARM-PDM tool can be used in combination with the also UNC designed statistical tool shapeAnalysisMANCOVA to perform quantitative morphological assessment of structural changes at speciﬁc locations.
 
-SPHARM-PDM is now available as a 3D Slicer extension (http://www.slicer.org) and as a SlicerSALT module (https://bpaniagua.github.io/slicersalt.github.io/)
+SPHARM-PDM is now available as a 3D Slicer extension (http://www.slicer.org) and as a SlicerSALT module (https://salt.slicer.org/)
 
 Prerequisites
 -------------
