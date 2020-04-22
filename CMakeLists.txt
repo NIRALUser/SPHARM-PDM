@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.5.0)
-cmake_policy(SET CMP0083 NEW)
+if(POLICY CMP0083)
+  cmake_policy(SET CMP0083 NEW)
+endif()
 
 # C++ standard
 if(NOT DEFINED CMAKE_CXX_STANDARD)
