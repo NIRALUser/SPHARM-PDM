@@ -98,45 +98,29 @@ bool SphericalHarmonicSpatialObject::IsEvaluableAtInObjectSpace(const PointType 
 }
 
 bool SphericalHarmonicSpatialObject::IsInsideInObjectSpace(const PointType & point) const
-{/*
-  if( !this->GetIndexToWorldTransform()->GetInverse(const_cast<TransformType *>(this->GetInternalInverseTransform() ) ) )
+{
+  if( this->GetMyBoundingBoxInObjectSpace()->IsInside(point) )
     {
-    return false;
+    return m_CoefsMeshSpatialObject->IsInsideInObjectSpace(point);
     }
-
-  PointType transformedPoint = this->GetInternalInverseTransform()->TransformPoint(point);
-  // std::cout<<" transformedPoint = [ " << transformedPoint[0] <<" , " <<transformedPoint[1] <<" , "
-  // <<transformedPoint[2] << " ] "<<std::endl;
-
-  this->ComputeLocalBoundingBox();
-
-  if( this->GetBounds()->IsInside(point) )
-    {
-    return m_CoefsMeshSpatialObject->IsInside(transformedPoint);
-    }*/
   return false;
 }
 
-bool SphericalHarmonicSpatialObject::ComputeLocalBoundingBox() const
+void SphericalHarmonicSpatialObject::ComputeMyBoundingBox() 
 {
-  itkDebugMacro( "Computing SphericalHarmonicSpatialObject local bounding box" );
-  /*
-  if( this->GetBoundingBoxChildrenName().empty()
-      || strstr(typeid(Self).name(), this->GetBoundingBoxChildrenName().c_str() ) )
-    {
-    m_CoefsMeshSpatialObject->ComputeLocalBoundingBox();
+  itkDebugMacro( "Computing SphericalHarmonicSpatialObject object space bounding box" );
+  
+  
+  m_CoefsMeshSpatialObject->Update();
 
-    PointType ptMin, ptMax;
-    ptMin = m_CoefsMeshSpatialObject->GetBoundingBox()->GetMinimum();
-    ptMin = this->GetIndexToWorldTransform()->TransformPoint(ptMin);
-    ptMax = m_CoefsMeshSpatialObject->GetBoundingBox()->GetMaximum();
-    ptMax = this->GetIndexToWorldTransform()->TransformPoint(ptMax);
+  PointType ptMin, ptMax;
+  ptMin = m_CoefsMeshSpatialObject->GetMyBoundingBoxInObjectSpace()->GetMinimum();
+  ptMax = m_CoefsMeshSpatialObject->GetMyBoundingBoxInObjectSpace()->GetMaximum();
 
-    const_cast<BoundingBoxType *>(this->GetBounds() )->SetMinimum(ptMin);
-    const_cast<BoundingBoxType *>(this->GetBounds() )->SetMaximum(ptMax);
-    }
-    */
-  return true;
+
+  this->GetModifiableMyBoundingBoxInObjectSpace()->SetMinimum(ptMin);
+  this->GetModifiableMyBoundingBoxInObjectSpace()->SetMaximum(ptMax);
+  
 }
 
 void SphericalHarmonicSpatialObject::ComputeHiddenMeshSpatialObject()
@@ -148,8 +132,8 @@ void SphericalHarmonicSpatialObject::ComputeHiddenMeshSpatialObject()
   m_Meshsrc->Update();
   m_CoefsMesh = m_Meshsrc->GetOutput();
   m_CoefsMeshSpatialObject->SetMesh(m_CoefsMesh);
-  //m_CoefsMeshSpatialObject->ComputeLocalBoundingBox();
-
+  m_CoefsMeshSpatialObject->ComputeBoundingBox();
+  this->Update();
 }
 
 } // end namespace neurolib

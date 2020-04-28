@@ -92,7 +92,7 @@ public:
 
   bool  IsInsideInObjectSpace(const PointType & point) const override;
 
-  virtual bool ComputeLocalBoundingBox() const;// ITK_OVERRIDE;
+  
 
   void PrintSelf(std::ostream& os, itk::Indent indent) const override;
 
@@ -103,6 +103,8 @@ protected:
 
   SphericalHarmonicSpatialObject();
   ~SphericalHarmonicSpatialObject() override;
+
+  void ComputeMyBoundingBox() override;
 
   /** Set functions */
   itkSetMacro(Count, int);
