@@ -99,10 +99,10 @@ int main( int argc, char * argv[] )
 	      }
 	    readerSH->SetFileName(initParaFileName);
 	    readerSH->Update();
-	    ReaderType::SceneType::Pointer          scene1 = readerSH->GetScene();
-	    ReaderType::SceneType::ObjectListType * objList =  scene1->GetObjects(1, NULL);
+      ReaderType::GroupType::Pointer group1 = readerSH->GetGroup();
+	    ReaderType::GroupType::ObjectListType * childList = group1->GetChildren(1, NULL);
 	    // TODO: plugin name if multiple object are present
-	    ReaderType::SceneType::ObjectListType::iterator it = objList->begin();
+	    ReaderType::GroupType::ObjectListType::iterator it = childList->begin();
 	    itk::SpatialObject<3> *                         curObj = *it;
 	    MeshSpatialObjectType::Pointer                  paraSOMesh = dynamic_cast<MeshSpatialObjectType *>(curObj);
 	    parmesh = paraSOMesh->GetMesh();
