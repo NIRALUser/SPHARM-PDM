@@ -830,6 +830,49 @@
     </widget>
    </item>
    <item>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_RigidAlignment">
+     <property name="text">
+      <string>Correspondence Improvement</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <layout class="QFormLayout" name="formLayout_3">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_RigidAlignmentFiducialsDirectory">
+        <property name="text">
+         <string>Fiducials Input Directory</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="ctkDirectoryButton" name="DirectoryButton_RigidAlignmentFiducialsDirectory">
+        <property name="toolTip">
+         <string>Fiducials Input Directory</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_RigidAlignmentEnabled">
+        <property name="text">
+         <string>Enable Correspondence Improvement</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="checkBox_RigidAlignmentEnabled">
+        <property name="toolTip">
+         <string>Enable Correspondence Improvement</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QPushButton" name="applyButton">
      <property name="text">
       <string>Run ShapeAnalysisModule</string>
