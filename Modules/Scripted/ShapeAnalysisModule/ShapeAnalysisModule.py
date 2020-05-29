@@ -677,6 +677,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
                                 self.Logic.ErrorMessage)
 
       elif status == 'Completed':
+        self.Logic.improveCorrespondence()
         self.configurationVisualization()
 
       #  Empty lists
@@ -1288,6 +1289,24 @@ class ShapeAnalysisModuleLogic(LogicMixin):
           cw.writerow([VTKfilepath])
     file.close()
 
+  # Function to conditionally invoke RigidAlignment module to improve correspondence
+  def improveCorrespondence(self):
+    if self.parameters.rigidAlignmentEnabled:
+      logging.info("Invoking RigidAlignment...")
+
+      dir_in = self.parameters.outputDirectory + '/Step3_ParaToSPHARMMesh'
+      dir_out = self.parameters.outputDirectory + '/Step4_Improvement'
+      fiducials = self.parameters.fiducialsDirectory
+
+      logging.info('dir_in: %s', dir_in)
+      logging.info('dir_out: %s', dir_out)
+      logging.info('fiducials: %s', fiducials)
+
+      logic = RigidAlignmentModuleLogic()
+      logging.info("Skipping while waiting for RigidAlignment bugfix.")
+      # logic.runRigidAlignment(dir_in, fiducials, dir_in, dir_out, dir_out)
+    else:
+      logging.info("RigidAlignment not enabled; Skipping.")
 
 
 #
@@ -1616,23 +1635,6 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
           cli_parameters["finalFlipIndex"] = i
 
         self.setupModule(slicer.modules.paratospharmmeshclp, cli_parameters)
-
-        #
-        #   Correspondence Improvement
-        #
-        if self.interface.rigidAlignmentEnabled:
-          rigidDir = self.interface.outputDirectory + "/Step4_Correspondence"
-          modelsDir = rigidDir + "/models-in"
-          sphereDir = rigidDir + "/sphere-in"
-          outputModelsDir = rigidDir + "/models-out"
-          outputSphereDir = rigidDir + "/sphere-out"
-          fiducials = self.interface.fiducialsDir
-
-          # cp _pp_surf_SPHARM.vtk to modelsDir
-          # cp _para.vtk to tmp sphereDir
-
-          logic = RigidAlignmentModuleLogic()
-          logic.runRigidAlignment(modelsDir, fiducials, sphereDir, outputSphereDir, outputModelsDir)
 
 
 class ShapeAnalysisModuleWrapper(object):
