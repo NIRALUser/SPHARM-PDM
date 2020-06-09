@@ -1,6 +1,7 @@
 from __future__ import print_function
 import os, sys
 import unittest
+from pathlib import Path
 import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 import logging
@@ -1294,17 +1295,28 @@ class ShapeAnalysisModuleLogic(LogicMixin):
     if self.parameters.rigidAlignmentEnabled:
       logging.info("Invoking RigidAlignment...")
 
-      dir_in = self.parameters.outputDirectory + '/Step3_ParaToSPHARMMesh'
-      dir_out = self.parameters.outputDirectory + '/Step4_Improvement'
-      fiducials = self.parameters.fiducialsDirectory
+      fidsDir = Path(self.parameters.fiducialsDirectory)
+      outDir = Path(self.parameters.outputDirectory)
 
-      logging.info('dir_in: %s', dir_in)
-      logging.info('dir_out: %s', dir_out)
-      logging.info('fiducials: %s', fiducials)
+      inDir = outDir / 'Step3_ParaToSPHARMMesh'
+      outModelsDir = outDir / 'Step4_Improvement' / 'models'
+      outSphereDir = outDir / 'Step4_Improvement' / 'sphere'
+
+      os.makedirs(outModelsDir, exist_ok=True)
+      os.makedirs(outSphereDir, exist_ok=True)
+
+      models = inDir.glob('*_pp_surf_SPHARM.vtk')
+      fiducials = fidsDir.glob('*_fid.fcsv')
+      unitSphere = next(inDir.glob('*_surf_para.vtk'))
 
       logic = RigidAlignmentModuleLogic()
-      logging.info("Skipping while waiting for RigidAlignment bugfix.")
-      # logic.runRigidAlignment(dir_in, fiducials, dir_in, dir_out, dir_out)
+      logic.run(
+        models=models,
+        fiducials=fiducials,
+        unitSphere=unitSphere,
+        outModelsDir=outModelsDir,
+        outSphereDir=outSphereDir,
+      )
     else:
       logging.info("RigidAlignment not enabled; Skipping.")
 
