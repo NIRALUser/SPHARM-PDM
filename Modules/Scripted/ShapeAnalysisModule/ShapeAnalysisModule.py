@@ -213,7 +213,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
                                                   lambda: self.onSelectedCollapsibleButtonOpen(
                                                     self.CollapsibleButton_RigidAlignment))
     self.RigidAlignmentFiducialsDirectory.connect('directoryChanged(const QString &)', self.onFiducialsDirectoryChanged)
-    self.RigidAlignmentEnabled.connect('clicked(bool)', self.onEnableRigidAlignment)
+    self.RigidAlignmentEnabled.connect('stateChanged(int)', self.onEnableRigidAlignment)
 
     #   Visualization
     self.CollapsibleButton_Visualization.connect('clicked()',
