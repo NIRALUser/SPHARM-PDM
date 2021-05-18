@@ -4042,8 +4042,8 @@ int main(int argc, const char * *argv)
   else if( avgOneKWMOn ) // bp2009
     {
     char     line[70];
-    ifstream input;
-    ofstream output;
+    std::ifstream input;
+    std::ofstream output;
     int      NPoints;
     float    value;
     float    sum = 0;
@@ -4078,8 +4078,8 @@ int main(int argc, const char * *argv)
   else if( minOneKWMOn ) // bp2009
     {
     char     line[70];
-    ifstream input;
-    ofstream output;
+    std::ifstream input;
+    std::ofstream output;
     float    value;
     //char *   aux;
     float    minOne = 9999999;
@@ -4113,8 +4113,8 @@ int main(int argc, const char * *argv)
   else if( maxOneKWMOn ) // bp2009
     {
     char     line[70];
-    ifstream input;
-    ofstream output;
+    std::ifstream input;
+    std::ofstream output;
     float    value;
     //char *   aux;
     float    maxOne = 0;
@@ -4148,8 +4148,8 @@ int main(int argc, const char * *argv)
   else if( medianOneKWMOn ) // bp2009
     {
     char     line[70];
-    ifstream input;
-    ofstream output;
+    std::ifstream input;
+    std::ofstream output;
     int      NPoints;
     float    value;
     char *   aux;
@@ -4192,8 +4192,8 @@ int main(int argc, const char * *argv)
   else if( per1OneKWMOn ) // bp2009
     {
     char     line[70];
-    ifstream input;
-    ofstream output;
+    std::ifstream input;
+    std::ofstream output;
     int      NPoints;
     float    value;
     char *   aux;
@@ -4237,8 +4237,8 @@ int main(int argc, const char * *argv)
   else if( per99OneKWMOn ) // bp2009
     {
     char     line[70];
-    ifstream input;
-    ofstream output;
+    std::ifstream input;
+    std::ofstream output;
     int      NPoints;
     float    value;
     char *   aux;
@@ -4330,8 +4330,8 @@ int main(int argc, const char * *argv)
     {
     char     line[70];
     char     line2[70];
-    ifstream inputROI, inputFile;
-    ofstream output;
+    std::ifstream inputROI, inputFile;
+    std::ofstream output;
     int      NPoints, Dim;
     float    valueROI, valueFile;
     char *   aux;
@@ -4454,7 +4454,7 @@ int main(int argc, const char * *argv)
 
     // *** START PARSING KWMeshVisu file
     char     line[70];
-    ifstream input;
+    std::ifstream input;
     int      NPoints, NDimension;
     char *   aux;
     input.open(files[0], ios::in);
@@ -4543,7 +4543,7 @@ int main(int argc, const char * *argv)
 
     // *** START PARSING FreeSurfer file
     char     line[70];
-    ifstream input;
+    std::ifstream input;
     int      NPoints;
     input.open(files[0], ios::in);
 
