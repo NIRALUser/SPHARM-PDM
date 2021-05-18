@@ -80,7 +80,11 @@ int main(int argc, const char * *argv)
   //
   vtkSmartPointer<vtkCellArray> triangleStrips = polyData->GetStrips();
 
-  vtkIdType * cellPoints;
+#if VTK_MAJOR_VERSION >= 9 || (VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 90)
+  const vtkIdType*  cellPoints;
+#else
+  vtkIdType*  cellPoints;
+#endif
   vtkIdType   numberOfCellPoints;
 
   //
