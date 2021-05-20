@@ -1,6 +1,7 @@
 from __future__ import print_function
 import os, sys
 import unittest
+from pathlib import Path
 import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 import logging
@@ -8,6 +9,7 @@ import csv
 from slicer.util import VTKObservationMixin
 import platform
 import time
+from RigidAlignmentModule import RigidAlignmentModuleLogic
 
 try:
   import urllib.request, urllib.parse, urllib.error
@@ -113,7 +115,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.phiIterationValue = self.getWidget('spinBox_phiIterationValue')
     self.medialMesh = self.getWidget('checkBox_medialMesh')
     #   Advanced Post Processed Segmentation
-    self.CollapsibleButton_AdvancedPostProcessedSegmentation = self.getWidget('CollapsibleButton_AdvancedPostProcessedSegmentation')
+    self.CollapsibleButton_AdvancedPostProcessedSegmentation = self.getWidget(
+      'CollapsibleButton_AdvancedPostProcessedSegmentation')
     self.GaussianFiltering = self.getWidget('checkBox_GaussianFiltering')
     self.label_VarianceX = self.getWidget('label_VarianceX')
     self.VarianceX = self.getWidget('SliderWidget_VarianceX')
@@ -122,7 +125,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.label_VarianceZ = self.getWidget('label_VarianceZ')
     self.VarianceZ = self.getWidget('SliderWidget_VarianceZ')
     #   Advanced Parameters to SPHARM Mesh
-    self.CollapsibleButton_AdvancedParametersToSPHARMMesh = self.getWidget('CollapsibleButton_AdvancedParametersToSPHARMMesh')
+    self.CollapsibleButton_AdvancedParametersToSPHARMMesh = self.getWidget(
+      'CollapsibleButton_AdvancedParametersToSPHARMMesh')
     self.useRegTemplate = self.getWidget('checkBox_useRegTemplate')
     self.label_regTemplate = self.getWidget('label_regTemplate')
     self.regTemplate = self.getWidget('PathLineEdit_regTemplate')
@@ -132,6 +136,10 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.choiceOfFlip = self.getWidget('comboBox_choiceOfFlip')
     self.sameFlipForAll = self.getWidget('checkBox_sameFlipForAll')
     self.tableWidget_ChoiceOfFlip = self.getWidget('tableWidget_ChoiceOfFlip')
+    #   Correspondence Improvement
+    self.CollapsibleButton_RigidAlignment = self.getWidget('CollapsibleButton_RigidAlignment')
+    self.RigidAlignmentFiducialsDirectory = self.getWidget('DirectoryButton_RigidAlignmentFiducialsDirectory')
+    self.RigidAlignmentEnabled = self.getWidget('checkBox_RigidAlignmentEnabled')
     #   Visualization
     self.CollapsibleButton_Visualization = self.getWidget('CollapsibleButton_Visualization')
     self.visualizationInSPV = self.getWidget('pushButton_visualizationInSPV')
@@ -139,7 +147,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.tableWidget_visualization = self.getWidget('tableWidget_visualization')
     #   Apply CLIs
     self.ApplyButton = self.getWidget('applyButton')
-    self.progress_layout = self.getWidget('progress_layout')
+    self.progress_layout = self.getWidget('progress_layout').layout()
 
     # Connections
     #   Group Project IO
@@ -191,8 +199,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
 
     #   Advanced Parameters to SPHARM Mesh
     self.CollapsibleButton_AdvancedParametersToSPHARMMesh.connect('clicked()',
-                                                  lambda: self.onSelectedCollapsibleButtonOpen(
-                                                    self.CollapsibleButton_AdvancedParametersToSPHARMMesh))
+                                                                  lambda: self.onSelectedCollapsibleButtonOpen(
+                                                                    self.CollapsibleButton_AdvancedParametersToSPHARMMesh))
     self.useRegTemplate.connect('clicked(bool)', self.onEnableRegTemplate)
     self.regTemplate.connect('currentPathChanged(const QString)', self.onRegTemplateValueChanged)
     self.useFlipTemplate.connect('clicked(bool)', self.onEnableFlipTemplate)
@@ -200,10 +208,17 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
     self.choiceOfFlip.connect('currentIndexChanged(int)', self.onChoiceOfFlipValueChanged)
     self.sameFlipForAll.connect('clicked(bool)', self.onEnableFlipChoices)
 
+    #   Correspondence Improvement
+    self.CollapsibleButton_RigidAlignment.connect('clicked()',
+                                                  lambda: self.onSelectedCollapsibleButtonOpen(
+                                                    self.CollapsibleButton_RigidAlignment))
+    self.RigidAlignmentFiducialsDirectory.connect('directoryChanged(const QString &)', self.onFiducialsDirectoryChanged)
+    self.RigidAlignmentEnabled.connect('stateChanged(int)', self.onEnableRigidAlignment)
+
     #   Visualization
     self.CollapsibleButton_Visualization.connect('clicked()',
-                                                  lambda: self.onSelectedCollapsibleButtonOpen(
-                                                    self.CollapsibleButton_Visualization))
+                                                 lambda: self.onSelectedCollapsibleButtonOpen(
+                                                   self.CollapsibleButton_Visualization))
     self.CheckableComboBox_visualization.connect('checkedIndexesChanged()', self.onCheckableComboBoxValueChanged)
     self.visualizationInSPV.connect('clicked(bool)', self.onSPHARMMeshesVisualizationInSPV)
 
@@ -362,7 +377,8 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
                                self.CollapsibleButton_ParaToSPHARMMesh,
                                self.CollapsibleButton_AdvancedPostProcessedSegmentation,
                                self.CollapsibleButton_AdvancedParametersToSPHARMMesh,
-                               self.CollapsibleButton_Visualization]
+                               self.CollapsibleButton_Visualization,
+                               self.CollapsibleButton_RigidAlignment]
       for collapsibleButton in collapsibleButtonList:
         collapsibleButton.setChecked(False)
       selectedCollapsibleButton.setChecked(True)
@@ -598,6 +614,15 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
       self.fillTableForFlipOptions()
 
   #
+  #   Correspondence Improvement
+  #
+  def onFiducialsDirectoryChanged(self, directory):
+    self.Logic.parameters.setFiducialsDirectory(directory)
+
+  def onEnableRigidAlignment(self, enabled):
+    self.Logic.parameters.setRigidAlignmentEnabled(enabled)
+
+  #
   #   Apply CLIs
   #
   def onApplyButton(self):
@@ -653,6 +678,7 @@ class ShapeAnalysisModuleWidget(ScriptedLoadableModuleWidget):
                                 self.Logic.ErrorMessage)
 
       elif status == 'Completed':
+        self.Logic.improveCorrespondence()
         self.configurationVisualization()
 
       #  Empty lists
@@ -1081,6 +1107,10 @@ class ShapeAnalysisModuleParameters(object):
     self.choiceOfFlip = 0
     self.sameFlipForAll = True
 
+    #   RigidAlignment Parameters
+    self.rigidAlignmentEnabled = False
+    self.fiducialsDirectory = " "
+
   def setWaitForCompletion(self, bool):
     self.waitForCompletion = bool
 
@@ -1168,6 +1198,12 @@ class ShapeAnalysisModuleParameters(object):
   def setSameFlipForAll(self, bool):
     self.sameFlipForAll = bool
 
+  def setFiducialsDirectory(self, directory):
+    self.fiducialsDirectory = directory
+
+  def setRigidAlignmentEnabled(self, enabled):
+    self.rigidAlignmentEnabled = enabled
+
 #
 # ShapeAnalysisModuleLogic
 #
@@ -1254,6 +1290,35 @@ class ShapeAnalysisModuleLogic(LogicMixin):
           cw.writerow([VTKfilepath])
     file.close()
 
+  # Function to conditionally invoke RigidAlignment module to improve correspondence
+  def improveCorrespondence(self):
+    if self.parameters.rigidAlignmentEnabled:
+      logging.info("Invoking RigidAlignment...")
+
+      fidsDir = Path(self.parameters.fiducialsDirectory)
+      outDir = Path(self.parameters.outputDirectory)
+
+      inDir = outDir / 'Step3_ParaToSPHARMMesh'
+      outModelsDir = outDir / 'Step4_Improvement' / 'models'
+      outSphereDir = outDir / 'Step4_Improvement' / 'sphere'
+
+      os.makedirs(outModelsDir, exist_ok=True)
+      os.makedirs(outSphereDir, exist_ok=True)
+
+      models = inDir.glob('*_pp_surf_SPHARM.vtk')
+      fiducials = fidsDir.glob('*_fid.fcsv')
+      unitSphere = next(inDir.glob('*_surf_para.vtk'))
+
+      logic = RigidAlignmentModuleLogic()
+      logic.run(
+        models=models,
+        fiducials=fiducials,
+        unitSphere=unitSphere,
+        outModelsDir=outModelsDir,
+        outSphereDir=outSphereDir,
+      )
+    else:
+      logging.info("RigidAlignment not enabled; Skipping.")
 
 
 #
@@ -1576,8 +1641,8 @@ class ShapeAnalysisModulePipeline(PipelineMixin):
           cli_parameters["flipTemplateFileOn"] = True
           cli_parameters["flipTemplateFile"] = self.interface.flipTemplate
 
-        if flipIndexToApply < 8 :
-            cli_parameters["finalFlipIndex"] = flipIndexToApply
+        if flipIndexToApply < 8:
+          cli_parameters["finalFlipIndex"] = flipIndexToApply
         else:
           cli_parameters["finalFlipIndex"] = i
 
