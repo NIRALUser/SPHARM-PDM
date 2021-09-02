@@ -28,15 +28,10 @@ set(Slicer_USE_SYSTEM_LAPACK ${USE_SYSTEM_LAPACK})
 set(LAPACK_INSTALL_RUNTIME_DIR ${${LOCAL_PROJECT_NAME}_INSTALL_RUNTIME_DESTINATION})
 set(LAPACK_INSTALL_LIBRARY_DIR ${${LOCAL_PROJECT_NAME}_INSTALL_LIBRARY_DESTINATION})
 
-#-----------------------------------------------------------------------------
-# Top-level "external" project
-#-----------------------------------------------------------------------------
-
-foreach(dep ${EXTENSION_DEPENDS})
-  mark_as_superbuild(${dep}_DIR)
-endforeach()
-
+#------------------------------------------------------------------------------
 # Project dependencies
+#------------------------------------------------------------------------------
+
 set(${LOCAL_PROJECT_NAME}_DEPENDS
   LAPACK
   )
@@ -47,6 +42,96 @@ if(NOT SPHARM-PDM_BUILD_SLICER_EXTENSION)
     VTK
     )
 endif()
+
+#------------------------------------------------------------------------------
+# Superbuild-type bundled extensions
+#------------------------------------------------------------------------------
+
+# The following logic is documented in the "Bundle extensions adding source directories"
+# section found in the top-level CMakeLists.txt
+
+set(_all_extension_depends )
+
+# Build only inner-build for superbuild-type extensions
+set(Slicer_BUNDLED_EXTENSION_NAMES)
+foreach(extension_dir ${Slicer_EXTENSION_SOURCE_DIRS})
+  get_filename_component(extension_dir ${extension_dir} ABSOLUTE)
+  get_filename_component(extension_name ${extension_dir} NAME) # The assumption is that source directories are named after the extension project
+  if(EXISTS ${extension_dir}/SuperBuild OR EXISTS ${extension_dir}/Superbuild)
+    set(${extension_name}_SUPERBUILD 0)
+    mark_as_superbuild(${extension_name}_SUPERBUILD:BOOL)
+
+    if(NOT DEFINED ${extension_name}_EXTERNAL_PROJECT_EXCLUDE_ALL)
+      set(${extension_name}_EXTERNAL_PROJECT_EXCLUDE_ALL FALSE)
+    endif()
+    if(NOT ${extension_name}_EXTERNAL_PROJECT_EXCLUDE_ALL)
+      list(APPEND EXTERNAL_PROJECT_ADDITIONAL_DIRS "${extension_dir}/SuperBuild")
+      list(APPEND EXTERNAL_PROJECT_ADDITIONAL_DIRS "${extension_dir}/Superbuild")
+    endif()
+    if(NOT DEFINED ${extension_name}_EXTERNAL_PROJECT_DEPENDENCIES)
+      set(${extension_name}_EXTERNAL_PROJECT_DEPENDENCIES )
+    endif()
+
+    set(_external_project_cmake_files)
+
+    # SuperBuild
+    file(GLOB _external_project_cmake_files1 RELATIVE "${extension_dir}/SuperBuild" "${extension_dir}/SuperBuild/External_*.cmake")
+    list(APPEND _external_project_cmake_files ${_external_project_cmake_files1})
+
+    # Superbuild
+    file(GLOB _external_project_cmake_files2 RELATIVE "${extension_dir}/Superbuild" "${extension_dir}/Superbuild/External_*.cmake")
+    list(APPEND _external_project_cmake_files ${_external_project_cmake_files2})
+
+    list(REMOVE_DUPLICATES _external_project_cmake_files)
+
+    set(_extension_depends)
+    set(_msg_extension_depends)
+    foreach (_external_project_cmake_file ${_external_project_cmake_files})
+      string(REGEX MATCH "External_(.+)\.cmake" _match ${_external_project_cmake_file})
+      set(_additional_project_name "${CMAKE_MATCH_1}")
+      if(${extension_name}_EXTERNAL_PROJECT_EXCLUDE_ALL)
+        set(_include FALSE)
+      else()
+        set(_include TRUE)
+        if(NOT "${${extension_name}_EXTERNAL_PROJECT_DEPENDENCIES}" STREQUAL "")
+          list(FIND ${extension_name}_EXTERNAL_PROJECT_DEPENDENCIES ${_additional_project_name} _index)
+          if(_index EQUAL -1)
+            set(_include FALSE)
+          endif()
+        endif()
+      endif()
+      if(_include)
+          list(APPEND _extension_depends ${_additional_project_name})
+          list(APPEND _msg_extension_depends ${_additional_project_name})
+      else()
+        list(APPEND _msg_extension_depends "exclude(${_additional_project_name})")
+      endif()
+    endforeach()
+
+    list(APPEND Slicer_BUNDLED_EXTENSION_NAMES ${extension_name})
+
+    message(STATUS "SuperBuild - ${extension_name} extension => ${_msg_extension_depends}")
+
+    list(APPEND _all_extension_depends ${_extension_depends})
+  endif()
+endforeach()
+
+if(_all_extension_depends)
+  list(REMOVE_DUPLICATES _all_extension_depends)
+endif()
+
+list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDS ${_all_extension_depends})
+
+mark_as_superbuild(Slicer_BUNDLED_EXTENSION_NAMES:STRING)
+
+#-----------------------------------------------------------------------------
+# Top-level "external" project
+#-----------------------------------------------------------------------------
+
+# Extension dependencies
+foreach(dep ${EXTENSION_DEPENDS})
+  mark_as_superbuild(${dep}_DIR)
+endforeach()
 
 set(proj ${SUPERBUILD_TOPLEVEL_PROJECT})
 
@@ -76,6 +161,7 @@ ExternalProject_Add(${proj}
     # Superbuild
     -D${LOCAL_PROJECT_NAME}_SUPERBUILD:BOOL=OFF
     -DEXTENSION_SUPERBUILD_BINARY_DIR:PATH=${${LOCAL_PROJECT_NAME}_BINARY_DIR}
+    -DSlicer_EXTENSION_SOURCE_DIRS:STRING=${Slicer_EXTENSION_SOURCE_DIRS}
   INSTALL_COMMAND ""
   DEPENDS
     ${${LOCAL_PROJECT_NAME}_DEPENDS}
