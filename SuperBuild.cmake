@@ -28,6 +28,24 @@ set(Slicer_USE_SYSTEM_LAPACK ${USE_SYSTEM_LAPACK})
 set(LAPACK_INSTALL_RUNTIME_DIR ${${LOCAL_PROJECT_NAME}_INSTALL_RUNTIME_DESTINATION})
 set(LAPACK_INSTALL_LIBRARY_DIR ${${LOCAL_PROJECT_NAME}_INSTALL_LIBRARY_DESTINATION})
 
+#-----------------------------------------------------------------------------
+# Add remote extension source directories
+#-----------------------------------------------------------------------------
+include(FetchContent)
+
+# GROUPS
+set(extension_name "GROUPS")
+set(${extension_name}_SOURCE_DIR "${CMAKE_BINARY_DIR}/${extension_name}")
+FetchContent_Populate(${extension_name}
+  SOURCE_DIR     ${${extension_name}_SOURCE_DIR}
+  GIT_REPOSITORY ${EP_GIT_PROTOCOL}://github.com/NIRALUser/GROUPS.git
+  GIT_TAG        b2bd6008416711a133fd30182f1c4a49bd0bdc46
+  GIT_PROGRESS   1
+  QUIET
+  )
+list(APPEND Slicer_EXTENSION_SOURCE_DIRS ${${extension_name}_SOURCE_DIR})
+list(APPEND EXTERNAL_PROJECT_ADDITIONAL_DIRS ${${extension_name}_SOURCE_DIR}/SuperBuild)
+
 #------------------------------------------------------------------------------
 # Project dependencies
 #------------------------------------------------------------------------------
