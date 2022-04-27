@@ -197,7 +197,7 @@ int main( int argc, char * argv[] )
         labelReader->Update();
         labelImage = labelReader->GetOutput();
         }
-      catch( ExceptionObject e )
+      catch( ExceptionObject &e )
         {
         e.Print(cout);
         return EXIT_FAILURE;
@@ -377,7 +377,7 @@ int main( int argc, char * argv[] )
       EMSReader->Update();
       EMSImage = EMSReader->GetOutput();
       }
-    catch( ExceptionObject e )
+    catch( ExceptionObject &e )
       {
       e.Print(cout);
       return EXIT_FAILURE;
@@ -406,7 +406,7 @@ int main( int argc, char * argv[] )
       image = imageReader->GetOutput();
       }
     }
-  catch( ExceptionObject e )
+  catch( ExceptionObject &e )
     {
     e.Print(cout);
     return EXIT_FAILURE;
@@ -862,7 +862,7 @@ if( UseUnitSpacing ) procImage->SetSpacing(SpacingImage);
         labelReader->Update() ;
         labelImage = labelReader->GetOutput() ;
       }
-      catch (ExceptionObject e)
+      catch (ExceptionObject &e)
       {
         e.Print(cout) ;
         exit(0) ;
@@ -876,7 +876,7 @@ if( UseUnitSpacing ) procImage->SetSpacing(SpacingImage);
         correctedImageReader->Update() ;
         correctedImage = correctedImageReader->GetOutput() ;
       }
-      catch (ExceptionObject e)
+      catch (ExceptionObject &e)
       {
         e.Print(cout) ;
         exit(0) ;
@@ -1082,7 +1082,7 @@ if( UseUnitSpacing ) procImage->SetSpacing(SpacingImage);
       writer->Write();
     }*/
     }
-  catch( ExceptionObject e )
+  catch( ExceptionObject &e )
     {
     e.Print(cout);
     return EXIT_FAILURE;
@@ -1100,7 +1100,7 @@ if( UseUnitSpacing ) procImage->SetSpacing(SpacingImage);
        EMSReader->Update() ;
        EMSImage = EMSReader->GetOutput() ;
      }
-     catch (ExceptionObject e){
+     catch (ExceptionObject &e){
        e.Print(cout) ;
        exit(0) ;
      }

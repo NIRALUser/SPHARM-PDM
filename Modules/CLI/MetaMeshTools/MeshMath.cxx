@@ -1184,7 +1184,6 @@ int main(int argc, const char * *argv)
     // find number&points of cells
     CellIterator cellIterator = mesh->GetCells()->Begin();
     CellIterator cellEnd      = mesh->GetCells()->End();
-    PointType    curPoint;
     while( cellIterator != cellEnd )
       {
       CellType *                cell = cellIterator.Value();
@@ -1211,7 +1210,6 @@ int main(int argc, const char * *argv)
   else if( extractionOn )
     {
 
-    PointType point;
     PointType pixel;
 
     // read input
@@ -1710,7 +1708,7 @@ int main(int argc, const char * *argv)
             CellType *                cell = _cellIterator.Value();
             TriangleType *            line = dynamic_cast<TriangleType *>(cell);
             LineType::PointIdIterator pit = line->PointIdsBegin();
-            MeshType::PointType       p1, p2, p3, p;
+            MeshType::PointType       p1, p2, p3;
             int                       pIndex1, pIndex2, pIndex3;
             // find the neighboors
             for( int dim = 0; dim < 3; dim++ )
@@ -4669,7 +4667,6 @@ int main(int argc, const char * *argv)
     // Computing surface area
     CellIterator        cellIterator = inputMesh->GetCells()->Begin();
     CellIterator        cellEnd = inputMesh->GetCells()->End();
-    PointType           curPoint;
     std::vector<double> v_Area(*(std::max_element(v_Attributes.begin(), v_Attributes.end() ) ) + 1);
 
     while( cellIterator != cellEnd )
@@ -5331,7 +5328,6 @@ int main(int argc, const char * *argv)
       // Computing surface area
       CellIterator cellIterator = inputMesh->GetCells()->Begin();
       CellIterator cellEnd = inputMesh->GetCells()->End();
-      PointType curPoint;
       std::vector<double> v_Area(*(std::max_element(v_Attributes.begin(),v_Attributes.end()))+1);
 
       while( cellIterator != cellEnd )
