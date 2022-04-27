@@ -107,7 +107,7 @@ int main( int argc, char * argv[] )
 	    MeshSpatialObjectType::Pointer                  paraSOMesh = dynamic_cast<MeshSpatialObjectType *>(curObj);
 	    parmesh = paraSOMesh->GetMesh();
 	    }
-	catch( itk::ExceptionObject ex )
+	catch( itk::ExceptionObject &ex )
 	    {
 	    std::cout << ex.GetDescription() << std::endl;
 	    return EXIT_FAILURE ;
@@ -130,7 +130,7 @@ int main( int argc, char * argv[] )
 	      parmesh = VTKITKConverter.GetOutput();
 	      std::cout << "Converting vtk done"  << std::endl;
 	    }
-	  catch( itk::ExceptionObject ex )
+	  catch( itk::ExceptionObject &ex )
 	    {
 	      std::cout << ex.GetDescription() << std::endl;
 	      return EXIT_FAILURE ;
@@ -204,7 +204,7 @@ int main( int argc, char * argv[] )
    }
 
     }
-  catch( itk::ExceptionObject e )
+  catch( itk::ExceptionObject &e )
     {
     if( EulerFile )
       {

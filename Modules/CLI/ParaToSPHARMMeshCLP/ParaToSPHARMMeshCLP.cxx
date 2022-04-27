@@ -102,7 +102,7 @@ int main( int argc, char * argv[] )
 // delete (VTKITKConverter);
 //     cout<<"test9"<<endl;
     }
-  catch( itk::ExceptionObject ex )
+  catch( itk::ExceptionObject &ex )
     {
     std::cout << ex.GetDescription() << std::endl;
     return 1;
@@ -119,7 +119,7 @@ int main( int argc, char * argv[] )
 
     // delete (VTKITKConverter2);
     }
-  catch( itk::ExceptionObject ex )
+  catch( itk::ExceptionObject &ex )
     {
     std::cout << ex.GetDescription() << std::endl;
     return 1;
@@ -144,7 +144,7 @@ int main( int argc, char * argv[] )
 
       flipTemplateSO->SetCoefs(coeflist);
       }
-    catch( itk::ExceptionObject ex )
+    catch( itk::ExceptionObject &ex )
       {
       std::cout << ex.GetDescription() << std::endl;
       return 1;
@@ -435,7 +435,7 @@ int main( int argc, char * argv[] )
 
         // 7. in if regTemplate, add section for if regParaTemplate and use S2 for procrustes alignment
         }
-      catch( itk::ExceptionObject ex )
+      catch( itk::ExceptionObject &ex )
         {
         std::cout << ex.GetDescription() << "while doing regParaTemplateFile" << std::endl;
         return 1;
@@ -1046,7 +1046,7 @@ int main( int argc, char * argv[] )
       }
     }
 
-  catch( itk::ExceptionObject e )
+  catch( itk::ExceptionObject &e )
     {
     e.Print(std::cout);
     return EXIT_FAILURE;
