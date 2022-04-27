@@ -172,7 +172,6 @@ Mesh3DProcrustesAlignFilter<TInputMesh, TOutputMesh>
   TranslationType center;
 
   center.Fill( 0 );
-  InputPointType pnt;
   typename InputMeshType::PointsContainer * meshPoints = this->GetInput( idx )->GetPoints();
   typename InputMeshType::PointsContainer::ConstIterator pntIt;
   for( pntIt = meshPoints->Begin(); pntIt != meshPoints->End(); ++pntIt )
@@ -319,7 +318,6 @@ Mesh3DProcrustesAlignFilter<TInputMesh, TOutputMesh>
     }
 
   m_MeanCenter.Fill( 0 );
-  InputPointType pnt;
   for( meanIt = meanPoints->Begin(); meanIt != meanPoints->End(); ++meanIt )
     {
     for( int dim = 0; dim < 3; dim++ )
