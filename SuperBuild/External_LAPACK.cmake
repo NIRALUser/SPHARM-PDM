@@ -156,7 +156,11 @@ if(NOT DEFINED LAPACK_DIR AND NOT ${SUPERBUILD_TOPLEVEL_PROJECT}_USE_SYSTEM_LAPA
       # Failure was observed when using gfortran_osx-64 from conda.
       list(APPEND EXTERNAL_PROJECT_OPTIONAL_CMAKE_CACHE_ARGS
         -DCMAKE_OSX_ARCHITECTURES:STRING=
-        -DCMAKE_OSX_SYSROOT:PATH=
+        # Pass SYSROOT to ensure header like "stdlib.h" can be found on macOS at least >= 10.15
+        # when using the full path to the compiler.
+        # For example, "/Applications/Xcode_11.7.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc"
+        # See https://andreasfertig.blog/2021/02/clang-and-gcc-on-macos-catalina-finding-the-include-paths/
+        #-DCMAKE_OSX_SYSROOT:PATH=
         -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=
         )
     endif()

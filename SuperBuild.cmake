@@ -39,7 +39,7 @@ set(${extension_name}_SOURCE_DIR "${CMAKE_BINARY_DIR}/${extension_name}")
 FetchContent_Populate(${extension_name}
   SOURCE_DIR     ${${extension_name}_SOURCE_DIR}
   GIT_REPOSITORY ${EP_GIT_PROTOCOL}://github.com/NIRALUser/GROUPS.git
-  GIT_TAG        d73b2f7b42296e8f22d24ea4adcb06b9ccf5b9da # master
+  GIT_TAG        9a72008c6cbffa036e13c2dee18e3a2a23bc5d7c # master
   GIT_PROGRESS   1
   QUIET
   )
