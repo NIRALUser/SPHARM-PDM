@@ -38,8 +38,8 @@ set(extension_name "GROUPS")
 set(${extension_name}_SOURCE_DIR "${CMAKE_BINARY_DIR}/${extension_name}")
 FetchContent_Populate(${extension_name}
   SOURCE_DIR     ${${extension_name}_SOURCE_DIR}
-  GIT_REPOSITORY ${EP_GIT_PROTOCOL}://github.com/SlicerSALT/GROUPS.git
-  GIT_TAG        388eacafbd09441a09f7bb072bf5b44594fd2395 # spharmpdm-2021-05-43e7eef5f
+  GIT_REPOSITORY ${EP_GIT_PROTOCOL}://github.com/NIRALUser/GROUPS.git
+  GIT_TAG        9573229937eeca85bb671d1c466bd7cebca27740 # master
   GIT_PROGRESS   1
   QUIET
   )
