@@ -36,20 +36,20 @@ class MRMLUtility(object):
     mrml_node = slicer.mrmlScene.AddNode(mrml_type)
     if copy_node is not None:
       mrml_node.Copy(copy_node)
-      if mrml_type.GetClassName() is 'vtkMRMLModelNode':
+      if mrml_type.GetClassName() == 'vtkMRMLModelNode':
         display_node = slicer.mrmlScene.CreateNodeByClass('vtkMRMLModelDisplayNode')
         slicer.mrmlScene.AddNode(display_node)
         display_node.UnRegister(slicer.mrmlScene)
         mrml_node.SetAndObserveDisplayNodeID(display_node.GetID())
         mrml_node.SetAndObserveStorageNodeID(None)
-      elif mrml_type.GetClassName() is 'vtkMRMLMarkupsFiducialNode':
+      elif mrml_type.GetClassName() == 'vtkMRMLMarkupsFiducialNode':
         display_node = slicer.mrmlScene.CreateNodeByClass('vtkMRMLMarkupsDisplayNode')
         slicer.mrmlScene.AddNode(display_node)
         display_node.UnRegister(slicer.mrmlScene)
         mrml_node.SetAndObserveDisplayNodeID(display_node.GetID())
         mrml_node.SetAndObserveStorageNodeID(None)
     else:
-      if mrml_type.GetClassName() is 'vtkMRMLModelNode':
+      if mrml_type.GetClassName() == 'vtkMRMLModelNode':
         mrml_node.CreateDefaultDisplayNodes()
 
     if transform is not None:
