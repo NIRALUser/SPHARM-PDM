@@ -174,7 +174,7 @@ void SphericalHarmonicMeshSource::GenerateData()
       SPHARM.Evaluate(m_FromL, m_ToL, m_icos[2 * i], m_icos[2 * i + 1], vertex[i]);
       }
     }
-  catch( SphericalHarmonicPolynomialException ex )
+  catch( SphericalHarmonicPolynomialException& ex )
     {
     throw SphericalHarmonicPolynomialException(__FILE__, __LINE__, ex.GetDescription() );
 

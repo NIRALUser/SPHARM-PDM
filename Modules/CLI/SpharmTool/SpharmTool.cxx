@@ -279,7 +279,7 @@ void Compute (SphericalHarmonicSpatialObject::CoefListType *coefs, double *icos,
 
     }
   }
-  catch(SphericalHarmonicPolynomialException ex)
+  catch(SphericalHarmonicPolynomialException& ex)
   {
     throw SphericalHarmonicPolynomialException(__FILE__, __LINE__, ex.GetDescription());
 
