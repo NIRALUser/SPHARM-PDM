@@ -19,6 +19,8 @@
 #ifndef itkImageIOFactoryRegisterManager_h
 #define itkImageIOFactoryRegisterManager_h
 
+#include "itkConfigure.h"
+
 namespace itk {
 
 class ImageIOFactoryRegisterManager
