@@ -137,7 +137,7 @@ void SphericalHarmonicMedialAxisMeshSource::GenerateData()
 			medialVertex[i][2]=p1[2]/m_phi;
 		}
 	}
-	catch( SphericalHarmonicPolynomialException ex )
+	catch( SphericalHarmonicPolynomialException& ex )
 	{
 		throw SphericalHarmonicPolynomialException(__FILE__, __LINE__, ex.GetDescription() );
 	}

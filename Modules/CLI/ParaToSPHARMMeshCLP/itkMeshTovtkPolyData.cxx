@@ -77,7 +77,6 @@ itkMeshTovtkPolyData
     {
     CellType *                nextCell = cellIt->Value();
     CellType::PointIdIterator pointIt = nextCell->PointIdsBegin();
-    PointType                 p;
     int                       i;
 
     switch( nextCell->GetType() )

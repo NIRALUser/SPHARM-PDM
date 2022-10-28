@@ -19,6 +19,8 @@
 #ifndef itkTransformIOFactoryRegisterManager_h
 #define itkTransformIOFactoryRegisterManager_h
 
+#include "itkConfigure.h"
+
 namespace itk {
 
 class TransformIOFactoryRegisterManager
