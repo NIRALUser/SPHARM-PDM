@@ -49,8 +49,8 @@ set(EXTENSION_HOMEPAGE "http://www.nitrc.org/projects/spharm-pdm")
 set(EXTENSION_CATEGORY "SPHARM")
 set(EXTENSION_CONTRIBUTORS "Beatriz Paniagua (UNC), Francois Budin (UNC), Martin Styner (UNC), Laura Pascal (Kitware), Hina Shah (Kitware)")
 set(EXTENSION_DESCRIPTION "SPHARM-PDM is a tool that computes point-based models using a parametric boundary description for the computing of Shape Analysis.")
-set(EXTENSION_ICONURL "http://www.na-mic.org/Wiki/images/a/ad/Spharm-pdm-icon.png")
-set(EXTENSION_SCREENSHOTURLS "http://www.na-mic.org/Wiki/images/3/34/Spharm-pdm-snapshot.png")
+set(EXTENSION_ICONURL "https://www.na-mic.org/w/img_auth.php/a/ad/Spharm-pdm-icon.png")
+set(EXTENSION_SCREENSHOTURLS "https://www.na-mic.org/w/img_auth.php/3/34/Spharm-pdm-snapshot.png")
 set(EXTENSION_DEPENDS MeshToLabelMap) # Specified as a space separated string, a list or 'NA' if any
 
 set(EXTENSION_BUILD_SUBDIRECTORY ${LOCAL_PROJECT_NAME}-build)
