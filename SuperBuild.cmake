@@ -19,15 +19,6 @@ set(Slicer_USE_SYSTEM_SlicerExecutionModel ${USE_SYSTEM_SlicerExecutionModel})
 option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
 set(Slicer_USE_SYSTEM_VTK ${USE_SYSTEM_VTK})
 
-option(USE_SYSTEM_LAPACK "Build using an externally defined version of LAPACK" OFF)
-set(Slicer_USE_SYSTEM_LAPACK ${USE_SYSTEM_LAPACK})
-
-#-----------------------------------------------------------------------------
-# Configure "external" projects
-#-----------------------------------------------------------------------------
-set(LAPACK_INSTALL_RUNTIME_DIR ${${LOCAL_PROJECT_NAME}_INSTALL_RUNTIME_DESTINATION})
-set(LAPACK_INSTALL_LIBRARY_DIR ${${LOCAL_PROJECT_NAME}_INSTALL_LIBRARY_DESTINATION})
-
 #-----------------------------------------------------------------------------
 # Add remote extension source directories
 #-----------------------------------------------------------------------------
@@ -50,9 +41,7 @@ list(APPEND EXTERNAL_PROJECT_ADDITIONAL_DIRS ${${extension_name}_SOURCE_DIR}/Sup
 # Project dependencies
 #------------------------------------------------------------------------------
 
-set(${LOCAL_PROJECT_NAME}_DEPENDS
-  LAPACK
-  )
+set(${LOCAL_PROJECT_NAME}_DEPENDS)
 if(NOT SPHARM-PDM_BUILD_SLICER_EXTENSION)
   list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDS
     ITK

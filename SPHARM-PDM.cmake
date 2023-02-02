@@ -9,12 +9,6 @@ include(${SlicerExecutionModel_USE_FILE})
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
-find_package(LAPACKE CONFIG REQUIRED)
-
-# Set Fortran_<id>_RUNTIME_LIBRARIES and CMAKE_Fortran_IMPLICIT_LINK_*
-set(Fortran_COMPILER_ID "${LAPACKE_Fortran_COMPILER_ID}")
-find_package(Fortran REQUIRED)
-
 # --------------------------------------------------------------------------
 # Bundle extensions adding source directories.
 # --------------------------------------------------------------------------
@@ -89,25 +83,12 @@ endif()
 # Packaging
 #-----------------------------------------------------------------------------
 set(EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS)
-list(APPEND EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS "${LAPACK_DIR};LAPACK;RuntimeLibraries;/")
 if(NOT Slicer_SOURCE_DIR)
   foreach(extension_item IN LISTS Slicer_BUNDLED_EXTENSION_NAMES)
     list(APPEND EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS ${${EXTENSION_NAME}_CPACK_INSTALL_CMAKE_PROJECTS})
   endforeach()
 endif()
 set(${EXTENSION_NAME}_CPACK_INSTALL_CMAKE_PROJECTS "${EXTENSION_CPACK_INSTALL_CMAKE_PROJECTS}" CACHE STRING "List of external projects to install" FORCE)
-
-# Install fortran runtime libraries
-if(DEFINED Slicer_DIR)
-  if(NOT APPLE)
-    Fortran_InstallLibrary(
-      FILES ${Fortran_${LAPACKE_Fortran_COMPILER_ID}_RUNTIME_LIBRARIES}
-      DESTINATION ${Slicer_INSTALL_THIRDPARTY_LIB_DIR} COMPONENT RuntimeLibraries
-      )
-  else()
-    set(${EXTENSION_NAME}_FIXUP_BUNDLE_LIBRARY_DIRECTORIES ${Fortran_${LAPACKE_Fortran_COMPILER_ID}_RUNTIME_DIRECTORIES} CACHE STRING "List of fixup bundle library directories" FORCE)
-  endif()
-endif()
 
 #-----------------------------------------------------------------------------
 set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};Runtime;/")
