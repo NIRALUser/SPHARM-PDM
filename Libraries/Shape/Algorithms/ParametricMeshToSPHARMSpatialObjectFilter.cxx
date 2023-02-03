@@ -22,11 +22,8 @@
 #include "SphericalHarmonicSpatialObject.h"
 #include "SphericalHarmonicMeshSource.h"
 
-// SOMEHOW not all lapack routine have made it into vxl's netlib directory (WHY?)
-// and the ones (sgels_) for solving linear systems seem to be missing
-#define lapack_complex_float std::complex<float>
-#define lapack_complex_double std::complex<double>
-#include <lapacke.h>
+#include "vtk_eigen.h"
+#include VTK_EIGEN(Dense)
 
 namespace neurolib
 {
@@ -1005,7 +1002,6 @@ void
 ParametricMeshToSPHARMSpatialObjectFilter::ComputeCoeffs()
 {
   float * A;
-  lapack_int numRH, m, n;
 
   InputMeshType::Pointer surfMesh = GetInputSurfaceMesh();
   InputMeshType::Pointer paraMesh = GetInputParametrizationMesh();
@@ -1034,56 +1030,49 @@ ParametricMeshToSPHARMSpatialObjectFilter::ComputeCoeffs()
   for( int curDim = 0; curDim < 3; curDim++ )
     {
     Get_BaseVal(paraPoints, A, m_int, n_int);
-    m = m_int;
-    n = n_int;
 
-    numRH = 1;
-    float * obj = new float[m * numRH];
-    for( int i = 0; i < m; i++ )
+    int numRH = 1;
+    float * obj = new float[m_int * numRH];
+    for( int i = 0; i < m_int; i++ )
       {
       PointType curPoint = surfPoints->GetElement(i);
       obj[i] = curPoint[curDim];
       }
 
-    char    trans[20] = "N";
-    int     fac = n * m;
-    lapack_int workSize = fac * 2;
-    lapack_int info;
-    float * work = new float[workSize];
 
-    lapack_int lda = m;
-    lapack_int ldb = m;
-
-    LAPACK_sgels(trans, &m, &n, &numRH, A, &lda, obj, &ldb, work, &workSize, &info);
+    Eigen::MatrixXf A_mat = Eigen::Map<Eigen::MatrixXf> (A, m_int, n_int);
+    Eigen::MatrixXf y_mat = Eigen::Map<Eigen::MatrixXf> (obj, m_int, numRH);
 
     delete A;
     A = NULL;
-    delete [] work;
-    work = NULL;
+    delete [] obj;
+    obj = NULL;
+
+    Eigen::MatrixXf x_mat = A_mat.householderQr().solve(y_mat);
 
     int curElem = 0;
     for( int j = 0, l = 0; l <= (int) m_Degree; l++ )
       {
       // x Re Yl0
-      m_flatCoeffs[curDim + curElem * 3] = obj[j];
+      m_flatCoeffs[curDim + curElem * 3] = x_mat(j);
       curElem++;
       // x Im Yl0 = 0
+      int m;
       for( j++, m = 1; m <= l; m++, j++ )
         {
         // x Re Ylm
-        m_flatCoeffs[curDim + curElem * 3] = obj[j];
+        m_flatCoeffs[curDim + curElem * 3] = x_mat(j);
         curElem++;
         // x Im Ylm
         j++;
-        m_flatCoeffs[curDim + curElem * 3] = obj[j];
+        m_flatCoeffs[curDim + curElem * 3] = x_mat(j);
         curElem++;
         }
       }
-    delete [] obj;
     }
   m_coeffs.clear();
   SpatialObjectType::ScalarType elem[3];
-  for( int i = 0; i < n; i++ )
+  for( int i = 0; i < n_int; i++ )
     {
     // xyz Re Yl0
     elem[0] = m_flatCoeffs[i * 3 + 0];
