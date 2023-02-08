@@ -19,15 +19,6 @@ set(Slicer_USE_SYSTEM_SlicerExecutionModel ${USE_SYSTEM_SlicerExecutionModel})
 option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
 set(Slicer_USE_SYSTEM_VTK ${USE_SYSTEM_VTK})
 
-option(USE_SYSTEM_LAPACK "Build using an externally defined version of LAPACK" OFF)
-set(Slicer_USE_SYSTEM_LAPACK ${USE_SYSTEM_LAPACK})
-
-#-----------------------------------------------------------------------------
-# Configure "external" projects
-#-----------------------------------------------------------------------------
-set(LAPACK_INSTALL_RUNTIME_DIR ${${LOCAL_PROJECT_NAME}_INSTALL_RUNTIME_DESTINATION})
-set(LAPACK_INSTALL_LIBRARY_DIR ${${LOCAL_PROJECT_NAME}_INSTALL_LIBRARY_DESTINATION})
-
 #-----------------------------------------------------------------------------
 # Add remote extension source directories
 #-----------------------------------------------------------------------------
@@ -39,7 +30,7 @@ set(${extension_name}_SOURCE_DIR "${CMAKE_BINARY_DIR}/${extension_name}")
 FetchContent_Populate(${extension_name}
   SOURCE_DIR     ${${extension_name}_SOURCE_DIR}
   GIT_REPOSITORY ${EP_GIT_PROTOCOL}://github.com/NIRALUser/GROUPS.git
-  GIT_TAG        9a72008c6cbffa036e13c2dee18e3a2a23bc5d7c # master
+  GIT_TAG        2f20e1728f06db8af4949e727c9b2adb5d232f27  # master
   GIT_PROGRESS   1
   QUIET
   )
@@ -50,9 +41,7 @@ list(APPEND EXTERNAL_PROJECT_ADDITIONAL_DIRS ${${extension_name}_SOURCE_DIR}/Sup
 # Project dependencies
 #------------------------------------------------------------------------------
 
-set(${LOCAL_PROJECT_NAME}_DEPENDS
-  LAPACK
-  )
+set(${LOCAL_PROJECT_NAME}_DEPENDS)
 if(NOT SPHARM-PDM_BUILD_SLICER_EXTENSION)
   list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDS
     ITK

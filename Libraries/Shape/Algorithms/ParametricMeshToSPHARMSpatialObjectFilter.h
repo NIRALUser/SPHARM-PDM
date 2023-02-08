@@ -265,7 +265,6 @@ private:
 
   unsigned int m_Degree;
   CoefListType m_coeffs;
-  double *     m_flatCoeffs;
 
   bool m_ParaEllipseAlignment;
   int  m_FlipParametrizationIndex;

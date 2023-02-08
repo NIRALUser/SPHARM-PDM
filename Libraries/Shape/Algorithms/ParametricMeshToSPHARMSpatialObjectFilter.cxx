@@ -22,11 +22,8 @@
 #include "SphericalHarmonicSpatialObject.h"
 #include "SphericalHarmonicMeshSource.h"
 
-// SOMEHOW not all lapack routine have made it into vxl's netlib directory (WHY?)
-// and the ones (sgels_) for solving linear systems seem to be missing
-#define lapack_complex_float std::complex<float>
-#define lapack_complex_double std::complex<double>
-#include <lapacke.h>
+#include "vtk_eigen.h"
+#include VTK_EIGEN(Dense)
 
 namespace neurolib
 {
@@ -48,7 +45,6 @@ ParametricMeshToSPHARMSpatialObjectFilter::ParametricMeshToSPHARMSpatialObjectFi
   m_FlipParametrizationIndex = 0;
   m_Degree = 12;
   m_leg = NULL;
-  m_flatCoeffs = NULL;
   m_GenerateDataRegion = 0;
   m_GenerateDataNumberOfRegions = 0;
   m_FlipTemplate = NULL;
@@ -1004,8 +1000,6 @@ ParametricMeshToSPHARMSpatialObjectFilter::Get_BaseVal( PointsContainerPointer p
 void
 ParametricMeshToSPHARMSpatialObjectFilter::ComputeCoeffs()
 {
-  float * A;
-  lapack_int numRH, m, n;
 
   InputMeshType::Pointer surfMesh = GetInputSurfaceMesh();
   InputMeshType::Pointer paraMesh = GetInputParametrizationMesh();
@@ -1013,87 +1007,60 @@ ParametricMeshToSPHARMSpatialObjectFilter::ComputeCoeffs()
   PointsContainerPointer surfPoints = surfMesh->GetPoints();
   PointsContainerPointer paraPoints = paraMesh->GetPoints();
 
-  if( surfPoints->Size() != paraPoints->Size() )
-    {
+  if (surfPoints->Size() != paraPoints->Size()) {
     throw ParametricMeshToSPHARMSpatialObjectFilterException(
-            __FILE__, __LINE__,
-            "ParametricMeshToSPHARMSpatialObjectFilter: surface and para do not have same number of points");
-    }
+        __FILE__, __LINE__,
+        "ParametricMeshToSPHARMSpatialObjectFilter: surface and para do not have same number of points");
+  }
 
-  int m_int;
-  int n_int;
-  Get_BaseVal(paraPoints, A, m_int, n_int);
-  // std::cout << "m " << m_int << ", n " << n_int << std::endl;
-  delete A;
-  A = NULL;
-  if( m_flatCoeffs )
-    {
-    delete m_flatCoeffs;
-    }
-  m_flatCoeffs = new double[n_int * 3];
-  for( int curDim = 0; curDim < 3; curDim++ )
-    {
+  // Get the A matrix.
+  Eigen::MatrixXf A_mat;
+  {
+    // Inside a block to prevent using raw pointer outside initialization.
+    // Ideally, modify Get_BaseVal to return a matrix directly.
+
+    float *A;
+    int m_int;
+    int n_int;
     Get_BaseVal(paraPoints, A, m_int, n_int);
-    m = m_int;
-    n = n_int;
 
-    numRH = 1;
-    float * obj = new float[m * numRH];
-    for( int i = 0; i < m; i++ )
-      {
-      PointType curPoint = surfPoints->GetElement(i);
-      obj[i] = curPoint[curDim];
-      }
+    if (m_int < n_int) {
+      // least squares only works if the system is constrained; m >= n.
 
-    char    trans[20] = "N";
-    int     fac = n * m;
-    lapack_int workSize = fac * 2;
-    lapack_int info;
-    float * work = new float[workSize];
+      throw ParametricMeshToSPHARMSpatialObjectFilterException(
+          __FILE__, __LINE__,
+          "Not enough points; cannot solve SPHARM coefficients."
+      );
+    }
 
-    lapack_int lda = m;
-    lapack_int ldb = m;
-
-    LAPACK_sgels(trans, &m, &n, &numRH, A, &lda, obj, &ldb, work, &workSize, &info);
-
+    A_mat = Eigen::Map<Eigen::MatrixXf>(A, m_int, n_int);
     delete A;
-    A = NULL;
-    delete [] work;
-    work = NULL;
+  }
 
-    int curElem = 0;
-    for( int j = 0, l = 0; l <= (int) m_Degree; l++ )
-      {
-      // x Re Yl0
-      m_flatCoeffs[curDim + curElem * 3] = obj[j];
-      curElem++;
-      // x Im Yl0 = 0
-      for( j++, m = 1; m <= l; m++, j++ )
-        {
-        // x Re Ylm
-        m_flatCoeffs[curDim + curElem * 3] = obj[j];
-        curElem++;
-        // x Im Ylm
-        j++;
-        m_flatCoeffs[curDim + curElem * 3] = obj[j];
-        curElem++;
-        }
-      }
-    delete [] obj;
+  // Get the Y matrix (point data)
+  Eigen::MatrixXf y_mat(A_mat.rows(), 3);
+  for (int idx = 0; idx < y_mat.rows(); ++idx) {
+    PointType point = surfPoints->GetElement(idx);
+
+    for (int dim = 0; dim < y_mat.cols(); ++dim) {
+      y_mat(idx, dim) = (float) point[dim];
     }
-  m_coeffs.clear();
-  SpatialObjectType::ScalarType elem[3];
-  for( int i = 0; i < n; i++ )
-    {
-    // xyz Re Yl0
-    elem[0] = m_flatCoeffs[i * 3 + 0];
-    elem[1] = m_flatCoeffs[i * 3 + 1];
-    elem[2] = m_flatCoeffs[i * 3 + 2];
+  }
 
-    CoefType coef = elem;
-    m_coeffs.push_back(coef);
-    }
+  // Solve the system.
+  Eigen::MatrixXf x_mat;
+  // householderQr is closer to the LAPACK sgels implementation, however solving as a normal equation is about 3x faster
+  // Some potential for instabilities in pathological cases. See https://eigen.tuxfamily.org/dox/group__LeastSquares.html
+  // x_mat = A_mat.householderQr().solve(y_mat);
+  x_mat = (A_mat.transpose() * A_mat).ldlt().solve(A_mat.transpose() * y_mat);
 
+  // Convert coefficients to CoefType; row-major order.
+  m_coeffs.resize(x_mat.rows());
+  std::transform(
+      x_mat.rowwise().begin(), x_mat.rowwise().end(),
+      m_coeffs.begin(),
+      [](Eigen::RowVectorXf row) { return CoefType(row.data()); }
+  );
 }
 
 void
@@ -1115,7 +1082,7 @@ ParametricMeshToSPHARMSpatialObjectFilter::RotateParametricMesh()
     {
     for( int col = 0; col < 3; col++ )
       {
-      coefMatrix(row, col) = m_flatCoeffs[(row + 1) * 3 + col];
+      coefMatrix(row, col) = m_coeffs[(row+1)][col];
       }
     }
   InputMatrixType origAxes(3, 3);
