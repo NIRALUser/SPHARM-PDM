@@ -1039,6 +1039,78 @@ int main( int argc, char * argv[] )
       std::cout << "procalign" << std::endl;
       itkMeshTovtkPolyData ITKVTKConverter3;
       ITKVTKConverter3.SetInput(RegisteredMesh);
+
+    if( writePara )
+      {
+          MeshType *             _paraMesh = meshsrc->GetOutputParaMesh();
+          PointsContainerPointer paraPoints = _paraMesh->GetPoints();
+          // DIMENSION = 1 ; NUMBER_OF_POINTS ; TYPE = Scalar
+            {
+              // write phi
+              int nvert = paraPoints->Size();
+              vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+              array->SetName("_paraPhi");
+
+              for( int i = 0; i < nvert; i++ )
+              {
+                  PointType curPoint =  paraPoints->GetElement(i);
+                  double    phi = atan2(curPoint[1], curPoint[0]) + M_PI; // 0 .. 2 * M_PI
+                  array->InsertNextValue(phi);
+              }
+              ITKVTKConverter3.GetOutput()->GetPointData()->AddArray(array);
+            }
+            {
+              // write phi half
+                int nvert = paraPoints->Size();
+                vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+                array->SetName("_paraPhiHalf");
+                for( int i = 0; i < nvert; i++ )
+                {
+                  PointType curPoint =  paraPoints->GetElement(i);
+                  double    phi = atan2(curPoint[1], curPoint[0]) + M_PI;
+                  if( phi > M_PI )
+                  {
+                    phi = 2 * M_PI - phi;       // 0 .. M_PI ..0
+                  }
+                  array->InsertNextValue(phi);
+                }
+                ITKVTKConverter3.GetOutput()->GetPointData()->AddArray(array);
+            }
+            {
+                // write theta
+                int nvert = paraPoints->Size();
+                vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+                array->SetName("_paraTheta");
+                for( int i = 0; i < nvert; i++ )
+                {
+                  PointType curPoint =  paraPoints->GetElement(i);
+                  double    curTheta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                  //0 .. M_PI
+                  array->InsertNextValue(curTheta);
+                }
+                ITKVTKConverter3.GetOutput()->GetPointData()->AddArray(array);
+            }
+            {
+                // write theta/M_PI * (phi/M_PI/2 + 1)
+                int nvert = paraPoints->Size();
+                vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
+                array->SetName("_paraMix");
+                for( int i = 0; i < nvert; i++ )
+                {
+                  PointType curPoint =  paraPoints->GetElement(i);
+                  double    phi = atan2(curPoint[1], curPoint[0]) + M_PI;
+                  if( phi > M_PI )
+                    {
+                    phi = 2 * M_PI - phi;            // 0 .. M_PI ..0
+                    }
+                  double curTheta = atan(curPoint[2] / sqrt(curPoint[0] * curPoint[0] + curPoint[1] * curPoint[1]) ) + M_PI_2;
+                  // 0 .. M_PI
+                  array->InsertNextValue(curTheta/ M_PI * ( phi / M_PI + 1));
+                }
+                ITKVTKConverter3.GetOutput()->GetPointData()->AddArray(array);
+            }
+      }
+
       vtkwriter->SetInputData(ITKVTKConverter3.GetOutput() );
       vtkwriter->SetFileName(outFileName.c_str() );
       vtkwriter->Write();
