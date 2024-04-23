@@ -45,11 +45,11 @@ mark_as_superbuild(${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION:BOOL)
 #-----------------------------------------------------------------------------
 # Extension meta-information
 #-----------------------------------------------------------------------------
-set(EXTENSION_HOMEPAGE "http://www.nitrc.org/projects/spharm-pdm")
+set(EXTENSION_HOMEPAGE "https://www.nitrc.org/projects/spharm-pdm")
 set(EXTENSION_CATEGORY "SPHARM")
 set(EXTENSION_CONTRIBUTORS "Beatriz Paniagua (UNC), Francois Budin (UNC), Martin Styner (UNC), Laura Pascal (Kitware), Hina Shah (Kitware)")
 set(EXTENSION_DESCRIPTION "SPHARM-PDM is a tool that computes point-based models using a parametric boundary description for the computing of Shape Analysis.")
-set(EXTENSION_ICONURL "https://www.na-mic.org/w/img_auth.php/a/ad/Spharm-pdm-icon.png")
+set(EXTENSION_ICONURL "https://raw.githubusercontent.com/NIRALUser/SPHARM-PDM/master/Modules/Scripted/ShapeAnalysisModule/Resources/Icons/ShapeAnalysisModule.png")
 set(EXTENSION_SCREENSHOTURLS "https://www.na-mic.org/w/img_auth.php/3/34/Spharm-pdm-snapshot.png")
 set(EXTENSION_DEPENDS MeshToLabelMap) # Specified as a space separated string, a list or 'NA' if any
 
