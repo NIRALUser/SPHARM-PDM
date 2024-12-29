@@ -105,7 +105,7 @@ void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSpar
 
     for (; it_ineq; ++it_ineq) {
       const int cid = active[it_ineq.row() - cut];
-      spher_area4(tmpx.data(), net.face + 4 * (net.nface - 1), sines) - desired_area;
+      spher_area4(tmpx.data(), net.face + 4 * (net.nface - 1), sines);
       it_ineq.valueRef() = (sines[cid % 4] - c_hat[it_ineq.row() + net.nface - 1]) / par.delta;
     }
 
@@ -128,14 +128,32 @@ void EqualAreaParametricMeshSparseMatrix::solve(int /* structure_change */, doub
   using namespace Eigen;
   using Map = Eigen::Map<Eigen::VectorXd>;
 
-  ConjugateGradient<SparseMatrix<double>> cg;
+  // After comprehensive benchmarking of different storage orders, storage durations, and solver
+  // implementations, I conclude the below settings are best.
+
+  // The best IML++ performance used Incomplete Cholesky preconditioner.
+
+  // Eigen IncompleteCholesky preconditioner adds significant overhead, and for these problem sizes
+  // it is a net detriment.
+
+  // Eigen DiagonalPreconditioner requires more solver iterations, but up-front cost is much less.
+
+  // Eigen ConjugateGradient allows static storage duration, which avoids redundant allocation
+  // calls and improves performance about 10%. IML++ doesn't readily allow this.
+  // todo investigate placement new for IML++ static storage duration.
+
+  // Eigen ColMajor performs notable worse than RowMajor despite the conversion step. Combined with
+  // static storage duration it is better to use the RowMajor ConjugateGradient with ColMajor
+  // member variable.
+
+  static ConjugateGradient<SparseMatrix<double, RowMajor>, Lower | Upper, DiagonalPreconditioner<double>> cg;
   cg.setMaxIterations(5000);
-  cg.setTolerance(1e-14);
+  cg.setTolerance(1e-7);
   cg.compute(mat);
 
   Map(x, mat.rows()) = cg.solve(Map(b, mat.cols()));
 
-  std::cout << "i" << cg.iterations();
+  std::cout << "si" << cg.iterations();
 }
 
 void EqualAreaParametricMeshSparseMatrix::set_aTa(const EqualAreaParametricMeshSparseMatrix &aT) {
