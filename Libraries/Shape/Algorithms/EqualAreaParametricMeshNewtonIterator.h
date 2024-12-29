@@ -4,6 +4,10 @@
 
 #ifndef __iterator_hh_
 
+#include <vtk_eigen.h>
+#include VTK_EIGEN(Eigen)
+#include VTK_EIGEN(Sparse)
+
 struct    IteratorSurfaceVertex    { int x, y, z, count, neighb[14]; };
 
 struct    IteratorSurfaceNet    { int nvert, nface, *face; IteratorSurfaceVertex *vert; };
