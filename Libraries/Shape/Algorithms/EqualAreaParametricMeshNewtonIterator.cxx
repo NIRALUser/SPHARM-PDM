@@ -503,10 +503,11 @@ EqualAreaParametricMeshNewtonIterator::~EqualAreaParametricMeshNewtonIterator() 
 }
 
 double EqualAreaParametricMeshNewtonIterator::iterate() {
-  char form[1000];
+  char form[1 << 10];
 
-  sprintf(form, "%3d ", count);
+  sprintf(form, "count=%3d ", count);
   std::cout << form; // print iteration number
+
   int struct_change = last_complete != count++;
 
   // ------------------------------------------------ Newton: satisfy constraints -------
@@ -529,9 +530,8 @@ double EqualAreaParametricMeshNewtonIterator::iterate() {
     act_keep = act;
   }
 
-  sprintf(form, " %6.0e %6d", newtonStep, act_keep);
+  sprintf(form, " step=%6.0e act_keep=%6d", newtonStep, act_keep);
   std::cout << form; // debug
-
   copy_vector(this->m_x, this->m_x_try, 3 * net.nvert); // accept new x
   // // write_vector("x", 3*net.nvert, x, 0);      // debug
   double *help = c_hat;
@@ -540,14 +540,11 @@ double EqualAreaParametricMeshNewtonIterator::iterate() {
 
   // ------------------------------------------------ Lagrange multipliers --------------
   calc_gradient();
-  // // write_vector("gradient", 3*net.nvert, grad, 0); // debug
-  // // estimate_gradient();              // debug
   jacobian(jacobi_aT); // re-calculate after Newton-step
-  // // jacobi_aT.print("aT1", 0);          // debug
   jacobi_aT.mult(grad, aTgrad);
   jacobi_aTa.set_aTa(jacobi_aT); // re-calculate as well
   jacobi_aTa.solve(0, aTgrad, this->m_lambda);
-  // // write_vector("this->m_lambda", jacobi_aTa.n_col, this->m_lambda, 0); // debug
+
   int inactivated = 0;
   int i;
   // for( i = 0; i < n_active; i++ )
@@ -585,7 +582,7 @@ double EqualAreaParametricMeshNewtonIterator::iterate() {
   double c_sqr_sum;
   this->m_dx = hCG;
   // // estimate_jacobian();
-  sprintf(form, " %6.3f %8.1e", gamma, sqrt((double)norm2gradZ));
+  sprintf(form, " gamma=%6.3f |gradZ|=%8.1e", gamma, sqrt((double)norm2gradZ));
   std::cout << form;
 
   int activated = line_search(this->m_alpha_step, c_sqr_sum);
@@ -603,7 +600,7 @@ double EqualAreaParametricMeshNewtonIterator::iterate() {
   }
 
   double cost = sqrt((double)c_sqr_sum) + norm2gradZ;
-  sprintf(form, " %10.3e %10.3e %10.3e\n", sqrt((double)c_sqr_sum), cost, ineq_high);
+  sprintf(form, " |c_hat|=%10.3e cost=%10.3e ineq_high=%10.3e\n", sqrt((double)c_sqr_sum), cost, ineq_high);
   std::cout << form;
   return cost;
 }
