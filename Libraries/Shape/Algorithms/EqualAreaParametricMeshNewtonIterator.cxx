@@ -158,17 +158,15 @@ void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSpar
   static std::vector<int> iaT;
   iaT.resize(A.mat.cols() + 1);
 
-  static std::vector<int> jaT;
-  jaT.resize(A.mat.nonZeros());
-
   static std::vector<int> rowT;
   rowT.resize(A.mat.nonZeros());
 
-  static std::vector<double> a;
-  a.resize(A.mat.nonZeros());
+  int n_row = A.mat.rows();
+  int n_col = A.mat.cols();
 
-  int n_row = net.nface - 1 + n_active;
-  int n_col = 3 * net.nvert;
+  assert(n_row == net.nface - 1 + n_active);
+  assert(n_col == 3 * net.nvert);
+
   const double desired_area = 4 * M_PI / net.nface;
 
   // Build forward tables.
@@ -216,13 +214,13 @@ void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSpar
     for (int i = n_row; i--;) // backwards: last row first
     {
       for (j = int(ia[i]); j < ia[i + 1]; j++) {
-        jaT[--iaT[ja[j]]] = j; // also backwards => cancels => forward
-        rowT[iaT[ja[j]]] = i;
+        // also backwards => cancels => forward
+        rowT[--iaT[ja[j]]] = i;
       }
     }
   }
 
-  for (int col = 0; col < n_col; col++) // assume x == this->m_x_try
+  for (int col = 0; col < A.mat.cols(); col++) // assume x == this->m_x_try
   {
     this->m_x_try[col] = this->m_x[col] + par.delta; // go a finite step
     int col_0 = 3 * (col / 3);                       // column rounded down: x-component
@@ -235,12 +233,14 @@ void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSpar
 
     double sines[4];
     for (int j = iaT[col]; j < j_stop; j++) {
+      int row = rowT[j];
+
       double area_c = spher_area4(this->m_x_try, net.face + 4 * rowT[j], sines) - desired_area;
-      a[jaT[j]] = (area_c - c_hat[rowT[j]]) / par.delta;
+      A.mat.coeffRef(row, col) = (area_c - c_hat[row]) / par.delta;
 
       int c_nr;
       while (j_ineq < iaT[col + 1] && (c_nr = active[rowT[j_ineq] - (net.nface - 1)]) / 4 == rowT[j]) {
-        a[jaT[j_ineq]] = (sines[c_nr % 4] - c_hat[rowT[j_ineq]]) / par.delta;
+        A.mat.coeffRef(rowT[j_ineq], col) = (sines[c_nr % 4] - c_hat[rowT[j_ineq]]) / par.delta;
         j_ineq++;
       }
     }
@@ -250,7 +250,7 @@ void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSpar
       (void)spher_area4(this->m_x_try, net.face + 4 * (net.nface - 1), sines);
       while (j_ineq < iaT[col + 1]) {
         int c_nr = active[rowT[j_ineq] - (net.nface - 1)];
-        a[jaT[j_ineq]] = (sines[c_nr % 4] - c_hat[rowT[j_ineq]]) / par.delta;
+        A.mat.coeffRef(rowT[j_ineq], col) = (sines[c_nr % 4] - c_hat[rowT[j_ineq]]) / par.delta;
         j_ineq++;
       }
     }
@@ -258,15 +258,6 @@ void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSpar
     this->m_x_try[col_0] = this->m_x[col_0]; // back up the finite step
     this->m_x_try[col_0 + 1] = this->m_x[col_0 + 1];
     this->m_x_try[col_0 + 2] = this->m_x[col_0 + 2];
-  }
-
-  // populate A.mat
-  for (int row = 0; row < n_row; ++row) {
-    for (int j = ia[row]; j < ia[row + 1]; ++j) {
-      int col = ja[j];
-      double val = a[j];
-      A.mat.coeffRef(row, col) = val;
-    }
   }
 }
 
