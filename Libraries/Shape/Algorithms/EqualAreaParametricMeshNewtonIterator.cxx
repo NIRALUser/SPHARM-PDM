@@ -143,82 +143,10 @@ void EqualAreaParametricMeshSparseMatrix::from_net(const IteratorSurfaceNet &net
  * been defined with ::from_net.
  */
 void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSparseMatrix &A) {
-  // Note we can't use Eigen::InnerIterator directly because the order gets shuffled.
-
-  // I think the right way to handle this is to break the matrix into upper "equality" block and lower
-  // "inequality" block that can be iterated separately.
-
-  // reuse storage for these tables
-  static std::vector<int> ia;
-  ia.resize(A.mat.rows() + 1);
-
-  static std::vector<int> ja;
-  ja.resize(A.mat.nonZeros());
-
-  static std::vector<int> iaT;
-  iaT.resize(A.mat.cols() + 1);
-
-  static std::vector<int> rowT;
-  rowT.resize(A.mat.nonZeros());
-
-  int n_row = A.mat.rows();
-  int n_col = A.mat.cols();
-
-  assert(n_row == net.nface - 1 + n_active);
-  assert(n_col == 3 * net.nvert);
-
   const double desired_area = 4 * M_PI / net.nface;
 
-  // Build forward tables.
-  {
-    int in_pos = 0;
-    int i;
-    for (i = 0; i < net.nface - 1; i++) {
-      ia[i] = in_pos;
-      for (int corner = 0; corner < 4; corner++) {
-        int vertNr = net.face[4 * i + corner];
-        for (int coord = 0; coord < 3; coord++) {
-          ja[in_pos++] = 3 * vertNr + coord;
-        }
-      }
-    }
-    for (i = 0; i < n_active; i++) {
-      ia[i + net.nface - 1] = in_pos;
-      int faceNr = active[i] / 4;
-      for (int corner = 0; corner < 4; corner++) {
-        if ((active[i] + 4 - corner) % 4 != 2) // opposite corner has no influence
-        {
-          int vertNr = net.face[4 * faceNr + corner];
-          for (int coord = 0; coord < 3; coord++) {
-            ja[in_pos++] = 3 * vertNr + coord;
-          }
-        }
-      }
-    }
-    ia[n_row] = in_pos;
-  }
-
-  // build inverse tables
-  {
-    int col, j;
-    for (col = 0; col <= n_col; iaT[col++] = 0) {
-      ; // initialize bins to 0
-    }
-    for (j = 0; j < ia[n_row]; iaT[ja[j++]]++) {
-      ; // column histogram
-    }
-    for (col = 0; col < n_col; col++) // sum the histogram
-    {
-      iaT[col + 1] += iaT[col]; // iaT points to last entry
-    }
-    for (int i = n_row; i--;) // backwards: last row first
-    {
-      for (j = int(ia[i]); j < ia[i + 1]; j++) {
-        // also backwards => cancels => forward
-        rowT[--iaT[ja[j]]] = i;
-      }
-    }
-  }
+  Eigen::Block<Eigen::SparseMatrix<double, Eigen::ColMajor>> top = A.mat.topRows(net.nface - 1);
+  Eigen::Block<Eigen::SparseMatrix<double, Eigen::ColMajor>> bot = A.mat.bottomRows(n_active);
 
   for (int col = 0; col < A.mat.cols(); col++) // assume x == this->m_x_try
   {
@@ -226,33 +154,32 @@ void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSpar
     int col_0 = 3 * (col / 3);                       // column rounded down: x-component
     normalize(1, 3, this->m_x_try + col_0);
 
-    /// Find the inequality part at the end of this column
-    int j_stop;
-    for (j_stop = iaT[col + 1]; rowT[j_stop - 1] >= net.nface - 1; j_stop--) {}
-    int j_ineq = j_stop;
+    Eigen::InnerIterator itop(top, col);
+    Eigen::InnerIterator ibot(bot, col);
 
     double sines[4];
-    for (int j = iaT[col]; j < j_stop; j++) {
-      int row = rowT[j];
+    for (; itop; ++itop) {
+      int trow = itop.row();
 
-      double area_c = spher_area4(this->m_x_try, net.face + 4 * rowT[j], sines) - desired_area;
-      A.mat.coeffRef(row, col) = (area_c - c_hat[row]) / par.delta;
+      double area_c = spher_area4(this->m_x_try, net.face + 4 * trow, sines) - desired_area;
 
-      int c_nr;
-      while (j_ineq < iaT[col + 1] && (c_nr = active[rowT[j_ineq] - (net.nface - 1)]) / 4 == rowT[j]) {
-        A.mat.coeffRef(rowT[j_ineq], col) = (sines[c_nr % 4] - c_hat[rowT[j_ineq]]) / par.delta;
-        j_ineq++;
+      top.coeffRef(trow, col) = (area_c - c_hat[trow]) / par.delta;
+
+      for (; ibot; ++ibot) {
+        int brow = ibot.row();
+        int cid = active[brow];
+        if ((cid / 4) != trow)
+          break;
+
+        bot.coeffRef(brow, col) = (sines[cid % 4] - c_hat[brow + top.rows()]) / par.delta;
       }
     }
 
-    if (j_ineq < iaT[col + 1]) // unconstrained face: row = nface-1
-    {
-      (void)spher_area4(this->m_x_try, net.face + 4 * (net.nface - 1), sines);
-      while (j_ineq < iaT[col + 1]) {
-        int c_nr = active[rowT[j_ineq] - (net.nface - 1)];
-        A.mat.coeffRef(rowT[j_ineq], col) = (sines[c_nr % 4] - c_hat[rowT[j_ineq]]) / par.delta;
-        j_ineq++;
-      }
+    for (; ibot; ++ibot) {
+      int brow = ibot.row();
+      int cid = active[brow];
+      spher_area4(this->m_x_try, net.face + 4 * (net.nface - 1), sines) - desired_area;
+      bot.coeffRef(brow, col) = (sines[cid % 4] - c_hat[brow + net.nface - 1]) / par.delta;
     }
 
     this->m_x_try[col_0] = this->m_x[col_0]; // back up the finite step
