@@ -24,19 +24,61 @@ EqualAreaParametricMeshSparseMatrix::EqualAreaParametricMeshSparseMatrix(int max
   n_row = n_col = 0;
   ia = new int[max_row + 1];
   ja = new int[max_nonzero];
-  iaT = 0;
-  jaT = 0;
-  rowT = 0;
+  iaT = new int[max_col + 1];
+  jaT = new int[max_nonzero];
+  rowT = new int[max_nonzero];
   a = new double[max_nonzero];
 }
 
 EqualAreaParametricMeshSparseMatrix::~EqualAreaParametricMeshSparseMatrix() {
-  delete ja;
-  delete ia;
-  delete iaT;
-  delete jaT;
-  delete rowT;
-  delete a;
+  delete[] ja;
+  delete[] ia;
+  delete[] iaT;
+  delete[] jaT;
+  delete[] rowT;
+  delete[] a;
+}
+
+void EqualAreaParametricMeshSparseMatrix::new_from_net(const IteratorSurfaceNet &net, int n_active, int *active) {
+  int n_row = net.nface - 1 + n_active;
+  int n_col = 3 * net.nvert;
+
+  // Reuse the same storage and avoid redundant allocations.
+  thread_local std::vector<Triplet> triplets;
+  triplets.resize(0);
+
+  // assert(n_row <= max_row, "too many rows in from_net.");
+  // assert(n_col <= max_col, "too many columns in from_net.");
+  // assert(3*(4*(net.nface-1) + 3*n_active) <= max_nonzero, "too many nozeros in from_net.");
+
+  for (int i = 0; i < net.nface - 1; i++) {
+    int row = i;
+    for (int corner = 0; corner < 4; corner++) {
+      int vertNr = net.face[4 * i + corner];
+      for (int coord = 0; coord < 3; coord++) {
+        int col = 3 * vertNr + coord;
+        triplets.emplace_back(row, col, NAN); // placeholder will be populated in ::jacobian.
+      }
+    }
+  }
+
+  for (int i = 0; i < n_active; i++) {
+    int row = i + net.nface - 1;
+    int faceNr = active[i] / 4;
+    for (int corner = 0; corner < 4; corner++) {
+      if ((active[i] + 4 - corner) % 4 != 2) // opposite corner has no influence
+      {
+        int vertNr = net.face[4 * faceNr + corner];
+        for (int coord = 0; coord < 3; coord++) {
+          int col = 3 * vertNr + coord;
+          triplets.emplace_back(row, col, NAN); // placeholder will be populated in ::jacobian.
+        }
+      }
+    }
+  }
+
+  // mat.resize(n_row, n_col);
+  // mat.setFromTriplets(triplets.begin(), triplets.end());
 }
 
 /**
@@ -76,13 +118,78 @@ void EqualAreaParametricMeshSparseMatrix::from_net(const IteratorSurfaceNet &net
   }
   ia[n_row] = in_pos;
   // assert(in_pos == 3*(4*(net.nface-1) + 3*n_active), "wrong in_pos count in from_net");
+
+  // verify
+  new_from_net(net, n_active, active);
+}
+
+void EqualAreaParametricMeshNewtonIterator::new_jacobian(EqualAreaParametricMeshSparseMatrix &wrapper) {
+  const double desired_area = 4 * M_PI / net.nface;
+
+  using Matrix = EqualAreaParametricMeshSparseMatrix::Matrix;
+  using Iterator = EqualAreaParametricMeshSparseMatrix::Iterator;
+
+  // todo break this into two block operations. for easier index arithmetic.
+
+  Matrix &A = wrapper.mat;
+  Eigen::Map<Eigen::Matrix3Xd> x(this->m_x, 3, net.nvert);
+
+  // Reuse the same storage for temporary vector data throughout.
+  thread_local Eigen::Matrix3Xd tmpx;
+  tmpx = x;
+
+  assert(A.cols() == x.size());
+
+  for (int idx = 0; idx < A.cols(); idx++) {
+    // Remember that `idx` here corresponds to a _coordinate_ in `x`. Divide to find the current _vector_.
+
+    int xcol = (idx / 3);
+    tmpx(idx) += par.delta;
+    tmpx.col(xcol).normalize(); // project back to sphere
+
+    // finite differences in this coordinate
+    tmpx(idx) += par.delta;
+
+    Iterator area_it(A, idx);
+    Iterator ineq_it(A, idx);
+
+    // scan forward to find the inequalities part of this column
+    for (; ineq_it and ineq_it.row() < net.nface - 1; ++ineq_it) {}
+
+    // iterate over the areas part of this column
+    for (; area_it and area_it.row() < net.nface - 1; ++area_it) {
+      int row = area_it.row();
+      double sines[4];
+      double area_c = spher_area4(tmpx.data(), net.face + 4 * row, sines) - desired_area;
+      area_it.valueRef() = (area_c - c_hat[row]) / par.delta;
+
+      // find the inequalities that correspond to this face.
+      for (; ineq_it and (ineq_it.row() - (net.nface - 1)) / 4 == row; ++ineq_it) {
+        ineq_it.valueRef() =
+            (sines[(ineq_it.row() - (net.nface - 1)) % 4] - c_hat[ineq_it.row()]) / par.delta;
+      }
+    }
+
+    // Extra inequalities. Face `net.nface - 1` does not have any `spher_area4` constraint so it cannot be
+    // handled in the loop above, but it may have inequality constraints, so populate those here.
+    if (ineq_it) {
+      double sines[4];
+      spher_area4(tmpx.data(), net.face + 4 * (net.nface - 1), sines);
+      for (; ineq_it; ++ineq_it) {
+        ineq_it.valueRef() = (sines[(ineq_it.row() - (net.nface - 1)) % 4] - c_hat[ineq_it.row()]) / par.delta;
+      }
+    }
+
+    // undo finite difference step
+    tmpx.col(xcol) = x.col(xcol);
+  }
 }
 
 /**
  * Define the values of the matrix to be the jacobian by finite differences. Assume the structure has already
  * been defined with ::from_net.
  */
-void EqualAreaParametricMeshNewtonIterator::jacobian(const EqualAreaParametricMeshSparseMatrix &A) {
+void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSparseMatrix &A) {
   const double desired_area = 4 * M_PI / net.nface;
 
   for (int col = 0; col < A.n_col; col++) // assume x == this->m_x_try
@@ -122,14 +229,12 @@ void EqualAreaParametricMeshNewtonIterator::jacobian(const EqualAreaParametricMe
     this->m_x_try[col_0 + 1] = this->m_x[col_0 + 1];
     this->m_x_try[col_0 + 2] = this->m_x[col_0 + 2];
   }
+
+  // verify
+  new_jacobian(A);
 }
 
 void EqualAreaParametricMeshSparseMatrix::invTables() {
-  if (!iaT) {
-    iaT = new int[max_col + 1];
-    jaT = new int[max_nonzero];
-    rowT = new int[max_nonzero];
-  }
   int col, j;
   for (col = 0; col <= n_col; iaT[col++] = 0) {
     ; // initialize bins to 0
@@ -158,6 +263,10 @@ void EqualAreaParametricMeshSparseMatrix::mult(double *vec, double *result) {
     }
     result[row] = res;
   }
+
+  // // new
+  // using Map = Eigen::Map<Eigen::VectorXd>;
+  // Map(result, mat.rows()) = mat * Map(vec, mat.cols());
 }
 
 void EqualAreaParametricMeshSparseMatrix::multT(double *vec, double *result) {
@@ -169,6 +278,10 @@ void EqualAreaParametricMeshSparseMatrix::multT(double *vec, double *result) {
       result[ja[j]] += a[j] * vec[row];
     }
   }
+
+  // // new
+  // using Map = Eigen::Map<Eigen::VectorXd>;
+  // Map(result, mat.cols()) = mat.transpose() * Map(vec, mat.rows());
 }
 
 void EqualAreaParametricMeshSparseMatrix::solve(int /* structure_change */, double *b, double *x) {
@@ -222,29 +335,32 @@ void EqualAreaParametricMeshSparseMatrix::set_aTa(const EqualAreaParametricMeshS
       // assert (inpos < max_nonzero, "too many nonzeros in set_aTa.");
   } // row
   ia[n_row] = inpos;
+
+  // // new
+  // mat = aT.mat * aT.mat.transpose();
 }
 
-void EqualAreaParametricMeshSparseMatrix::test_matrix() {
-  static int t_ia[5] = {0, 4, 8, 11, 14}, t_ja[14] = {0, 3, 5, 6, 0, 1, 4, 6, 1, 2, 4, 0, 3, 5};
-  static double t_a[14] = {2, 1, 3, 4, 1, 1, 2, 1, 4, 4, 3, 3, 2, 1};
+// void EqualAreaParametricMeshSparseMatrix::test_matrix() {
+//   static int t_ia[5] = {0, 4, 8, 11, 14}, t_ja[14] = {0, 3, 5, 6, 0, 1, 4, 6, 1, 2, 4, 0, 3, 5};
+//   static double t_a[14] = {2, 1, 3, 4, 1, 1, 2, 1, 4, 4, 3, 3, 2, 1};
+//
+//   // assert(max_row >= 4, "Not enough rows in EqualAreaParametricMeshSparseMatrix::test_matrix");
+//   // assert(max_col >= 7, "Not enough columns in EqualAreaParametricMeshSparseMatrix::test_matrix");
+//   // assert(max_nonzero >= 14, "Not enough non-zeros in EqualAreaParametricMeshSparseMatrix::test_matrix");
+//   n_row = 4;
+//   n_col = 7;
+//   for (int i = 0; i <= n_row; i++) {
+//     ia[i] = t_ia[i];
+//   }
+//   for (int j = 0; j < ia[n_row]; j++) {
+//     ja[j] = t_ja[j];
+//     a[j] = t_a[j];
+//   }
+// }
 
-  // assert(max_row >= 4, "Not enough rows in EqualAreaParametricMeshSparseMatrix::test_matrix");
-  // assert(max_col >= 7, "Not enough columns in EqualAreaParametricMeshSparseMatrix::test_matrix");
-  // assert(max_nonzero >= 14, "Not enough non-zeros in EqualAreaParametricMeshSparseMatrix::test_matrix");
-  n_row = 4;
-  n_col = 7;
-  for (int i = 0; i <= n_row; i++) {
-    ia[i] = t_ia[i];
-  }
-  for (int j = 0; j < ia[n_row]; j++) {
-    ja[j] = t_ja[j];
-    a[j] = t_a[j];
-  }
-}
-
-void EqualAreaParametricMeshSparseMatrix::print(const char * /* name */, const int /* append */) {
-  std::cout << "Printing of sparse matrix is not yet implemented..." << std::endl;
-}
+// void EqualAreaParametricMeshSparseMatrix::print(const char * /* name */, const int /* append */) {
+//   std::cout << "Printing of sparse matrix is not yet implemented..." << std::endl;
+// }
 
 void EqualAreaParametricMeshNewtonIterator::set_parameters(EqualAreaParametricMeshParameter *par_in) {
 
@@ -346,8 +462,7 @@ EqualAreaParametricMeshNewtonIterator::EqualAreaParametricMeshNewtonIterator(
     const IteratorSurfaceNet &netR, EqualAreaParametricMeshParameter &par_in)
     : par(par_in), net(netR),
       jacobi_aT(netR.nface - 1 + par.max_active, 3 * netR.nvert, 12 * (netR.nface - 1) + 9 * par.max_active),
-      jacobi_aTa(netR.nface - 1 + par.max_active, netR.nface - 1 + par.max_active,
-                 18 * (netR.nvert - 4) + 29 * par.max_active)
+      jacobi_aTa(netR.nface - 1 + par.max_active, netR.nface - 1 + par.max_active, 18 * (netR.nvert - 4) + 29 * par.max_active)
 // < worst case, but > expected maximum
 {
 
@@ -396,8 +511,7 @@ EqualAreaParametricMeshNewtonIterator ::EqualAreaParametricMeshNewtonIterator(
     const IteratorSurfaceNet &netR, EqualAreaParametricMeshParameter &par_in, double *initPar)
     : par(par_in), net(netR),
       jacobi_aT(netR.nface - 1 + par.max_active, 3 * netR.nvert, 12 * (netR.nface - 1) + 9 * par.max_active),
-      jacobi_aTa(netR.nface - 1 + par.max_active, netR.nface - 1 + par.max_active,
-                 18 * (netR.nvert - 4) + 29 * par.max_active)
+      jacobi_aTa(netR.nface - 1 + par.max_active, netR.nface - 1 + par.max_active, 18 * (netR.nvert - 4) + 29 * par.max_active)
 // < worst case, but > expected maximum
 {
 
@@ -462,52 +576,52 @@ EqualAreaParametricMeshNewtonIterator::~EqualAreaParametricMeshNewtonIterator() 
   delete[] activity;
 }
 
-void EqualAreaParametricMeshNewtonIterator::write_YSMP(const char *name, int n_row, int n_col, int *ia,
-                                                       int *ja, double *a, int append) {
-  double *rowpic = new double[n_col]; // debug: print matrix
+// void EqualAreaParametricMeshNewtonIterator::write_YSMP(const char *name, int n_row, int n_col, int *ia,
+//                                                        int *ja, double *a, int append) {
+//   double *rowpic = new double[n_col]; // debug: print matrix
+//
+//   if (append) {
+//     std::cout << "\nAppendTo[" << name << ", fromC@{\n";
+//   } else {
+//     std::cout << "\n" << name << " = fromC[{\n";
+//   }
+//   for (int row = 0; row < n_row; row++) {
+//     if (row) {
+//       std::cout << "},\n";
+//     }
+//     int col;
+//     for (col = 0; col < n_col; col++) {
+//       rowpic[col] = 0.0;
+//     }
+//     for (int j = ia[row]; j < ia[row + 1]; j++) {
+//       rowpic[ja[j]] = a[j];
+//     }
+//     std::cout << "{" << rowpic[0];
+//     for (col = 1; col < n_col; col++) {
+//       if (!(col % 8)) {
+//         std::cout << "\n";
+//       }
+//       std::cout << ", " << rowpic[col];
+//     }
+//   }
+//   std::cout << "}}];\n\n";
+//   delete[] rowpic;
+//   std::cout.flush();
+// }
 
-  if (append) {
-    std::cout << "\nAppendTo[" << name << ", fromC@{\n";
-  } else {
-    std::cout << "\n" << name << " = fromC[{\n";
-  }
-  for (int row = 0; row < n_row; row++) {
-    if (row) {
-      std::cout << "},\n";
-    }
-    int col;
-    for (col = 0; col < n_col; col++) {
-      rowpic[col] = 0.0;
-    }
-    for (int j = ia[row]; j < ia[row + 1]; j++) {
-      rowpic[ja[j]] = a[j];
-    }
-    std::cout << "{" << rowpic[0];
-    for (col = 1; col < n_col; col++) {
-      if (!(col % 8)) {
-        std::cout << "\n";
-      }
-      std::cout << ", " << rowpic[col];
-    }
-  }
-  std::cout << "}}];\n\n";
-  delete[] rowpic;
-  std::cout.flush();
-}
-
-void EqualAreaParametricMeshNewtonIterator::write_vector(const char *name, int n, double *vector,
-                                                         int append) {
-  if (append) {
-    std::cout << "\nAppendTo[" << name << ",  fromC@{" << vector[0];
-  } else {
-    std::cout << "\n" << name << " = fromC[{" << vector[0];
-  }
-  for (int i = 1; i < n; i++) {
-    std::cout << (i % 6 != 4 ? ", " : ",\n") << vector[i];
-  }
-  std::cout << "}];\n";
-  std::cout.flush();
-}
+// void EqualAreaParametricMeshNewtonIterator::write_vector(const char *name, int n, double *vector,
+//                                                          int append) {
+//   if (append) {
+//     std::cout << "\nAppendTo[" << name << ",  fromC@{" << vector[0];
+//   } else {
+//     std::cout << "\n" << name << " = fromC[{" << vector[0];
+//   }
+//   for (int i = 1; i < n; i++) {
+//     std::cout << (i % 6 != 4 ? ", " : ",\n") << vector[i];
+//   }
+//   std::cout << "}];\n";
+//   std::cout.flush();
+// }
 
 double EqualAreaParametricMeshNewtonIterator::iterate() {
   char form[1000];

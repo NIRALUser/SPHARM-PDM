@@ -14,6 +14,14 @@ struct    IteratorSurfaceNet    { int nvert, nface, *face; IteratorSurfaceVertex
 
 class EqualAreaParametricMeshSparseMatrix
 {
+public:
+  // Column major ordering allows for faster iteration over rows in ::jacobian.
+  using Matrix = Eigen::SparseMatrix<double, Eigen::ColMajor>;
+  using Iterator = Matrix::InnerIterator;
+  using Triplet = Eigen::Triplet<Matrix::Scalar>;
+
+  Matrix mat;
+
 private:
   int max_col, max_row, max_nonzero;
 public:
@@ -23,6 +31,9 @@ public:
 
   EqualAreaParametricMeshSparseMatrix(int, int, int);
   ~EqualAreaParametricMeshSparseMatrix();
+
+  void new_from_net(const IteratorSurfaceNet &, int n_active,  int *active_scatter);
+
   void from_net(const IteratorSurfaceNet &, int n_active,  int *active_scatter);
 
   void invTables();                  // set up inverted tables
@@ -35,9 +46,9 @@ public:
 
   void set_aTa(const EqualAreaParametricMeshSparseMatrix& aT);          // set this = aT . a
 
-  void print(const char* name, const int append);      // writes matrix to cout
+  // void print(const char* name, const int append);      // writes matrix to cout
 
-  void test_matrix();
+  // void test_matrix();
 
 };
 
@@ -104,11 +115,12 @@ private:
 
   void     calc_gradient();
 
-  void     jacobian(const EqualAreaParametricMeshSparseMatrix &);
+  void     new_jacobian(EqualAreaParametricMeshSparseMatrix &wrapper);
+  void     jacobian(EqualAreaParametricMeshSparseMatrix &A);
 
-  void     estimate_gradient();
+  // void     estimate_gradient();
 
-  void     estimate_jacobian();
+  // void     estimate_jacobian();
 
   int     activate(int act, const char *); // returns 0 if no_activation, else 1
 
@@ -118,9 +130,9 @@ private:
 
   double one_inequality(const IteratorSurfaceNet & net, const double *x, int which);
 
-  void write_YSMP(const char* name, int n_row, int n_col, int* ia, int* ja, double* a, int append_flag);
+  // void write_YSMP(const char* name, int n_row, int n_col, int* ia, int* ja, double* a, int append_flag);
 
-  void write_vector(const char* name, int n, double* vector, int append_flag);
+  // void write_vector(const char* name, int n, double* vector, int append_flag);
 
   // computes the initial parametrization using the heat equation stuff
   void start_values(const IteratorSurfaceNet &, double *);
