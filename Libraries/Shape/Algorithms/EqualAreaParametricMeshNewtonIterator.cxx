@@ -71,11 +71,14 @@ void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSpar
 
   const int cut = net.nface - 1;
 
-  for (int col = 0; col < A.mat.cols(); col++) // assume x == this->m_x_try
-  {
-    this->m_x_try[col] = this->m_x[col] + par.delta; // go a finite step
-    const int col_0 = 3 * (col / 3);                 // column rounded down: x-component
-    normalize(1, 3, this->m_x_try + col_0);
+  // reuse this storage.
+  static Eigen::Matrix3Xd tmpx;
+  Eigen::Map<Eigen::Matrix3Xd> x(m_x, 3, net.nvert);
+  tmpx = x;
+
+  for (int col = 0; col < A.mat.cols(); col++) {
+    tmpx(col) += par.delta;        // go a finite step
+    tmpx.col(col / 3).normalize(); // project back to sphere
 
     using InnerIterator = Eigen::SparseMatrix<double, Eigen::ColMajor>::InnerIterator;
 
@@ -87,7 +90,7 @@ void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSpar
 
     double sines[4];
     for (; it_area and it_area.row() < cut; ++it_area) {
-      const double area_c = spher_area4(this->m_x_try, net.face + 4 * it_area.row(), sines) - desired_area;
+      const double area_c = spher_area4(tmpx.data(), net.face + 4 * it_area.row(), sines) - desired_area;
 
       it_area.valueRef() = (area_c - c_hat[it_area.row()]) / par.delta;
 
@@ -102,13 +105,12 @@ void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSpar
 
     for (; it_ineq; ++it_ineq) {
       const int cid = active[it_ineq.row() - cut];
-      spher_area4(this->m_x_try, net.face + 4 * (net.nface - 1), sines) - desired_area;
+      spher_area4(tmpx.data(), net.face + 4 * (net.nface - 1), sines) - desired_area;
       it_ineq.valueRef() = (sines[cid % 4] - c_hat[it_ineq.row() + net.nface - 1]) / par.delta;
     }
 
-    this->m_x_try[col_0] = this->m_x[col_0]; // back up the finite step
-    this->m_x_try[col_0 + 1] = this->m_x[col_0 + 1];
-    this->m_x_try[col_0 + 2] = this->m_x[col_0 + 2];
+    // revert the finite step
+    tmpx.col(col / 3) = x.col(col / 3);
   }
 }
 
