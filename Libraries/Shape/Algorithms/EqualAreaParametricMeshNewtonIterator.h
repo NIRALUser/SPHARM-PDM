@@ -22,17 +22,8 @@ public:
 
   Matrix mat;
 
-private:
-  int max_col, max_row, max_nonzero;
-public:
-  int     n_row, n_col, *iaT, *jaT, *rowT;
-  int *   ia, *ja;
-  double *a;
-
-  EqualAreaParametricMeshSparseMatrix(int, int, int);
+  EqualAreaParametricMeshSparseMatrix();
   ~EqualAreaParametricMeshSparseMatrix();
-
-  void new_from_net(const IteratorSurfaceNet &, int n_active,  int *active_scatter);
 
   void from_net(const IteratorSurfaceNet &, int n_active,  int *active_scatter);
 
@@ -43,11 +34,6 @@ public:
   void solve(int change, double *rhs, double *x); // solve this.x == rhs
 
   void set_aTa(const EqualAreaParametricMeshSparseMatrix& aT);          // set this = aT . a
-
-  // void print(const char* name, const int append);      // writes matrix to cout
-
-  // void test_matrix();
-
 };
 
 typedef struct
@@ -113,12 +99,7 @@ private:
 
   void     calc_gradient();
 
-  void     new_jacobian(EqualAreaParametricMeshSparseMatrix &wrapper);
   void     jacobian(EqualAreaParametricMeshSparseMatrix &A);
-
-  // void     estimate_gradient();
-
-  // void     estimate_jacobian();
 
   int     activate(int act, const char *); // returns 0 if no_activation, else 1
 
@@ -127,10 +108,6 @@ private:
   void   constraints(const IteratorSurfaceNet& net, const double *x, double *equal, double *inequal);
 
   double one_inequality(const IteratorSurfaceNet & net, const double *x, int which);
-
-  // void write_YSMP(const char* name, int n_row, int n_col, int* ia, int* ja, double* a, int append_flag);
-
-  // void write_vector(const char* name, int n, double* vector, int append_flag);
 
   // computes the initial parametrization using the heat equation stuff
   void start_values(const IteratorSurfaceNet &, double *);
