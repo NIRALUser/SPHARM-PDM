@@ -36,8 +36,6 @@ public:
 
   void from_net(const IteratorSurfaceNet &, int n_active,  int *active_scatter);
 
-  void invTables();                  // set up inverted tables
-
   void mult(double *vec, double *result);       // multiply this.vec
 
   void multT(double *vec, double *result);      // multiply this^T.vec
