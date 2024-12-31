@@ -62,82 +62,6 @@ void EqualAreaParametricMeshSparseMatrix::from_net(const IteratorSurfaceNet &net
   mat.setFromTriplets(triplets.begin(), triplets.end());
 }
 
-// void EqualAreaParametricMeshNewtonIterator::new_jacobian(EqualAreaParametricMeshSparseMatrix &wrapper) {
-//   const double desired_area = 4 * M_PI / net.nface;
-//
-//   using Matrix = EqualAreaParametricMeshSparseMatrix::Matrix;
-//   using Iterator = EqualAreaParametricMeshSparseMatrix::Iterator;
-//
-//   Matrix &A = wrapper.mat;
-//   Eigen::Map<Eigen::Matrix3Xd> x(this->m_x, 3, net.nvert);
-//
-//   // Reuse the same storage for temporary vector data throughout.
-//   static Eigen::Matrix3Xd tmpx;
-//   tmpx = x;
-//
-//   assert(A.cols() == x.size());
-//
-//   for (int idx = 0; idx < A.cols(); idx++) {
-//     // Remember that `idx` here corresponds to a _coordinate_ in `x`. Divide to find the current _vector_.
-//
-//     int xcol = (idx / 3);
-//     tmpx(idx) += par.delta;
-//     tmpx.col(xcol).normalize(); // project back to sphere
-//
-//     // finite differences in this coordinate
-//     tmpx(idx) += par.delta;
-//
-//     Iterator area_it(A, idx);
-//     Iterator ineq_it(A, idx);
-//
-//     // scan forward to find the inequalities part of this column
-//     for (; ineq_it and ineq_it.row() < net.nface - 1; ++ineq_it) {}
-//
-//     // iterate over the areas part of this column
-//     for (; area_it and area_it.row() < net.nface - 1; ++area_it) {
-//       int row = area_it.row();
-//       double sines[4];
-//       double area_c = spher_area4(tmpx.data(), net.face + 4 * row, sines) - desired_area;
-//       area_it.valueRef() = (area_c - c_hat[row]) / par.delta;
-//
-//       // find the inequalities that correspond to this face.
-//       for (; ineq_it and (ineq_it.row() - (net.nface - 1)) / 4 == row; ++ineq_it) {
-//         ineq_it.valueRef() =
-//             (sines[(ineq_it.row() - (net.nface - 1)) % 4] - c_hat[ineq_it.row()]) / par.delta;
-//       }
-//     }
-//
-//     // Extra inequalities. Face `net.nface - 1` does not have any `spher_area4` constraint so it cannot be
-//     // handled in the loop above, but it may have inequality constraints, so populate those here.
-//     if (ineq_it) {
-//       double sines[4];
-//       spher_area4(tmpx.data(), net.face + 4 * (net.nface - 1), sines);
-//       for (; ineq_it; ++ineq_it) {
-//         ineq_it.valueRef() = (sines[(ineq_it.row() - (net.nface - 1)) % 4] - c_hat[ineq_it.row()]) / par.delta;
-//       }
-//     }
-//
-//     // undo finite difference step
-//     tmpx.col(xcol) = x.col(xcol);
-//   }
-//
-//   // verify that mat has correct data.
-// #ifndef NDEBUG
-//   Eigen::SparseMatrix<double, Eigen::ColMajor> leg(wrapper.n_row, wrapper.n_col);
-//   leg.reserve(wrapper.ia[wrapper.n_row]);
-//   for (int row = 0; row < wrapper.n_row; ++row) {
-//     for (int i = wrapper.ia[row]; i < wrapper.ia[row + 1]; ++i) {
-//       int col = wrapper.ja[i];
-//       leg.insert(row, col) = wrapper.a[i];
-//     }
-//   }
-//   leg.makeCompressed();
-//
-//   std::cout << wrapper.mat - leg << std::endl;
-//   assert(wrapper.mat.isApprox(leg));
-// #endif
-// }
-
 /**
  * Define the values of the matrix to be the jacobian by finite differences. Assume the structure has already
  * been defined with ::from_net.
@@ -145,41 +69,41 @@ void EqualAreaParametricMeshSparseMatrix::from_net(const IteratorSurfaceNet &net
 void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSparseMatrix &A) {
   const double desired_area = 4 * M_PI / net.nface;
 
-  Eigen::Block<Eigen::SparseMatrix<double, Eigen::ColMajor>> top = A.mat.topRows(net.nface - 1);
-  Eigen::Block<Eigen::SparseMatrix<double, Eigen::ColMajor>> bot = A.mat.bottomRows(n_active);
+  const int cut = net.nface - 1;
 
   for (int col = 0; col < A.mat.cols(); col++) // assume x == this->m_x_try
   {
     this->m_x_try[col] = this->m_x[col] + par.delta; // go a finite step
-    int col_0 = 3 * (col / 3);                       // column rounded down: x-component
+    const int col_0 = 3 * (col / 3);                 // column rounded down: x-component
     normalize(1, 3, this->m_x_try + col_0);
 
-    Eigen::InnerIterator itop(top, col);
-    Eigen::InnerIterator ibot(bot, col);
+    using InnerIterator = Eigen::SparseMatrix<double, Eigen::ColMajor>::InnerIterator;
+
+    InnerIterator it_area(A.mat, col);
+    InnerIterator it_ineq(A.mat, col);
+
+    while (it_ineq and it_ineq.row() < cut)
+      ++it_ineq;
 
     double sines[4];
-    for (; itop; ++itop) {
-      int trow = itop.row();
+    for (; it_area and it_area.row() < cut; ++it_area) {
+      const double area_c = spher_area4(this->m_x_try, net.face + 4 * it_area.row(), sines) - desired_area;
 
-      double area_c = spher_area4(this->m_x_try, net.face + 4 * trow, sines) - desired_area;
+      it_area.valueRef() = (area_c - c_hat[it_area.row()]) / par.delta;
 
-      top.coeffRef(trow, col) = (area_c - c_hat[trow]) / par.delta;
-
-      for (; ibot; ++ibot) {
-        int brow = ibot.row();
-        int cid = active[brow];
-        if ((cid / 4) != trow)
+      for (; it_ineq; ++it_ineq) { // note the break in the body.
+        const int cid = active[it_ineq.row() - cut];
+        if ((cid / 4) != it_area.row())
           break;
 
-        bot.coeffRef(brow, col) = (sines[cid % 4] - c_hat[brow + top.rows()]) / par.delta;
+        it_ineq.valueRef() = (sines[cid % 4] - c_hat[it_ineq.row()]) / par.delta;
       }
     }
 
-    for (; ibot; ++ibot) {
-      int brow = ibot.row();
-      int cid = active[brow];
+    for (; it_ineq; ++it_ineq) {
+      const int cid = active[it_ineq.row() - cut];
       spher_area4(this->m_x_try, net.face + 4 * (net.nface - 1), sines) - desired_area;
-      bot.coeffRef(brow, col) = (sines[cid % 4] - c_hat[brow + net.nface - 1]) / par.delta;
+      it_ineq.valueRef() = (sines[cid % 4] - c_hat[it_ineq.row() + net.nface - 1]) / par.delta;
     }
 
     this->m_x_try[col_0] = this->m_x[col_0]; // back up the finite step
