@@ -1067,21 +1067,19 @@ double EqualAreaParametricMeshNewtonIterator::spher_area4(const double *x, const
   const double bd = dotproduct3(b, d);
   const double cd = dotproduct3(c, d);
 
-  const double Ca = bd - ad * ab;
-  const double Cb = ac - ab * bc;
-  const double Cc = bd - bc * cd;
-  const double Cd = ac - cd * ad;
+  const double Ca = ad * ab - bd;
+  const double Cb = ab * bc - ac;
+  const double Cc = bc * cd - bd;
+  const double Cd = cd * ad - ac;
 
   spat[0] = det3(d, a, b);
   spat[1] = det3(a, b, c);
   spat[2] = det3(b, c, d);
   spat[3] = det3(c, d, a);
 
-  double area =
-      -std::atan2(Ca, spat[0]) - std::atan2(Cb, spat[1]) - std::atan2(Cc, spat[2]) - std::atan2(Cd, spat[3]);
-
-  return fmod(area + 8.5 * M_PI, M_PI) - 0.5 * M_PI; // CVGIP => no time for deep analysis
-} /* spher_area4 */
+  double area = std::atan2(Ca, spat[0]) + std::atan2(Cb, spat[1]) + std::atan2(Cc, spat[2]) + std::atan2(Cd, spat[3]);
+  return std::remainder(area, M_PI);
+}
 
 void EqualAreaParametricMeshNewtonIterator::spher_step(double step, double *src, double *vec, int nvect,
                                                        double *dest) {
