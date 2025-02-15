@@ -16,7 +16,6 @@ target_link_libraries(ShapeAlgorithms
     ${ITK_LIBRARIES}
   PRIVATE
     SparseMatrixLib
-    VTK::eigen
   )
 
 if(${LOCAL_PROJECT_NAME}_INSTALL_DEVELOPMENT)

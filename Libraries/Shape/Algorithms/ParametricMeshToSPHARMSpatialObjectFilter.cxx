@@ -22,8 +22,8 @@
 #include "SphericalHarmonicSpatialObject.h"
 #include "SphericalHarmonicMeshSource.h"
 
-#include "vtk_eigen.h"
-#include VTK_EIGEN(Dense)
+#include "itk_eigen.h"
+#include ITK_EIGEN(Dense)
 
 namespace neurolib
 {
