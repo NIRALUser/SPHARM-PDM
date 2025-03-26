@@ -19,7 +19,7 @@ class SphericalHarmonicCoefficientFileReaderException : public itk::ExceptionObj
 {
 public:
   /** Run-time information. */
-  itkTypeMacro( ImageFileReaderException, ExceptionObject );
+  itkTypeMacro( SphericalHarmonicCoefficientFileReaderException, ExceptionObject );
 
   /** Constructor. */
   SphericalHarmonicCoefficientFileReaderException(const char *file, unsigned int line,
