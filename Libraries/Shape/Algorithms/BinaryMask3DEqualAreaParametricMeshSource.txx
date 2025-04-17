@@ -193,8 +193,8 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
 
   // std::cout<<"Computing Initial Parametrization" << std::endl;
 
-  double minErr     = 1e-8;
-  double error = 1000000.0;
+  double minErr     = 1e-5;
+  double error = INFINITY;
   char   state[100];
 
   EqualAreaParametricMeshParameter par;
@@ -205,11 +205,11 @@ BinaryMask3DEqualAreaParametricMeshSource<TInputImage>
   par.max_active = 1000;
   par.print_itn  = -2;
   par.delta      = 3e-7;
-  par.constr_tol = 1e-3;
-  par.line_tol   = 1e-5;
-  par.ineq_low   = 1e-7;
-  par.ineq_init  = 1e-2;
-  par.ineq_final = 1e-6;
+  par.constr_tol = 5e-3;
+  par.line_tol   = 5e-5;
+  par.ineq_low   = 5e-7;
+  par.ineq_init  = 5e-2;
+  par.ineq_final = 5e-6;
   par.ineq_slack = 2.0;
   par.newton_tol = 1e-4;
   par.rho_init   = 1;

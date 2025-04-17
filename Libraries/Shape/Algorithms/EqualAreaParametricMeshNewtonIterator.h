@@ -4,24 +4,28 @@
 
 #ifndef __iterator_hh_
 
+#include <itk_eigen.h>
+#include ITK_EIGEN(Eigen)
+#include ITK_EIGEN(Sparse)
+
 struct    IteratorSurfaceVertex    { int x, y, z, count, neighb[14]; };
 
 struct    IteratorSurfaceNet    { int nvert, nface, *face; IteratorSurfaceVertex *vert; };
 
 class EqualAreaParametricMeshSparseMatrix
 {
-private:
-  int max_col, max_row, max_nonzero;
 public:
-  int     n_row, n_col, *iaT, *jaT, *rowT;
-  int *   ia, *ja;
-  double *a;
+  // Column major ordering allows for faster iteration over rows in ::jacobian.
+  using Matrix = Eigen::SparseMatrix<double, Eigen::ColMajor>;
+  using Iterator = Matrix::InnerIterator;
+  using Triplet = Eigen::Triplet<Matrix::Scalar>;
 
-  EqualAreaParametricMeshSparseMatrix(int, int, int);
+  Matrix mat;
+
+  EqualAreaParametricMeshSparseMatrix();
   ~EqualAreaParametricMeshSparseMatrix();
-  void from_net(const IteratorSurfaceNet &, int n_active,  int *active_scatter);
 
-  void invTables();                  // set up inverted tables
+  void from_net(const IteratorSurfaceNet &, int n_active,  int *active_scatter);
 
   void mult(double *vec, double *result);       // multiply this.vec
 
@@ -30,11 +34,6 @@ public:
   void solve(int change, double *rhs, double *x); // solve this.x == rhs
 
   void set_aTa(const EqualAreaParametricMeshSparseMatrix& aT);          // set this = aT . a
-
-  void print(const char* name, const int append);      // writes matrix to cout
-
-  void test_matrix();
-
 };
 
 typedef struct
@@ -100,11 +99,7 @@ private:
 
   void     calc_gradient();
 
-  void     jacobian(const EqualAreaParametricMeshSparseMatrix &);
-
-  void     estimate_gradient();
-
-  void     estimate_jacobian();
+  void     jacobian(EqualAreaParametricMeshSparseMatrix &A);
 
   int     activate(int act, const char *); // returns 0 if no_activation, else 1
 
@@ -113,10 +108,6 @@ private:
   void   constraints(const IteratorSurfaceNet& net, const double *x, double *equal, double *inequal);
 
   double one_inequality(const IteratorSurfaceNet & net, const double *x, int which);
-
-  void write_YSMP(const char* name, int n_row, int n_col, int* ia, int* ja, double* a, int append_flag);
-
-  void write_vector(const char* name, int n, double* vector, int append_flag);
 
   // computes the initial parametrization using the heat equation stuff
   void start_values(const IteratorSurfaceNet &, double *);
