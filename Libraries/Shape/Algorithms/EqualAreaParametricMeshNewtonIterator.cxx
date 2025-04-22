@@ -85,11 +85,11 @@ void EqualAreaParametricMeshNewtonIterator::jacobian(EqualAreaParametricMeshSpar
     InnerIterator it_area(A.mat, col);
     InnerIterator it_ineq(A.mat, col);
 
-    while (it_ineq and it_ineq.row() < cut)
+    while (it_ineq && it_ineq.row() < cut)
       ++it_ineq;
 
     double sines[4];
-    for (; it_area and it_area.row() < cut; ++it_area) {
+    for (; it_area && it_area.row() < cut; ++it_area) {
       const double area_c = spher_area4(tmpx.data(), net.face + 4 * it_area.row(), sines) - desired_area;
 
       it_area.valueRef() = (area_c - c_hat[it_area.row()]) / par.delta;
