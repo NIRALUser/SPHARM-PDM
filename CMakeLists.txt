@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.16)
 if(POLICY CMP0083)
   cmake_policy(SET CMP0083 NEW)
 endif()

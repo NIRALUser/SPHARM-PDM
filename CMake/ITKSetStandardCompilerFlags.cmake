@@ -254,37 +254,49 @@ macro(check_compiler_platform_flags)
     endif()
   endif()
   #-----------------------------------------------------------------------------
-  #ITK requires special compiler flags on some platforms.
   if(CMAKE_COMPILER_IS_GNUCXX)
     # GCC's -Warray-bounds has been shown to throw false positives with -O3 on 4.8.
     if(UNIX AND (
-      ("${CMAKE_CXX_COMPILER_VERSION}" VERSION_EQUAL "4.8") OR
-      ("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER "4.8" AND "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS "4.9") ))
+        ("${CMAKE_CXX_COMPILER_VERSION}" VERSION_EQUAL "4.8") OR
+        ("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER "4.8" AND
+        "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS "4.9")))
       set(ITK_REQUIRED_CXX_FLAGS "${ITK_REQUIRED_CXX_FLAGS} -Wno-array-bounds")
     endif()
+    #Don't use linker gold elsewhere to prevent issues on Linux
+    foreach(var CMAKE_EXE_LINKER_FLAGS CMAKE_SHARED_LINKER_FLAGS CMAKE_MODULE_LINKER_FLAGS)
+      if("${${var}}" MATCHES "-fuse-ld=gold")
+        string(REPLACE "-fuse-ld=gold" "" _cleaned "${${var}}")
+        set(${var} "${_cleaned}" CACHE STRING "" FORCE)
+      endif()
+    endforeach()
+    set(ITK_USE_GOLD_LINKER OFF CACHE BOOL "" FORCE)
 
-    if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
+    # 3) Prefer LLVM lld on Linux if available. If not go on ld.bfd.
+    if(UNIX AND ("${CMAKE_SYSTEM_NAME}" MATCHES "Linux"))
+      # Check if the toolchain accept -fuse-ld=lld
       set(_safe_cmake_required_flags "${CMAKE_REQUIRED_FLAGS}")
-      set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -fuse-ld=gold")
-      CHECK_CXX_SOURCE_COMPILES("int main() { return 0;}" have_gold)
+      set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -fuse-ld=lld")
+      CHECK_CXX_SOURCE_COMPILES("int main(){return 0;}" have_lld)
       set(CMAKE_REQUIRED_FLAGS "${_safe_cmake_required_flags}")
-      if(have_gold)
-        set(_use_gold_linker_default ON)
-        set(_gold_linker_failure_condition_0 "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS "4.9.0")
-        set(_gold_linker_failure_condition_1  NOT BUILD_SHARED_LIBS AND "${CMAKE_CXX_COMPILER_VERSION}" VERSION_EQUAL "4.9.0")
-        if( (${_gold_linker_failure_condition_0}) OR (${_gold_linker_failure_condition_1}) )
-          set(_use_gold_linker_default OFF)
-        endif()
-        option(ITK_USE_GOLD_LINKER "Use the gold linker instead of ld." ${_use_gold_linker_default})
-        mark_as_advanced(ITK_USE_GOLD_LINKER)
-        # The gold linker is approximately 3X faster.
-        if(ITK_USE_GOLD_LINKER)
-          set(CMAKE_EXE_LINKER_FLAGS "-fuse-ld=gold ${CMAKE_EXE_LINKER_FLAGS}")
-          set(CMAKE_MODULE_LINKER_FLAGS "-fuse-ld=gold ${CMAKE_MODULE_LINKER_FLAGS}")
-          set(CMAKE_SHARED_LINKER_FLAGS "-fuse-ld=gold ${CMAKE_SHARED_LINKER_FLAGS}")
-        endif()
+
+      if(have_lld)
+        set(_use_lld_linker_default ON)
+      else()
+        set(_use_lld_linker_default OFF)
+      endif()
+      option(ITK_USE_LLD_LINKER "Use the LLVM lld linker instead of ld.bfd." ${_use_lld_linker_default})
+      mark_as_advanced(ITK_USE_LLD_LINKER)
+
+      if(ITK_USE_LLD_LINKER)
+        # Apply -fuse-ld=lld to all type of links
+        foreach(var CMAKE_EXE_LINKER_FLAGS CMAKE_SHARED_LINKER_FLAGS CMAKE_MODULE_LINKER_FLAGS)
+          if(NOT "${${var}}" MATCHES "-fuse-ld=lld")
+            set(${var} "-fuse-ld=lld ${${var}}" CACHE STRING "" FORCE)
+          endif()
+        endforeach()
       endif()
     endif()
+
 
     if(APPLE)
       option(ITK_USE_64BITS_APPLE_TRUNCATION_WARNING "Turn on warnings on 64bits to 32bits truncations." OFF)
@@ -314,6 +326,7 @@ macro(check_compiler_platform_flags)
       set(ITK_REQUIRED_CXX_FLAGS "${ITK_REQUIRED_CXX_FLAGS} -msse2")
     endif()
   endif()
+
 
   #-----------------------------------------------------------------------------
 
