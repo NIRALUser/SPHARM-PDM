@@ -72,6 +72,7 @@ if(${LOCAL_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
   find_package(Slicer REQUIRED)
   include(${Slicer_USE_FILE})
   mark_as_superbuild(Slicer_DIR)
+  unset(RapidJSON_DIR)
 
   # Link flags used in "spharm_add_executable" function
   # On macOS, these are of the form "-Wl,-rpath,@loader_path/..."
